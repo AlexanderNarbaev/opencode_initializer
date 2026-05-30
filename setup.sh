@@ -100,33 +100,111 @@ _pkg_list() {  # returns package names for the current distro
   esac
 }
 
-# ── Mirror system — try primary, then RU-friendly mirrors ───────────────────
-# Usage: _mirror <primary_url> <mirror1_url> <mirror2_url> ... → safest URL
+# ── Mirror system — try primary, then RU-friendly fallbacks ─────────────────
+# Detects best available mirror at runtime
+
+# DNS: set Yandex public DNS as fallback for Russian resolvers
+_set_dns() {
+  if [ -f /etc/resolv.conf ] && ! grep -q '77.88.8.8' /etc/resolv.conf 2>/dev/null; then
+    echo "nameserver 77.88.8.8" | sudo tee -a /etc/resolv.conf >/dev/null 2>&1 || true
+    echo "nameserver 77.88.8.1" | sudo tee -a /etc/resolv.conf >/dev/null 2>&1 || true
+  fi
+}
+
+# CA certificates: add Russian Ministry of Digital + Cloudflare origin CA
+_install_ca_certs() {
+  local ca_dir="/usr/local/share/ca-certificates/extra"
+  sudo mkdir -p "$ca_dir"
+  # Russian Ministry of Digital root CA
+  local RUTUBE_CA="https://gu-st.ru/content/158/2020-12-30/2020-12-30-certificate.cer"
+  # Cloudflare Origin CA
+  local CF_CA="https://developers.cloudflare.com/ssl/static/origin_ca_rsa_root.pem"
+  local installed=0
+
+  if [ ! -f "$ca_dir/ru_digital.crt" ]; then
+    curl -fsSL --connect-timeout 10 --max-time 30 "$RUTUBE_CA" -o "$ca_dir/ru_digital.crt" 2>/dev/null && installed=1
+  fi
+  if [ ! -f "$ca_dir/cloudflare_origin.crt" ]; then
+    curl -fsSL --connect-timeout 10 --max-time 30 "$CF_CA" -o "$ca_dir/cloudflare_origin.crt" 2>/dev/null && installed=1
+  fi
+  # Also trust Mozilla CA bundle (may be stale)
+  if command -v update-ca-certificates &>/dev/null && [ "$installed" = "1" ]; then
+    sudo update-ca-certificates --fresh 2>/dev/null || true
+  fi
+}
+
+_set_dns; _install_ca_certs
+
+# URL reachability probe with multiple DNS backends
 _mirror_url() {
   local url
   for url in "$@"; do
-    if curl -fsSL --connect-timeout 5 --max-time 10 "$url" -o /dev/null 2>/dev/null; then
-      echo "$url"; return 0
-    fi
+    # Try with system DNS first, then explicit Yandex DNS, then Cloudflare 1.1.1.1
+    curl -fsSL --connect-timeout 5 --max-time 10 --resolve "$(echo "$url" | sed 's|https://||;s|/.*||'):443:77.88.8.8" "$url" -o /dev/null 2>/dev/null && { echo "$url"; return 0; }
+    curl -fsSL --connect-timeout 5 --max-time 10 --resolve "$(echo "$url" | sed 's|https://||;s|/.*||'):443:1.1.1.1" "$url" -o /dev/null 2>/dev/null && { echo "$url"; return 0; }
+    curl -fsSL --connect-timeout 5 --max-time 10 "$url" -o /dev/null 2>/dev/null && { echo "$url"; return 0; }
   done
-  echo "$1"; return 1  # return primary as last resort
+  echo "$1"; return 1
 }
 
-# Key mirrors for Russia (primary → RU-friendly → Chinese → fallback)
-GITHUB_MIRROR=$(_mirror_url "https://github.com" "https://hub.fastgit.xyz" "https://ghproxy.com/https://github.com" || echo "https://github.com")
-NPM_REGISTRY=$(_mirror_url "https://registry.npmjs.org" "https://registry.npmmirror.com" "https://registry.yarnpkg.com" || echo "https://registry.npmjs.org")
-PYPI_MIRROR=$(_mirror_url "https://pypi.org" "https://mirror.yandex.ru/mirrors/pypi/" "https://pypi.tuna.tsinghua.edu.cn" || echo "https://pypi.org")
-DOCKER_MIRROR=$(_mirror_url "https://hub.docker.com" "https://mirror.gcr.io" "https://docker.mirrors.ustc.edu.cn" || echo "https://hub.docker.com")
-GO_MIRROR=$(_mirror_url "https://go.dev" "https://golang.google.cn" "https://gomirrors.org" || echo "https://go.dev")
+# Comprehensive mirror list: primary → RU mirror → Chinese mirror → global fallback
+GITHUB_MIRROR=$(_mirror_url \
+  "https://github.com" \
+  "https://hub.fastgit.xyz" \
+  "https://ghproxy.com/https://github.com" \
+  "https://github.com" 2>/dev/null || echo "https://github.com")
 
+NPM_REGISTRY=$(_mirror_url \
+  "https://registry.npmjs.org" \
+  "https://registry.npmmirror.com" \
+  "https://registry.yarnpkg.com" \
+  "https://cdn.jsdelivr.net/npm" 2>/dev/null || echo "https://registry.npmjs.org")
+
+PYPI_MIRROR=$(_mirror_url \
+  "https://pypi.org/simple" \
+  "https://mirror.yandex.ru/mirrors/pypi/simple" \
+  "https://pypi.tuna.tsinghua.edu.cn/simple" \
+  "https://mirrors.aliyun.com/pypi/simple" 2>/dev/null || echo "https://pypi.org/simple")
+
+DOCKER_MIRROR=$(_mirror_url \
+  "https://hub.docker.com" \
+  "https://mirror.gcr.io" \
+  "https://docker.mirrors.ustc.edu.cn" \
+  "https://docker.m.daocloud.io" 2>/dev/null || echo "https://hub.docker.com")
+
+GO_MIRROR=$(_mirror_url \
+  "https://go.dev" \
+  "https://golang.google.cn" \
+  "https://mirrors.ustc.edu.cn/golang" \
+  "https://gomirrors.org" 2>/dev/null || echo "https://go.dev")
+
+RUSTUP_MIRROR=$(_mirror_url \
+  "https://static.rust-lang.org/rustup" \
+  "https://mirrors.ustc.edu.cn/rust-static/rustup" \
+  "https://rsproxy.cn/rustup" 2>/dev/null || echo "https://static.rust-lang.org/rustup")
+
+ZIG_MIRROR=$(_mirror_url \
+  "https://ziglang.org/download" \
+  "https://mirrors.ustc.edu.cn/ziglang.org/download" 2>/dev/null || echo "https://ziglang.org/download")
+
+JAVA_MIRROR=$(_mirror_url \
+  "https://api.adoptium.net" \
+  "https://mirror.yandex.ru/adoptium" 2>/dev/null || echo "https://api.adoptium.net")
+
+# Export for child processes
+export NPM_CONFIG_REGISTRY="$NPM_REGISTRY"
+export PIP_INDEX_URL="$PYPI_MIRROR"
+export GOPROXY="${GO_PROXY:-https://goproxy.io,direct}"
+export RUSTUP_DIST_SERVER="$RUSTUP_MIRROR"
+
+# Multi-mirror curl: tries each mirror sequentially
 _curl_mirror() {
-  local primary="$1" out="${2:-}"; shift 2
-  # Try primary first, then each mirror
-  for url in "$primary" "$@"; do
+  local url out="${2:-}" primary="$1"; shift 2
+  for mirror in "$primary" "$@"; do
     if [ -n "$out" ]; then
-      curl -fsSL --connect-timeout 15 --max-time 120 --retry 1 -o "$out" "$url" 2>/dev/null && return 0
+      curl -fsSL --connect-timeout 15 --max-time 120 --retry 1 -o "$out" "$mirror" 2>/dev/null && return 0
     else
-      curl -fsSL --connect-timeout 15 --max-time 120 --retry 1 "$url" 2>/dev/null && return 0
+      curl -fsSL --connect-timeout 15 --max-time 120 --retry 1 "$mirror" 2>/dev/null && return 0
     fi
   done
   return 1
@@ -826,8 +904,20 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]) && _gate "INTERACTIVE_DO_DOC
     else
       warn "Docker entirely unavailable — install manually"
     fi
-  else
-    log "Docker already installed"
+  fi
+  # Configure Docker mirror for Russia
+  if command -v docker &>/dev/null && [ ! -f /etc/docker/daemon.json ]; then
+    sudo mkdir -p /etc/docker
+    echo '{
+  "registry-mirrors": [
+    "https://mirror.gcr.io",
+    "https://docker.mirrors.ustc.edu.cn",
+    "https://docker.m.daocloud.io"
+  ],
+  "dns": ["77.88.8.8", "77.88.8.1", "1.1.1.1", "8.8.8.8"]
+}' | sudo tee /etc/docker/daemon.json >/dev/null && \
+      sudo systemctl restart docker 2>/dev/null && \
+      log "Docker mirror configured" || true
   fi
   _step_done step_docker
 fi
@@ -875,7 +965,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
   # ── Java via Adoptium API (GitHub-hosted, reliable in WSL2) ──
   if ! command -v java &>/dev/null; then
     JAVA_MAJOR=25
-    ADOPTIUM_URL="https://api.adoptium.net/v3/binary/latest/${JAVA_MAJOR}/ga/linux/${ARCH_TYPE:-x64}/jdk/hotspot/normal/eclipse"
+    ADOPTIUM_URL="${JAVA_MIRROR}/v3/binary/latest/${JAVA_MAJOR}/ga/linux/${ARCH_TYPE:-x64}/jdk/hotspot/normal/eclipse"
     JAVA_TAR="/tmp/jdk${JAVA_MAJOR}.tar.gz"
     info "Downloading Java ${JAVA_MAJOR} from Adoptium..."
     if _curl "$ADOPTIUM_URL" "$JAVA_TAR" 2>/dev/null; then
@@ -925,10 +1015,10 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
     if ! command -v zig &>/dev/null; then
       ZIG_VER="0.15.0"; ZIG_TARGET=""
       [ "$ARCH" = "aarch64" ] && ZIG_TARGET="aarch64" || ZIG_TARGET="x86_64"
-      ZIG_URL="https://ziglang.org/download/$ZIG_VER/zig-linux-${ZIG_TARGET}-$ZIG_VER.tar.xz"
+      ZIG_URL="$ZIG_MIRROR/$ZIG_VER/zig-linux-${ZIG_TARGET}-$ZIG_VER.tar.xz"
       ZIG_DIR="/usr/local/lib/zig-$ZIG_VER"
       if [ ! -d "$ZIG_DIR" ]; then
-        if _curl "$ZIG_URL" /tmp/zig.tar.xz 2>/dev/null; then
+        if _curl_mirror "$ZIG_URL" "https://ziglang.org/download/$ZIG_VER/zig-linux-${ZIG_TARGET}-$ZIG_VER.tar.xz" /tmp/zig.tar.xz; then
           sudo mkdir -p "$ZIG_DIR" && \
           sudo tar -xJf /tmp/zig.tar.xz -C "$ZIG_DIR" --strip-components=1 2>/dev/null && \
           sudo ln -sf "$ZIG_DIR/zig" /usr/local/bin/zig && \
@@ -1024,6 +1114,8 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
   else
     log "Go $(go version 2>/dev/null | cut -d' ' -f3) already installed"
   fi
+  # Go proxy config for modules
+  command -v go &>/dev/null && go env -w GOPROXY="${GOPROXY:-https://goproxy.io,direct}" 2>/dev/null || true
   _step_done step_go
 fi
 
@@ -1125,6 +1217,14 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
     log "Bun already installed"
   fi
 fi
+  # Global mirror configs for npm, pip, Go
+  mkdir -p "$HOME/.config/pip"
+  cat > "$HOME/.config/pip/pip.conf" 2>/dev/null <<EOF
+[global]
+index-url = $PYPI_MIRROR
+trusted-host = $(echo "$PYPI_MIRROR" | sed 's|https://||;s|/.*||')
+EOF
+  command -v go &>/dev/null && go env -w GOPROXY="${GOPROXY:-https://goproxy.io,direct}" 2>/dev/null || true
 
 # ═══════════════════════════════════════════════════════════════════════════════
 #  STEP 9: MCP servers & plugins
