@@ -114,3 +114,28 @@ bash setup.sh --fix-zshrc           # repair shell config
 | v28 | Multi-provider, _curl/_retry/_npm_install, WSL2 fix, anti-hang |
 | v29 | Adoptium Java, MCP npm cache, DNS fix, progress file |
 | v30 | Secrets security (chmod 600), WSL2 .wslconfig/wsl.conf, OS validation, timestamps, dry-run, opencode.json overhaul, Sentry+Grep MCP, ShellCheck CI
+
+## Modular Architecture (v30)
+
+```
+opencode_initializer/
+├── setup.sh              ← монолитный оркестратор (1839 строк)
+├── dev.sh                ← CLI: dev install|remove|update|health|list|config
+├── lib/
+│   └── helpers.sh        ← _curl, _retry, _npm_install (shared)
+├── migrations/
+│   └── YYYYMMDD-name.sh  ← timestamped, idempotent, auto-run by 'dev update'
+├── .github/workflows/
+│   └── shellcheck.yml    ← CI для каждого push/PR
+└── v17.0.sh ...          ← архивные версии
+```
+
+**CLI `dev` commands:**
+- `dev install docker` — install a new component
+- `dev remove java` — remove a component
+- `dev update` — update all tools + run pending migrations
+- `dev health` — full diagnostic
+- `dev list` — list installed components
+- `dev config` — edit setup config file
+
+**Config file:** `~/.config/opencode-setup/setup.conf` — persistent settings, sourced by both setup.sh and dev CLI.
