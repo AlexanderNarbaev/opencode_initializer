@@ -1018,7 +1018,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
       ZIG_URL="$ZIG_MIRROR/$ZIG_VER/zig-linux-${ZIG_TARGET}-$ZIG_VER.tar.xz"
       ZIG_DIR="/usr/local/lib/zig-$ZIG_VER"
       if [ ! -d "$ZIG_DIR" ]; then
-        if _curl_mirror "$ZIG_URL" "https://ziglang.org/download/$ZIG_VER/zig-linux-${ZIG_TARGET}-$ZIG_VER.tar.xz" /tmp/zig.tar.xz; then
+        if _curl_mirror "$ZIG_URL" /tmp/zig.tar.xz "https://ziglang.org/download/$ZIG_VER/zig-linux-${ZIG_TARGET}-$ZIG_VER.tar.xz"; then
           sudo mkdir -p "$ZIG_DIR" && \
           sudo tar -xJf /tmp/zig.tar.xz -C "$ZIG_DIR" --strip-components=1 2>/dev/null && \
           sudo ln -sf "$ZIG_DIR/zig" /usr/local/bin/zig && \
@@ -1239,19 +1239,18 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
   done
 
   # Muninn via pipx (skills only, not an MCP server)
-  if command -v muninn-remembers &>/dev/null; then
-    if ! muninn-remembers --help &>/dev/null 2>&1; then
-      _retry 3 "Muninn pipx install" pipx install --force muninn-remembers 2>/dev/null || warn "Muninn: pipx install failed"
-    fi
-    _retry 3 "Muninn skills install" muninn-remembers install opencode 2>/dev/null || warn "Muninn: skills install failed"
+  if ! command -v muninn-remembers &>/dev/null; then
+    _retry 3 "Muninn pipx install" pipx install muninn-remembers 2>/dev/null || true
   else
-    _retry 3 "Muninn pipx install" pipx install muninn-remembers 2>/dev/null || warn "Muninn: pipx install failed"
-    command -v muninn-remembers &>/dev/null && _retry 3 "Muninn skills install" muninn-remembers install opencode 2>/dev/null || true
+    pipx install --force muninn-remembers 2>/dev/null || true
+  fi
+  if command -v muninn-remembers &>/dev/null; then
+    muninn-remembers install opencode 2>/dev/null || warn "Muninn: skills install failed"
   fi
 
   # ChromaDB (vector database for muninn memory)
   if ! command -v chroma &>/dev/null; then
-    _retry 3 "ChromaDB pipx install" pipx install chromadb 2>/dev/null || warn "ChromaDB: pipx install failed"
+    _retry 3 "ChromaDB pipx install" pipx install chromadb 2>/dev/null || true
   fi
   # Fix chroma symlink
   CHROMA_PIPX="$(pipx list 2>/dev/null | grep chromadb | head -1 | awk '{print $NF}')"
@@ -1277,7 +1276,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
   command -v ollama &>/dev/null && ollama pull mxbai-embed-large 2>/dev/null || true
 
   # Plugins — codegraph only
-  npm install -g opencode-codegraph@latest 2>/dev/null && log "Plugin: opencode-codegraph" || warn "Plugin FAILED: opencode-codegraph"
+  npm install -g opencode-codegraph@latest 2>/dev/null && log "Plugin: opencode-codegraph" || { warn "Plugin FAILED: opencode-codegraph"; true; }
 
   # LSP servers (language intelligence — installed, detected later by Python gen)
   section "LSP servers"
