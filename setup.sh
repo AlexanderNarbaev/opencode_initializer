@@ -894,9 +894,10 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
 
   # ── SDKMAN for Gradle, Maven, Kotlin, jbang ──
   if [ ! -d "$HOME/.sdkman" ]; then
-    command -v unzip &>/dev/null || sudo apt-get install -y unzip zip &>/dev/null || true
+    command -v zip &>/dev/null || sudo apt-get install -y zip 2>/dev/null || true
+    command -v unzip &>/dev/null || sudo apt-get install -y unzip 2>/dev/null || true
     _curl "https://get.sdkman.io" /tmp/sdkman-install.sh 2>/dev/null && \
-      bash /tmp/sdkman-install.sh 2>/dev/null && rm -f /tmp/sdkman-install.sh || \
+      bash /tmp/sdkman-install.sh 2>/dev/null; rm -f /tmp/sdkman-install.sh || \
       warn "SDKMAN install failed — using apt fallback for build tools"
   fi
   set +u; source "$HOME/.sdkman/bin/sdkman-init.sh" 2>/dev/null || true; set -u
@@ -1140,17 +1141,17 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
   # Muninn via pipx (skills only, not an MCP server)
   if command -v muninn-remembers &>/dev/null; then
     if ! muninn-remembers --help &>/dev/null 2>&1; then
-      _retry 3 "Muninn pipx install" pipx install muninn-remembers || warn "Muninn: pipx install failed"
+      _retry 3 "Muninn pipx install" pipx install --force muninn-remembers 2>/dev/null || warn "Muninn: pipx install failed"
     fi
-    _retry 3 "Muninn skills install" muninn-remembers install opencode || warn "Muninn: skills install failed"
+    _retry 3 "Muninn skills install" muninn-remembers install opencode 2>/dev/null || warn "Muninn: skills install failed"
   else
-    _retry 3 "Muninn pipx install" pipx install muninn-remembers && \
-      _retry 3 "Muninn skills install" muninn-remembers install opencode || warn "Muninn: install failed"
+    _retry 3 "Muninn pipx install" pipx install muninn-remembers 2>/dev/null || warn "Muninn: pipx install failed"
+    command -v muninn-remembers &>/dev/null && _retry 3 "Muninn skills install" muninn-remembers install opencode 2>/dev/null || true
   fi
 
   # ChromaDB (vector database for muninn memory)
   if ! command -v chroma &>/dev/null; then
-    _retry 3 "ChromaDB pipx install" pipx install chromadb || warn "ChromaDB: pipx install failed"
+    _retry 3 "ChromaDB pipx install" pipx install chromadb 2>/dev/null || warn "ChromaDB: pipx install failed"
   fi
   # Fix chroma symlink
   CHROMA_PIPX="$(pipx list 2>/dev/null | grep chromadb | head -1 | awk '{print $NF}')"
