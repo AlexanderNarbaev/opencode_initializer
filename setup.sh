@@ -447,7 +447,7 @@ fi
 # ── Interactive Mode ───────────────────────────────────────────────────────
 if [ "$MODE" = "interactive" ]; then
   echo -e "${GREEN}============================================================${NC}"
-  echo -e "${GREEN}     Ultimate Dev Machine Bootstrap v29 — INTERACTIVE${NC}"
+  echo -e "${GREEN}     Ultimate Dev Machine Bootstrap v30 — INTERACTIVE${NC}"
   echo -e "${GREEN}============================================================${NC}"
   echo
 
@@ -679,7 +679,7 @@ GIT_EMAIL="${GIT_EMAIL:-}"
 LOG_FILE="$HOME/setup-$(date +%Y%m%d-%H%M%S).log"
 exec > >(tee -a "$LOG_FILE") 2>&1
 echo -e "${GREEN}============================================================${NC}"
-echo -e "${GREEN}     Ultimate Dev Machine Bootstrap v29${NC}"
+echo -e "${GREEN}     Ultimate Dev Machine Bootstrap v30${NC}"
 echo -e "${GREEN}     Mode: $MODE${NC}"
 echo -e "${GREEN}     Log:  $LOG_FILE${NC}"
 echo -e "${GREEN}============================================================${NC}"
@@ -1749,6 +1749,34 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then
 fi
 
 # ═══════════════════════════════════════════════════════════════════════════════
+#  STEP 18b: Config file + dev CLI
+# ═══════════════════════════════════════════════════════════════════════════════
+if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then
+  section "Config file + dev CLI"
+  CONFIG_FILE="${HOME}/.config/opencode-setup/setup.conf"
+  mkdir -p "$(dirname "$CONFIG_FILE")"
+  if [ ! -f "$CONFIG_FILE" ]; then
+    cat > "$CONFIG_FILE" << 'CONFEOF'
+# Dev Machine Setup Config — edit with: dev config
+# GIT_NAME="Alex"
+# GIT_EMAIL="alex@example.com"
+# PROJECT_DIR="$HOME/projects"
+# DEEPSEEK_KEY="sk-..."
+# API_KEY="sk-..."
+CONFEOF
+    log "Config file created: $CONFIG_FILE"
+  fi
+
+  # Install dev CLI to ~/.local/bin
+  DEV_SRC="$PROJECT_DIR/dev.sh"
+  DEV_DST="$HOME/.local/bin/dev"
+  if [ -f "$DEV_SRC" ]; then
+    mkdir -p "$HOME/.local/bin"
+    cp "$DEV_SRC" "$DEV_DST" && chmod +x "$DEV_DST" && log "dev CLI installed: ~/.local/bin/dev"
+  fi
+fi
+
+# ═══════════════════════════════════════════════════════════════════════════════
 #  STEP 19: Verification
 # ═══════════════════════════════════════════════════════════════════════════════
 section "Verification"
@@ -1801,10 +1829,11 @@ echo
 log "Verification: $PASS passed, $FAIL failed"
 
 echo -e "${GREEN}============================================================${NC}"
-echo -e "${GREEN}       BOOTSTRAP COMPLETE (v29) · Mode: $MODE${NC}"
+echo -e "${GREEN}       BOOTSTRAP COMPLETE (v30) · Mode: $MODE${NC}"
 echo -e "${GREEN}============================================================${NC}"
 echo "  Log file:  $LOG_FILE"
 echo "  Health:    bash ~/setup.sh --health"
 echo "  Fix zsh:   bash ~/setup.sh --fix-zshrc"
 echo "  Fix MCP:   bash ~/setup.sh --fix-config"
 echo "  Start:     cd $PROJECT_DIR && opencode"
+  echo "  dev CLI:   dev health | dev install <pkg> | dev update"
