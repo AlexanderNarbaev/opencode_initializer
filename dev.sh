@@ -48,7 +48,7 @@ cmd_health() {
 
 cmd_update() {
   section "System update"
-  _sudo apt-get update -qq && _sudo apt-get upgrade -y -qq && log "apt updated"
+  _pkg_update && log "packages updated" || warn "update failed"
 
   section "npm global packages"
   npm update -g 2>/dev/null || true
@@ -56,7 +56,6 @@ cmd_update() {
     npm install -g "$pkg@latest" --prefer-offline 2>/dev/null && log "npm: $pkg" || warn "npm: $pkg failed"
   done
 
-  section "uv + pip"
   command -v uv &>/dev/null && uv self update 2>/dev/null && log "uv updated"
 
   section "Run migrations"
@@ -75,14 +74,20 @@ cmd_update() {
 
 cmd_install() {
   local pkg="$1"
-  local script="$SCRIPTS_DIR/lib/install-${pkg}.sh"
-  if [ -f "$script" ]; then
-    section "Installing $pkg"
-    source "$script"
-    log "$pkg installed"
-  else
-    err "Unknown component: $pkg. Try one of: $(ls "$SCRIPTS_DIR/lib/install-"*.sh 2>/dev/null | xargs -n1 basename | sed 's/install-//;s/\.sh//' | tr '\n' ' ')"
-  fi
+  section "Installing $pkg"
+  case "$pkg" in
+    docker)    bash "$SCRIPTS_DIR/setup.sh" --reinit -s "${SUDO_PASS:-}" 2>/dev/null ;;
+    java)      bash "$SCRIPTS_DIR/setup.sh" --reinit -s "${SUDO_PASS:-}" 2>/dev/null ;;
+    node)      bash "$SCRIPTS_DIR/setup.sh" --reinit -s "${SUDO_PASS:-}" 2>/dev/null ;;
+    python)    bash "$SCRIPTS_DIR/setup.sh" --reinit -s "${SUDO_PASS:-}" 2>/dev/null ;;
+    go)        bash "$SCRIPTS_DIR/setup.sh" --reinit -s "${SUDO_PASS:-}" 2>/dev/null ;;
+    rust)      bash "$SCRIPTS_DIR/setup.sh" --reinit -s "${SUDO_PASS:-}" 2>/dev/null ;;
+    dotnet)    bash "$SCRIPTS_DIR/setup.sh" --reinit -s "${SUDO_PASS:-}" 2>/dev/null ;;
+    opencode)  bash "$SCRIPTS_DIR/setup.sh" --reinit -s "${SUDO_PASS:-}" 2>/dev/null ;;
+    mcp)       bash "$SCRIPTS_DIR/setup.sh" --reinit -s "${SUDO_PASS:-}" 2>/dev/null ;;
+    llm)       bash "$SCRIPTS_DIR/setup.sh" --reinit -s "${SUDO_PASS:-}" 2>/dev/null ;;
+    *)         warn "Unknown: $pkg. Available: docker java node python go rust dotnet opencode mcp llm" ;;
+  esac
 }
 
 cmd_remove() {

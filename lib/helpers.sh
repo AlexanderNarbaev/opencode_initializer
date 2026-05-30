@@ -18,11 +18,23 @@ _curl() {
   cache_key=$(echo "$url" | md5sum | awk '{print $1}')
   cache_file="$DL_CACHE/${cache_key}.dl"
   [ -n "$out" ] && [ -f "$cache_file" ] && [ $(($(date +%s) - $(stat -c %Y "$cache_file" 2>/dev/null || echo 0))) -lt 86400 ] && cp "$cache_file" "$out" 2>/dev/null && return 0
+  # Mirror-aware: try primary URL, then GH proxy mirror for github.com
   while [ $attempt -le $max ]; do
     if [ -n "$out" ]; then
-      curl -fsSL --connect-timeout 30 --max-time 120 --retry 2 --retry-delay 5 -o "$out" "$url" 2>/dev/null && { cp "$out" "$cache_file" 2>/dev/null || true; return 0; }
+      curl -fsSL --connect-timeout 30 --max-time 120 --retry 1 --retry-delay 3 -o "$out" "$url" 2>/dev/null && { cp "$out" "$cache_file" 2>/dev/null || true; return 0; }
+      # Try GitHub mirror as fallback
+      if echo "$url" | grep -q 'github.com\|githubusercontent.com'; then
+        local mirror_url
+        mirror_url=$(echo "$url" | sed 's|https://github\.com|https://ghproxy.com/https://github.com|;s|https://raw\.githubusercontent\.com|https://ghproxy.com/https://raw.githubusercontent.com|')
+        [ "$mirror_url" != "$url" ] && curl -fsSL --connect-timeout 30 --max-time 120 --retry 1 --retry-delay 3 -o "$out" "$mirror_url" 2>/dev/null && { cp "$out" "$cache_file" 2>/dev/null || true; return 0; }
+      fi
     else
-      curl -fsSL --connect-timeout 30 --max-time 120 --retry 2 --retry-delay 5 "$url" 2>/dev/null && return 0
+      curl -fsSL --connect-timeout 30 --max-time 120 --retry 1 --retry-delay 3 "$url" 2>/dev/null && return 0
+      if echo "$url" | grep -q 'github\.com'; then
+        local mirror_url
+        mirror_url=$(echo "$url" | sed 's|https://github\.com|https://ghproxy.com/https://github.com|')
+        [ "$mirror_url" != "$url" ] && curl -fsSL --connect-timeout 30 --max-time 120 --retry 1 "$mirror_url" 2>/dev/null && return 0
+      fi
     fi
     sleep $((2 ** attempt)); attempt=$((attempt + 1))
   done

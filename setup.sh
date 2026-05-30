@@ -15,11 +15,13 @@ cleanup() {
   local exit_code=$?
   rm -f /tmp/docker-install.*.sh /tmp/uv-install.*.sh /tmp/bun-install.*.sh \
         /tmp/sdkman-install.sh /tmp/superpowers.* /tmp/dotnet-install.*.sh \
-        /tmp/rustup-init.*.sh /tmp/opencode-install.sh 2>/dev/null
+        /tmp/rustup-init.*.sh /tmp/opencode-install.sh /tmp/ollama-install.sh 2>/dev/null
+  # Restore SSL settings if they were relaxed
+  npm config set strict-ssl true 2>/dev/null || true
   if [ $exit_code -ne 0 ] && [ "${MODE:-}" != "health" ]; then
     warn "Script exited with code $exit_code at $(date +%H:%M:%S)"
     warn "Log: $LOG_FILE"
-    warn "Re-run: bash ~/setup.sh --health ; or resume from last step"
+    warn "Re-run: bash ~/setup.sh --health ; or resume with --full (progress tracked)"
   fi
   exit $exit_code
 }
@@ -47,11 +49,11 @@ fi
 # ── Architecture detection ──────────────────────────────────────────────────
 ARCH=$(uname -m)
 case "$ARCH" in
-  x86_64|amd64) ARCH="amd64"; GO_ARCH="${GO_ARCH:-linux-amd64}";;
-  aarch64|arm64) ARCH="arm64"; GO_ARCH="linux-arm64";;
-  *) warn "Unknown architecture: $ARCH — using amd64 as fallback"; ARCH="amd64"; GO_ARCH="${GO_ARCH:-linux-amd64}";;
+  x86_64|amd64) ARCH="amd64"; GO_ARCH="${GO_ARCH:-linux-amd64}"; ARCH_TYPE="x64";;
+  aarch64|arm64) ARCH="arm64"; GO_ARCH="${GO_ARCH:-linux-arm64}"; ARCH_TYPE="aarch64";;
+  *) warn "Unknown architecture: $ARCH — using amd64 as fallback"; ARCH="amd64"; GO_ARCH="${GO_ARCH:-linux-amd64}"; ARCH_TYPE="x64";;
 esac
-info "Architecture: $ARCH"
+info "Architecture: $ARCH ($ARCH_TYPE)"
 
 # ── Version ──────────────────────────────────────────────────────────────────
 SCRIPT_VERSION="v32"
@@ -873,7 +875,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
   # ── Java via Adoptium API (GitHub-hosted, reliable in WSL2) ──
   if ! command -v java &>/dev/null; then
     JAVA_MAJOR=25
-    ADOPTIUM_URL="https://api.adoptium.net/v3/binary/latest/${JAVA_MAJOR}/ga/linux/x64/jdk/hotspot/normal/eclipse"
+    ADOPTIUM_URL="https://api.adoptium.net/v3/binary/latest/${JAVA_MAJOR}/ga/linux/${ARCH_TYPE:-x64}/jdk/hotspot/normal/eclipse"
     JAVA_TAR="/tmp/jdk${JAVA_MAJOR}.tar.gz"
     info "Downloading Java ${JAVA_MAJOR} from Adoptium..."
     if _curl "$ADOPTIUM_URL" "$JAVA_TAR" 2>/dev/null; then
@@ -943,8 +945,8 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
     n 22 2>/dev/null && log "Node.js 22 installed" || { warn "n 22 failed — trying apt"; sudo apt-get install -y -qq nodejs npm 2>/dev/null && log "Node.js from apt" || warn "Node.js unavailable"; }
   else
     log "Node.js 22 already installed"
-  _step_done step_node
   fi
+  _step_done step_node
 fi
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -998,8 +1000,8 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
     fi
   else
     log "Go $(go version 2>/dev/null | cut -d' ' -f3) already installed"
-  _step_done step_go
   fi
+  _step_done step_go
 fi
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1019,8 +1021,8 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
     fi
   else
     log "Rust $(rustc --version 2>/dev/null | cut -d' ' -f2) already installed"
-  _step_done step_rust
   fi
+  _step_done step_rust
 fi
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1043,8 +1045,8 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
     fi
   else
     log ".NET $(dotnet --version 2>/dev/null) already installed"
-  _step_done step_dotnet
   fi
+  _step_done step_dotnet
 fi
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1081,8 +1083,8 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
     fi
   else
     log "OpenCode $(opencode --version 2>/dev/null) already installed"
-  _step_done step_opencode
   fi
+  _step_done step_opencode
   if ! command -v bun &>/dev/null; then
     BUN_SCRIPT=$(mktemp /tmp/bun-install.XXXXXX.sh)
     if _curl "https://bun.sh/install" "$BUN_SCRIPT" 2>/dev/null; then
@@ -1592,7 +1594,7 @@ services:
     environment:
       POSTGRES_DB: dev_db
       POSTGRES_USER: dev_user
-      POSTGRES_PASSWORD: dev_pass
+      POSTGRES_PASSWORD: ${PG_PASSWORD:-dev_pass}
     ports: ["5432:5432"]
     volumes: [pgdata:/var/lib/postgresql/data]
   mongodb:
@@ -1600,7 +1602,7 @@ services:
     ports: ["27017:27017"]
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: dev_pass
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-dev_pass}
     volumes: [mongodata:/data/db]
   redis:
     image: redis:7-alpine
@@ -1611,7 +1613,7 @@ services:
     ports: ["9000:9000", "9001:9001"]
     environment:
       MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD:-minioadmin}
     volumes: [miniodata:/data]
     command: server /data --console-address ":9001"
     profiles: [storage]
