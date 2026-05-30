@@ -1,13 +1,11 @@
 #!/usr/bin/env bash
 # ============================================================================
-#  Ultimate Dev Machine Bootstrap v28.1 — Multi-Provider + WSL2-Fixed + Anti-Hang
+#  Ultimate Dev Machine Bootstrap v29 — WSL2 DNS Fix + Multi-Provider + Anti-Hang
 #  Режимы: full | reinit | new | health | update | upgrade | fix-config | fix-zshrc | interactive
-#  Провайдеры: DeepSeek V4 Pro (primary) + OpenCode Go (fallback) — auto-failover
-#  Сеть: WSL2 fix, exponential retry, download cache, proxy detect, --max-time 120s
-#  Все curl: _curl() wrapper: 5 попыток, эксп. задержка, кеш 24ч, таймаут передачи
-#  MCP: npm→bun fallback (timeout 120s), --prefer-offline, graceful degradation
-#  Анти-зависание: timeout на npm install и curl, защита от бесконечного ожидания
-#  Версия: 2026-05-30 — Ubuntu 24.04+, WSL2, Debian 12+
+#  Провайдеры: DeepSeek V4 Pro + OpenCode Go (auto-failover), small_model: flash
+#  Сеть: WSL2 DNS fix (8.8.8.8, 1.1.1.1), proxy detect, DHCP reset, --max-time 120s
+#  curl: _curl() — 5 попыток, эксп. задержка, кеш 24ч, таймаут передачи 120s
+#  MCP: npm→bun fallback, timeout 120s, --prefer-offline
 # ============================================================================
 set -euo pipefail
 IFS=$'\n\t'
@@ -364,7 +362,7 @@ fi
 # ── Interactive Mode ───────────────────────────────────────────────────────
 if [ "$MODE" = "interactive" ]; then
   echo -e "${GREEN}============================================================${NC}"
-  echo -e "${GREEN}     Ultimate Dev Machine Bootstrap v28.1 — INTERACTIVE${NC}"
+  echo -e "${GREEN}     Ultimate Dev Machine Bootstrap v29 — INTERACTIVE${NC}"
   echo -e "${GREEN}============================================================${NC}"
   echo
 
@@ -474,6 +472,13 @@ section "Network check"
 NET_OK=true
 info "Testing connectivity to key services..."
 
+# WSL2 DNS fix: add public DNS to prevent resolution failures
+if [ -f /etc/resolv.conf ] && ! grep -qE '8\.8\.8\.8|1\.1\.1\.1' /etc/resolv.conf 2>/dev/null; then
+  info "WSL2: adding Google/Cloudflare DNS fallback"
+  echo "nameserver 8.8.8.8" | sudo tee -a /etc/resolv.conf 2>/dev/null || true
+  echo "nameserver 1.1.1.1" | sudo tee -a /etc/resolv.conf 2>/dev/null || true
+fi
+
 # WSL2 fix: restart networking if completely dead (common after sleep/hibernate)
 _check_net() { _curl "https://github.com" >/dev/null 2>&1; }
 if ! _check_net; then
@@ -531,7 +536,7 @@ GIT_EMAIL="${GIT_EMAIL:-}"
 LOG_FILE="$HOME/setup-$(date +%Y%m%d-%H%M%S).log"
 exec > >(tee -a "$LOG_FILE") 2>&1
 echo -e "${GREEN}============================================================${NC}"
-echo -e "${GREEN}     Ultimate Dev Machine Bootstrap v28.1${NC}"
+echo -e "${GREEN}     Ultimate Dev Machine Bootstrap v29${NC}"
 echo -e "${GREEN}     Mode: $MODE${NC}"
 echo -e "${GREEN}     Log:  $LOG_FILE${NC}"
 echo -e "${GREEN}============================================================${NC}"
@@ -1591,7 +1596,7 @@ echo
 log "Verification: $PASS passed, $FAIL failed"
 
 echo -e "${GREEN}============================================================${NC}"
-echo -e "${GREEN}       BOOTSTRAP COMPLETE (v27.0) · Mode: $MODE${NC}"
+echo -e "${GREEN}       BOOTSTRAP COMPLETE (v29) · Mode: $MODE${NC}"
 echo -e "${GREEN}============================================================${NC}"
 echo "  Log file:  $LOG_FILE"
 echo "  Health:    bash ~/setup.sh --health"

@@ -54,7 +54,7 @@ bash setup_v28.1.sh --fix-config
 ## Ключевые фичи v28.1
 
 - **Anti-hang**: `timeout` на всех npm install и curl (120s), защита от зависания
-- **WSL2 network fix**: авто-детект прокси Windows, сброс DHCP при обрыве связи
+- **WSL2 DNS fix**: авто-добавление 8.8.8.8 + 1.1.1.1 при проблемах резолвинга
 - **_curl() wrapper**: 5 попыток с экспоненциальной задержкой (2→4→8→16→32s), кеш 24ч
 - **MCP npm→bun fallback**: при сбое npm автоматически пробует bun
 - **Multi-provider**: `opencode.json` содержит оба провайдера (`deepseek` + `opencode`)
