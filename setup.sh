@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================================
-#  Ultimate Dev Machine Bootstrap v30 — Secure + WSL2-Optimized
+#  Ultimate Dev Machine Bootstrap v31 — Secure + WSL2-Optimized
 set -euo pipefail
 IFS=$'\n\t'
 
@@ -43,6 +43,18 @@ else
   esac
   info "OS: $PRETTY_NAME ($(uname -m))"
 fi
+
+# ── Architecture detection ──────────────────────────────────────────────────
+ARCH=$(uname -m)
+case "$ARCH" in
+  x86_64|amd64) ARCH="amd64"; GO_ARCH="${GO_ARCH:-linux-amd64}";;
+  aarch64|arm64) ARCH="arm64"; GO_ARCH="linux-arm64";;
+  *) warn "Unknown architecture: $ARCH — using amd64 as fallback"; ARCH="amd64"; GO_ARCH="${GO_ARCH:-linux-amd64}";;
+esac
+info "Architecture: $ARCH"
+
+# ── Version ──────────────────────────────────────────────────────────────────
+SCRIPT_VERSION="v31"
 
 # ── Progress tracking — resume after failure ────────────────────────────────
 _step_skip() { grep -qxF "$1" "$PROGRESS" 2>/dev/null && { log "Skip: $2 (completed earlier)"; return 0; }; return 1; }
@@ -447,7 +459,7 @@ fi
 # ── Interactive Mode ───────────────────────────────────────────────────────
 if [ "$MODE" = "interactive" ]; then
   echo -e "${GREEN}============================================================${NC}"
-  echo -e "${GREEN}     Ultimate Dev Machine Bootstrap v30 — INTERACTIVE${NC}"
+  echo -e "${GREEN}     Ultimate Dev Machine Bootstrap v31 — INTERACTIVE${NC}"
   echo -e "${GREEN}============================================================${NC}"
   echo
 
@@ -484,7 +496,7 @@ if [ "$MODE" = "interactive" ]; then
   DO_JAVA="y";  DO_NODE="y";   DO_PYTHON="y"
   DO_GO="y";    DO_RUST="y";   DO_DOTNET="y"
   DO_OPENCODE="y"; DO_MCP="y"; DO_CHROMA="y"
-  DO_SHOKUNIN="y"; DO_TRIVY="y"; DO_PROJECT="y"
+  DO_SHOKUNIN="y"; DO_TRIVY="y"; DO_PROJECT="y"; DO_LLM="y"
 
   read -r -p "System packages (apt)? [Y/n]: " input; [ "$input" = "n" ] && DO_SYSTEM="n"
   read -r -p "Docker? [Y/n]: " input; [ "$input" = "n" ] && DO_DOCKER="n"
@@ -500,6 +512,7 @@ if [ "$MODE" = "interactive" ]; then
   read -r -p "ChromaDB + Muninn memory? [Y/n]: " input; [ "$input" = "n" ] && DO_CHROMA="n"
   read -r -p "Shokunin ecosystem (62+ skills)? [Y/n]: " input; [ "$input" = "n" ] && DO_SHOKUNIN="n"
   read -r -p "Trivy security scanner? [Y/n]: " input; [ "$input" = "n" ] && DO_TRIVY="n"
+  read -r -p "Local LLM runtimes (Ollama, vLLM, Open WebUI)? [Y/n]: " input; [ "$input" = "n" ] && DO_LLM="n"
   read -r -p "Generate project files (AGENTS.md, WAL, docker-compose)? [Y/n]: " input; [ "$input" = "n" ] && DO_PROJECT="n"
 
   echo
@@ -514,6 +527,7 @@ if [ "$MODE" = "interactive" ]; then
   echo "  OpenCode:   $([ "$DO_OPENCODE" = "y" ] && echo "✓" || echo "✗")    MCP+LSP:    $([ "$DO_MCP" = "y" ] && echo "✓" || echo "✗")"
   echo "  ChromaDB:   $([ "$DO_CHROMA" = "y" ] && echo "✓" || echo "✗")    Shokunin:   $([ "$DO_SHOKUNIN" = "y" ] && echo "✓" || echo "✗")"
   echo "  Trivy:      $([ "$DO_TRIVY" = "y" ] && echo "✓" || echo "✗")    Project:    $([ "$DO_PROJECT" = "y" ] && echo "✓" || echo "✗")"
+  echo "  LLM:        $([ "$DO_LLM" = "y" ] && echo "✓" || echo "✗")"
   echo
   read -r -p "Proceed? [Y/n]: " confirm
   [ "$confirm" = "n" ] && { warn "Aborted by user"; exit 0; }
@@ -536,6 +550,7 @@ if [ "$MODE" = "interactive" ]; then
   INTERACTIVE_DO_SHOKUNIN="$DO_SHOKUNIN"
   INTERACTIVE_DO_TRIVY="$DO_TRIVY"
   INTERACTIVE_DO_PROJECT="$DO_PROJECT"
+  INTERACTIVE_DO_LLM="$DO_LLM"
 fi
 
 # ── Interactive gate helper ─────────────────────────────────────────────────
@@ -679,7 +694,7 @@ GIT_EMAIL="${GIT_EMAIL:-}"
 LOG_FILE="$HOME/setup-$(date +%Y%m%d-%H%M%S).log"
 exec > >(tee -a "$LOG_FILE") 2>&1
 echo -e "${GREEN}============================================================${NC}"
-echo -e "${GREEN}     Ultimate Dev Machine Bootstrap v30${NC}"
+echo -e "${GREEN}     Ultimate Dev Machine Bootstrap v31${NC}"
 echo -e "${GREEN}     Mode: $MODE${NC}"
 echo -e "${GREEN}     Log:  $LOG_FILE${NC}"
 echo -e "${GREEN}============================================================${NC}"
@@ -870,7 +885,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
   if ! command -v go &>/dev/null; then
     GO_LATEST=$(curl -s --connect-timeout 10 https://go.dev/VERSION?m=text 2>/dev/null | head -1 | tr -d 'go \n' || echo "1.24.5")
     info "Latest Go: ${GO_LATEST}"
-    GO_ARCH="linux-amd64"
+    GO_ARCH="${GO_ARCH:-linux-amd64}"
     GO_TAR="/tmp/go${GO_LATEST}.${GO_ARCH}.tar.gz"
     if _curl "https://go.dev/dl/go${GO_LATEST}.${GO_ARCH}.tar.gz" "$GO_TAR" 2>/dev/null; then
       sudo rm -rf /usr/local/go 2>/dev/null || true
@@ -1136,6 +1151,56 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then
       "https://jb.gg/qodana-cli/install" 2>/dev/null | bash 2>/dev/null && log "qodana installed" || warn "qodana not installed"
   fi
   log "Security tools OK"
+fi
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  STEP 12b: GPU / Local LLM runtimes (optional, opt-in)
+# ═══════════════════════════════════════════════════════════════════════════════
+if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]) && _gate "INTERACTIVE_DO_LLM"; then
+  section "Local LLM runtimes"
+  HAS_GPU=false
+  lspci 2>/dev/null | grep -qiE 'nvidia|amd/ati|virtio-gpu' && HAS_GPU=true
+  nvidia-smi &>/dev/null && HAS_GPU=true
+  $HAS_GPU && log "GPU detected — enabling GPU-accelerated runtimes" || warn "No GPU found — CPU-only mode (Ollama works, vLLM skipped)"
+
+  # Ollama — works with or without GPU
+  if ! command -v ollama &>/dev/null; then
+    info "Installing Ollama..."
+    _curl "https://ollama.ai/install.sh" /tmp/ollama-install.sh 2>/dev/null && bash /tmp/ollama-install.sh 2>/dev/null && log "Ollama installed" || warn "Ollama install failed"
+    rm -f /tmp/ollama-install.sh
+    # Pull a light model for immediate use
+    command -v ollama &>/dev/null && { ollama pull qwen3:1.8b 2>/dev/null & log "Ollama: pulling qwen3:1.8b (background)"; }
+  else
+    log "Ollama already installed"
+  fi
+
+  # Open WebUI — chat interface for Ollama (Docker-based)
+  if command -v docker &>/dev/null && ! docker ps --format '{{.Names}}' 2>/dev/null | grep -q 'open-webui'; then
+    info "Installing Open WebUI (Docker)..."
+    docker run -d --name open-webui --restart unless-stopped \
+      -p 3300:8080 -v open-webui:/app/backend/data \
+      --add-host=host.docker.internal:host-gateway \
+      ghcr.io/open-webui/open-webui:main 2>/dev/null && log "Open WebUI: http://localhost:3300" || warn "Open WebUI failed"
+  fi
+
+  # vLLM — GPU-only, for high-performance inference
+  if $HAS_GPU && ! command -v vllm &>/dev/null; then
+    info "Installing vLLM (GPU inference server)..."
+    pipx install vllm 2>/dev/null && log "vLLM installed" || warn "vLLM install failed (requires NVIDIA GPU + CUDA)"
+  fi
+
+  # SGLang — efficient structured generation
+  if $HAS_GPU && ! command -v sglang &>/dev/null; then
+    info "Installing SGLang..."
+    pipx install "sglang[all]" 2>/dev/null && log "SGLang installed" || warn "SGLang install failed"
+  fi
+
+  # LlamaEdge — lightweight WasmEdge-based runner (CPU-friendly)
+  if ! command -v wasmedge &>/dev/null; then
+    curl -sSf https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh 2>/dev/null | bash -s -- -v 0.14.1 2>/dev/null && log "WasmEdge installed" || warn "WasmEdge skipped"
+  fi
+
+  log "LLM runtimes configured"
 fi
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1829,7 +1894,7 @@ echo
 log "Verification: $PASS passed, $FAIL failed"
 
 echo -e "${GREEN}============================================================${NC}"
-echo -e "${GREEN}       BOOTSTRAP COMPLETE (v30) · Mode: $MODE${NC}"
+echo -e "${GREEN}       BOOTSTRAP COMPLETE (v31) · Mode: $MODE${NC}"
 echo -e "${GREEN}============================================================${NC}"
 echo "  Log file:  $LOG_FILE"
 echo "  Health:    bash ~/setup.sh --health"

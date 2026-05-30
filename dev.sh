@@ -17,10 +17,11 @@ usage() {
   echo "dev — Dev Machine Manager"
   echo "  dev install <pkg>     Install component"
   echo "  dev remove  <pkg>     Remove component"
-  echo "  dev update            Update all + run migrations"
+  echo "  dev update            Update all + run migrations + self-update"
   echo "  dev health            Full diagnostic"
   echo "  dev list              List installed components"
   echo "  dev config            Edit setup config"
+  echo "  dev self-update       Update dev CLI from git (pull + install)"
   exit 0
 }
 
@@ -99,6 +100,27 @@ cmd_remove() {
   esac
 }
 
+cmd_self_update() {
+  section "Self-update dev CLI + setup.sh"
+  if [ -d "$SCRIPTS_DIR/.git" ]; then
+    git -C "$SCRIPTS_DIR" pull --rebase 2>/dev/null && log "git pull OK" || warn "git pull failed (check network)"
+    cp "$SCRIPTS_DIR/dev.sh" "$HOME/.local/bin/dev" 2>/dev/null && chmod +x "$HOME/.local/bin/dev" && log "dev CLI updated"
+    cp "$SCRIPTS_DIR/setup.sh" "$HOME/setup.sh" 2>/dev/null && chmod +x "$HOME/setup.sh" && log "setup.sh updated"
+    bash "$SCRIPTS_DIR/setup.sh" --fix-config 2>/dev/null && log "opencode.json regenerated"
+    # Run pending migrations
+    for mig in "$SCRIPTS_DIR/migrations/"*.sh; do
+      [ -f "$mig" ] || continue
+      local ts=$(basename "$mig" .sh)
+      if [ ! -f "$DL_CACHE/.mig-$ts" ]; then
+        info "Migration: $(basename "$mig")"
+        bash "$mig" && echo "$ts" > "$DL_CACHE/.mig-$ts" && log "Migration: $ts OK" || warn "Migration: $ts FAILED"
+      fi
+    done
+  else
+    warn "Not a git repo — manual update: cd $SCRIPTS_DIR && git pull"
+  fi
+}
+
 case "${1:-}" in
   install)  cmd_install "${2:-}" ;;
   remove)   cmd_remove "${2:-}" ;;
@@ -106,6 +128,7 @@ case "${1:-}" in
   health)   cmd_health ;;
   list|ls)  cmd_list ;;
   config)   cmd_config ;;
+  self-update) cmd_self_update ;;
   -h|--help|help|"") usage ;;
-  *)        err "Unknown command: $1. Use: dev install|remove|update|health|list|config" ;;
+  *)        err "Unknown: $1. Use: dev install|remove|update|health|list|config|self-update" ;;
 esac
