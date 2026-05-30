@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================================
-#  Ultimate Dev Machine Bootstrap v31 — Secure + WSL2-Optimized
+#  Ultimate Dev Machine Bootstrap v32 — Universal + RU Mirrors + Cross-Distro
 set -euo pipefail
 IFS=$'\n\t'
 
@@ -54,7 +54,81 @@ esac
 info "Architecture: $ARCH"
 
 # ── Version ──────────────────────────────────────────────────────────────────
-SCRIPT_VERSION="v31"
+SCRIPT_VERSION="v32"
+
+# ── Package manager detection ────────────────────────────────────────────────
+PKG_MANAGER=""
+if command -v apt-get &>/dev/null; then PKG_MANAGER="apt"
+elif command -v dnf &>/dev/null; then PKG_MANAGER="dnf"
+elif command -v pacman &>/dev/null; then PKG_MANAGER="pacman"
+elif command -v apk &>/dev/null; then PKG_MANAGER="apk"
+elif command -v zypper &>/dev/null; then PKG_MANAGER="zypper"
+elif command -v brew &>/dev/null; then PKG_MANAGER="brew"
+fi
+info "Package manager: ${PKG_MANAGER:-unknown}"
+_pkg_install() {
+  case "$PKG_MANAGER" in
+    apt)    sudo apt-get install -y -qq "$@" 2>/dev/null ;;
+    dnf)    sudo dnf install -y "$@" 2>/dev/null ;;
+    pacman) sudo pacman -S --noconfirm "$@" 2>/dev/null ;;
+    apk)    sudo apk add "$@" 2>/dev/null ;;
+    zypper) sudo zypper install -y "$@" 2>/dev/null ;;
+    brew)   brew install "$@" 2>/dev/null ;;
+    *)      warn "No package manager found — install tools manually" ;;
+  esac
+}
+_pkg_update() {
+  case "$PKG_MANAGER" in
+    apt) sudo apt-get update -qq 2>/dev/null ;;
+    dnf) sudo dnf check-update 2>/dev/null || true ;;
+    pacman) sudo pacman -Sy 2>/dev/null ;;
+    apk) sudo apk update 2>/dev/null ;;
+    zypper) sudo zypper refresh 2>/dev/null ;;
+    brew) brew update 2>/dev/null ;;
+  esac
+}
+_pkg_list() {  # returns package names for the current distro
+  case "$PKG_MANAGER" in
+    apt)    echo "build-essential curl wget git software-properties-common apt-transport-https ca-certificates gnupg lsb-release unzip zip jq htop tree zsh fzf fd-find eza lazygit zoxide bat fonts-inter fonts-paratype netcat-openbsd bind9-dnsutils libcairo2-dev libpango1.0-dev libgdk-pixbuf-xlib-2.0-dev libffi-dev shared-mime-info ripgrep" ;;
+    dnf)    echo "@development-tools curl wget git dnf-plugins-core ca-certificates gnupg2 unzip zip jq htop tree zsh fzf fd-find eza lazygit zoxide bat ripgrep" ;;
+    pacman) echo "base-devel curl wget git ca-certificates gnupg unzip zip jq htop tree zsh fzf fd eza lazygit zoxide bat ripgrep" ;;
+    apk)    echo "build-base curl wget git ca-certificates gnupg unzip zip jq htop tree zsh fzf fd eza lazygit zoxide bat ripgrep" ;;
+    zypper) echo "-t pattern devel_basis curl wget git ca-certificates gnupg unzip zip jq htop tree zsh fzf fd eza lazygit zoxide bat ripgrep" ;;
+    brew)   echo "curl wget git gnupg unzip jq htop tree zsh fzf fd eza lazygit zoxide bat ripgrep" ;;
+  esac
+}
+
+# ── Mirror system — try primary, then RU-friendly mirrors ───────────────────
+# Usage: _mirror <primary_url> <mirror1_url> <mirror2_url> ... → safest URL
+_mirror_url() {
+  local url
+  for url in "$@"; do
+    if curl -fsSL --connect-timeout 5 --max-time 10 "$url" -o /dev/null 2>/dev/null; then
+      echo "$url"; return 0
+    fi
+  done
+  echo "$1"; return 1  # return primary as last resort
+}
+
+# Key mirrors for Russia (primary → RU-friendly → Chinese → fallback)
+GITHUB_MIRROR=$(_mirror_url "https://github.com" "https://hub.fastgit.xyz" "https://ghproxy.com/https://github.com" || echo "https://github.com")
+NPM_REGISTRY=$(_mirror_url "https://registry.npmjs.org" "https://registry.npmmirror.com" "https://registry.yarnpkg.com" || echo "https://registry.npmjs.org")
+PYPI_MIRROR=$(_mirror_url "https://pypi.org" "https://mirror.yandex.ru/mirrors/pypi/" "https://pypi.tuna.tsinghua.edu.cn" || echo "https://pypi.org")
+DOCKER_MIRROR=$(_mirror_url "https://hub.docker.com" "https://mirror.gcr.io" "https://docker.mirrors.ustc.edu.cn" || echo "https://hub.docker.com")
+GO_MIRROR=$(_mirror_url "https://go.dev" "https://golang.google.cn" "https://gomirrors.org" || echo "https://go.dev")
+
+_curl_mirror() {
+  local primary="$1" out="${2:-}"; shift 2
+  # Try primary first, then each mirror
+  for url in "$primary" "$@"; do
+    if [ -n "$out" ]; then
+      curl -fsSL --connect-timeout 15 --max-time 120 --retry 1 -o "$out" "$url" 2>/dev/null && return 0
+    else
+      curl -fsSL --connect-timeout 15 --max-time 120 --retry 1 "$url" 2>/dev/null && return 0
+    fi
+  done
+  return 1
+}
 
 # ── Progress tracking — resume after failure ────────────────────────────────
 _step_skip() { grep -qxF "$1" "$PROGRESS" 2>/dev/null && { log "Skip: $2 (completed earlier)"; return 0; }; return 1; }
@@ -98,18 +172,26 @@ _curl() {
   local url="$1" out="${2:-}" opts="${3:-}" attempt=1 max=5 cache_key cache_file
   cache_key=$(echo "$url" | md5sum | awk '{print $1}')
   cache_file="$DL_CACHE/${cache_key}.dl"
-  # Return cached file if exists and <24h old
-  if [ -n "$out" ] && [ -f "$cache_file" ] && [ $(($(date +%s) - $(stat -c %Y "$cache_file" 2>/dev/null || echo 0))) -lt 86400 ]; then
-    cp "$cache_file" "$out" 2>/dev/null && return 0
-  fi
+  [ -n "$out" ] && [ -f "$cache_file" ] && [ $(($(date +%s) - $(stat -c %Y "$cache_file" 2>/dev/null || echo 0))) -lt 86400 ] && cp "$cache_file" "$out" 2>/dev/null && return 0
+  # Mirror-aware: try primary URL, then GH proxy mirror for github.com
   while [ $attempt -le $max ]; do
     if [ -n "$out" ]; then
-      curl -fsSL --connect-timeout 30 --max-time 120 --retry 2 --retry-delay 5 ${opts:+"$opts"} -o "$out" "$url" 2>/dev/null && { [ -n "$cache_file" ] && cp "$out" "$cache_file" 2>/dev/null || true; return 0; }
+      curl -fsSL --connect-timeout 30 --max-time 120 --retry 1 --retry-delay 3 -o "$out" "$url" 2>/dev/null && { cp "$out" "$cache_file" 2>/dev/null || true; return 0; }
+      # Try GitHub mirror as fallback
+      if echo "$url" | grep -q 'github.com\|githubusercontent.com'; then
+        local mirror_url
+        mirror_url=$(echo "$url" | sed 's|https://github\.com|https://ghproxy.com/https://github.com|;s|https://raw\.githubusercontent\.com|https://ghproxy.com/https://raw.githubusercontent.com|')
+        [ "$mirror_url" != "$url" ] && curl -fsSL --connect-timeout 30 --max-time 120 --retry 1 --retry-delay 3 -o "$out" "$mirror_url" 2>/dev/null && { cp "$out" "$cache_file" 2>/dev/null || true; return 0; }
+      fi
     else
-      curl -fsSL --connect-timeout 30 --max-time 120 --retry 2 --retry-delay 5 ${opts:+"$opts"} "$url" 2>/dev/null && return 0
+      curl -fsSL --connect-timeout 30 --max-time 120 --retry 1 --retry-delay 3 "$url" 2>/dev/null && return 0
+      if echo "$url" | grep -q 'github\.com'; then
+        local mirror_url
+        mirror_url=$(echo "$url" | sed 's|https://github\.com|https://ghproxy.com/https://github.com|')
+        [ "$mirror_url" != "$url" ] && curl -fsSL --connect-timeout 30 --max-time 120 --retry 1 "$mirror_url" 2>/dev/null && return 0
+      fi
     fi
-    sleep $((2 ** attempt))
-    attempt=$((attempt + 1))
+    sleep $((2 ** attempt)); attempt=$((attempt + 1))
   done
   return 1
 }
@@ -459,7 +541,7 @@ fi
 # ── Interactive Mode ───────────────────────────────────────────────────────
 if [ "$MODE" = "interactive" ]; then
   echo -e "${GREEN}============================================================${NC}"
-  echo -e "${GREEN}     Ultimate Dev Machine Bootstrap v31 — INTERACTIVE${NC}"
+  echo -e "${GREEN}     Ultimate Dev Machine Bootstrap v32 — INTERACTIVE${NC}"
   echo -e "${GREEN}============================================================${NC}"
   echo
 
@@ -694,7 +776,7 @@ GIT_EMAIL="${GIT_EMAIL:-}"
 LOG_FILE="$HOME/setup-$(date +%Y%m%d-%H%M%S).log"
 exec > >(tee -a "$LOG_FILE") 2>&1
 echo -e "${GREEN}============================================================${NC}"
-echo -e "${GREEN}     Ultimate Dev Machine Bootstrap v31${NC}"
+echo -e "${GREEN}     Ultimate Dev Machine Bootstrap v32${NC}"
 echo -e "${GREEN}     Mode: $MODE${NC}"
 echo -e "${GREEN}     Log:  $LOG_FILE${NC}"
 echo -e "${GREEN}============================================================${NC}"
@@ -703,15 +785,22 @@ echo -e "${GREEN}============================================================${N
 #  STEP 1: System packages
 # ═══════════════════════════════════════════════════════════════════════════════
 if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) && _gate "INTERACTIVE_DO_SYSTEM"; then
-  section "System packages"
-  sudo apt update -qq 2>/dev/null || true
-  sudo apt install -y -qq --no-install-recommends \
-    curl wget git build-essential software-properties-common apt-transport-https ca-certificates gnupg lsb-release \
-    unzip zip jq htop tree python3-pip python3-venv \
-    zsh fzf ripgrep fd-find eza lazygit zoxide bat \
-    libcairo2-dev libpango1.0-dev libgdk-pixbuf-xlib-2.0-dev libffi-dev shared-mime-info \
-    fonts-inter fonts-paratype netcat-openbsd bind9-dnsutils 2>/dev/null || true
-  log "System packages OK"
+  section "System packages ($PKG_MANAGER)"
+  _pkg_update
+  pkglist=$(_pkg_list)
+  if [ "$PKG_MANAGER" = "apt" ]; then
+    # apt needs python packages separately
+    sudo apt install -y -qq --no-install-recommends $pkglist python3-pip python3-venv 2>/dev/null || true
+  else
+    _pkg_install $pkglist python3-pip python3-venv 2>/dev/null || true
+  fi
+  # Import Mozilla CA certificates (fixes MITM proxy issues in RU)
+  if [ ! -f /etc/ssl/certs/ca-certificates.crt ] && [ -d /etc/ssl/certs ]; then
+    sudo update-ca-certificates --fresh 2>/dev/null || true
+  fi
+  # Ensure NPM can handle self-signed certs if needed
+  npm config set strict-ssl false 2>/dev/null || true  # will be re-enabled if registry OK
+  log "System packages OK ($PKG_MANAGER)"
   _step_done step_system
 fi
 
@@ -843,6 +932,12 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
   section "Node.js 22"
   mkdir -p ~/.n ~/.npm-global
   npm config set prefix ~/.npm-global 2>/dev/null || true
+  # Use npm mirror if official registry unreachable (common in RU)
+  if ! curl -fsSL --connect-timeout 5 https://registry.npmjs.org -o /dev/null 2>/dev/null; then
+    npm config set registry "$NPM_REGISTRY" 2>/dev/null && info "npm: using mirror $NPM_REGISTRY"
+  else
+    npm config set strict-ssl true 2>/dev/null || true
+  fi
   if [ ! -f "$N_PREFIX/bin/node" ] || ! node --version 2>/dev/null | grep -q "v22"; then
     npm install -g n@latest 2>/dev/null || true
     n 22 2>/dev/null && log "Node.js 22 installed" || { warn "n 22 failed — trying apt"; sudo apt-get install -y -qq nodejs npm 2>/dev/null && log "Node.js from apt" || warn "Node.js unavailable"; }
@@ -870,6 +965,11 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
     log "uv already installed"
   fi
   command -v uv &>/dev/null && uv python install 3.12 --default 2>/dev/null || true
+  # Configure pip mirror if pypi.org unreachable
+  if ! curl -fsSL --connect-timeout 5 https://pypi.org -o /dev/null 2>/dev/null; then
+    pip3 config set global.index-url "$PYPI_MIRROR" 2>/dev/null || true
+    command -v uv &>/dev/null && uv pip config set global.index-url "$PYPI_MIRROR" 2>/dev/null || true
+  fi
   command -v uv &>/dev/null && uv pip install --user --upgrade pip 2>/dev/null || true
   PYTHON_BIN="$( (command -v uv &>/dev/null && uv python find 3.12 2>/dev/null) || which python3.12 2>/dev/null || which python3 2>/dev/null || true)"
   [ -n "$PYTHON_BIN" ] && sudo update-alternatives --install /usr/bin/python python "$PYTHON_BIN" 1 2>/dev/null || true
@@ -1894,7 +1994,7 @@ echo
 log "Verification: $PASS passed, $FAIL failed"
 
 echo -e "${GREEN}============================================================${NC}"
-echo -e "${GREEN}       BOOTSTRAP COMPLETE (v31) · Mode: $MODE${NC}"
+echo -e "${GREEN}       BOOTSTRAP COMPLETE (v32) · Mode: $MODE${NC}"
 echo -e "${GREEN}============================================================${NC}"
 echo "  Log file:  $LOG_FILE"
 echo "  Health:    bash ~/setup.sh --health"
