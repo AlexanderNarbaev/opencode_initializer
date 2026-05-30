@@ -1398,6 +1398,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]) && _gate "INTERACTIVE_DO_LLM
   # Ollama — works with or without GPU
   if ! command -v ollama &>/dev/null; then
     info "Installing Ollama..."
+    command -v zstd &>/dev/null || sudo apt-get install -y zstd 2>/dev/null || true
     _curl "https://ollama.ai/install.sh" /tmp/ollama-install.sh 2>/dev/null && bash /tmp/ollama-install.sh 2>/dev/null && log "Ollama installed" || warn "Ollama install failed"
     rm -f /tmp/ollama-install.sh
     # Pull a light model for immediate use
@@ -1939,6 +1940,7 @@ PYGEN
   # Cold-start verification of each registered MCP
   if [ "$MCP_COUNT" -gt 0 ] 2>/dev/null; then
     section "MCP cold-start test"
+    set +e
     MCP_PASS=0; MCP_FAIL=0
     for mcp_name in $(python3 -c "import json; c=json.load(open('$HOME/.config/opencode/opencode.json')); print(' '.join(c.get('mcp',{}).keys()))" 2>/dev/null); do
       cmd_json=$(python3 -c "import json; c=json.load(open('$HOME/.config/opencode/opencode.json')); print(json.dumps(c['mcp']['$mcp_name']['command']))" 2>/dev/null)
@@ -1951,6 +1953,7 @@ PYGEN
       fi
     done
     log "MCP cold-start: $MCP_PASS ready, $MCP_FAIL missing"
+    set -e
   fi
 fi
 
