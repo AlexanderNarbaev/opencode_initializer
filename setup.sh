@@ -1231,6 +1231,7 @@ EOF
 # ═══════════════════════════════════════════════════════════════════════════════
 if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) && _gate "INTERACTIVE_DO_MCP"; then
   section "MCP servers & plugins"
+  set +e  # tolerate individual component failures
 
   _mcp() { _npm_install "$1" "$2"; }
 
@@ -1286,6 +1287,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
   command -v dotnet &>/dev/null && dotnet tool install -g csharp-ls 2>/dev/null || true
   command -v dotnet &>/dev/null && dotnet tool list -g 2>/dev/null || true
   log "LSP servers staged (installed if toolchains present)"
+  set -e  # restore strict mode
 fi
 
 # ═══════════════════════════════════════════════════════════════════════════════
