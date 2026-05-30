@@ -164,7 +164,7 @@ declare -A MCP_PACKAGES=(
   [postgres]="@modelcontextprotocol/server-postgres"
   [sequential-thinking]="@modelcontextprotocol/server-sequential-thinking"
   [sentry]="@sentry/mcp"
-  [grep]="@anthropic/mcp-server-grep"
+  # grep is remote-only at https://mcp.grep.app — configured directly in opencode.json
 )
 
 # ── Unified retry wrapper ────────────────────────────────────────────────────
@@ -894,6 +894,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
 
   # ── SDKMAN for Gradle, Maven, Kotlin, jbang ──
   if [ ! -d "$HOME/.sdkman" ]; then
+    command -v unzip &>/dev/null || sudo apt-get install -y unzip &>/dev/null || true
     _curl "https://get.sdkman.io" /tmp/sdkman-install.sh 2>/dev/null && \
       bash /tmp/sdkman-install.sh 2>/dev/null && rm -f /tmp/sdkman-install.sh || \
       warn "SDKMAN install failed — using apt fallback for build tools"
@@ -917,7 +918,19 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
 
   # Zig — use snap or direct download
   if ! command -v zig &>/dev/null; then
-    command -v snap &>/dev/null && sudo snap install zig --classic 2>/dev/null && log "Zig from snap" || warn "Zig not available (snap not found)"
+    if command -v snap &>/dev/null; then
+      sudo snap install zig --classic 2>/dev/null && log "Zig from snap"
+    fi
+    if ! command -v zig &>/dev/null; then
+      ZIG_VER="0.15.0"
+      if [ "$ARCH" = "aarch64" ]; then
+        _curl "https://ziglang.org/download/$ZIG_VER/zig-linux-aarch64-$ZIG_VER.tar.xz" /tmp/zig.tar.xz && \
+          sudo tar -xJf /tmp/zig.tar.xz -C /usr/local --strip-components=1 && log "Zig $ZIG_VER installed (direct)" || warn "Zig not available"
+      else
+        _curl "https://ziglang.org/download/$ZIG_VER/zig-linux-x86_64-$ZIG_VER.tar.xz" /tmp/zig.tar.xz && \
+          sudo tar -xJf /tmp/zig.tar.xz -C /usr/local --strip-components=1 && log "Zig $ZIG_VER installed (direct)" || warn "Zig not available"
+      fi
+    fi
   fi
 
   # Final apt fallback if anything is still missing
@@ -1086,12 +1099,17 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
   fi
   _step_done step_opencode
   if ! command -v bun &>/dev/null; then
-    BUN_SCRIPT=$(mktemp /tmp/bun-install.XXXXXX.sh)
-    if _curl "https://bun.sh/install" "$BUN_SCRIPT" 2>/dev/null; then
-      bash "$BUN_SCRIPT" && export PATH="$HOME/.bun/bin:$PATH" && log "Bun installed" || warn "Bun install failed"
-      rm -f "$BUN_SCRIPT"
+    # Bun needs unzip — ensure it's available
+    if command -v unzip &>/dev/null || sudo apt-get install -y unzip &>/dev/null; then
+      BUN_SCRIPT=$(mktemp /tmp/bun-install.XXXXXX.sh)
+      if _curl "https://bun.sh/install" "$BUN_SCRIPT" 2>/dev/null; then
+        bash "$BUN_SCRIPT" && export PATH="$HOME/.bun/bin:$PATH" && log "Bun installed" || warn "Bun install failed"
+        rm -f "$BUN_SCRIPT"
+      else
+        warn "Bun download failed — install manually: curl -fsSL https://bun.sh/install | bash"
+      fi
     else
-      warn "Bun download failed — install manually: curl -fsSL https://bun.sh/install | bash"
+      warn "Bun install failed (unzip unavailable)"
     fi
   else
     log "Bun already installed"
