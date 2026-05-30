@@ -3,7 +3,7 @@
 **Однокомандная настройка AI-усиленной dev-машины в WSL2/Linux.**
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/AlexandrNarbaev/opencode_initializer/main/setup_v28.1.sh) --full
+bash <(curl -fsSL https://raw.githubusercontent.com/AlexandrNarbaev/opencode_initializer/main/setup.sh) --full
 ```
 
 ## Что делает

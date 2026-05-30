@@ -25,7 +25,10 @@ setup-*.log
 
 # Archive versions
 setup_v[0-9]*.sh
-!setup_v28.1.sh
+!setup.sh
 
 # Temp
 /tmp/
+v[0-9]*.sh
+.opencode/
+wal/
