@@ -1,0 +1,31 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Cache
+__pycache__/
+*.pyc
+.cache/
+
+# Secrets
+*.key
+*.pem
+.env
+.env.local
+
+# Logs
+*.log
+setup-*.log
+
+# Archive versions
+setup_v[0-9]*.sh
+!setup_v28.1.sh
+
+# Temp
+/tmp/
