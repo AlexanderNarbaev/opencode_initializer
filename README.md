@@ -1,68 +1,156 @@
 # Ultimate Dev Machine Bootstrap
 
-**Однокомандная настройка AI-усиленной dev-машины в WSL2/Linux.**
+**Однокомандная настройка AI-усиленной dev-машины — WSL2, Linux, macOS.**
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/AlexandrNarbaev/opencode_initializer/main/setup.sh) --full
+bash <(curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializer/main/setup.sh) --full
 ```
 
-## Что делает
+## Что делает (v32)
 
-За 10-15 минут превращает свежий WSL2/Linux в готовую среду разработки с:
-
-- **8 языков**: Java 25, Node.js 22, Python 3.12, Go 1.26, Rust 1.93, .NET 9, Kotlin, Zig
-- **14 MCP-серверов**: context7, filesystem, agentic-tools, codegraph, playwright, agent-browser, codesorb, mcp-replay, open-orchestra, loopsense, datafy, github, postgres, sequential-thinking
+- **8 языков**: Java 25 (Adoptium), Node.js 22, Python 3.12 + uv, Go 1.26, Rust 1.93, .NET 9, Kotlin, Zig
+- **16 MCP-серверов**: context7, filesystem, agentic-tools, codegraph, playwright, agent-browser, codesorb, mcp-replay, open-orchestra, loopsense, datafy, github, postgres, sequential-thinking, **Sentry**, **Grep**
 - **10 LSP-серверов**: gopls, rust-analyzer, typescript, pyright, omnisharp, yaml, marksman, taplo, lua, zls
 - **Multi-Provider AI**: DeepSeek V4 Pro (primary) + OpenCode Go (fallback) — авто-переключение
-- **Память**: ChromaDB + Muninn (векторная БД для AI-агентов)
-- **Экосистема**: Shokunin (62+ skills), Superpowers, Caveman
-- **Инфраструктура**: Docker, Kafka, Postgres, MongoDB, Redis, MinIO (docker-compose)
+- **GPU/LLM (опционально)**: Ollama, vLLM, SGLang, Open WebUI, LlamaEdge
+- **Память**: ChromaDB + Muninn (векторная БД)
+- **Инфраструктура**: Docker, Kafka, Postgres, MongoDB, Redis, MinIO
+- **Кроссплатформа**: Ubuntu, Debian, Fedora, Arch, Alpine, openSUSE, macOS (brew)
+- **Архитектуры**: amd64 + arm64
+- **Зеркала для РФ**: авто-фолбэк GitHub→ghproxy, npm→npmmirror, pip→yandex
 
 ## Быстрый старт
 
 ```bash
-# Минимально (только системные пакеты + OpenCode)
-bash setup_v28.1.sh --full
+# Полная установка (curl, без скачивания скрипта)
+bash <(curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializer/main/setup.sh) --full
 
 # С ключами API
-bash setup_v28.1.sh -k "sk-..." --deepseek-key "sk-..." --full
+bash setup.sh --full -k "sk-..." --deepseek-key "sk-..." -s "мой-sudo-пароль"
 
-# Интерактивный режим (выбор компонентов)
-bash setup_v28.1.sh --interactive
+# Интерактивный режим (выбрать что ставить)
+bash setup.sh --interactive
 
-# Диагностика
-bash setup_v28.1.sh --health
+# Только посмотреть что будет (dry-run)
+bash setup.sh --dry-run --full
 
-# Только починить конфиг
-bash setup_v28.1.sh --fix-config
+# Диагностика (без изменений)
+bash setup.sh --health
 ```
 
-## Режимы
+## После установки — CLI `dev`
+
+```bash
+dev health              # диагностика всей системы
+dev list                # список установленных компонентов
+dev update              # обновить всё + миграции
+dev self-update         # обновить сам скрипт из git
+dev install llm         # доустановить GPU/LLM
+dev config              # редактировать конфиг
+```
+
+## Восстановление после сбоя
+
+```bash
+# Если скрипт упал — просто перезапустить. Прогресс сохраняется.
+bash setup.sh --full
+
+# Проверить что сломалось
+bash setup.sh --health
+
+# Починить конфиг OpenCode
+bash setup.sh --fix-config
+
+# Починить .zshrc
+bash setup.sh --fix-zshrc
+
+# Переустановить всё (данные проекта сохранятся)
+bash setup.sh --reinit
+```
+
+## GPU / Локальные LLM
+
+```bash
+# При интерактивной установке выбрать "y" на вопрос "Local LLM runtimes?"
+bash setup.sh --interactive
+
+# Или доустановить потом:
+dev install llm
+
+# После установки:
+ollama run qwen3:14b           # запустить модель (14B — для 16GB VRAM)
+ollama pull deepseek-r1:8b     # ещё одна модель
+open http://localhost:3300     # Open WebUI — чат-интерфейс
+```
+
+## Зеркала для России
+
+Скрипт автоматически определяет недоступность сервисов и переключается на зеркала:
+- GitHub → `ghproxy.com`
+- npm → `registry.npmmirror.com`
+- pip → `mirror.yandex.ru`
+- Go → `golang.google.cn`
+
+Никаких ручных настроек не требуется.
+
+## Кроссплатформа
+
+| Пакетный менеджер | Дистрибутивы |
+|-------------------|-------------|
+| `apt` | Ubuntu, Debian, Mint, Pop!_OS |
+| `dnf` | Fedora, RHEL, CentOS Stream |
+| `pacman` | Arch, Manjaro, EndeavourOS |
+| `apk` | Alpine Linux |
+| `zypper` | openSUSE |
+| `brew` | macOS, Linuxbrew |
+
+Скрипт автоматически определяет систему и использует правильный пакетный менеджер.
+
+## Все режимы
 
 | Режим | Описание |
 |-------|----------|
 | `--full` | Полная установка (по умолчанию) |
-| `--reinit` | Переустановка инструментов, данные проекта сохраняются |
-| `--new <dir>` | Только инициализация нового проекта |
-| `--health` | Диагностика всех компонентов без изменений |
+| `--reinit` | Переустановка инструментов, данные сохраняются |
+| `--new <dir>` | Инициализация нового проекта |
+| `--health` | Диагностика (36+ проверок) |
 | `--update` | Обновление инструментов |
 | `--upgrade` | Полное обновление системы |
 | `--interactive` | Пошаговый выбор компонентов |
 | `--fix-config` | Перегенерировать opencode.json |
 | `--fix-zshrc` | Починить .zshrc |
+| `--dry-run` | Показать что будет, без изменений |
 
-## Ключевые фичи v28.1
+## Опции
 
-- **Anti-hang**: `timeout` на всех npm install и curl (120s), защита от зависания
-- **WSL2 DNS fix**: авто-добавление 8.8.8.8 + 1.1.1.1 при проблемах резолвинга
-- **_curl() wrapper**: 5 попыток с экспоненциальной задержкой (2→4→8→16→32s), кеш 24ч
-- **MCP npm→bun fallback**: при сбое npm автоматически пробует bun
-- **Multi-provider**: `opencode.json` содержит оба провайдера (`deepseek` + `opencode`)
-- **Download cache**: `~/.cache/opencode-setup/` — повторные запуски без скачивания
+| Флаг | Описание |
+|------|----------|
+| `-k, --api-key` | OpenCode Go API ключ |
+| `--deepseek-key` | DeepSeek API ключ |
+| `-s, --sudo-pass` | Sudo пароль (кешируется) |
+| `-p, --project-dir` | Директория проекта (default: ~/projects) |
+| `-n, --git-name` | Имя для git |
+| `-e, --git-email` | Email для git |
+
+## Структура проекта
+
+```
+opencode_initializer/
+├── setup.sh              # основной скрипт (2006 строк)
+├── dev.sh                # CLI: dev install|remove|update|health|list|config
+├── lib/helpers.sh        # общие функции (_curl, _retry, _npm_install)
+├── migrations/           # миграции (авто-запуск при dev update)
+├── .github/workflows/    # CI (ShellCheck)
+├── v17.0.sh ... v27.0.sh # архивные версии
+└── AGENTS.md             # документация для AI-агентов
+```
 
 ## Требования
 
-- Ubuntu 24.04+ / Debian 12+ / WSL2
+- Любой Linux (Ubuntu 24.04+, Debian 12+, Fedora, Arch, Alpine, openSUSE)
+- macOS (Homebrew)
+- WSL2 (Windows 10/11)
+- amd64 или arm64
 - 10GB+ свободного места
 - Sudo-доступ
 
