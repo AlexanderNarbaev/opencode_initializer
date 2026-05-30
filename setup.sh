@@ -56,9 +56,27 @@ _retry() {
   return 1
 }
 
-# npm install with bun fallback + timeout
+# npm install with local cache (npm pack → install from .tgz)
+MCP_CACHE="$DL_CACHE/mcp-offline"
+mkdir -p "$MCP_CACHE"
 _npm_install() {
-  local pkg="$1" name="$2"
+  local pkg="$1" name="$2" pkg_name
+  pkg_name=$(echo "$pkg" | sed 's|@.*/||;s|@.*||')
+  local tgz="$MCP_CACHE/${pkg_name}-latest.tgz"
+  # Try cached tarball first
+  if [ -f "$tgz" ] && timeout 120 npm install -g "$tgz" --prefer-offline 2>/dev/null; then
+    log "MCP: $name (cached)"; return 0
+  fi
+  # Download fresh tarball with retry
+  info "MCP: downloading $name..."
+  if timeout 120 npm pack "$pkg@latest" --pack-destination "$MCP_CACHE" 2>/dev/null; then
+    # Find the downloaded tgz (npm pack adds version number)
+    local downloaded=$(ls -t "$MCP_CACHE/${pkg_name}-"*.tgz 2>/dev/null | head -1)
+    if [ -n "$downloaded" ] && timeout 120 npm install -g "$downloaded" --prefer-offline 2>/dev/null; then
+      log "MCP: $name (npm pack)"; return 0
+    fi
+  fi
+  # Fallback: direct npm install
   if timeout 120 npm install -g "${pkg}@latest" --prefer-offline 2>/dev/null; then
     log "MCP: $name (npm)"; return 0
   elif command -v bun &>/dev/null && timeout 120 bun install -g "${pkg}@latest" --prefer-offline 2>/dev/null; then
