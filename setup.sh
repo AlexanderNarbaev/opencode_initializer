@@ -12,6 +12,7 @@ IFS=$'\n\t'
 
 DL_CACHE="${HOME}/.cache/opencode-setup"
 mkdir -p "$DL_CACHE"
+PROGRESS="$DL_CACHE/progress"
 trap 'rm -f /tmp/docker-install.*.sh /tmp/uv-install.*.sh /tmp/bun-install.*.sh /tmp/sdkman-install.sh /tmp/superpowers.* 2>/dev/null' EXIT
 
 GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RED='\033[0;31m'; CYAN='\033[0;36m'; NC='\033[0m'
@@ -20,6 +21,10 @@ warn()  { echo -e "${YELLOW}[!]${NC} $1"; }
 err()   { echo -e "${RED}[✗]${NC} $1"; exit 1; }
 info()  { echo -e "${CYAN}[i]${NC} $1"; }
 section() { echo; echo -e "${CYAN}─── $1 ───${NC}"; }
+
+# ── Progress tracking — resume after failure ────────────────────────────────
+_step_skip() { grep -qxF "$1" "$PROGRESS" 2>/dev/null && { log "Skip: $2 (completed earlier)"; return 0; }; return 1; }
+_step_done() { echo "$1" >> "$PROGRESS"; }
 
 # ── Unified retry wrapper ────────────────────────────────────────────────────
 # Usage: _curl <url> [output_file] [extra_curl_opts...]
@@ -572,6 +577,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
     libcairo2-dev libpango1.0-dev libgdk-pixbuf-xlib-2.0-dev libffi-dev shared-mime-info \
     fonts-inter fonts-paratype netcat-openbsd bind9-dnsutils 2>/dev/null || true
   log "System packages OK"
+  _step_done step_system
 fi
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -597,6 +603,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]) && _gate "INTERACTIVE_DO_DOC
   else
     log "Docker already installed"
   fi
+  _step_done step_docker
 fi
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -630,6 +637,7 @@ source "\$ZSH/oh-my-zsh.sh"
 ZSHEOF
   fi
   log "Zsh configured"
+  _step_done step_zsh
 fi
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -688,6 +696,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
 
   # Final apt fallback if anything is still missing
   if ! command -v java &>/dev/null; then
+  _step_done step_java
     sudo apt-get install -y -qq openjdk-25-jdk gradle maven 2>/dev/null && log "Java/Gradle/Maven from apt" || warn "Java unavailable"
   fi
 fi
@@ -704,6 +713,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
     n 22 2>/dev/null && log "Node.js 22 installed" || { warn "n 22 failed — trying apt"; sudo apt-get install -y -qq nodejs npm 2>/dev/null && log "Node.js from apt" || warn "Node.js unavailable"; }
   else
     log "Node.js 22 already installed"
+  _step_done step_node
   fi
 fi
 
@@ -729,6 +739,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
   PYTHON_BIN="$( (command -v uv &>/dev/null && uv python find 3.12 2>/dev/null) || which python3.12 2>/dev/null || which python3 2>/dev/null || true)"
   [ -n "$PYTHON_BIN" ] && sudo update-alternatives --install /usr/bin/python python "$PYTHON_BIN" 1 2>/dev/null || true
   log "Python 3.12 OK"
+  _step_done step_python
 fi
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -752,6 +763,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
     fi
   else
     log "Go $(go version 2>/dev/null | cut -d' ' -f3) already installed"
+  _step_done step_go
   fi
 fi
 
@@ -772,6 +784,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
     fi
   else
     log "Rust $(rustc --version 2>/dev/null | cut -d' ' -f2) already installed"
+  _step_done step_rust
   fi
 fi
 
@@ -795,6 +808,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
     fi
   else
     log ".NET $(dotnet --version 2>/dev/null) already installed"
+  _step_done step_dotnet
   fi
 fi
 
@@ -832,6 +846,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
     fi
   else
     log "OpenCode $(opencode --version 2>/dev/null) already installed"
+  _step_done step_opencode
   fi
   if ! command -v bun &>/dev/null; then
     BUN_SCRIPT=$(mktemp /tmp/bun-install.XXXXXX.sh)
@@ -939,6 +954,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]) && _gate "INTERACTIVE_DO_CHR
       warn "ChromaDB server failed to start"
     fi
   else
+  _step_done step_chromadb
     log "ChromaDB server already running"
   fi
 
@@ -977,6 +993,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]) && _gate "INTERACTIVE_DO_SHO
   if [ ! -d "$HOME/.shokunin" ]; then
     bash <(curl -sL https://raw.githubusercontent.com/EliasOulkadi/shokunin/master/install.sh) -y 2>/dev/null || true
     log "Shokunin installed"
+  _step_done step_shokunin
     # Fix shokunin profile to not echo on load (P10k compat)
     SHOKUNIN_PROFILE="$HOME/.shokunin/scripts/linux/profile.sh"
     [ -f "$SHOKUNIN_PROFILE" ] && sed -i 's/echo "Shokunin AI Ecosystem loaded"/# echo "Shokunin AI Ecosystem loaded"/' "$SHOKUNIN_PROFILE" 2>/dev/null || true
@@ -1475,6 +1492,7 @@ PYGEN
   if echo "$RESULT" | grep -q "VALID:"; then
     MCP_COUNT=$(echo "$RESULT" | grep "VALID:" | cut -d: -f2)
     log "opencode.json valid — ${MCP_COUNT} MCP server(s) registered"
+    _step_done step_opencode_json
   else
     warn "opencode.json generation produced unexpected output"
   fi
