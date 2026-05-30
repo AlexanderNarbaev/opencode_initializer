@@ -1,30 +1,83 @@
 #!/usr/bin/env bash
 # ============================================================================
-#  Ultimate Dev Machine Bootstrap v29 — WSL2 DNS Fix + Multi-Provider + Anti-Hang
-#  Режимы: full | reinit | new | health | update | upgrade | fix-config | fix-zshrc | interactive
-#  Провайдеры: DeepSeek V4 Pro + OpenCode Go (auto-failover), small_model: flash
-#  Сеть: WSL2 DNS fix (8.8.8.8, 1.1.1.1), proxy detect, DHCP reset, --max-time 120s
-#  curl: _curl() — 5 попыток, эксп. задержка, кеш 24ч, таймаут передачи 120s
-#  MCP: npm→bun fallback, timeout 120s, --prefer-offline
-# ============================================================================
+#  Ultimate Dev Machine Bootstrap v30 — Secure + WSL2-Optimized
 set -euo pipefail
 IFS=$'\n\t'
 
 DL_CACHE="${HOME}/.cache/opencode-setup"
 mkdir -p "$DL_CACHE"
 PROGRESS="$DL_CACHE/progress"
-trap 'rm -f /tmp/docker-install.*.sh /tmp/uv-install.*.sh /tmp/bun-install.*.sh /tmp/sdkman-install.sh /tmp/superpowers.* 2>/dev/null' EXIT
+SECRETS_FILE="${HOME}/.config/opencode/secrets.env"
+mkdir -p "$(dirname "$SECRETS_FILE")"
+
+# ── Cleanup + error diagnostics ──────────────────────────────────────────────
+cleanup() {
+  local exit_code=$?
+  rm -f /tmp/docker-install.*.sh /tmp/uv-install.*.sh /tmp/bun-install.*.sh \
+        /tmp/sdkman-install.sh /tmp/superpowers.* /tmp/dotnet-install.*.sh \
+        /tmp/rustup-init.*.sh /tmp/opencode-install.sh 2>/dev/null
+  if [ $exit_code -ne 0 ] && [ "${MODE:-}" != "health" ]; then
+    warn "Script exited with code $exit_code at $(date +%H:%M:%S)"
+    warn "Log: $LOG_FILE"
+    warn "Re-run: bash ~/setup.sh --health ; or resume from last step"
+  fi
+  exit $exit_code
+}
+trap cleanup EXIT INT TERM
 
 GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RED='\033[0;31m'; CYAN='\033[0;36m'; NC='\033[0m'
-log()   { echo -e "${GREEN}[✓]${NC} $1"; }
-warn()  { echo -e "${YELLOW}[!]${NC} $1"; }
-err()   { echo -e "${RED}[✗]${NC} $1"; exit 1; }
-info()  { echo -e "${CYAN}[i]${NC} $1"; }
+log()   { echo -e "${GREEN}[✓]${NC} $(date +%H:%M:%S) $1"; }
+warn()  { echo -e "${YELLOW}[!]${NC} $(date +%H:%M:%S) $1" >&2; }
+err()   { echo -e "${RED}[✗]${NC} $(date +%H:%M:%S) $1" >&2; exit 1; }
+info()  { echo -e "${CYAN}[i]${NC} $(date +%H:%M:%S) $1"; }
 section() { echo; echo -e "${CYAN}─── $1 ───${NC}"; }
+
+# ── OS validation ────────────────────────────────────────────────────────────
+if [ ! -f /etc/os-release ]; then
+  warn "/etc/os-release not found — continuing anyway"
+else
+  . /etc/os-release
+  case "$ID" in
+    ubuntu|debian|linuxmint|pop|elementary|zorin) ;;
+    *) warn "Untested OS: $ID $VERSION_ID — continuing (Ubuntu/Debian expected)" ;;
+  esac
+  info "OS: $PRETTY_NAME ($(uname -m))"
+fi
 
 # ── Progress tracking — resume after failure ────────────────────────────────
 _step_skip() { grep -qxF "$1" "$PROGRESS" 2>/dev/null && { log "Skip: $2 (completed earlier)"; return 0; }; return 1; }
 _step_done() { echo "$1" >> "$PROGRESS"; }
+
+# ── Progress spinner for long operations ────────────────────────────────────
+_spin() {
+  local pid=$1 msg="${2:-Working}" i=0
+  local spin='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
+  while kill -0 "$pid" 2>/dev/null; do
+    printf "\r  ${CYAN}%s${NC} %s" "${spin:$((i++ % 10)):1}" "$msg"
+    sleep 0.1
+  done
+  printf "\r\033[K"
+}
+
+# ── MCP registry (used in install, health check, verification) ─────────────
+declare -A MCP_PACKAGES=(
+  [context7]="c7-mcp-server"
+  [filesystem]="@modelcontextprotocol/server-filesystem"
+  [agentic-tools]="@pimzino/agentic-tools-mcp"
+  [codegraph]="@colbymchenry/codegraph"
+  [playwright]="@playwright/mcp"
+  [agent-browser]="agent-browser"
+  [codesorb]="codesorb"
+  [mcp-replay]="mcp-replay"
+  [open-orchestra]="open-orchestra"
+  [loopsense]="@loopsense/mcp"
+  [datafy]="@teckedd-code2save/datafy"
+  [github]="@modelcontextprotocol/server-github"
+  [postgres]="@modelcontextprotocol/server-postgres"
+  [sequential-thinking]="@modelcontextprotocol/server-sequential-thinking"
+  [sentry]="@sentry/mcp"
+  [grep]="@anthropic/mcp-server-grep"
+)
 
 # ── Unified retry wrapper ────────────────────────────────────────────────────
 # Usage: _curl <url> [output_file] [extra_curl_opts...]
@@ -100,6 +153,7 @@ while [[ $# -gt 0 ]]; do case $1 in
   --update)            MODE="update"; shift;;
   --upgrade)           MODE="upgrade"; shift;;
   --interactive)       MODE="interactive"; shift;;
+  --dry-run)           MODE="dry-run"; DRY_RUN=true; shift;;
   --fix-config)        MODE="fix-config"; shift;;
   --fix-zshrc)         MODE="fix-zshrc"; shift;;
   -p|--project-dir)    PROJECT_DIR="$2"; shift 2;;
@@ -152,6 +206,14 @@ CORE_PATH="$NPM_GLOBAL/bin:$HOME/.local/bin:$N_PREFIX/bin:$HOME/.bun/bin:$HOME/.
 export PATH="$CORE_PATH:$PATH"
 export N_PREFIX="$N_PREFIX"
 OPENCODE_VER="${OPENCODE_VER:-latest}"
+
+# ── Dry-run mode ────────────────────────────────────────────────────────────
+if [ "${DRY_RUN:-false}" = "true" ]; then
+  warn "DRY-RUN MODE — no changes will be made (commands shown, not executed)"
+  _dry() { info "[DRY] $*"; return 0; }
+else
+  _dry() { "$@"; }
+fi
 
 # ── Health Check Mode ───────────────────────────────────────────────────────
 if [ "$MODE" = "health" ]; then
@@ -533,6 +595,64 @@ done
 $NET_OK || warn "Limited connectivity — using apt fallbacks where possible"
 echo
 
+# ── WSL2 optimization ────────────────────────────────────────────────────────
+if grep -qi wsl /proc/version 2>/dev/null || grep -qi microsoft /proc/version 2>/dev/null; then
+  section "WSL2 optimization"
+  WSL_USERPROFILE=$(wslpath "$(wslvar USERPROFILE 2>/dev/null || echo '')" 2>/dev/null || echo "/mnt/c/Users/${USER}")
+  WSL_CONF_FILE="$WSL_USERPROFILE/.wslconfig"
+  if [ ! -f "$WSL_CONF_FILE" ]; then
+    log "Generating $WSL_CONF_FILE"
+    cat > "$WSL_CONF_FILE" << 'WSLCONF'
+[wsl2]
+memory=8GB
+processors=4
+swap=4GB
+localhostForwarding=true
+networkingMode=mirrored
+dnsTunneling=true
+autoProxy=true
+guiApplications=true
+vmIdleTimeout=60000
+
+[experimental]
+autoMemoryReclaim=dropCache
+sparseVhd=true
+WSLCONF
+    log ".wslconfig created (WSL restart needed: wsl --shutdown)"
+  fi
+
+  # wsl.conf for systemd + automount + path hygiene
+  WSL_DIST_CONF="/etc/wsl.conf"
+  if [ ! -f "$WSL_DIST_CONF" ] || ! grep -q 'systemd=true' "$WSL_DIST_CONF" 2>/dev/null; then
+    sudo tee "$WSL_DIST_CONF" << 'WSLDIST' > /dev/null
+[boot]
+systemd=true
+
+[automount]
+enabled=true
+mountFsTab=true
+root=/mnt/
+options="metadata,umask=022,fmask=011"
+
+[network]
+generateHosts=true
+generateResolvConf=true
+
+[interop]
+enabled=true
+appendWindowsPath=false
+
+WSLDIST
+    log "wsl.conf configured (systemd, automount, no Windows PATH)"
+  fi
+
+  # Ensure distro name in /etc/hostname
+  [ -f /etc/hostname ] && HOSTNAME_FILE=$(cat /etc/hostname 2>/dev/null)
+  if ! grep -q "${HOSTNAME_FILE:-wsl}" /etc/hosts 2>/dev/null; then
+    echo "127.0.0.1 ${HOSTNAME_FILE:-localhost}" | sudo tee -a /etc/hosts 2>/dev/null || true
+  fi
+fi
+
 # ── Sudo ─────────────────────────────────────────────────────────────────────
 [ "$EUID" -eq 0 ] && err "Do not run as root."
 if [ -z "${SUDO_PASS:-}" ] && [ "$MODE" != "new" ] && [ "$MODE" != "fix-config" ]; then
@@ -869,20 +989,9 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
 
   _mcp() { _npm_install "$1" "$2"; }
 
-  _mcp "c7-mcp-server"                 "context7"
-  _mcp "@modelcontextprotocol/server-filesystem" "filesystem"
-  _mcp "@pimzino/agentic-tools-mcp"    "agentic-tools"
-  _mcp "@colbymchenry/codegraph"       "codegraph"
-  _mcp "@playwright/mcp"               "playwright"
-  _mcp "agent-browser"                 "agent-browser"
-  _mcp "codesorb"                      "codesorb"
-  _mcp "mcp-replay"                    "mcp-replay"
-  _mcp "open-orchestra"                "open-orchestra"
-  _mcp "@loopsense/mcp"                "loopsense"
-  _mcp "@teckedd-code2save/datafy"     "datafy"
-  _mcp "@modelcontextprotocol/server-github" "github"
-  _mcp "@modelcontextprotocol/server-postgres" "postgres"
-  _mcp "@modelcontextprotocol/server-sequential-thinking" "sequential-thinking"
+  for name in "${!MCP_PACKAGES[@]}"; do
+    _mcp "${MCP_PACKAGES[$name]}" "$name"
+  done
 
   # Muninn via pipx (skills only, not an MCP server)
   if command -v muninn-remembers &>/dev/null; then
@@ -1446,6 +1555,10 @@ if npm_global_installed("@modelcontextprotocol/server-postgres"):
 if npm_global_installed("@modelcontextprotocol/server-sequential-thinking"):
     mcps["sequential-thinking"] = {"command": ["npx", "-y", "@modelcontextprotocol/server-sequential-thinking"], "enabled": True}
 
+# Remote MCP servers (no local binary needed)
+mcps["sentry"] = {"type": "remote", "url": "https://mcp.sentry.dev/mcp", "enabled": True, "timeout": 30000}
+mcps["grep"] = {"type": "remote", "url": "https://mcp.grep.app", "enabled": True, "timeout": 30000}
+
 # LSP servers — detect installed, configure in opencode.json
 lsp_config = {}
 
@@ -1469,9 +1582,38 @@ config = {
     "$schema": "https://opencode.ai/config.json",
     "model": "deepseek/deepseek-v4-pro",
     "small_model": "deepseek/deepseek-v4-flash",
+    "default_agent": "build",
+    "autoupdate": True,
+    "compaction": {
+        "auto": True,
+        "prune": True,
+        "tail_turns": 2,
+        "reserved": 10000
+    },
     "provider": {
-        "deepseek": {},
-        "opencode": {}
+        "deepseek": {
+            "options": {
+                "timeout": 600000,
+                "chunkTimeout": 60000
+            }
+        },
+        "opencode": {
+            "options": {
+                "timeout": 600000,
+                "chunkTimeout": 60000
+            }
+        }
+    },
+    "tool_output": {
+        "max_lines": 2000,
+        "max_bytes": 51200
+    },
+    "watcher": {
+        "ignore": ["node_modules/**", "dist/**", ".git/**", "target/**", "__pycache__/**"]
+    },
+    "experimental": {
+        "mcp_timeout": 30000,
+        "openTelemetry": True
     },
     "lsp": lsp_config,
     "plugin": ["opencode-codegraph"],
@@ -1539,11 +1681,16 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then
   SHOKUNIN_LINE="[ -f \"\$HOME/.shokunin/scripts/linux/profile.sh\" ] && source \"\$HOME/.shokunin/scripts/linux/profile.sh\" 2>/dev/null"
   BUN_LINE="export BUN_INSTALL=\"\$HOME/.bun\""
   DOTNET_LINE="export DOTNET_ROOT=\"\$HOME/.dotnet\""
-  DEEPSEEK_LINE="export DEEPSEEK_API_KEY=\"$DEEPSEEK_KEY\""
+  SECRETS_SOURCE="[ -f \"\$HOME/.config/opencode/secrets.env\" ] && source \"\$HOME/.config/opencode/secrets.env\""
+
+  # Store API keys in secrets.env (chmod 600), NOT in .bashrc/.zshrc
+  touch "$SECRETS_FILE" && chmod 600 "$SECRETS_FILE"
+  sed -i "/DEEPSEEK_API_KEY=/d" "$SECRETS_FILE" 2>/dev/null || true
+  [ -n "${DEEPSEEK_KEY:-}" ] && echo "export DEEPSEEK_API_KEY=\"$DEEPSEEK_KEY\"" >> "$SECRETS_FILE"
+  log "API keys stored in $SECRETS_FILE (chmod 600)"
 
   for rc in ~/.bashrc ~/.zshrc; do
     [ ! -f "$rc" ] && continue
-    # Remove all old PATH/N_PREFIX/SDKMAN/DOTNET/BUN/DEEPSEEK lines
     sed -i "\|export PATH=.*\.npm-global|d" "$rc" 2>/dev/null || true
     sed -i "\|export N_PREFIX=|d" "$rc" 2>/dev/null || true
     sed -i "\|export SDKMAN_DIR=|d" "$rc" 2>/dev/null || true
@@ -1551,18 +1698,18 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then
     sed -i "\|export BUN_INSTALL=|d" "$rc" 2>/dev/null || true
     sed -i "\|export DEEPSEEK_API_KEY=|d" "$rc" 2>/dev/null || true
     sed -i "\|export DOTNET_ROOT=|d" "$rc" 2>/dev/null || true
-    # Append clean lines
+    sed -i "\|secrets\.env|d" "$rc" 2>/dev/null || true
     {
       echo "$PATH_LINE"
       echo "$N_PREFIX_LINE"
       echo "$SDKMAN_LINE"
       echo "$BUN_LINE"
       echo "$DOTNET_LINE"
-      echo "$DEEPSEEK_LINE"
+      echo "$SECRETS_SOURCE"
       echo "$SHOKUNIN_LINE"
     } >> "$rc"
   done
-  log "PATH + env configured (deduplicated)"
+  log "PATH + env configured (API keys in secrets.env)"
 fi
 
 # ═══════════════════════════════════════════════════════════════════════════════
