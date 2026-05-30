@@ -1013,7 +1013,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
       sudo snap install zig --classic 2>/dev/null && log "Zig from snap"
     fi
     if ! command -v zig &>/dev/null; then
-      ZIG_VER="0.15.0"; ZIG_TARGET=""
+      ZIG_VER="0.14.0"; ZIG_TARGET=""
       [ "$ARCH" = "aarch64" ] && ZIG_TARGET="aarch64" || ZIG_TARGET="x86_64"
       ZIG_URL="$ZIG_MIRROR/$ZIG_VER/zig-linux-${ZIG_TARGET}-$ZIG_VER.tar.xz"
       ZIG_DIR="/usr/local/lib/zig-$ZIG_VER"
@@ -1284,6 +1284,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
   command -v go &>/dev/null && go install golang.org/x/tools/gopls@latest 2>/dev/null || true
   command -v rustup &>/dev/null && rustup component add rust-analyzer 2>/dev/null || true
   command -v dotnet &>/dev/null && dotnet tool install -g csharp-ls 2>/dev/null || true
+  command -v dotnet &>/dev/null && dotnet tool list -g 2>/dev/null || true
   log "LSP servers staged (installed if toolchains present)"
 fi
 
