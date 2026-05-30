@@ -163,7 +163,7 @@ declare -A MCP_PACKAGES=(
   [github]="@modelcontextprotocol/server-github"
   [postgres]="@modelcontextprotocol/server-postgres"
   [sequential-thinking]="@modelcontextprotocol/server-sequential-thinking"
-  [sentry]="@sentry/mcp"
+  # sentry is remote-only at https://mcp.sentry.dev/mcp — configured directly in opencode.json
   # grep is remote-only at https://mcp.grep.app — configured directly in opencode.json
 )
 
@@ -894,7 +894,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
 
   # ── SDKMAN for Gradle, Maven, Kotlin, jbang ──
   if [ ! -d "$HOME/.sdkman" ]; then
-    command -v unzip &>/dev/null || sudo apt-get install -y unzip &>/dev/null || true
+    command -v unzip &>/dev/null || sudo apt-get install -y unzip zip &>/dev/null || true
     _curl "https://get.sdkman.io" /tmp/sdkman-install.sh 2>/dev/null && \
       bash /tmp/sdkman-install.sh 2>/dev/null && rm -f /tmp/sdkman-install.sh || \
       warn "SDKMAN install failed — using apt fallback for build tools"
@@ -922,13 +922,22 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
       sudo snap install zig --classic 2>/dev/null && log "Zig from snap"
     fi
     if ! command -v zig &>/dev/null; then
-      ZIG_VER="0.15.0"
-      if [ "$ARCH" = "aarch64" ]; then
-        _curl "https://ziglang.org/download/$ZIG_VER/zig-linux-aarch64-$ZIG_VER.tar.xz" /tmp/zig.tar.xz && \
-          sudo tar -xJf /tmp/zig.tar.xz -C /usr/local --strip-components=1 && log "Zig $ZIG_VER installed (direct)" || warn "Zig not available"
+      ZIG_VER="0.15.0"; ZIG_TARGET=""
+      [ "$ARCH" = "aarch64" ] && ZIG_TARGET="aarch64" || ZIG_TARGET="x86_64"
+      ZIG_URL="https://ziglang.org/download/$ZIG_VER/zig-linux-${ZIG_TARGET}-$ZIG_VER.tar.xz"
+      ZIG_DIR="/usr/local/lib/zig-$ZIG_VER"
+      if [ ! -d "$ZIG_DIR" ]; then
+        if _curl "$ZIG_URL" /tmp/zig.tar.xz 2>/dev/null; then
+          sudo mkdir -p "$ZIG_DIR" && \
+          sudo tar -xJf /tmp/zig.tar.xz -C "$ZIG_DIR" --strip-components=1 2>/dev/null && \
+          sudo ln -sf "$ZIG_DIR/zig" /usr/local/bin/zig && \
+          log "Zig $ZIG_VER installed (direct)" || warn "Zig not available"
+        else
+          warn "Zig download failed"
+        fi
+        rm -f /tmp/zig.tar.xz
       else
-        _curl "https://ziglang.org/download/$ZIG_VER/zig-linux-x86_64-$ZIG_VER.tar.xz" /tmp/zig.tar.xz && \
-          sudo tar -xJf /tmp/zig.tar.xz -C /usr/local --strip-components=1 && log "Zig $ZIG_VER installed (direct)" || warn "Zig not available"
+        log "Zig $ZIG_VER already installed"
       fi
     fi
   fi
