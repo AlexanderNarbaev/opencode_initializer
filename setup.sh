@@ -615,14 +615,36 @@ ZSHEOF
 fi
 
 # ═══════════════════════════════════════════════════════════════════════════════
-#  STEP 4: Java 25 via SDKMAN + Gradle + Maven + jbang
+#  STEP 4: Java 25 via Adoptium API + Gradle + Maven + jbang
 # ═══════════════════════════════════════════════════════════════════════════════
 if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) && _gate "INTERACTIVE_DO_JAVA"; then
   section "Java 25 + Gradle + Maven + jbang"
+  
+  # ── Java via Adoptium API (GitHub-hosted, reliable in WSL2) ──
+  if ! command -v java &>/dev/null; then
+    JAVA_MAJOR=25
+    ADOPTIUM_URL="https://api.adoptium.net/v3/binary/latest/${JAVA_MAJOR}/ga/linux/x64/jdk/hotspot/normal/eclipse"
+    JAVA_TAR="/tmp/jdk${JAVA_MAJOR}.tar.gz"
+    info "Downloading Java ${JAVA_MAJOR} from Adoptium..."
+    if _curl "$ADOPTIUM_URL" "$JAVA_TAR" 2>/dev/null; then
+      sudo mkdir -p /usr/lib/jvm
+      sudo tar -xzf "$JAVA_TAR" -C /usr/lib/jvm 2>/dev/null && \
+        sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk-${JAVA_MAJOR}*/bin/java 1 2>/dev/null && \
+        sudo update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/jdk-${JAVA_MAJOR}*/bin/javac 1 2>/dev/null && \
+        log "Java ${JAVA_MAJOR} (Adoptium)" || warn "Java Adoptium setup failed"
+      rm -f "$JAVA_TAR"
+    else
+      warn "Adoptium download failed — trying apt fallback"
+    fi
+  else
+    log "Java $(java -version 2>&1 | head -1) already installed"
+  fi
+
+  # ── SDKMAN for Gradle, Maven, Kotlin, jbang ──
   if [ ! -d "$HOME/.sdkman" ]; then
     _curl "https://get.sdkman.io" /tmp/sdkman-install.sh 2>/dev/null && \
       bash /tmp/sdkman-install.sh 2>/dev/null && rm -f /tmp/sdkman-install.sh || \
-      warn "SDKMAN install failed — install manually if needed"
+      warn "SDKMAN install failed — using apt fallback for build tools"
   fi
   set +u; source "$HOME/.sdkman/bin/sdkman-init.sh" 2>/dev/null || true; set -u
   _sdk() {
@@ -635,20 +657,20 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
     fi
     set -u
   }
-  _sdk java 25.0.3-tem
+  # Only use SDKMAN for non-Java tools (Java is handled by Adoptium above)
   _sdk gradle
   _sdk maven
   _sdk jbang
   _sdk kotlin
-  # Zig — not in SDKMAN, use snap or direct download
+
+  # Zig — use snap or direct download
   if ! command -v zig &>/dev/null; then
     command -v snap &>/dev/null && sudo snap install zig --classic 2>/dev/null && log "Zig from snap" || warn "Zig not available (snap not found)"
   fi
-  # Apt fallback if SDKMAN downloads failed
+
+  # Final apt fallback if anything is still missing
   if ! command -v java &>/dev/null; then
-    warn "SDKMAN unavailable — installing Java from apt"
-    sudo apt-get install -y -qq openjdk-25-jdk gradle maven 2>/dev/null || true
-    log "Java/Gradle/Maven from apt"
+    sudo apt-get install -y -qq openjdk-25-jdk gradle maven 2>/dev/null && log "Java/Gradle/Maven from apt" || warn "Java unavailable"
   fi
 fi
 
