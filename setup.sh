@@ -163,8 +163,8 @@ declare -A MCP_PACKAGES=(
   [github]="@modelcontextprotocol/server-github"
   [postgres]="@modelcontextprotocol/server-postgres"
   [sequential-thinking]="@modelcontextprotocol/server-sequential-thinking"
-  # sentry is remote-only at https://mcp.sentry.dev/mcp — configured directly in opencode.json
-  # grep is remote-only at https://mcp.grep.app — configured directly in opencode.json
+  [sentry]="@sentry/mcp"
+  [grep]="@anthropic/mcp-server-grep"
 )
 
 # ── Unified retry wrapper ────────────────────────────────────────────────────
@@ -1134,7 +1134,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
   _mcp() { _npm_install "$1" "$2"; }
 
   for name in "${!MCP_PACKAGES[@]}"; do
-    _mcp "${MCP_PACKAGES[$name]}" "$name"
+    _mcp "${MCP_PACKAGES[$name]}" "$name" || true
   done
 
   # Muninn via pipx (skills only, not an MCP server)
