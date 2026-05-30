@@ -2,7 +2,7 @@
 
 ## Identity
 Universal Dev Machine Bootstrap — однокомандная настройка AI-усиленной dev-машины для WSL2/Linux.
-Один bash-скрипт (~1660 строк), устанавливающий полный стек разработки с AI-агентами.
+Один bash-скрипт (~1810 строк), устанавливающий полный стек разработки с AI-агентами.
 
 ## Project Structure
 ```
@@ -113,3 +113,4 @@ bash setup.sh --fix-zshrc           # repair shell config
 | v27 | Interactive mode, auto-detect Go, MCP cold-start |
 | v28 | Multi-provider, _curl/_retry/_npm_install, WSL2 fix, anti-hang |
 | v29 | Adoptium Java, MCP npm cache, DNS fix, progress file |
+| v30 | Secrets security (chmod 600), WSL2 .wslconfig/wsl.conf, OS validation, timestamps, dry-run, opencode.json overhaul, Sentry+Grep MCP, ShellCheck CI
