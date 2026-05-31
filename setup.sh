@@ -1863,7 +1863,7 @@ if pkg_installed("@pimzino/agentic-tools-mcp"):
     mcps["agentic-tools"] = {"type": "local", "command": ["npx", "-y", "@pimzino/agentic-tools-mcp"], "enabled": True}
 
 if cmd_exists("codegraph"):
-    mcps["codegraph"] = {"type": "local", "command": ["codegraph", "serve"], "enabled": True}
+    mcps["codegraph"] = {"type": "local", "command": ["codegraph", "serve", "--mcp"], "enabled": True}
 
 if pkg_installed("@playwright/mcp"):
     mcps["playwright"] = {"type": "local", "command": ["npx", "-y", "@playwright/mcp"], "enabled": True}
