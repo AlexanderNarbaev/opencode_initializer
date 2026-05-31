@@ -1812,46 +1812,46 @@ def npm_global_installed(pkg_name):
 mcps = {}
 
 if cmd_exists("c7-mcp-server"):
-    mcps["context7"] = {"command": ["c7-mcp-server"], "enabled": True}
+    mcps["context7"] = {"type": "local", "command": ["c7-mcp-server"], "enabled": True}
 
 if npm_global_installed("@modelcontextprotocol/server-filesystem"):
-    mcps["filesystem"] = {"command": ["npx", "-y", "@modelcontextprotocol/server-filesystem", project_dir], "enabled": True}
+    mcps["filesystem"] = {"type": "local", "command": ["npx", "-y", "@modelcontextprotocol/server-filesystem", project_dir], "enabled": True}
 
 if npm_global_installed("@pimzino/agentic-tools-mcp"):
-    mcps["agentic-tools"] = {"command": ["npx", "-y", "@pimzino/agentic-tools-mcp"], "enabled": True}
+    mcps["agentic-tools"] = {"type": "local", "command": ["npx", "-y", "@pimzino/agentic-tools-mcp"], "enabled": True}
 
 if cmd_exists("codegraph"):
-    mcps["codegraph"] = {"command": ["codegraph", "mcp", project_dir], "enabled": True}
+    mcps["codegraph"] = {"type": "local", "command": ["codegraph", "mcp", project_dir], "enabled": True}
 
 if npm_global_installed("@playwright/mcp"):
-    mcps["playwright"] = {"command": ["npx", "-y", "@playwright/mcp"], "enabled": True}
+    mcps["playwright"] = {"type": "local", "command": ["npx", "-y", "@playwright/mcp"], "enabled": True}
 
 if cmd_exists("agent-browser"):
-    mcps["agent-browser"] = {"command": ["agent-browser"], "enabled": True}
+    mcps["agent-browser"] = {"type": "local", "command": ["agent-browser"], "enabled": True}
 
 if npm_global_installed("codesorb"):
-    mcps["codesorb"] = {"command": ["npx", "-y", "codesorb"], "enabled": True}
+    mcps["codesorb"] = {"type": "local", "command": ["npx", "-y", "codesorb"], "enabled": True}
 
 if npm_global_installed("mcp-replay"):
-    mcps["mcp-replay"] = {"command": ["npx", "-y", "mcp-replay"], "enabled": True}
+    mcps["mcp-replay"] = {"type": "local", "command": ["npx", "-y", "mcp-replay"], "enabled": True}
 
 if npm_global_installed("open-orchestra"):
-    mcps["open-orchestra"] = {"command": ["npx", "-y", "open-orchestra"], "enabled": True}
+    mcps["open-orchestra"] = {"type": "local", "command": ["npx", "-y", "open-orchestra"], "enabled": True}
 
 if npm_global_installed("@loopsense/mcp"):
-    mcps["loopsense"] = {"command": ["npx", "-y", "@loopsense/mcp"], "enabled": True}
+    mcps["loopsense"] = {"type": "local", "command": ["npx", "-y", "@loopsense/mcp"], "enabled": True}
 
 if npm_global_installed("@teckedd-code2save/datafy"):
-    mcps["datafy"] = {"command": ["npx", "-y", "@teckedd-code2save/datafy"], "enabled": True}
+    mcps["datafy"] = {"type": "local", "command": ["npx", "-y", "@teckedd-code2save/datafy"], "enabled": True}
 
 if npm_global_installed("@modelcontextprotocol/server-github"):
-    mcps["github"] = {"command": ["npx", "-y", "@modelcontextprotocol/server-github"], "enabled": False}
+    mcps["github"] = {"type": "local", "command": ["npx", "-y", "@modelcontextprotocol/server-github"], "enabled": False}
 
 if npm_global_installed("@modelcontextprotocol/server-postgres"):
-    mcps["postgres"] = {"command": ["npx", "-y", "@modelcontextprotocol/server-postgres"], "enabled": False}
+    mcps["postgres"] = {"type": "local", "command": ["npx", "-y", "@modelcontextprotocol/server-postgres"], "enabled": False}
 
 if npm_global_installed("@modelcontextprotocol/server-sequential-thinking"):
-    mcps["sequential-thinking"] = {"command": ["npx", "-y", "@modelcontextprotocol/server-sequential-thinking"], "enabled": True}
+    mcps["sequential-thinking"] = {"type": "local", "command": ["npx", "-y", "@modelcontextprotocol/server-sequential-thinking"], "enabled": True}
 
 # Remote MCP servers (no local binary needed)
 mcps["sentry"] = {"type": "remote", "url": "https://mcp.sentry.dev/mcp", "enabled": True, "timeout": 30000}
