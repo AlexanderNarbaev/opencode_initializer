@@ -117,6 +117,10 @@ bash setup.sh --fix-zshrc           # repair shell config
 | v28 | Multi-provider, _curl/_retry/_npm_install, WSL2 fix, anti-hang |
 | v29 | Adoptium Java, MCP npm cache, DNS fix, progress file |
 | v30 | Secrets security (chmod 600), WSL2 .wslconfig/wsl.conf, OS validation, timestamps, dry-run, opencode.json overhaul, Sentry+Grep MCP, ShellCheck CI
+| v31 | GPU/LLM runtimes (Ollama, vLLM, SGLang, Open WebUI), self-update, architecture detection (amd64+arm64), enhanced interactive mode
+| v32 | RU mirrors (GitHub/npm/pip/Docker/Go), cross-distro packages (apt/dnf/pacman/apk/zypper/brew), certificate handling, SDKMAN mirror
+| v33.5 | MCP fixes: type:local, LSP extensions, auth.json, mkdir permissions |
+| v33.6 | MCP overhaul: fix bun detection (pkg_installed), codegraph serve, agent-browser-mcp-server, remove broken MCPs (codesorb/mcp-replay/datafy), open-orchestra → plugin, drop grep/sentry from local install |
 
 ## Modular Architecture (v30)
 
@@ -142,5 +146,3 @@ opencode_initializer/
 - `dev config` — edit setup config file
 
 **Config file:** `~/.config/opencode-setup/setup.conf` — persistent settings, sourced by both setup.sh and dev CLI.
-| v31 | GPU/LLM runtimes (Ollama, vLLM, SGLang, Open WebUI), self-update, architecture detection (amd64+arm64), enhanced interactive mode
-| v32 | RU mirrors (GitHub/npm/pip/Docker/Go), cross-distro packages (apt/dnf/pacman/apk/zypper/brew), certificate handling, SDKMAN mirror

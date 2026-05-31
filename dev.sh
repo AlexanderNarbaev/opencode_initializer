@@ -52,7 +52,7 @@ cmd_update() {
 
   section "npm global packages"
   npm update -g 2>/dev/null || true
-  for pkg in opencode-ai c7-mcp-server agent-browser opencode-codegraph; do
+  for pkg in opencode-ai c7-mcp-server agent-browser-mcp-server opencode-codegraph open-orchestra; do
     npm install -g "$pkg@latest" --prefer-offline 2>/dev/null && log "npm: $pkg" || warn "npm: $pkg failed"
   done
 

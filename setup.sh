@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================================
-#  Ultimate Dev Machine Bootstrap v33.5 — Universal + RU Mirrors + Cross-Distro
+#  Ultimate Dev Machine Bootstrap v33.6 — Universal + RU Mirrors + Cross-Distro
 set -euo pipefail
 IFS=$'\n\t'
 
@@ -56,7 +56,7 @@ esac
 info "Architecture: $ARCH ($ARCH_TYPE)"
 
 # ── Version ──────────────────────────────────────────────────────────────────
-SCRIPT_VERSION="v33.5"
+SCRIPT_VERSION="v33.6"
 
 # ── Package manager detection ────────────────────────────────────────────────
 PKG_MANAGER=""
@@ -232,17 +232,11 @@ declare -A MCP_PACKAGES=(
   [agentic-tools]="@pimzino/agentic-tools-mcp"
   [codegraph]="@colbymchenry/codegraph"
   [playwright]="@playwright/mcp"
-  [agent-browser]="agent-browser"
-  [codesorb]="codesorb"
-  [mcp-replay]="mcp-replay"
-  [open-orchestra]="open-orchestra"
+  [agent-browser]="agent-browser-mcp-server"
   [loopsense]="@loopsense/mcp"
-  [datafy]="@teckedd-code2save/datafy"
   [github]="@modelcontextprotocol/server-github"
   [postgres]="@modelcontextprotocol/server-postgres"
   [sequential-thinking]="@modelcontextprotocol/server-sequential-thinking"
-  [sentry]="@sentry/mcp"
-  [grep]="@anthropic/mcp-server-grep"
 )
 
 # ── Unified retry wrapper ────────────────────────────────────────────────────
@@ -423,15 +417,13 @@ if [ "$MODE" = "health" ]; then
   _check "agentic-tools"  "npm list -g @pimzino/agentic-tools-mcp &>/dev/null"
   _check "codegraph"      "which codegraph"
   _check "playwright"     "npm list -g @playwright/mcp &>/dev/null"
-  _check "agent-browser"  "which agent-browser"
-  _check "codesorb"       "npm list -g codesorb &>/dev/null"
-  _check "mcp-replay"     "npm list -g mcp-replay &>/dev/null"
-  _check "open-orchestra" "npm list -g open-orchestra &>/dev/null"
+  _check "agent-browser"  "npm list -g agent-browser-mcp-server &>/dev/null || which agent-browser-mcp-server"
   _check "loopsense"      "npm list -g @loopsense/mcp &>/dev/null"
-  _check "datafy"         "npm list -g @teckedd-code2save/datafy &>/dev/null"
   _check "github"         "npm list -g @modelcontextprotocol/server-github &>/dev/null"
   _check "postgres"       "npm list -g @modelcontextprotocol/server-postgres &>/dev/null"
   _check "seq-thinking"   "npm list -g @modelcontextprotocol/server-sequential-thinking &>/dev/null"
+  _check "plugin-codegraph" "npm list -g opencode-codegraph &>/dev/null"
+  _check "plugin-orchestra" "npm list -g open-orchestra &>/dev/null"
   section "LSP Servers"
   _check "gopls"          "which gopls"
   _check "rust-analyzer"  "which rust-analyzer"
@@ -590,7 +582,7 @@ if [ "$MODE" = "upgrade" ]; then
 
   section "UPGRADE: npm global packages"
   npm update -g 2>/dev/null || true
-  for pkg in opencode-ai c7-mcp-server agent-browser opencode-codegraph; do
+  for pkg in opencode-ai c7-mcp-server agent-browser-mcp-server opencode-codegraph open-orchestra; do
     npm install -g "$pkg@latest" 2>/dev/null && log "npm: $pkg" || warn "npm: $pkg failed"
   done
 
@@ -621,7 +613,7 @@ fi
 # ── Interactive Mode ───────────────────────────────────────────────────────
 if [ "$MODE" = "interactive" ]; then
   echo -e "${GREEN}============================================================${NC}"
-  echo -e "${GREEN}     Ultimate Dev Machine Bootstrap v33.5 — INTERACTIVE${NC}"
+  echo -e "${GREEN}     Ultimate Dev Machine Bootstrap v33.6 — INTERACTIVE${NC}"
   echo -e "${GREEN}============================================================${NC}"
   echo
 
@@ -856,7 +848,7 @@ GIT_EMAIL="${GIT_EMAIL:-}"
 LOG_FILE="$HOME/setup-$(date +%Y%m%d-%H%M%S).log"
 exec > >(tee -a "$LOG_FILE") 2>&1
 echo -e "${GREEN}============================================================${NC}"
-echo -e "${GREEN}     Ultimate Dev Machine Bootstrap v33.5${NC}"
+echo -e "${GREEN}     Ultimate Dev Machine Bootstrap v33.6${NC}"
 echo -e "${GREEN}     Mode: $MODE${NC}"
 echo -e "${GREEN}     Log:  $LOG_FILE${NC}"
 echo -e "${GREEN}============================================================${NC}"
@@ -1300,8 +1292,9 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
 
   command -v ollama &>/dev/null && ollama pull mxbai-embed-large 2>/dev/null || true
 
-  # Plugins — codegraph only
+  # Plugins — codegraph + open-orchestra
   npm install -g opencode-codegraph@latest 2>/dev/null && log "Plugin: opencode-codegraph" || { warn "Plugin FAILED: opencode-codegraph"; true; }
+  npm install -g open-orchestra@latest 2>/dev/null && log "Plugin: open-orchestra" || { warn "Plugin FAILED: open-orchestra"; true; }
 
   # LSP servers (language intelligence — installed, detected later by Python gen)
   section "LSP servers"
@@ -1334,9 +1327,9 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]) && _gate "INTERACTIVE_DO_CHR
       warn "ChromaDB server failed to start"
     fi
   else
-  _step_done step_chromadb
     log "ChromaDB server already running"
   fi
+  _step_done step_chromadb
 
   # Install systemd user service for ChromaDB auto-start
   mkdir -p "$HOME/.config/systemd/user"
@@ -1373,11 +1366,11 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]) && _gate "INTERACTIVE_DO_SHO
   if [ ! -d "$HOME/.shokunin" ]; then
     bash <(curl -sL https://raw.githubusercontent.com/EliasOulkadi/shokunin/master/install.sh) -y 2>/dev/null || true
     log "Shokunin installed"
-  _step_done step_shokunin
     # Fix shokunin profile to not echo on load (P10k compat)
     SHOKUNIN_PROFILE="$HOME/.shokunin/scripts/linux/profile.sh"
     [ -f "$SHOKUNIN_PROFILE" ] && sed -i 's/echo "Shokunin AI Ecosystem loaded"/# echo "Shokunin AI Ecosystem loaded"/' "$SHOKUNIN_PROFILE" 2>/dev/null || true
   fi
+  _step_done step_shokunin
 
   mkdir -p "$HOME/.config/opencode/skills/superpowers"
   SUPERPOWERS_TMP=$(mktemp -d /tmp/superpowers.XXXXXX)
@@ -1831,12 +1824,26 @@ project_dir = os.environ.get("PROJECT_DIR", os.path.join(home, "projects"))
 def cmd_exists(cmd):
     return shutil.which(cmd) is not None
 
-def npm_global_installed(pkg_name):
+def npx_available():
+    return shutil.which("npx") is not None or shutil.which("bunx") is not None
+
+def pkg_installed(pkg_name):
+    """Check if npm package is installed globally (npm or bun)"""
+    if cmd_exists(pkg_name):
+        return True
     try:
         result = os.popen(f"npm list -g {pkg_name} 2>/dev/null").read()
-        return pkg_name in result and "(empty)" not in result
+        if pkg_name in result and "(empty)" not in result:
+            return True
     except:
-        return False
+        pass
+    try:
+        result = os.popen(f"bun pm ls -g 2>/dev/null").read()
+        if pkg_name in result:
+            return True
+    except:
+        pass
+    return False
 
 # Detect all installed MCPs
 mcps = {}
@@ -1844,48 +1851,36 @@ mcps = {}
 if cmd_exists("c7-mcp-server"):
     mcps["context7"] = {"type": "local", "command": ["c7-mcp-server"], "enabled": True}
 
-if npm_global_installed("@modelcontextprotocol/server-filesystem"):
+if pkg_installed("@modelcontextprotocol/server-filesystem"):
     mcps["filesystem"] = {"type": "local", "command": ["npx", "-y", "@modelcontextprotocol/server-filesystem", project_dir], "enabled": True}
 
-if npm_global_installed("@pimzino/agentic-tools-mcp"):
+if pkg_installed("@pimzino/agentic-tools-mcp"):
     mcps["agentic-tools"] = {"type": "local", "command": ["npx", "-y", "@pimzino/agentic-tools-mcp"], "enabled": True}
 
 if cmd_exists("codegraph"):
-    mcps["codegraph"] = {"type": "local", "command": ["codegraph", "mcp", project_dir], "enabled": True}
+    mcps["codegraph"] = {"type": "local", "command": ["codegraph", "serve"], "enabled": True}
 
-if npm_global_installed("@playwright/mcp"):
+if pkg_installed("@playwright/mcp"):
     mcps["playwright"] = {"type": "local", "command": ["npx", "-y", "@playwright/mcp"], "enabled": True}
 
-if cmd_exists("agent-browser"):
-    mcps["agent-browser"] = {"type": "local", "command": ["agent-browser"], "enabled": True}
+if pkg_installed("agent-browser-mcp-server"):
+    mcps["agent-browser"] = {"type": "local", "command": ["npx", "-y", "agent-browser-mcp-server"], "enabled": True}
 
-if npm_global_installed("codesorb"):
-    mcps["codesorb"] = {"type": "local", "command": ["npx", "-y", "codesorb"], "enabled": True}
-
-if npm_global_installed("mcp-replay"):
-    mcps["mcp-replay"] = {"type": "local", "command": ["npx", "-y", "mcp-replay"], "enabled": True}
-
-if npm_global_installed("open-orchestra"):
-    mcps["open-orchestra"] = {"type": "local", "command": ["npx", "-y", "open-orchestra"], "enabled": True}
-
-if npm_global_installed("@loopsense/mcp"):
+if pkg_installed("@loopsense/mcp"):
     mcps["loopsense"] = {"type": "local", "command": ["npx", "-y", "@loopsense/mcp"], "enabled": True}
 
-if npm_global_installed("@teckedd-code2save/datafy"):
-    mcps["datafy"] = {"type": "local", "command": ["npx", "-y", "@teckedd-code2save/datafy"], "enabled": True}
-
-if npm_global_installed("@modelcontextprotocol/server-github"):
+if pkg_installed("@modelcontextprotocol/server-github"):
     mcps["github"] = {"type": "local", "command": ["npx", "-y", "@modelcontextprotocol/server-github"], "enabled": False}
 
-if npm_global_installed("@modelcontextprotocol/server-postgres"):
+if pkg_installed("@modelcontextprotocol/server-postgres"):
     mcps["postgres"] = {"type": "local", "command": ["npx", "-y", "@modelcontextprotocol/server-postgres"], "enabled": False}
 
-if npm_global_installed("@modelcontextprotocol/server-sequential-thinking"):
+if pkg_installed("@modelcontextprotocol/server-sequential-thinking"):
     mcps["sequential-thinking"] = {"type": "local", "command": ["npx", "-y", "@modelcontextprotocol/server-sequential-thinking"], "enabled": True}
 
 # Remote MCP servers (no local binary needed)
-mcps["sentry"] = {"type": "remote", "url": "https://mcp.sentry.dev/mcp", "enabled": True, "timeout": 30000}
-mcps["grep"] = {"type": "remote", "url": "https://mcp.grep.app", "enabled": True, "timeout": 30000}
+mcps["sentry"] = {"type": "remote", "url": "https://mcp.sentry.dev/mcp", "enabled": False, "timeout": 30000}
+mcps["grep"] = {"type": "remote", "url": "https://mcp.grep.app", "enabled": False, "timeout": 30000}
 
 # LSP servers — detect installed, configure in opencode.json
 lsp_config = {}
@@ -1904,6 +1899,11 @@ lsp_check("marksman", "marksman", ["marksman", "server"], [".md"])
 lsp_check("taplo", "taplo", ["taplo", "lsp", "stdio"], [".toml"])
 lsp_check("lua-language-server", "lua", ["lua-language-server"], [".lua"])
 lsp_check("zls", "zls", ["zls"], [".zig"])
+
+# Plugins — opencode-codegraph (always) + open-orchestra if installed
+plugins = ["opencode-codegraph"]
+if pkg_installed("open-orchestra"):
+    plugins.append("open-orchestra")
 
 # Build config
 config = {
@@ -1944,7 +1944,7 @@ config = {
         "openTelemetry": True
     },
     "lsp": lsp_config,
-    "plugin": ["opencode-codegraph"],
+    "plugin": plugins,
     "mcp": mcps
 }
 
@@ -1974,8 +1974,23 @@ PYGEN
     MCP_PASS=0; MCP_FAIL=0
     for mcp_name in $(python3 -c "import json; c=json.load(open('$HOME/.config/opencode/opencode.json')); print(' '.join(c.get('mcp',{}).keys()))" 2>/dev/null); do
       cmd_json=$(python3 -c "import json; c=json.load(open('$HOME/.config/opencode/opencode.json')); print(json.dumps(c['mcp']['$mcp_name']['command']))" 2>/dev/null)
+      mcp_enabled=$(python3 -c "import json; c=json.load(open('$HOME/.config/opencode/opencode.json')); print(c['mcp']['$mcp_name'].get('enabled', True))" 2>/dev/null)
+      mcp_type=$(python3 -c "import json; c=json.load(open('$HOME/.config/opencode/opencode.json')); print(c['mcp']['$mcp_name'].get('type', 'local'))" 2>/dev/null)
+      # Skip disabled or remote MCPs
+      if [ "$mcp_enabled" = "False" ] || [ "$mcp_type" = "remote" ]; then
+        MCP_PASS=$((MCP_PASS+1))
+        continue
+      fi
       binary=$(echo "$cmd_json" | python3 -c "import json,sys; arr=json.load(sys.stdin); print(arr[0])" 2>/dev/null)
-      if [ -n "$binary" ] && (which "$binary" &>/dev/null || echo "$binary" | grep -q "npx"); then
+      # npx/bunx MCPs: check if runtime exists
+      if echo "$binary" | grep -qE "^(npx|bunx)$"; then
+        if which npx &>/dev/null || which bunx &>/dev/null; then
+          MCP_PASS=$((MCP_PASS+1))
+        else
+          warn "MCP $mcp_name: npx/bunx not found"
+          MCP_FAIL=$((MCP_FAIL+1))
+        fi
+      elif [ -n "$binary" ] && which "$binary" &>/dev/null; then
         MCP_PASS=$((MCP_PASS+1))
       else
         warn "MCP $mcp_name: $binary not found"
@@ -2139,19 +2154,15 @@ _check "opencode.json" "python3 -c \"import json; json.load(open('$HOME/.config/
 _check ".zshrc valid"  "python3 -c \"open('$HOME/.zshrc').read()\" 2>/dev/null"
 
 # MCP verification
-for mcp in context7 filesystem agentic-tools codegraph playwright agent-browser codesorb mcp-replay open-orchestra loopsense datafy github postgres sequential-thinking; do
+for mcp in context7 filesystem agentic-tools codegraph playwright agent-browser loopsense github postgres sequential-thinking; do
   case $mcp in
     context7)      _check "MCP context7"       "which c7-mcp-server" ;;
     filesystem)    _check "MCP filesystem"     "npm list -g @modelcontextprotocol/server-filesystem &>/dev/null" ;;
     agentic-tools) _check "MCP agentic-tools"  "npm list -g @pimzino/agentic-tools-mcp &>/dev/null" ;;
     codegraph)     _check "MCP codegraph"      "which codegraph" ;;
     playwright)    _check "MCP playwright"     "npm list -g @playwright/mcp &>/dev/null" ;;
-    agent-browser) _check "MCP agent-browser"  "which agent-browser" ;;
-    codesorb)      _check "MCP codesorb"       "npm list -g codesorb &>/dev/null" ;;
-    mcp-replay)    _check "MCP mcp-replay"     "npm list -g mcp-replay &>/dev/null" ;;
-    open-orchestra) _check "MCP open-orchestra" "npm list -g open-orchestra &>/dev/null" ;;
+    agent-browser) _check "MCP agent-browser"  "npm list -g agent-browser-mcp-server &>/dev/null || which agent-browser-mcp-server" ;;
     loopsense)     _check "MCP loopsense"      "npm list -g @loopsense/mcp &>/dev/null" ;;
-    datafy)        _check "MCP datafy"         "npm list -g @teckedd-code2save/datafy &>/dev/null" ;;
     github)        _check "MCP github"         "npm list -g @modelcontextprotocol/server-github &>/dev/null" ;;
     postgres)      _check "MCP postgres"       "npm list -g @modelcontextprotocol/server-postgres &>/dev/null" ;;
     sequential-thinking) _check "MCP sequential-thinking" "npm list -g @modelcontextprotocol/server-sequential-thinking &>/dev/null" ;;
@@ -2164,7 +2175,7 @@ echo
 log "Verification: $PASS passed, $FAIL failed"
 
 echo -e "${GREEN}============================================================${NC}"
-echo -e "${GREEN}       BOOTSTRAP COMPLETE (v33.5) · Mode: $MODE${NC}"
+echo -e "${GREEN}       BOOTSTRAP COMPLETE (v33.6) · Mode: $MODE${NC}"
 echo -e "${GREEN}============================================================${NC}"
 echo "  Log file:  $LOG_FILE"
 echo "  Health:    bash ~/setup.sh --health"

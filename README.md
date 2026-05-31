@@ -6,10 +6,11 @@
 bash <(curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializer/main/setup.sh) --full
 ```
 
-## Что делает (v32)
+## Что делает (v33)
 
 - **8 языков**: Java 25 (Adoptium), Node.js 22, Python 3.12 + uv, Go 1.26, Rust 1.93, .NET 9, Kotlin, Zig
-- **16 MCP-серверов**: context7, filesystem, agentic-tools, codegraph, playwright, agent-browser, codesorb, mcp-replay, open-orchestra, loopsense, datafy, github, postgres, sequential-thinking, **Sentry**, **Grep**
+- **10 MCP-серверов + 2 remote**: context7, filesystem, agentic-tools, codegraph, playwright, agent-browser, loopsense, github, postgres, sequential-thinking (+ grep, sentry — remote)
+- **2 плагина**: opencode-codegraph, open-orchestra
 - **10 LSP-серверов**: gopls, rust-analyzer, typescript, pyright, omnisharp, yaml, marksman, taplo, lua, zls
 - **Multi-Provider AI**: DeepSeek V4 Pro (primary) + OpenCode Go (fallback) — авто-переключение
 - **GPU/LLM (опционально)**: Ollama, vLLM, SGLang, Open WebUI, LlamaEdge
