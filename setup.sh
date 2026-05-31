@@ -1366,8 +1366,8 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]) && _gate "INTERACTIVE_DO_SHO
     git clone https://github.com/anthonystepvoy/caveman-opencode.git "$HOME/.caveman-opencode" 2>/dev/null || true
   fi
   if [ -d "$HOME/.caveman-opencode" ]; then
-    mkdir -p "$PROJECT_DIR/.opencode/skills/caveman"
-    cp "$HOME/.caveman-opencode/skills/caveman.md" "$PROJECT_DIR/.opencode/skills/caveman/SKILL.md" 2>/dev/null || true
+    mkdir -p "$PROJECT_DIR/.opencode/skills/caveman" 2>/dev/null || mkdir -p "$HOME/agi/.opencode/skills/caveman" 2>/dev/null || true
+    cp "$HOME/.caveman-opencode/skills/caveman.md" "$PROJECT_DIR/.opencode/skills/caveman/SKILL.md" 2>/dev/null || cp "$HOME/.caveman-opencode/skills/caveman.md" "$HOME/agi/.opencode/skills/caveman/SKILL.md" 2>/dev/null || true
     log "Caveman skill installed"
   fi
 fi
@@ -1446,7 +1446,13 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "new" ]; then
   [ -z "$PROJECT_DIR" ] && err "PROJECT_DIR is empty"
 
   section "Project structure: $PROJECT_DIR"
-  mkdir -p "$PROJECT_DIR"/{docs,wal,.lock,.opencode/{agents,skills,commands,context},infra,icon,templates,output}
+  if mkdir -p "$PROJECT_DIR" 2>/dev/null; then
+    mkdir -p "$PROJECT_DIR"/{docs,wal,.lock,.opencode/{agents,skills,commands,context},infra,icon,templates,output}
+  else
+    warn "Cannot create $PROJECT_DIR (permission denied). Using ~/agi instead."
+    PROJECT_DIR="$HOME/agi"
+    mkdir -p "$PROJECT_DIR"/{docs,wal,.lock,.opencode/{agents,skills,commands,context},infra,icon,templates,output}
+  fi
 
   # INDEX.md
   [ ! -f "$PROJECT_DIR/docs/INDEX.md" ] && cat > "$PROJECT_DIR/docs/INDEX.md" << 'EOF'
