@@ -121,6 +121,7 @@ bash setup.sh --fix-zshrc           # repair shell config
 | v32 | RU mirrors (GitHub/npm/pip/Docker/Go), cross-distro packages (apt/dnf/pacman/apk/zypper/brew), certificate handling, SDKMAN mirror
 | v33.5 | MCP fixes: type:local, LSP extensions, auth.json, mkdir permissions |
 | v33.6 | MCP overhaul: fix bun detection (pkg_installed), codegraph serve, agent-browser-mcp-server, remove broken MCPs (codesorb/mcp-replay/datafy), open-orchestra → plugin, drop grep/sentry from local install |
+| v33.7 | Fix codegraph MCP: add missing --mcp flag to serve command (broken since v33.6) |
 
 ## Modular Architecture (v30)
 
