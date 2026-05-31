@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================================
-#  Ultimate Dev Machine Bootstrap v33.6 — Universal + RU Mirrors + Cross-Distro
+#  Ultimate Dev Machine Bootstrap v33.7 — Universal + RU Mirrors + Cross-Distro
 set -euo pipefail
 IFS=$'\n\t'
 
@@ -56,7 +56,7 @@ esac
 info "Architecture: $ARCH ($ARCH_TYPE)"
 
 # ── Version ──────────────────────────────────────────────────────────────────
-SCRIPT_VERSION="v33.6"
+SCRIPT_VERSION="v33.7"
 
 # ── Package manager detection ────────────────────────────────────────────────
 PKG_MANAGER=""
@@ -618,7 +618,7 @@ fi
 # ── Interactive Mode ───────────────────────────────────────────────────────
 if [ "$MODE" = "interactive" ]; then
   echo -e "${GREEN}============================================================${NC}"
-  echo -e "${GREEN}     Ultimate Dev Machine Bootstrap v33.6 — INTERACTIVE${NC}"
+  echo -e "${GREEN}     Ultimate Dev Machine Bootstrap v33.7 — INTERACTIVE${NC}"
   echo -e "${GREEN}============================================================${NC}"
   echo
 
@@ -853,7 +853,7 @@ GIT_EMAIL="${GIT_EMAIL:-}"
 LOG_FILE="$HOME/setup-$(date +%Y%m%d-%H%M%S).log"
 exec > >(tee -a "$LOG_FILE") 2>&1
 echo -e "${GREEN}============================================================${NC}"
-echo -e "${GREEN}     Ultimate Dev Machine Bootstrap v33.6${NC}"
+echo -e "${GREEN}     Ultimate Dev Machine Bootstrap v33.7${NC}"
 echo -e "${GREEN}     Mode: $MODE${NC}"
 echo -e "${GREEN}     Log:  $LOG_FILE${NC}"
 echo -e "${GREEN}============================================================${NC}"
@@ -2180,7 +2180,7 @@ echo
 log "Verification: $PASS passed, $FAIL failed"
 
 echo -e "${GREEN}============================================================${NC}"
-echo -e "${GREEN}       BOOTSTRAP COMPLETE (v33.6) · Mode: $MODE${NC}"
+echo -e "${GREEN}       BOOTSTRAP COMPLETE (v33.7) · Mode: $MODE${NC}"
 echo -e "${GREEN}============================================================${NC}"
 echo "  Log file:  $LOG_FILE"
 echo "  Health:    bash ~/setup.sh --health"
