@@ -20,7 +20,7 @@ cleanup() {
   npm config set strict-ssl true 2>/dev/null || true
   if [ $exit_code -ne 0 ] && [ "${MODE:-}" != "health" ]; then
     warn "Script exited with code $exit_code at $(date +%H:%M:%S)"
-    warn "Log: $LOG_FILE"
+    warn "Log: ${LOG_FILE:-not started}"
     warn "Re-run: bash ~/setup.sh --health ; or resume with --full (progress tracked)"
   fi
   exit $exit_code
@@ -133,7 +133,7 @@ _install_ca_certs() {
   fi
 }
 
-_set_dns; _install_ca_certs
+
 
 # URL reachability probe with multiple DNS backends
 _mirror_url() {
@@ -366,6 +366,11 @@ USAGE
   exit 0;;
   *) err "Unknown: $1. Use -h for help.";;
 esac; done
+
+# DNS + CA certs — only for full/reinit/update modes (needs sudo)
+if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]; then
+  _set_dns; _install_ca_certs
+fi
 
 # ── PATHS ───────────────────────────────────────────────────────────────────
 NPM_GLOBAL="$HOME/.npm-global"
