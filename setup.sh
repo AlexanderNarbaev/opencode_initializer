@@ -1890,20 +1890,20 @@ mcps["grep"] = {"type": "remote", "url": "https://mcp.grep.app", "enabled": True
 # LSP servers — detect installed, configure in opencode.json
 lsp_config = {}
 
-def lsp_check(binary_name, lsp_key, lsp_command):
+def lsp_check(binary_name, lsp_key, lsp_command, extensions):
     if cmd_exists(binary_name):
-        lsp_config[lsp_key] = {"command": lsp_command}
+        lsp_config[lsp_key] = {"command": lsp_command, "extensions": extensions}
 
-lsp_check("gopls", "gopls", ["gopls"])
-lsp_check("rust-analyzer", "rust-analyzer", ["rust-analyzer"])
-lsp_check("typescript-language-server", "typescript", ["typescript-language-server", "--stdio"])
-lsp_check("pyright-langserver", "pyright", ["pyright-langserver", "--stdio"])
-lsp_check("omnisharp", "omnisharp", ["omnisharp", "--stdio"])
-lsp_check("yaml-language-server", "yaml", ["yaml-language-server", "--stdio"])
-lsp_check("marksman", "marksman", ["marksman", "server"])
-lsp_check("taplo", "taplo", ["taplo", "lsp", "stdio"])
-lsp_check("lua-language-server", "lua", ["lua-language-server"])
-lsp_check("zls", "zls", ["zls"])
+lsp_check("gopls", "gopls", ["gopls"], [".go"])
+lsp_check("rust-analyzer", "rust-analyzer", ["rust-analyzer"], [".rs"])
+lsp_check("typescript-language-server", "typescript", ["typescript-language-server", "--stdio"], [".ts", ".tsx", ".js", ".jsx"])
+lsp_check("pyright-langserver", "pyright", ["pyright-langserver", "--stdio"], [".py"])
+lsp_check("omnisharp", "omnisharp", ["omnisharp", "--stdio"], [".cs"])
+lsp_check("yaml-language-server", "yaml", ["yaml-language-server", "--stdio"], [".yaml", ".yml"])
+lsp_check("marksman", "marksman", ["marksman", "server"], [".md"])
+lsp_check("taplo", "taplo", ["taplo", "lsp", "stdio"], [".toml"])
+lsp_check("lua-language-server", "lua", ["lua-language-server"], [".lua"])
+lsp_check("zls", "zls", ["zls"], [".zig"])
 
 # Build config
 config = {
