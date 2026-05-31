@@ -1200,6 +1200,30 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
     log "OpenCode $(opencode --version 2>/dev/null) already installed"
   fi
   _step_done step_opencode
+
+  # Write API keys to auth.json for immediate use (before secrets.env is sourced)
+  AUTH_FILE="$HOME/.local/share/opencode/auth.json"
+  mkdir -p "$(dirname "$AUTH_FILE")"
+  python3 -c "
+import json, os
+auth = {}
+if os.path.exists('$AUTH_FILE'):
+    try:
+        with open('$AUTH_FILE') as f:
+            auth = json.load(f)
+    except: pass
+dk = '${DEEPSEEK_KEY:-}'
+ak = '${API_KEY:-}'
+if dk:
+    auth['deepseek'] = {'type': 'api', 'key': dk}
+if ak:
+    auth['opencode'] = {'type': 'api', 'key': ak}
+if dk or ak:
+    with open('$AUTH_FILE', 'w') as f:
+        json.dump(auth, f, indent=2)
+" 2>/dev/null || true
+  [ -f "$AUTH_FILE" ] && chmod 600 "$AUTH_FILE" 2>/dev/null || true
+
   if ! command -v bun &>/dev/null; then
     # Bun needs unzip — ensure it's available
     if command -v unzip &>/dev/null || sudo apt-get install -y unzip &>/dev/null; then
@@ -1992,7 +2016,12 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then
   # Store API keys in secrets.env (chmod 600), NOT in .bashrc/.zshrc
   touch "$SECRETS_FILE" && chmod 600 "$SECRETS_FILE"
   sed -i "/DEEPSEEK_API_KEY=/d" "$SECRETS_FILE" 2>/dev/null || true
+  sed -i "/OPENCODE_API_KEY=/d" "$SECRETS_FILE" 2>/dev/null || true
   [ -n "${DEEPSEEK_KEY:-}" ] && echo "export DEEPSEEK_API_KEY=\"$DEEPSEEK_KEY\"" >> "$SECRETS_FILE"
+  [ -n "${API_KEY:-}" ] && echo "export OPENCODE_API_KEY=\"$API_KEY\"" >> "$SECRETS_FILE"
+  # Export for current shell so opencode verification works immediately
+  [ -n "${DEEPSEEK_KEY:-}" ] && export DEEPSEEK_API_KEY="$DEEPSEEK_KEY"
+  [ -n "${API_KEY:-}" ] && export OPENCODE_API_KEY="$API_KEY"
   log "API keys stored in $SECRETS_FILE (chmod 600)"
 
   for rc in ~/.bashrc ~/.zshrc; do
