@@ -1310,6 +1310,11 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
   npm install -g opencode-lazy-loader@latest 2>/dev/null && log "Plugin: opencode-lazy-loader" || { warn "Plugin FAILED: opencode-lazy-loader"; true; }
   npm install -g @gitdamnit/opencode-stranger-danger@latest 2>/dev/null && log "Plugin: opencode-stranger-danger" || { warn "Plugin FAILED: opencode-stranger-danger"; true; }
   npm install -g opencode-damage-control@latest 2>/dev/null && log "Plugin: opencode-damage-control" || { warn "Plugin FAILED: opencode-damage-control"; true; }
+  npm install -g opencode-auto-fallback@latest 2>/dev/null && log "Plugin: opencode-auto-fallback" || { warn "Plugin FAILED: opencode-auto-fallback"; true; }
+
+  # Smart routing + AGENTS.md sync (optional dev tools)
+  npm install -g @blockrun/clawrouter@latest 2>/dev/null && log "Tool: clawrouter" || { warn "Tool FAILED: clawrouter"; true; }
+  npm install -g agents-md-sync@latest 2>/dev/null && log "Tool: agents-md-sync" || { warn "Tool FAILED: agents-md-sync"; true; }
 
   # LSP servers (language intelligence — installed, detected later by Python gen)
   section "LSP servers"
@@ -1930,6 +1935,8 @@ if pkg_installed("@gitdamnit/opencode-stranger-danger"):
     plugins.append("opencode-stranger-danger")
 if pkg_installed("opencode-damage-control"):
     plugins.append("opencode-damage-control")
+if pkg_installed("opencode-auto-fallback"):
+    plugins.append("opencode-auto-fallback")
 
 # DCP config (context pruning)
 dcp_config = {}
