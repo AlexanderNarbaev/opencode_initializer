@@ -56,7 +56,7 @@ esac
 info "Architecture: $ARCH ($ARCH_TYPE)"
 
 # ── Version ──────────────────────────────────────────────────────────────────
-SCRIPT_VERSION="v33.7"
+SCRIPT_VERSION="v33.8"
 
 # ── Package manager detection ────────────────────────────────────────────────
 PKG_MANAGER=""
@@ -237,6 +237,7 @@ declare -A MCP_PACKAGES=(
   [github]="@modelcontextprotocol/server-github"
   [postgres]="@modelcontextprotocol/server-postgres"
   [sequential-thinking]="@modelcontextprotocol/server-sequential-thinking"
+  [memorylayer]="@scitrera/memorylayer-mcp-server"
 )
 
 # ── Unified retry wrapper ────────────────────────────────────────────────────
@@ -327,6 +328,10 @@ while [[ $# -gt 0 ]]; do case $1 in
   -p|--project-dir)    PROJECT_DIR="$2"; shift 2;;
   -k|--api-key)        API_KEY="$2"; shift 2;;
   --deepseek-key)      DEEPSEEK_KEY="$2"; shift 2;;
+  --xai-key)           XAI_KEY="$2"; shift 2;;
+  --mimo-key)          MIMO_KEY="$2"; shift 2;;
+  --moonshot-key)      MOONSHOT_KEY="$2"; shift 2;;
+  --minimax-key)       MINIMAX_KEY="$2"; shift 2;;
   -n|--git-name)       GIT_NAME="$2"; shift 2;;
   -e|--git-email)      GIT_EMAIL="$2"; shift 2;;
   -s|--sudo-pass)      SUDO_PASS="$2"; shift 2;;
@@ -427,6 +432,7 @@ if [ "$MODE" = "health" ]; then
   _check "github"         "npm list -g @modelcontextprotocol/server-github &>/dev/null"
   _check "postgres"       "npm list -g @modelcontextprotocol/server-postgres &>/dev/null"
   _check "seq-thinking"   "npm list -g @modelcontextprotocol/server-sequential-thinking &>/dev/null"
+  _check "memorylayer"    "npm list -g @scitrera/memorylayer-mcp-server &>/dev/null"
   _check "plugin-codegraph" "npm list -g opencode-codegraph &>/dev/null"
   _check "plugin-orchestra" "npm list -g open-orchestra &>/dev/null"
   section "LSP Servers"
@@ -1297,9 +1303,13 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
 
   command -v ollama &>/dev/null && ollama pull mxbai-embed-large 2>/dev/null || true
 
-  # Plugins — codegraph + open-orchestra
+  # Plugins
   npm install -g opencode-codegraph@latest 2>/dev/null && log "Plugin: opencode-codegraph" || { warn "Plugin FAILED: opencode-codegraph"; true; }
   npm install -g open-orchestra@latest 2>/dev/null && log "Plugin: open-orchestra" || { warn "Plugin FAILED: open-orchestra"; true; }
+  npm install -g @tarquinen/opencode-dcp@latest 2>/dev/null && log "Plugin: opencode-dcp" || { warn "Plugin FAILED: opencode-dcp"; true; }
+  npm install -g opencode-lazy-loader@latest 2>/dev/null && log "Plugin: opencode-lazy-loader" || { warn "Plugin FAILED: opencode-lazy-loader"; true; }
+  npm install -g @gitdamnit/opencode-stranger-danger@latest 2>/dev/null && log "Plugin: opencode-stranger-danger" || { warn "Plugin FAILED: opencode-stranger-danger"; true; }
+  npm install -g opencode-damage-control@latest 2>/dev/null && log "Plugin: opencode-damage-control" || { warn "Plugin FAILED: opencode-damage-control"; true; }
 
   # LSP servers (language intelligence — installed, detected later by Python gen)
   section "LSP servers"
@@ -1883,6 +1893,9 @@ if pkg_installed("@modelcontextprotocol/server-postgres"):
 if pkg_installed("@modelcontextprotocol/server-sequential-thinking"):
     mcps["sequential-thinking"] = {"type": "local", "command": ["npx", "-y", "@modelcontextprotocol/server-sequential-thinking"], "enabled": True}
 
+if pkg_installed("@scitrera/memorylayer-mcp-server"):
+    mcps["memorylayer"] = {"type": "local", "command": ["npx", "-y", "@scitrera/memorylayer-mcp-server"], "enabled": True}
+
 # Remote MCP servers (no local binary needed)
 mcps["sentry"] = {"type": "remote", "url": "https://mcp.sentry.dev/mcp", "enabled": False, "timeout": 30000}
 mcps["grep"] = {"type": "remote", "url": "https://mcp.grep.app", "enabled": False, "timeout": 30000}
@@ -1905,10 +1918,55 @@ lsp_check("taplo", "taplo", ["taplo", "lsp", "stdio"], [".toml"])
 lsp_check("lua-language-server", "lua", ["lua-language-server"], [".lua"])
 lsp_check("zls", "zls", ["zls"], [".zig"])
 
-# Plugins — opencode-codegraph (always) + open-orchestra if installed
+# Plugins — opencode-codegraph (always) + conditional
 plugins = ["opencode-codegraph"]
 if pkg_installed("open-orchestra"):
     plugins.append("open-orchestra")
+if pkg_installed("@tarquinen/opencode-dcp"):
+    plugins.append("opencode-dcp")
+if pkg_installed("opencode-lazy-loader"):
+    plugins.append("opencode-lazy-loader")
+if pkg_installed("@gitdamnit/opencode-stranger-danger"):
+    plugins.append("opencode-stranger-danger")
+if pkg_installed("opencode-damage-control"):
+    plugins.append("opencode-damage-control")
+
+# DCP config (context pruning)
+dcp_config = {}
+if pkg_installed("@tarquinen/opencode-dcp"):
+    dcp_config = {
+        "compress": {
+            "enabled": True,
+            "minContextLimit": 20000,
+            "maxContextLimit": 48000,
+            "autoCompaction": True
+        },
+        "prune": {
+            "enabled": True,
+            "protectTokens": 40000,
+            "minTokens": 20000
+        }
+    }
+
+# Damage-control config (guardrails)
+damage_config = {}
+if pkg_installed("opencode-damage-control"):
+    damage_config = {
+        "guardrails": {
+            "input": {
+                "piiFiltering": True,
+                "promptInjectionPrevention": True
+            },
+            "deterministicPolicies": {
+                "blockedCommands": ["rm -rf /", "DROP TABLE", "terraform destroy"],
+                "blockedPaths": ["~/.ssh", "~/.aws", ".env"]
+            }
+        },
+        "audit": {
+            "logTamperResistant": True,
+            "logRetentionDays": 365
+        }
+    }
 
 # Build config
 config = {
@@ -1927,13 +1985,43 @@ config = {
         "deepseek": {
             "options": {
                 "timeout": 600000,
-                "chunkTimeout": 60000
+                "chunkTimeout": 60000,
+                "setCacheKey": True
             }
         },
         "opencode": {
             "options": {
                 "timeout": 600000,
-                "chunkTimeout": 60000
+                "chunkTimeout": 60000,
+                "setCacheKey": True
+            }
+        },
+        "mimo": {
+            "options": {
+                "timeout": 600000,
+                "chunkTimeout": 60000,
+                "setCacheKey": True
+            }
+        },
+        "xai": {
+            "options": {
+                "timeout": 600000,
+                "chunkTimeout": 60000,
+                "setCacheKey": True
+            }
+        },
+        "moonshot": {
+            "options": {
+                "timeout": 600000,
+                "chunkTimeout": 60000,
+                "setCacheKey": True
+            }
+        },
+        "minimax": {
+            "options": {
+                "timeout": 600000,
+                "chunkTimeout": 60000,
+                "setCacheKey": True
             }
         }
     },
@@ -1952,6 +2040,12 @@ config = {
     "plugin": plugins,
     "mcp": mcps
 }
+
+if dcp_config:
+    config["dcp"] = dcp_config
+
+if damage_config:
+    config["damageControl"] = damage_config
 
 config_path = os.path.join(home, ".config", "opencode", "opencode.json")
 os.makedirs(os.path.dirname(config_path), exist_ok=True)
@@ -2037,11 +2131,23 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then
   touch "$SECRETS_FILE" && chmod 600 "$SECRETS_FILE"
   sed -i "/DEEPSEEK_API_KEY=/d" "$SECRETS_FILE" 2>/dev/null || true
   sed -i "/OPENCODE_API_KEY=/d" "$SECRETS_FILE" 2>/dev/null || true
+  sed -i "/XAI_API_KEY=/d" "$SECRETS_FILE" 2>/dev/null || true
+  sed -i "/MIMO_API_KEY=/d" "$SECRETS_FILE" 2>/dev/null || true
+  sed -i "/MOONSHOT_API_KEY=/d" "$SECRETS_FILE" 2>/dev/null || true
+  sed -i "/MINIMAX_API_KEY=/d" "$SECRETS_FILE" 2>/dev/null || true
   [ -n "${DEEPSEEK_KEY:-}" ] && echo "export DEEPSEEK_API_KEY=\"$DEEPSEEK_KEY\"" >> "$SECRETS_FILE"
   [ -n "${API_KEY:-}" ] && echo "export OPENCODE_API_KEY=\"$API_KEY\"" >> "$SECRETS_FILE"
+  [ -n "${XAI_KEY:-}" ] && echo "export XAI_API_KEY=\"$XAI_KEY\"" >> "$SECRETS_FILE"
+  [ -n "${MIMO_KEY:-}" ] && echo "export MIMO_API_KEY=\"$MIMO_KEY\"" >> "$SECRETS_FILE"
+  [ -n "${MOONSHOT_KEY:-}" ] && echo "export MOONSHOT_API_KEY=\"$MOONSHOT_KEY\"" >> "$SECRETS_FILE"
+  [ -n "${MINIMAX_KEY:-}" ] && echo "export MINIMAX_API_KEY=\"$MINIMAX_KEY\"" >> "$SECRETS_FILE"
   # Export for current shell so opencode verification works immediately
   [ -n "${DEEPSEEK_KEY:-}" ] && export DEEPSEEK_API_KEY="$DEEPSEEK_KEY"
   [ -n "${API_KEY:-}" ] && export OPENCODE_API_KEY="$API_KEY"
+  [ -n "${XAI_KEY:-}" ] && export XAI_API_KEY="$XAI_KEY"
+  [ -n "${MIMO_KEY:-}" ] && export MIMO_API_KEY="$MIMO_KEY"
+  [ -n "${MOONSHOT_KEY:-}" ] && export MOONSHOT_API_KEY="$MOONSHOT_KEY"
+  [ -n "${MINIMAX_KEY:-}" ] && export MINIMAX_API_KEY="$MINIMAX_KEY"
   log "API keys stored in $SECRETS_FILE (chmod 600)"
 
   for rc in ~/.bashrc ~/.zshrc; do
@@ -2159,7 +2265,7 @@ _check "opencode.json" "python3 -c \"import json; json.load(open('$HOME/.config/
 _check ".zshrc valid"  "python3 -c \"open('$HOME/.zshrc').read()\" 2>/dev/null"
 
 # MCP verification
-for mcp in context7 filesystem agentic-tools codegraph playwright agent-browser loopsense github postgres sequential-thinking; do
+for mcp in context7 filesystem agentic-tools codegraph playwright agent-browser loopsense github postgres sequential-thinking memorylayer; do
   case $mcp in
     context7)      _check "MCP context7"       "which c7-mcp-server" ;;
     filesystem)    _check "MCP filesystem"     "npm list -g @modelcontextprotocol/server-filesystem &>/dev/null" ;;
@@ -2171,6 +2277,7 @@ for mcp in context7 filesystem agentic-tools codegraph playwright agent-browser 
     github)        _check "MCP github"         "npm list -g @modelcontextprotocol/server-github &>/dev/null" ;;
     postgres)      _check "MCP postgres"       "npm list -g @modelcontextprotocol/server-postgres &>/dev/null" ;;
     sequential-thinking) _check "MCP sequential-thinking" "npm list -g @modelcontextprotocol/server-sequential-thinking &>/dev/null" ;;
+    memorylayer)    _check "MCP memorylayer"     "npm list -g @scitrera/memorylayer-mcp-server &>/dev/null" ;;
   esac
 done
 _check "Muninn skills"      "[ -f ~/.config/opencode/skills/memory-read/SKILL.md ]"
@@ -2180,7 +2287,7 @@ echo
 log "Verification: $PASS passed, $FAIL failed"
 
 echo -e "${GREEN}============================================================${NC}"
-echo -e "${GREEN}       BOOTSTRAP COMPLETE (v33.7) · Mode: $MODE${NC}"
+echo -e "${GREEN}       BOOTSTRAP COMPLETE (v33.8) · Mode: $MODE${NC}"
 echo -e "${GREEN}============================================================${NC}"
 echo "  Log file:  $LOG_FILE"
 echo "  Health:    bash ~/setup.sh --health"

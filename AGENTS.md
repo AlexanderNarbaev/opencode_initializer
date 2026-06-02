@@ -2,7 +2,7 @@
 
 ## Identity
 Universal Dev Machine Bootstrap — однокомандная настройка AI-усиленной dev-машины для WSL2/Linux.
-Один bash-скрипт (~1810 строк), устанавливающий полный стек разработки с AI-агентами.
+Один bash-скрипт (~2300 строк), устанавливающий полный стек разработки с AI-агентами.
 
 ## Язык общения
 Всё общение строго на русском языке. Код и комментарии — на английском.
@@ -122,6 +122,7 @@ bash setup.sh --fix-zshrc           # repair shell config
 | v33.5 | MCP fixes: type:local, LSP extensions, auth.json, mkdir permissions |
 | v33.6 | MCP overhaul: fix bun detection (pkg_installed), codegraph serve, agent-browser-mcp-server, remove broken MCPs (codesorb/mcp-replay/datafy), open-orchestra → plugin, drop grep/sentry from local install |
 | v33.7 | Fix codegraph MCP: add missing --mcp flag to serve command (broken since v33.6) |
+| v33.8 | Multi-provider expansion (xAI/MiMo/Moonshot/MiniMax), setCacheKey, DCP plugin, damage-control, new MCP (memorylayer), 4 новых плагина (lazy-loader, stranger-danger) |
 
 ## Modular Architecture (v30)
 

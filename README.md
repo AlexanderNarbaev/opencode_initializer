@@ -6,15 +6,16 @@
 bash <(curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializer/main/setup.sh) --full
 ```
 
-## Что делает (v33)
+## Что делает (v33.8)
 
 - **8 языков**: Java 25 (Adoptium), Node.js 22, Python 3.12 + uv, Go 1.26, Rust 1.93, .NET 9, Kotlin, Zig
-- **10 MCP-серверов + 2 remote**: context7, filesystem, agentic-tools, codegraph, playwright, agent-browser, loopsense, github, postgres, sequential-thinking (+ grep, sentry — remote)
-- **2 плагина**: opencode-codegraph, open-orchestra
+- **11 MCP-серверов + 2 remote**: context7, filesystem, agentic-tools, codegraph, playwright, agent-browser, loopsense, memorylayer, github, postgres, sequential-thinking (+ grep, sentry — remote)
+- **6 плагинов**: opencode-codegraph, open-orchestra, opencode-dcp (контекст-прунинг), opencode-lazy-loader, opencode-stranger-danger (PII-фильтрация), opencode-damage-control (144 guardrails)
 - **10 LSP-серверов**: gopls, rust-analyzer, typescript, pyright, omnisharp, yaml, marksman, taplo, lua, zls
-- **Multi-Provider AI**: DeepSeek V4 Pro (primary) + OpenCode Go (fallback) — авто-переключение
+- **Multi-Provider AI (6 провайдеров)**: DeepSeek V4 Pro, OpenCode Go, Xiaomi MiMo, xAI Grok, Moonshot (Kimi K2.6), MiniMax M3 — авто-переключение, setCacheKey для 99% экономии
 - **GPU/LLM (опционально)**: Ollama, vLLM, SGLang, Open WebUI, LlamaEdge
-- **Память**: ChromaDB + Muninn (векторная БД)
+- **Память**: ChromaDB + Muninn (векторная БД) + MemoryLayer MCP (38 инструментов памяти)
+- **Безопасность**: damage-control (144 защищённых паттерна), stranger-danger (PII/секреты), secrets.env (chmod 600)
 - **Инфраструктура**: Docker, Kafka, Postgres, MongoDB, Redis, MinIO
 - **Кроссплатформа**: Ubuntu, Debian, Fedora, Arch, Alpine, openSUSE, macOS (brew)
 - **Архитектуры**: amd64 + arm64
@@ -128,6 +129,10 @@ open http://localhost:3300     # Open WebUI — чат-интерфейс
 |------|----------|
 | `-k, --api-key` | OpenCode Go API ключ |
 | `--deepseek-key` | DeepSeek API ключ |
+| `--xai-key` | xAI Grok API ключ |
+| `--mimo-key` | Xiaomi MiMo API ключ |
+| `--moonshot-key` | Moonshot (Kimi K2.6) API ключ |
+| `--minimax-key` | MiniMax M3 API ключ |
 | `-s, --sudo-pass` | Sudo пароль (кешируется) |
 | `-p, --project-dir` | Директория проекта (default: ~/projects) |
 | `-n, --git-name` | Имя для git |
@@ -137,7 +142,7 @@ open http://localhost:3300     # Open WebUI — чат-интерфейс
 
 ```
 opencode_initializer/
-├── setup.sh              # основной скрипт (2006 строк)
+├── setup.sh              # основной скрипт (2309 строк)
 ├── dev.sh                # CLI: dev install|remove|update|health|list|config
 ├── lib/helpers.sh        # общие функции (_curl, _retry, _npm_install)
 ├── migrations/           # миграции (авто-запуск при dev update)
