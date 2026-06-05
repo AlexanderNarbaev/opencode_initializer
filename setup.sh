@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================================
-#  Ultimate Dev Machine Bootstrap v33.9 — Universal + RU Mirrors + Cross-Distro
+#  Ultimate Dev Machine Bootstrap v33.10 — Universal + RU Mirrors + Cross-Distro
 set -euo pipefail
 IFS=$'\n\t'
 
@@ -56,7 +56,7 @@ esac
 info "Architecture: $ARCH ($ARCH_TYPE)"
 
 # ── Version ──────────────────────────────────────────────────────────────────
-SCRIPT_VERSION="v33.9"
+SCRIPT_VERSION="v33.10"
 
 # ── Package manager detection ────────────────────────────────────────────────
 PKG_MANAGER=""
@@ -332,6 +332,7 @@ while [[ $# -gt 0 ]]; do case $1 in
   --mimo-key)          MIMO_KEY="$2"; shift 2;;
   --moonshot-key)      MOONSHOT_KEY="$2"; shift 2;;
   --minimax-key)       MINIMAX_KEY="$2"; shift 2;;
+  --github-token)      GITHUB_TOKEN="$2"; shift 2;;
   -n|--git-name)       GIT_NAME="$2"; shift 2;;
   -e|--git-email)      GIT_EMAIL="$2"; shift 2;;
   -s|--sudo-pass)      SUDO_PASS="$2"; shift 2;;
@@ -357,6 +358,7 @@ Options:
   --mimo-key          Xiaomi MiMo API key
   --moonshot-key      Moonshot (Kimi K2.6) API key
   --minimax-key       MiniMax M3 API key
+  --github-token      GitHub personal access token (for MCP, gh CLI, etc.)
   -n, --git-name      Git user name
   -e, --git-email     Git user email
   -s, --sudo-pass     Sudo password (cached between steps)
@@ -420,6 +422,7 @@ if [ "$MODE" = "health" ]; then
   _check "jbang"          "jbang --version"
   _check "Git"            "git --version"
   _check "zsh"            "zsh --version"
+  _check "Chrome"         "google-chrome-stable --version 2>/dev/null | head -1"
   _check "ripgrep"        "rg --version"
   _check "fzf"            "fzf --version"
   _check "eza"            "eza --version"
@@ -661,7 +664,7 @@ if [ "$MODE" = "interactive" ]; then
   echo -e "${CYAN}Select components to install (y/n):${NC}"
   echo
 
-  DO_SYSTEM="y"; DO_DOCKER="y"; DO_ZSH="y"
+  DO_SYSTEM="y"; DO_DOCKER="y"; DO_CHROME="y"; DO_ZSH="y"
   DO_JAVA="y";  DO_NODE="y";   DO_PYTHON="y"
   DO_GO="y";    DO_RUST="y";   DO_DOTNET="y"
   DO_OPENCODE="y"; DO_MCP="y"; DO_CHROMA="y"
@@ -669,6 +672,7 @@ if [ "$MODE" = "interactive" ]; then
 
   read -r -p "System packages (apt)? [Y/n]: " input; [ "$input" = "n" ] && DO_SYSTEM="n"
   read -r -p "Docker? [Y/n]: " input; [ "$input" = "n" ] && DO_DOCKER="n"
+  read -r -p "Google Chrome (for Playwright/browser)? [Y/n]: " input; [ "$input" = "n" ] && DO_CHROME="n"
   read -r -p "Zsh + Oh My Zsh + P10k? [Y/n]: " input; [ "$input" = "n" ] && DO_ZSH="n"
   read -r -p "Java 25 + Gradle + Maven? [Y/n]: " input; [ "$input" = "n" ] && DO_JAVA="n"
   read -r -p "Node.js 22 + npm? [Y/n]: " input; [ "$input" = "n" ] && DO_NODE="n"
@@ -690,7 +694,7 @@ if [ "$MODE" = "interactive" ]; then
   echo "  Git:        ${GIT_NAME:-<not set>} <${GIT_EMAIL:-<not set>}>"
   echo "  DeepSeek:   ${DEEPSEEK_KEY:+configured}${DEEPSEEK_KEY:-NOT SET}"
   echo "  System:     $([ "$DO_SYSTEM" = "y" ] && echo "✓" || echo "✗")    Docker:     $([ "$DO_DOCKER" = "y" ] && echo "✓" || echo "✗")"
-  echo "  Zsh:        $([ "$DO_ZSH" = "y" ] && echo "✓" || echo "✗")    Java:       $([ "$DO_JAVA" = "y" ] && echo "✓" || echo "✗")"
+  echo "  Chrome:     $([ "$DO_CHROME" = "y" ] && echo "✓" || echo "✗")    Zsh:        $([ "$DO_ZSH" = "y" ] && echo "✓" || echo "✗")    Java:       $([ "$DO_JAVA" = "y" ] && echo "✓" || echo "✗")"
   echo "  Node:       $([ "$DO_NODE" = "y" ] && echo "✓" || echo "✗")    Python:     $([ "$DO_PYTHON" = "y" ] && echo "✓" || echo "✗")"
   echo "  Go:         $([ "$DO_GO" = "y" ] && echo "✓" || echo "✗")    Rust:       $([ "$DO_RUST" = "y" ] && echo "✓" || echo "✗")    .NET: $([ "$DO_DOTNET" = "y" ] && echo "✓" || echo "✗")"
   echo "  OpenCode:   $([ "$DO_OPENCODE" = "y" ] && echo "✓" || echo "✗")    MCP+LSP:    $([ "$DO_MCP" = "y" ] && echo "✓" || echo "✗")"
@@ -706,6 +710,7 @@ if [ "$MODE" = "interactive" ]; then
   # But guard each section with the selection flags
   INTERACTIVE_DO_SYSTEM="$DO_SYSTEM"
   INTERACTIVE_DO_DOCKER="$DO_DOCKER"
+  INTERACTIVE_DO_CHROME="$DO_CHROME"
   INTERACTIVE_DO_ZSH="$DO_ZSH"
   INTERACTIVE_DO_JAVA="$DO_JAVA"
   INTERACTIVE_DO_NODE="$DO_NODE"
@@ -851,6 +856,7 @@ PROJECT_DIR="${PROJECT_DIR:-$HOME/projects}"
 export PROJECT_DIR
 API_KEY="${API_KEY:-}"
 DEEPSEEK_KEY="${DEEPSEEK_KEY:-}"
+GITHUB_TOKEN="${GITHUB_TOKEN:-}"
 if [ -z "${DEEPSEEK_KEY:-}" ] && [ "$MODE" != "health" ] && [ "$MODE" != "fix-zshrc" ] && [ "$MODE" != "fix-config" ] && [ "$MODE" != "interactive" ]; then
   warn "No DeepSeek API key provided. Use --deepseek-key <key> or set DEEPSEEK_API_KEY env var."
   warn "Get a key at https://platform.deepseek.com/ — model: deepseek-v4-pro"
@@ -930,20 +936,186 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]) && _gate "INTERACTIVE_DO_DOC
 fi
 
 # ═══════════════════════════════════════════════════════════════════════════════
+#  STEP 2b: Google Chrome (for Playwright, browser automation)
+# ═══════════════════════════════════════════════════════════════════════════════
+if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) && _gate "INTERACTIVE_DO_CHROME"; then
+  section "Google Chrome"
+
+  if command -v google-chrome-stable &>/dev/null; then
+    log "Google Chrome $(google-chrome-stable --version 2>/dev/null | grep -oP '\d+\.\d+\.\d+\.\d+' || true) already installed"
+  else
+    # Add Google Chrome repo
+    CHROME_KEY_URL="https://dl.google.com/linux/linux_signing_key.pub"
+    if ! curl -fsSL --connect-timeout 10 "$CHROME_KEY_URL" 2>/dev/null | sudo gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg 2>/dev/null; then
+      # Fallback: use apt-key
+      wget -qO- "$CHROME_KEY_URL" 2>/dev/null | sudo apt-key add - 2>/dev/null || true
+    fi
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/google-chrome.gpg] https://dl.google.com/linux/chrome/deb/ stable main" | \
+      sudo tee /etc/apt/sources.list.d/google-chrome.list >/dev/null 2>&1 || true
+    sudo apt-get update -qq 2>/dev/null || true
+
+    # Install chrome + chromedriver
+    sudo apt-get install -y -qq google-chrome-stable 2>/dev/null && log "Google Chrome installed" || warn "Chrome install failed"
+    command -v chromedriver &>/dev/null || sudo apt-get install -y -qq chromium-chromedriver 2>/dev/null || true
+  fi
+
+  # Chrome launcher function (WSL2-aware: --no-sandbox required if no userns)
+  CHROME_RDP="${CHROME_RDP:-9222}"
+  CHROME_PROFILE="${CHROME_PROFILE:-$HOME/.config/google-chrome/opencode}"
+
+  # Check if we're in WSL
+  IS_WSL=false
+  grep -qi microsoft /proc/version 2>/dev/null && IS_WSL=true
+  grep -qi wsl /proc/version 2>/dev/null && IS_WSL=true
+
+  if [ -n "$SUDO_PASS" ]; then
+    echo "$SUDO_PASS" | sudo -S true 2>/dev/null
+  fi
+
+  # Add chrome-open function to .zshrc (idempotent)
+  if ! grep -q "chrome-open()" ~/.zshrc 2>/dev/null; then
+    cat >> ~/.zshrc << 'CHROMEOF'
+
+# ── Google Chrome launcher (WSL2-aware, remote debugging enabled) ──
+chrome-open() {
+  local port="${1:-9222}"
+  local profile="${2:-$HOME/.config/google-chrome/opencode}"
+  local chrome_bin="$(which google-chrome-stable 2>/dev/null || which google-chrome 2>/dev/null || echo '')"
+  [ -z "$chrome_bin" ] && { echo "[!] google-chrome not found"; return 1; }
+
+  mkdir -p "$profile"
+
+  local flags=(
+    "--remote-debugging-port=$port"
+    "--user-data-dir=$profile"
+    "--disable-background-networking"
+    "--disable-sync"
+    "--no-first-run"
+    "--no-default-browser-check"
+    "--disable-features=TranslateUI"
+    "--disable-ipc-flooding-protection"
+    "--disable-renderer-backgrounding"
+    "--disable-background-timer-throttling"
+    "--disable-client-side-phishing-detection"
+    "--disable-popup-blocking"
+    "--disable-prompt-on-repost"
+    "--enable-automation"
+    "--password-store=basic"
+    "--use-mock-keychain"
+  )
+
+  # WSL2: need --no-sandbox if user namespaces are disabled
+  if grep -qiE 'microsoft|wsl' /proc/version 2>/dev/null; then
+    flags+=("--no-sandbox")
+  fi
+
+  nohup "$chrome_bin" "${flags[@]}" >/dev/null 2>&1 &
+  local pid=$!
+  sleep 1
+  if kill -0 "$pid" 2>/dev/null; then
+    echo "[✓] Chrome started (PID $pid, CDP port $port)"
+    echo "    Connect: http://127.0.0.1:$port"
+  else
+    echo "[!] Chrome failed to start — try: google-chrome-stable --no-sandbox"
+  fi
+}
+CHROMEOF
+    log "chrome-open function added to .zshrc"
+  fi
+
+  # Also add a convenient alias for non-WSL users
+  if ! grep -q "alias chrome=" ~/.zshrc 2>/dev/null; then
+    echo 'alias chrome="chrome-open 9222"' >> ~/.zshrc
+    log "chrome alias added to .zshrc"
+  fi
+
+  # Create a standalone chrome-launcher script in ~/.local/bin
+  mkdir -p "$HOME/.local/bin"
+  cat > "$HOME/.local/bin/chrome-open" << 'CHROMEBIN'
+#!/usr/bin/env bash
+# Google Chrome Remote Debugging Launcher
+# Usage: chrome-open [port] [profile-dir]
+set -euo pipefail
+PORT="${1:-9222}"
+PROFILE="${2:-$HOME/.config/google-chrome/opencode}"
+CHROME_BIN="$(which google-chrome-stable 2>/dev/null || which google-chrome 2>/dev/null || echo '')"
+[ -z "$CHROME_BIN" ] && { echo "[!] google-chrome not found"; exit 1; }
+mkdir -p "$PROFILE"
+FLAGS=(
+  "--remote-debugging-port=$PORT" "--user-data-dir=$PROFILE"
+  "--disable-background-networking" "--disable-sync" "--no-first-run"
+  "--no-default-browser-check" "--disable-features=TranslateUI"
+  "--disable-ipc-flooding-protection" "--disable-renderer-backgrounding"
+  "--disable-background-timer-throttling" "--disable-client-side-phishing-detection"
+  "--disable-popup-blocking" "--disable-prompt-on-repost"
+  "--enable-automation" "--password-store=basic" "--use-mock-keychain"
+)
+grep -qiE 'microsoft|wsl' /proc/version 2>/dev/null && FLAGS+=("--no-sandbox")
+nohup "$CHROME_BIN" "${FLAGS[@]}" >/dev/null 2>&1 &
+sleep 1
+if kill -0 $! 2>/dev/null; then
+  echo "[✓] Chrome started (CDP port $PORT) — http://127.0.0.1:$PORT"
+else
+  echo "[!] Chrome failed to start"
+  exit 1
+fi
+CHROMEBIN
+  chmod +x "$HOME/.local/bin/chrome-open"
+  log "chrome-open script installed to ~/.local/bin/chrome-open"
+
+  _step_done step_chrome
+fi
+
+# ═══════════════════════════════════════════════════════════════════════════════
 #  STEP 3: Zsh + Oh My Zsh + Powerlevel10k
 # ═══════════════════════════════════════════════════════════════════════════════
 if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]) && _gate "INTERACTIVE_DO_ZSH"; then
   section "Zsh + Oh My Zsh + Powerlevel10k"
-  if [ ! -d "$HOME/.oh-my-zsh" ]; then
-    sh -c "$(curl -fsSL --retry 3 https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended 2>/dev/null || true
+
+  # Verify zsh version (5.8+ required for P10k instant prompt)
+  ZSH_VER=$(zsh --version 2>/dev/null | awk '{print $2}' | cut -d. -f1,2 || echo "0")
+  ZSH_MAJOR=$(echo "$ZSH_VER" | cut -d. -f1)
+  ZSH_MINOR=$(echo "$ZSH_VER" | cut -d. -f2)
+  if [ "$ZSH_MAJOR" -lt 5 ] || { [ "$ZSH_MAJOR" -eq 5 ] && [ "$ZSH_MINOR" -lt 8 ]; }; then
+    warn "zsh $ZSH_VER < 5.8 — upgrading via apt"
+    sudo apt-get install -y -qq zsh 2>/dev/null || true
   fi
+  log "zsh $(zsh --version 2>/dev/null | awk '{print $2}')"
+
+  # Set zsh as default shell
+  ZSH_PATH=$(which zsh)
+  if [ "$SHELL" != "$ZSH_PATH" ] && grep -q "$ZSH_PATH" /etc/shells 2>/dev/null; then
+    chsh -s "$ZSH_PATH" 2>/dev/null || warn "chsh failed — run manually: chsh -s $ZSH_PATH"
+    log "Default shell set to zsh"
+  fi
+
+  if [ ! -d "$HOME/.oh-my-zsh" ]; then
+    OMZ_URL="https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
+    OMZ_MIRROR="https://ghproxy.com/$OMZ_URL"
+    sh -c "$(curl -fsSL --connect-timeout 15 --retry 2 "$OMZ_URL" 2>/dev/null || curl -fsSL --connect-timeout 15 "$OMZ_MIRROR" 2>/dev/null)" "" --unattended 2>/dev/null || true
+  fi
+
   ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+  GIT_CLONE_MIRROR() {
+    local repo="$1" dir="$2"
+    git clone --depth=1 "https://github.com/$repo.git" "$dir" 2>/dev/null || \
+    git clone --depth=1 "https://ghproxy.com/https://github.com/$repo.git" "$dir" 2>/dev/null || true
+  }
+
+  # P10k theme
   [ ! -d "$ZSH_CUSTOM/themes/powerlevel10k" ] && \
-    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$ZSH_CUSTOM/themes/powerlevel10k" 2>/dev/null || true
-  for p in zsh-autosuggestions zsh-syntax-highlighting; do
-    [ ! -d "$ZSH_CUSTOM/plugins/$p" ] && \
-      git clone --depth=1 "https://github.com/zsh-users/$p.git" "$ZSH_CUSTOM/plugins/$p" 2>/dev/null || true
+    GIT_CLONE_MIRROR "romkatv/powerlevel10k" "$ZSH_CUSTOM/themes/powerlevel10k"
+
+  # Core plugins
+  for plugin in zsh-autosuggestions zsh-syntax-highlighting zsh-completions; do
+    [ ! -d "$ZSH_CUSTOM/plugins/$plugin" ] && \
+      GIT_CLONE_MIRROR "zsh-users/$plugin" "$ZSH_CUSTOM/plugins/$plugin"
   done
+
+  # fzf-tab — replaces zsh's default tab completion with fzf-powered fuzzy matching
+  [ ! -d "$ZSH_CUSTOM/plugins/fzf-tab" ] && \
+    GIT_CLONE_MIRROR "Aloxaf/fzf-tab" "$ZSH_CUSTOM/plugins/fzf-tab"
+
   if [ ! -f ~/.zshrc ] || ! grep -q "powerlevel10k" ~/.zshrc 2>/dev/null; then
     cat > ~/.zshrc << 'ZSHEOF'
 # Enable Powerlevel10k instant prompt. Must stay at the top.
@@ -953,8 +1125,39 @@ fi
 
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="powerlevel10k/powerlevel10k"
-plugins=(git zsh-autosuggestions zsh-syntax-highlighting fzf zoxide docker docker-compose)
+
+# Plugins: git built-in, custom plugins, fzf-tab loaded first for completion
+plugins=(
+  git
+  zsh-autosuggestions
+  zsh-syntax-highlighting
+  zsh-completions
+  fzf-tab
+  fzf
+  zoxide
+  docker
+  docker-compose
+  command-not-found
+  extract
+  z
+  history
+  copypath
+  copyfile
+  web-search
+  npm
+  bun
+)
+
+# fzf-tab must be loaded BEFORE compinit
+[ -f "$ZSH_CUSTOM/plugins/fzf-tab/fzf-tab.plugin.zsh" ] && \
+  source "$ZSH_CUSTOM/plugins/fzf-tab/fzf-tab.plugin.zsh"
+
 source "\$ZSH/oh-my-zsh.sh"
+
+# fzf-tab configuration
+zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
+zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'eza -1 --color=always $realpath'
 
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 ZSHEOF
@@ -1221,11 +1424,26 @@ if os.path.exists('$AUTH_FILE'):
     except: pass
 dk = '${DEEPSEEK_KEY:-}'
 ak = '${API_KEY:-}'
+xk = '${XAI_KEY:-}'
+mk = '${MIMO_KEY:-}'
+msk = '${MOONSHOT_KEY:-}'
+mmk = '${MINIMAX_KEY:-}'
+ghk = '${GITHUB_TOKEN:-}'
 if dk:
     auth['deepseek'] = {'type': 'api', 'key': dk}
 if ak:
     auth['opencode'] = {'type': 'api', 'key': ak}
-if dk or ak:
+if xk:
+    auth['xai'] = {'type': 'api', 'key': xk}
+if mk:
+    auth['mimo'] = {'type': 'api', 'key': mk}
+if msk:
+    auth['moonshot'] = {'type': 'api', 'key': msk}
+if mmk:
+    auth['minimax'] = {'type': 'api', 'key': mmk}
+if ghk:
+    auth['github'] = {'type': 'api', 'key': ghk}
+if dk or ak or xk or mk or msk or mmk or ghk:
     with open('$AUTH_FILE', 'w') as f:
         json.dump(auth, f, indent=2)
 " 2>/dev/null || true
@@ -1869,6 +2087,24 @@ def pkg_installed(pkg_name):
         pass
     return False
 
+def _build_providers():
+    """Build provider config based on available API keys."""
+    opts = {"options": {"timeout": 600000, "chunkTimeout": 60000, "setCacheKey": True}}
+    providers = {}
+    # Always include deepseek (primary) and opencode (fallback)
+    providers["deepseek"] = dict(opts)
+    providers["opencode"] = dict(opts)
+    # Conditionally add providers based on env vars
+    if os.environ.get("XAI_API_KEY"):
+        providers["xai"] = dict(opts)
+    if os.environ.get("MIMO_API_KEY"):
+        providers["mimo"] = dict(opts)
+    if os.environ.get("MOONSHOT_API_KEY"):
+        providers["moonshot"] = dict(opts)
+    if os.environ.get("MINIMAX_API_KEY"):
+        providers["minimax"] = dict(opts)
+    return providers
+
 # Detect all installed MCPs
 mcps = {}
 
@@ -1894,10 +2130,21 @@ if pkg_installed("@loopsense/mcp"):
     mcps["loopsense"] = {"type": "local", "command": ["npx", "-y", "@loopsense/mcp"], "enabled": True}
 
 if pkg_installed("@modelcontextprotocol/server-github"):
-    mcps["github"] = {"type": "local", "command": ["npx", "-y", "@modelcontextprotocol/server-github"], "enabled": False}
+    gh_token = os.environ.get("GITHUB_TOKEN", "")
+    gh_entry = {"type": "local", "command": ["npx", "-y", "@modelcontextprotocol/server-github"]}
+    if gh_token:
+        gh_entry["enabled"] = True
+        gh_entry["env"] = {"GITHUB_PERSONAL_ACCESS_TOKEN": gh_token}
+    else:
+        gh_entry["enabled"] = False
+    mcps["github"] = gh_entry
 
 if pkg_installed("@modelcontextprotocol/server-postgres"):
-    mcps["postgres"] = {"type": "local", "command": ["npx", "-y", "@modelcontextprotocol/server-postgres"], "enabled": False}
+    gh_entry_pg = {"type": "local", "command": ["npx", "-y", "@modelcontextprotocol/server-postgres"]}
+    gh_entry_pg["enabled"] = os.environ.get("PG_CONNECTION_STRING", "") != ""
+    if gh_entry_pg["enabled"]:
+        gh_entry_pg["env"] = {"PG_CONNECTION_STRING": os.environ.get("PG_CONNECTION_STRING", "")}
+    mcps["postgres"] = gh_entry_pg
 
 if pkg_installed("@modelcontextprotocol/server-sequential-thinking"):
     mcps["sequential-thinking"] = {"type": "local", "command": ["npx", "-y", "@modelcontextprotocol/server-sequential-thinking"], "enabled": True}
@@ -1982,50 +2229,7 @@ config = {
         "tail_turns": 2,
         "reserved": 10000
     },
-    "provider": {
-        "deepseek": {
-            "options": {
-                "timeout": 600000,
-                "chunkTimeout": 60000,
-                "setCacheKey": True
-            }
-        },
-        "opencode": {
-            "options": {
-                "timeout": 600000,
-                "chunkTimeout": 60000,
-                "setCacheKey": True
-            }
-        },
-        "mimo": {
-            "options": {
-                "timeout": 600000,
-                "chunkTimeout": 60000,
-                "setCacheKey": True
-            }
-        },
-        "xai": {
-            "options": {
-                "timeout": 600000,
-                "chunkTimeout": 60000,
-                "setCacheKey": True
-            }
-        },
-        "moonshot": {
-            "options": {
-                "timeout": 600000,
-                "chunkTimeout": 60000,
-                "setCacheKey": True
-            }
-        },
-        "minimax": {
-            "options": {
-                "timeout": 600000,
-                "chunkTimeout": 60000,
-                "setCacheKey": True
-            }
-        }
-    },
+    "provider": _build_providers(),
     "tool_output": {
         "max_lines": 2000,
         "max_bytes": 51200
@@ -2130,12 +2334,14 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then
   sed -i "/MIMO_API_KEY=/d" "$SECRETS_FILE" 2>/dev/null || true
   sed -i "/MOONSHOT_API_KEY=/d" "$SECRETS_FILE" 2>/dev/null || true
   sed -i "/MINIMAX_API_KEY=/d" "$SECRETS_FILE" 2>/dev/null || true
+  sed -i "/GITHUB_TOKEN=/d" "$SECRETS_FILE" 2>/dev/null || true
   [ -n "${DEEPSEEK_KEY:-}" ] && echo "export DEEPSEEK_API_KEY=\"$DEEPSEEK_KEY\"" >> "$SECRETS_FILE"
   [ -n "${API_KEY:-}" ] && echo "export OPENCODE_API_KEY=\"$API_KEY\"" >> "$SECRETS_FILE"
   [ -n "${XAI_KEY:-}" ] && echo "export XAI_API_KEY=\"$XAI_KEY\"" >> "$SECRETS_FILE"
   [ -n "${MIMO_KEY:-}" ] && echo "export MIMO_API_KEY=\"$MIMO_KEY\"" >> "$SECRETS_FILE"
   [ -n "${MOONSHOT_KEY:-}" ] && echo "export MOONSHOT_API_KEY=\"$MOONSHOT_KEY\"" >> "$SECRETS_FILE"
   [ -n "${MINIMAX_KEY:-}" ] && echo "export MINIMAX_API_KEY=\"$MINIMAX_KEY\"" >> "$SECRETS_FILE"
+  [ -n "${GITHUB_TOKEN:-}" ] && echo "export GITHUB_TOKEN=\"$GITHUB_TOKEN\"" >> "$SECRETS_FILE"
   # Export for current shell so opencode verification works immediately
   [ -n "${DEEPSEEK_KEY:-}" ] && export DEEPSEEK_API_KEY="$DEEPSEEK_KEY"
   [ -n "${API_KEY:-}" ] && export OPENCODE_API_KEY="$API_KEY"
@@ -2143,6 +2349,7 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then
   [ -n "${MIMO_KEY:-}" ] && export MIMO_API_KEY="$MIMO_KEY"
   [ -n "${MOONSHOT_KEY:-}" ] && export MOONSHOT_API_KEY="$MOONSHOT_KEY"
   [ -n "${MINIMAX_KEY:-}" ] && export MINIMAX_API_KEY="$MINIMAX_KEY"
+  [ -n "${GITHUB_TOKEN:-}" ] && export GITHUB_TOKEN="$GITHUB_TOKEN"
   log "API keys stored in $SECRETS_FILE (chmod 600)"
 
   for rc in ~/.bashrc ~/.zshrc; do
@@ -2256,6 +2463,7 @@ _check "Zig"           "zig version 2>/dev/null || echo 'not installed'"
 _check "jbang"         "jbang --version"
 _check "Git"           "git --version"
 _check "zsh"           "zsh --version"
+_check "Chrome"        "google-chrome-stable --version 2>/dev/null | head -1"
 _check "opencode.json" "python3 -c \"import json; json.load(open('$HOME/.config/opencode/opencode.json'))\" 2>/dev/null"
 _check ".zshrc valid"  "python3 -c \"open('$HOME/.zshrc').read()\" 2>/dev/null"
 
@@ -2282,7 +2490,7 @@ echo
 log "Verification: $PASS passed, $FAIL failed"
 
 echo -e "${GREEN}============================================================${NC}"
-echo -e "${GREEN}       BOOTSTRAP COMPLETE (v33.9) · Mode: $MODE${NC}"
+echo -e "${GREEN}       BOOTSTRAP COMPLETE (v33.10) · Mode: $MODE${NC}"
 echo -e "${GREEN}============================================================${NC}"
 echo "  Log file:  $LOG_FILE"
 echo "  Health:    bash ~/setup.sh --health"
