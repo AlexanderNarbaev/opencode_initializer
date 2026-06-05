@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================================
-#  Ultimate Dev Machine Bootstrap v33.7 — Universal + RU Mirrors + Cross-Distro
+#  Ultimate Dev Machine Bootstrap v33.9 — Universal + RU Mirrors + Cross-Distro
 set -euo pipefail
 IFS=$'\n\t'
 
@@ -56,7 +56,7 @@ esac
 info "Architecture: $ARCH ($ARCH_TYPE)"
 
 # ── Version ──────────────────────────────────────────────────────────────────
-SCRIPT_VERSION="v33.8"
+SCRIPT_VERSION="v33.9"
 
 # ── Package manager detection ────────────────────────────────────────────────
 PKG_MANAGER=""
@@ -352,7 +352,11 @@ Modes:
 Options:
   -p, --project-dir   Project directory (default: ~/projects)
   -k, --api-key       OpenCode Go API key
-  --deepseek-key      DeepSeek API key (default: built-in)
+  --deepseek-key      DeepSeek API key
+  --xai-key           xAI Grok API key
+  --mimo-key          Xiaomi MiMo API key
+  --moonshot-key      Moonshot (Kimi K2.6) API key
+  --minimax-key       MiniMax M3 API key
   -n, --git-name      Git user name
   -e, --git-email     Git user email
   -s, --sudo-pass     Sudo password (cached between steps)
@@ -593,7 +597,7 @@ if [ "$MODE" = "upgrade" ]; then
 
   section "UPGRADE: npm global packages"
   npm update -g 2>/dev/null || true
-  for pkg in opencode-ai c7-mcp-server agent-browser-mcp-server opencode-codegraph open-orchestra; do
+  for pkg in opencode-ai c7-mcp-server agent-browser-mcp-server opencode-codegraph open-orchestra @tarquinen/opencode-dcp opencode-lazy-loader @gitdamnit/opencode-stranger-danger opencode-damage-control opencode-auto-fallback @blockrun/clawrouter agents-md-sync; do
     npm install -g "$pkg@latest" 2>/dev/null && log "npm: $pkg" || warn "npm: $pkg failed"
   done
 
@@ -624,7 +628,7 @@ fi
 # ── Interactive Mode ───────────────────────────────────────────────────────
 if [ "$MODE" = "interactive" ]; then
   echo -e "${GREEN}============================================================${NC}"
-  echo -e "${GREEN}     Ultimate Dev Machine Bootstrap v33.7 — INTERACTIVE${NC}"
+  echo -e "${GREEN}     Ultimate Dev Machine Bootstrap v33.9 — INTERACTIVE${NC}"
   echo -e "${GREEN}============================================================${NC}"
   echo
 
@@ -859,7 +863,7 @@ GIT_EMAIL="${GIT_EMAIL:-}"
 LOG_FILE="$HOME/setup-$(date +%Y%m%d-%H%M%S).log"
 exec > >(tee -a "$LOG_FILE") 2>&1
 echo -e "${GREEN}============================================================${NC}"
-echo -e "${GREEN}     Ultimate Dev Machine Bootstrap v33.7${NC}"
+echo -e "${GREEN}     Ultimate Dev Machine Bootstrap v33.9${NC}"
 echo -e "${GREEN}     Mode: $MODE${NC}"
 echo -e "${GREEN}     Log:  $LOG_FILE${NC}"
 echo -e "${GREEN}============================================================${NC}"
@@ -1928,20 +1932,7 @@ plugins = ["opencode-codegraph"]
 if pkg_installed("open-orchestra"):
     plugins.append("open-orchestra")
 if pkg_installed("@tarquinen/opencode-dcp"):
-    plugins.append("opencode-dcp")
-if pkg_installed("opencode-lazy-loader"):
-    plugins.append("opencode-lazy-loader")
-if pkg_installed("@gitdamnit/opencode-stranger-danger"):
-    plugins.append("opencode-stranger-danger")
-if pkg_installed("opencode-damage-control"):
-    plugins.append("opencode-damage-control")
-if pkg_installed("opencode-auto-fallback"):
-    plugins.append("opencode-auto-fallback")
-
-# DCP config (context pruning)
-dcp_config = {}
-if pkg_installed("@tarquinen/opencode-dcp"):
-    dcp_config = {
+    plugins.append(["opencode-dcp", {
         "compress": {
             "enabled": True,
             "minContextLimit": 20000,
@@ -1953,12 +1944,13 @@ if pkg_installed("@tarquinen/opencode-dcp"):
             "protectTokens": 40000,
             "minTokens": 20000
         }
-    }
-
-# Damage-control config (guardrails)
-damage_config = {}
+    }])
+if pkg_installed("opencode-lazy-loader"):
+    plugins.append("opencode-lazy-loader")
+if pkg_installed("@gitdamnit/opencode-stranger-danger"):
+    plugins.append("opencode-stranger-danger")
 if pkg_installed("opencode-damage-control"):
-    damage_config = {
+    plugins.append(["opencode-damage-control", {
         "guardrails": {
             "input": {
                 "piiFiltering": True,
@@ -1973,7 +1965,9 @@ if pkg_installed("opencode-damage-control"):
             "logTamperResistant": True,
             "logRetentionDays": 365
         }
-    }
+    }])
+if pkg_installed("opencode-auto-fallback"):
+    plugins.append("opencode-auto-fallback")
 
 # Build config
 config = {
@@ -2047,12 +2041,6 @@ config = {
     "plugin": plugins,
     "mcp": mcps
 }
-
-if dcp_config:
-    config["dcp"] = dcp_config
-
-if damage_config:
-    config["damageControl"] = damage_config
 
 config_path = os.path.join(home, ".config", "opencode", "opencode.json")
 os.makedirs(os.path.dirname(config_path), exist_ok=True)
@@ -2294,7 +2282,7 @@ echo
 log "Verification: $PASS passed, $FAIL failed"
 
 echo -e "${GREEN}============================================================${NC}"
-echo -e "${GREEN}       BOOTSTRAP COMPLETE (v33.8) · Mode: $MODE${NC}"
+echo -e "${GREEN}       BOOTSTRAP COMPLETE (v33.9) · Mode: $MODE${NC}"
 echo -e "${GREEN}============================================================${NC}"
 echo "  Log file:  $LOG_FILE"
 echo "  Health:    bash ~/setup.sh --health"

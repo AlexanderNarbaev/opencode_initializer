@@ -122,7 +122,7 @@ bash setup.sh --fix-zshrc           # repair shell config
 | v33.5 | MCP fixes: type:local, LSP extensions, auth.json, mkdir permissions |
 | v33.6 | MCP overhaul: fix bun detection (pkg_installed), codegraph serve, agent-browser-mcp-server, remove broken MCPs (codesorb/mcp-replay/datafy), open-orchestra → plugin, drop grep/sentry from local install |
 | v33.7 | Fix codegraph MCP: add missing --mcp flag to serve command (broken since v33.6) |
-| v33.8 | Multi-provider expansion (xAI/MiMo/Moonshot/MiniMax), setCacheKey, DCP plugin, damage-control, new MCP (memorylayer), 5 новых плагинов (lazy-loader, stranger-danger, auto-fallback), 2 dev-инструмента (clawrouter, agents-md-sync) |
+| v33.9 | Fix **critical**: remove `dcp`/`damageControl` top-level keys (schema rejected them — hard crash). Convert to plugin tuple format. Bump all version strings. Add missing packages to upgrade mode. Add missing CLI flags to help. Regenerate valid opencode.json. Install dev CLI. Clean stale packages (codesorb, mcp-replay, datafy). |
 
 ## Modular Architecture (v30)
 

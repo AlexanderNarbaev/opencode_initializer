@@ -6,13 +6,14 @@
 bash <(curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializer/main/setup.sh) --full
 ```
 
-## Что делает (v33.8)
+## Что делает (v33.9)
 
 - **8 языков**: Java 25 (Adoptium), Node.js 22, Python 3.12 + uv, Go 1.26, Rust 1.93, .NET 9, Kotlin, Zig
-- **11 MCP-серверов + 2 remote**: context7, filesystem, agentic-tools, codegraph, playwright, agent-browser, loopsense, memorylayer, github, postgres, sequential-thinking (+ grep, sentry — remote)
+- **13 MCP-серверов (11 local + 2 remote)**: context7, filesystem, agentic-tools, codegraph, playwright, agent-browser, loopsense, memorylayer, github, postgres, sequential-thinking (+ sentry, grep — remote)
 - **7 плагинов**: opencode-codegraph, open-orchestra, opencode-dcp (контекст-прунинг), opencode-lazy-loader, opencode-stranger-danger (PII-фильтрация), opencode-damage-control (144 guardrails), opencode-auto-fallback (model switching)
-- **Dev-инструменты**: clawrouter (умный роутинг, 55+ моделей), agents-md-sync (AGENTS.md синхронизация)
+- **Dev-инструменты**: clawrouter (умный роутинг, 55+ моделей), agents-md-sync (AGENTS.md синхронизация), CLI `dev`
 - **10 LSP-серверов**: gopls, rust-analyzer, typescript, pyright, omnisharp, yaml, marksman, taplo, lua, zls
+- **Безопасность**: dcp + damage-control через plugin tuple (валидная schema), 144 защищённых паттерна, secrets.env (chmod 600)
 - **Multi-Provider AI (6 провайдеров)**: DeepSeek V4 Pro, OpenCode Go, Xiaomi MiMo, xAI Grok, Moonshot (Kimi K2.6), MiniMax M3 — авто-переключение, setCacheKey для 99% экономии
 - **GPU/LLM (опционально)**: Ollama, vLLM, SGLang, Open WebUI, LlamaEdge
 - **Память**: ChromaDB + Muninn (векторная БД) + MemoryLayer MCP (38 инструментов памяти)
@@ -164,3 +165,9 @@ opencode_initializer/
 ## Лицензия
 
 MIT
+
+## Документация
+
+- [Полное руководство](docs/guide.md) — все функции, MCP, плагины, агенты
+- [GitHub Pages](https://alexandernarbaev.github.io/opencode_initializer/)
+- [AGENTS.md](AGENTS.md) — документация для AI-агентов
