@@ -57,6 +57,8 @@ info "Architecture: $ARCH ($ARCH_TYPE)"
 
 # ── Version ──────────────────────────────────────────────────────────────────
 SCRIPT_VERSION="v33.10"
+OPENCODE_VER="${OPENCODE_VER:-latest}"
+SCRIPTS_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # ── Package manager detection ────────────────────────────────────────────────
 PKG_MANAGER=""
@@ -361,6 +363,8 @@ Options:
   --github-token      GitHub personal access token (for MCP, gh CLI, etc.)
   -n, --git-name      Git user name
   -e, --git-email     Git user email
+  --fzf-key           FZF key binding for zsh (default: ^T)
+  --dry-run           Preview mode: show what would be installed, make no changes
   -s, --sudo-pass     Sudo password (cached between steps)
   -h, --help          Show this help
 
@@ -869,7 +873,7 @@ GIT_EMAIL="${GIT_EMAIL:-}"
 LOG_FILE="$HOME/setup-$(date +%Y%m%d-%H%M%S).log"
 exec > >(tee -a "$LOG_FILE") 2>&1
 echo -e "${GREEN}============================================================${NC}"
-echo -e "${GREEN}     Ultimate Dev Machine Bootstrap v33.9${NC}"
+echo -e "${GREEN}     Ultimate Dev Machine Bootstrap ${SCRIPT_VERSION}${NC}"
 echo -e "${GREEN}     Mode: $MODE${NC}"
 echo -e "${GREEN}     Log:  $LOG_FILE${NC}"
 echo -e "${GREEN}============================================================${NC}"
@@ -1228,7 +1232,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
       ZIG_URL="$ZIG_MIRROR/$ZIG_VER/zig-linux-${ZIG_TARGET}-$ZIG_VER.tar.xz"
       ZIG_DIR="/usr/local/lib/zig-$ZIG_VER"
       if [ ! -d "$ZIG_DIR" ]; then
-        if _curl_mirror "$ZIG_URL" /tmp/zig.tar.xz "https://ziglang.org/download/$ZIG_VER/zig-linux-${ZIG_TARGET}-$ZIG_VER.tar.xz"; then
+        if _curl "$ZIG_URL" /tmp/zig.tar.xz 2>/dev/null; then
           sudo mkdir -p "$ZIG_DIR" && \
           sudo tar -xJf /tmp/zig.tar.xz -C "$ZIG_DIR" --strip-components=1 2>/dev/null && \
           sudo ln -sf "$ZIG_DIR/zig" /usr/local/bin/zig && \
@@ -1245,9 +1249,9 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
 
   # Final apt fallback if anything is still missing
   if ! command -v java &>/dev/null; then
-  _step_done step_java
     sudo apt-get install -y -qq openjdk-25-jdk gradle maven 2>/dev/null && log "Java/Gradle/Maven from apt" || warn "Java unavailable"
   fi
+  _step_done step_java
 fi
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1255,7 +1259,8 @@ fi
 # ═══════════════════════════════════════════════════════════════════════════════
 if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) && _gate "INTERACTIVE_DO_NODE"; then
   section "Node.js 22"
-  mkdir -p ~/.n ~/.npm-global
+  N_PREFIX="${N_PREFIX:-$HOME/.n}"
+  mkdir -p "$N_PREFIX" ~/.npm-global
   npm config set prefix ~/.npm-global 2>/dev/null || true
   # Use npm mirror if official registry unreachable (common in RU)
   if ! curl -fsSL --connect-timeout 5 https://registry.npmjs.org -o /dev/null 2>/dev/null; then
@@ -1264,8 +1269,8 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
     npm config set strict-ssl true 2>/dev/null || true
   fi
   if [ ! -f "$N_PREFIX/bin/node" ] || ! node --version 2>/dev/null | grep -q "v22"; then
-    npm install -g n@latest 2>/dev/null || true
-    n 22 2>/dev/null && log "Node.js 22 installed" || { warn "n 22 failed — trying apt"; sudo apt-get install -y -qq nodejs npm 2>/dev/null && log "Node.js from apt" || warn "Node.js unavailable"; }
+    npm install -g n@latest --prefix "$N_PREFIX" 2>/dev/null || true
+    N_PREFIX="$N_PREFIX" n 22 2>/dev/null && log "Node.js 22 installed" || { warn "n 22 failed — trying apt"; sudo apt-get install -y -qq nodejs npm 2>/dev/null && log "Node.js from apt" || warn "Node.js unavailable"; }
   else
     log "Node.js 22 already installed"
   fi
@@ -2062,6 +2067,31 @@ import json, os, shutil
 
 home = os.path.expanduser("~")
 project_dir = os.environ.get("PROJECT_DIR", os.path.join(home, "projects"))
+config_path = os.path.join(home, ".config", "opencode", "opencode.json")
+
+# Load existing config to preserve user choices (e.g. sentry/grep enabled state)
+existing_mcp = {}
+if os.path.exists(config_path):
+    try:
+        with open(config_path) as f:
+            existing = json.load(f)
+            existing_mcp = existing.get("mcp", {})
+    except:
+        pass
+
+# Load secrets from secrets.env for provider and token detection
+secrets = {}
+secrets_file = os.path.join(home, ".config", "opencode", "secrets.env")
+if os.path.exists(secrets_file):
+    try:
+        for line in open(secrets_file).readlines():
+            line = line.strip()
+            if "=" in line:
+                line = line.replace("export ", "", 1)
+                k, v = line.split("=", 1)
+                secrets[k.strip()] = v.strip().strip('"').strip("'")
+    except:
+        pass
 
 def cmd_exists(cmd):
     return shutil.which(cmd) is not None
@@ -2094,14 +2124,18 @@ def _build_providers():
     # Always include deepseek (primary) and opencode (fallback)
     providers["deepseek"] = dict(opts)
     providers["opencode"] = dict(opts)
-    # Conditionally add providers based on env vars
-    if os.environ.get("XAI_API_KEY"):
+    # Conditionally add providers based on env vars or secrets.env
+    xai_key = os.environ.get("XAI_API_KEY") or secrets.get("XAI_API_KEY", "")
+    mimo_key = os.environ.get("MIMO_API_KEY") or secrets.get("MIMO_API_KEY", "")
+    moonshot_key = os.environ.get("MOONSHOT_API_KEY") or secrets.get("MOONSHOT_API_KEY", "")
+    minimax_key = os.environ.get("MINIMAX_API_KEY") or secrets.get("MINIMAX_API_KEY", "")
+    if xai_key:
         providers["xai"] = dict(opts)
-    if os.environ.get("MIMO_API_KEY"):
+    if mimo_key:
         providers["mimo"] = dict(opts)
-    if os.environ.get("MOONSHOT_API_KEY"):
+    if moonshot_key:
         providers["moonshot"] = dict(opts)
-    if os.environ.get("MINIMAX_API_KEY"):
+    if minimax_key:
         providers["minimax"] = dict(opts)
     return providers
 
@@ -2130,7 +2164,7 @@ if pkg_installed("@loopsense/mcp"):
     mcps["loopsense"] = {"type": "local", "command": ["npx", "-y", "@loopsense/mcp"], "enabled": True}
 
 if pkg_installed("@modelcontextprotocol/server-github"):
-    gh_token = os.environ.get("GITHUB_TOKEN", "")
+    gh_token = os.environ.get("GITHUB_TOKEN") or secrets.get("GITHUB_TOKEN", "")
     gh_entry = {"type": "local", "command": ["npx", "-y", "@modelcontextprotocol/server-github"]}
     if gh_token:
         gh_entry["enabled"] = True
@@ -2153,8 +2187,8 @@ if pkg_installed("@scitrera/memorylayer-mcp-server"):
     mcps["memorylayer"] = {"type": "local", "command": ["npx", "-y", "@scitrera/memorylayer-mcp-server"], "enabled": True}
 
 # Remote MCP servers (no local binary needed)
-mcps["sentry"] = {"type": "remote", "url": "https://mcp.sentry.dev/mcp", "enabled": False, "timeout": 30000}
-mcps["grep"] = {"type": "remote", "url": "https://mcp.grep.app", "enabled": False, "timeout": 30000}
+mcps["sentry"] = {"type": "remote", "url": "https://mcp.sentry.dev/mcp", "enabled": existing_mcp.get("sentry", {}).get("enabled", False), "timeout": 30000}
+mcps["grep"] = {"type": "remote", "url": "https://mcp.grep.app", "enabled": existing_mcp.get("grep", {}).get("enabled", False), "timeout": 30000}
 
 # LSP servers — detect installed, configure in opencode.json
 lsp_config = {}
@@ -2246,7 +2280,6 @@ config = {
     "mcp": mcps
 }
 
-config_path = os.path.join(home, ".config", "opencode", "opencode.json")
 os.makedirs(os.path.dirname(config_path), exist_ok=True)
 
 with open(config_path, 'w') as f:
@@ -2430,8 +2463,8 @@ CONFEOF
     log "Config file created: $CONFIG_FILE"
   fi
 
-  # Install dev CLI to ~/.local/bin
-  DEV_SRC="$PROJECT_DIR/dev.sh"
+  # Install dev CLI to ~/.local/bin (use SCRIPTS_DIR if available, fallback to repo)
+  DEV_SRC="${SCRIPTS_DIR:-$HOME/opencode_initializer}/dev.sh"
   DEV_DST="$HOME/.local/bin/dev"
   if [ -f "$DEV_SRC" ]; then
     mkdir -p "$HOME/.local/bin"

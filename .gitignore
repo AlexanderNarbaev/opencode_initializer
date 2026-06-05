@@ -32,3 +32,6 @@ setup_v[0-9]*.sh
 v[0-9]*.sh
 .opencode/
 wal/
+.codegraph/
+.wslconfig
+*.log

@@ -37,17 +37,18 @@ opencode_initializer/
 - `_step_skip(id, desc)` / `_step_done(id)` — прогресс выполнения
 
 ### Modes (строки 71-130)
-| Mode | Lines | Description |
-|------|-------|-------------|
-| full | default | Complete bootstrap |
-| reinit | — | Reinstall tools, keep data |
-| new | — | Init new project only |
-| health | 82-141 | Diagnostics (36 checks, 5 sections) |
-| update | — | Update tools only |
-| upgrade | 237-308 | Full system update chain |
-| interactive | 311-402 | Component-by-component selection |
-| fix-config | — | Regenerate opencode.json |
-| fix-zshrc | 144-234 | Repair .zshrc |
+| Mode | Description |
+|------|-------------|
+| full | Complete bootstrap (default) |
+| reinit | Reinstall tools, keep data |
+| new | Init new project only |
+| health | Diagnostics (36 checks, 5 sections) |
+| update | Update tools only |
+| upgrade | Full system update chain |
+| interactive | Component-by-component selection |
+| fix-config | Regenerate opencode.json |
+| fix-zshrc | Repair .zshrc |
+| dry-run | Preview mode, no changes |
 
 ### Steps (строки 560+)
 1. System packages (apt)
