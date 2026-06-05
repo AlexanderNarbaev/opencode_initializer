@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://alexandernarbaev.github.io/opencode_initializer/sitemap.xml
