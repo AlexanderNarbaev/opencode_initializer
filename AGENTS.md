@@ -123,6 +123,7 @@ bash setup.sh --fix-zshrc           # repair shell config
 | v33.6 | MCP overhaul: fix bun detection (pkg_installed), codegraph serve, agent-browser-mcp-server, remove broken MCPs (codesorb/mcp-replay/datafy), open-orchestra → plugin, drop grep/sentry from local install |
 | v33.7 | Fix codegraph MCP: add missing --mcp flag to serve command (broken since v33.6) |
 | v33.9 | Fix **critical**: remove `dcp`/`damageControl` top-level keys (schema rejected them — hard crash). Convert to plugin tuple format. Bump all version strings. Add missing packages to upgrade mode. Add missing CLI flags to help. Regenerate valid opencode.json. Install dev CLI. Clean stale packages (codesorb, mcp-replay, datafy). |
+| v33.10 | ZSH: version check (5.8+), chsh default shell, +14 plugins (fzf-tab, zsh-completions, npm, bun, etc.), git via ghproxy mirrors. Google Chrome: apt repo install + chromedriver, WSL2-aware --no-sandbox, chrome-open launcher in .zshrc and ~/.local/bin. GitHub MCP: --github-token CLI arg, enabled+env when token present. Providers: dynamic _build_providers() based on available API keys. Postgres MCP: conditional enabled. auth.json: all 6 tokens. Interactive: Chrome option.
 
 ## Modular Architecture (v30)
 
