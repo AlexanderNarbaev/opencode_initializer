@@ -1,6 +1,10 @@
-[← На главную](../index.md) · [Все инструменты](../index.md#навигация)
+[← На главную](../index.md) · [Все инструменты](../index.md#навигация) · [Справка](../reference.md)
 
 # GPU и локальные LLM
+
+> 🟡 Практикующим &nbsp; 🔴 Экспертам
+>
+> [Ollama](https://ollama.com/) · [vLLM](https://docs.vllm.ai/) · [SGLang](https://sglang.readthedocs.io/) · [GPUStack](https://docs.gpustack.ai/)
 
 Локальный запуск языковых моделей на своём железе.
 
