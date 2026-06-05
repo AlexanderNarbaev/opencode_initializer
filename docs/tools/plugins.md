@@ -1,8 +1,12 @@
-[← На главную](../index.md) · [Все инструменты](../index.md#навигация) · [Справка](../reference.md)
+---
+layout: default
+title: Плагины OpenCode — безопасность и производительность
+description: 7 плагинов: stranger-danger, damage-control, codegraph, dcp, auto-fallback, lazy-loader, orchestra. Цепочка безопасности.
+---
 
-# Плагины OpenCode — подробное руководство
+[Главная](../index.md) · [Справка](../reference.md)
 
-> 🟡 Практикующим &nbsp; 🔴 Экспертам
+# Плагины OpenCode
 
 Плагины работают внутри OpenCode и влияют на его поведение. В отличие от MCP (внешние инструменты), плагины — часть самого агента.
 
@@ -15,23 +19,23 @@ stranger-danger → damage-control → codegraph → dcp → auto-fallback
 
 ---
 
-## opencode-codegraph
+### opencode-codegraph (всегда активен)
 
-**Всегда активен.** Автоматически обогащает диалог графом вызовов проекта.
+Пакет: `opencode-codegraph`
+
+Автоматически обогащает диалог графом вызовов. Экономия контекста: 5x (200 токенов вместо 1000).
 
 ```json
 "plugin": ["opencode-codegraph"]
 ```
 
-**Эффект:** агент видит структуру кода за ~200 токенов вместо ~1000 токенов grep-вывода. Экономия контекста: 5×.
-
 ---
 
-## opencode-dcp — Dynamic Context Pruning
+### opencode-dcp — Dynamic Context Pruning
 
-**Пакет:** `@tarquinen/opencode-dcp`
+Пакет: `@tarquinen/opencode-dcp`
 
-Сжимает контекст когда диалог становится слишком длинным.
+Сжимает контекст при переполнении. Экономия: 62% стоимости запросов.
 
 ```json
 ["opencode-dcp", {
@@ -49,44 +53,29 @@ stranger-danger → damage-control → codegraph → dcp → auto-fallback
 }]
 ```
 
-**Пороги и логика:**
-
 | Ситуация | Действие |
 |----------|----------|
-| < 20K токенов | Сжатие не требуется |
-| 20K–48K | Агрессивное сжатие старых сообщений |
-| > 48K | Защита последних 40K, сжатие остального |
-
-**Экономия:** 48K лимит вместо 128K → каждый запрос к DeepSeek V4 Pro стоит $0.096 вместо $0.256 (экономия 62%).
+| Меньше 20K токенов | Сжатие не требуется |
+| 20K-48K | Агрессивное сжатие старых сообщений |
+| Больше 48K | Защита последних 40K, сжатие остального |
 
 ---
 
-## opencode-stranger-danger — Защита входа
+### opencode-stranger-danger — защита входа
 
-**Пакет:** `@gitdamnit/opencode-stranger-danger`
+Пакет: `@gitdamnit/opencode-stranger-danger`
 
 Фильтрует PII и секреты из промптов. Блокирует prompt-инъекции.
 
-```json
-"opencode-stranger-danger"
-```
-
-**Что фильтрует:**
-- API-ключи (`sk-...`, `ghp_...`, etc)
-- Токены (JWT, OAuth)
-- Пароли в коде
-- Email, телефоны, адреса
-- Попытки prompt injection
-
-**Без него:** секреты из запроса уходят провайдеру и попадают в логи.
+Что фильтрует: API-ключи, токены, пароли, email, телефоны, попытки injection.
 
 ---
 
-## opencode-damage-control — 144 защитных паттерна
+### opencode-damage-control — 144 защитных паттерна
 
-**Пакет:** `opencode-damage-control`
+Пакет: `opencode-damage-control`
 
-Блокирует опасные команды до их выполнения.
+Блокирует опасные команды до выполнения.
 
 ```json
 ["opencode-damage-control", {
@@ -96,16 +85,8 @@ stranger-danger → damage-control → codegraph → dcp → auto-fallback
       "promptInjectionPrevention": true
     },
     "deterministicPolicies": {
-      "blockedCommands": [
-        "rm -rf /",
-        "DROP TABLE",
-        "terraform destroy"
-      ],
-      "blockedPaths": [
-        "~/.ssh",
-        "~/.aws",
-        ".env"
-      ]
+      "blockedCommands": ["rm -rf /", "DROP TABLE", "terraform destroy"],
+      "blockedPaths": ["~/.ssh", "~/.aws", ".env"]
     }
   },
   "audit": {
@@ -115,67 +96,28 @@ stranger-danger → damage-control → codegraph → dcp → auto-fallback
 }]
 ```
 
-**Категории блокировок:**
-
-| Категория | Примеры | Паттернов |
-|-----------|---------|-----------|
-| Удаление системы | `rm -rf /`, `dd if=/dev/zero` | 12 |
-| Базы данных | `DROP TABLE`, `TRUNCATE` | 18 |
-| Инфраструктура | `terraform destroy`, `kubectl delete ns` | 24 |
-| Файловая система | `chmod 777 /`, fork bomb | 15 |
-| Чувствительные пути | `~/.ssh`, `~/.aws`, `.env` | 25 |
+Категории блокировок: удаление системы (12), базы данных (18), инфраструктура (24), файловая система (15), чувствительные пути (25).
 
 ---
 
-## opencode-auto-fallback — Автопереключение провайдеров
+### opencode-auto-fallback — автопереключение
 
-**Пакет:** `opencode-auto-fallback`
+Пакет: `opencode-auto-fallback`
 
-Если основной провайдер недоступен — переключает на следующий.
-
-```json
-"opencode-auto-fallback"
-```
-
-**Порядок переключения:**
-1. DeepSeek V4 Pro (основной)
-2. OpenCode Go (glm-5.1)
-3. xAI (grok-3-beta)
-4. MiMo (mi-1.5)
-5. Moonshot (kimi-k2.6)
-6. MiniMax (m3)
+Порядок переключения: DeepSeek → OpenCode Go → xAI → MiMo → Moonshot → MiniMax.
 
 ---
 
-## opencode-lazy-loader — Отложенная загрузка
+### opencode-lazy-loader — отложенная загрузка
 
-**Пакет:** `opencode-lazy-loader`
+Пакет: `opencode-lazy-loader`
 
-Не загружает все плагины при старте — только когда нужны.
-
-```json
-"opencode-lazy-loader"
-```
-
-**Эффект:** ускорение холодного старта OpenCode на 30-50%.
+Ускорение холодного старта на 30-50%.
 
 ---
 
-## open-orchestra — Оркестрация агентов
+### open-orchestra — оркестрация агентов
 
-**Пакет:** `open-orchestra`
+Пакет: `open-orchestra`
 
-Координирует работу нескольких агентов параллельно.
-
-```json
-"open-orchestra"
-```
-
-**Сценарий:**
-```
-@orchestra "Спроектируй и реализуй API для авторизации"
-  → architect: проектирует схему
-  → developer: пишет код
-  → reviewer: проверяет
-  → qa: пишет тесты
-```
+Координирует параллельную работу агентов: architect → developer → reviewer → qa.

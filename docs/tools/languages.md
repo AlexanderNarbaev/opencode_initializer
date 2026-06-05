@@ -1,10 +1,12 @@
-[← На главную](../index.md) · [Все инструменты](../index.md#навигация) · [Справка](../reference.md)
+---
+layout: default
+title: Языки программирования — версии и менеджеры
+description: 8 языков: Java 25, Node.js 22, Python 3.12, Go 1.24+, Rust, .NET 9, Kotlin, Zig. Менеджеры пакетов, сравнение.
+---
 
-# Языки программирования — версии и менеджеры
+[Главная](../index.md) · [Справка](../reference.md)
 
-> 🟢 Начинающим &nbsp; 🟡 Практикующим
-
-## Сводка
+# Языки программирования
 
 | Язык | Версия | Менеджер | Метод установки |
 |------|--------|----------|----------------|
@@ -17,91 +19,41 @@
 | Kotlin | 2.1+ | SDKMAN | sdk install kotlin |
 | Zig | 0.14 | — | ziglang.org |
 
----
-
 ## Java 25 — Adoptium API
 
-**Почему не SDKMAN:** SDKMAN часто падает по DNS в WSL2. Adoptium использует GitHub CDN — стабильно.
+Почему Adoptium: стабильнее SDKMAN в WSL2 (SDKMAN падает по DNS). GitHub CDN.
 
-**Почему не apt:** `apt openjdk-25-jdk` может дать старую версию.
-
-**Дополнительно через SDKMAN:**
-- Gradle — система сборки
-- Maven — система сборки
-- Kotlin — JVM-язык
-- jbang — запуск Java-скриптов
-
-**Почему 25 а не 21 LTS:** Java 25 добавляет string templates, unnamed patterns, virtual threads улучшения.
-
----
+Дополнительно через SDKMAN: Gradle, Maven, Kotlin, jbang.
 
 ## Node.js 22 — n
 
-**Почему n:** легче nvm (без shell-хуков), быстрее fnm (без Rust-зависимости).
-
-**Почему 22 а не 24:** 22 — LTS до апреля 2027. 24 ещё не LTS.
-
-```bash
-n 22           # установить Node 22
-n lts          # последняя LTS
-n latest       # последняя версия
-```
-
----
+Почему n: легче nvm (без shell-хуков), быстрее fnm (без Rust-зависимости). 22 — LTS до апреля 2027.
 
 ## Python 3.12 — uv
 
-**Почему uv:** в 10-100× быстрее pip. Написан на Rust. Управляет и пакетами, и версиями Python.
-
-```bash
-uv python install 3.12    # установить Python 3.12
-uv pip install requests   # установить пакет
-uv venv                   # создать venv
-```
-
-**Почему 3.12 а не 3.13:** TensorFlow/PyTorch ещё не полностью совместимы с 3.13.
-
----
+Почему uv: в 10-100x быстрее pip. Rust-based. Управляет версиями Python и пакетами. 3.12 — стабильный, все библиотеки совместимы.
 
 ## Go 1.24+ — прямая загрузка
 
-**Почему не apt:** `apt golang-go` даёт устаревшую версию. Прямая загрузка с go.dev — всегда свежая.
-
-**Почему не gvm:** gvm нестабилен в WSL2.
-
----
+Почему не apt: даёт старую версию. Прямая загрузка с go.dev — всегда свежая.
 
 ## Rust — rustup
 
-**Почему rustup:** официальный инсталлятор. Переключение каналов (stable/beta/nightly), компоненты (rust-analyzer, clippy).
-
-```bash
-rustup update              # обновить
-rustup component add clippy  # добавить линтер
-```
-
----
+Официальный инсталлятор. Переключение каналов (stable/beta/nightly), компоненты (rust-analyzer, clippy).
 
 ## .NET 9 — dotnet-install.sh
 
-**Почему не apt:** `apt dotnet-sdk-9.0` может отставать от релизов Microsoft.
-
-```bash
-dotnet-install.sh --channel 9.0
-```
-
----
+Microsoft-скрипт, всегда актуальная версия. apt может отставать.
 
 ## Менеджеры пакетов — сравнение
 
 | Менеджер | Язык | Скорость | Особенности |
 |----------|------|----------|-------------|
-| Gradle | Java/Kotlin | Средняя | Гибкость, Kotlin DSL |
+| Gradle | Java/Kotlin | Средняя | Kotlin DSL, гибкость |
 | Maven | Java | Медленная | Стандарт enterprise |
 | npm | Node.js | Медленная | Де-факто стандарт |
-| bun | Node.js | Быстрая | All-in-one toolkit |
-| uv | Python | Очень быстрая | Rust-based, 10-100× pip |
-| pip | Python | Медленная | Стандарт, но устарел |
-| go mod | Go | Быстрая | Встроен в Go |
-| cargo | Rust | Средняя | Встроен в Rust |
-| dotnet | .NET | Средняя | NuGet-based |
+| bun | Node.js | Быстрая | All-in-one |
+| uv | Python | Очень быстрая | Rust-based |
+| pip | Python | Медленная | Стандарт |
+| go mod | Go | Быстрая | Встроен |
+| cargo | Rust | Средняя | Встроен |

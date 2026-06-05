@@ -1,118 +1,51 @@
-[← На главную](../index.md) · [Все инструменты](../index.md#навигация) · [Промпты](../prompts/system-prompts.md)
+---
+layout: default
+title: AI-агенты — роли, модели, права
+description: 10 AI-агентов для OpenCode: developer, architect, qa, security, devops, reviewer, researcher, designer, pm, analyst.
+---
 
-# Агенты — роли и конфигурация
+[Главная](../index.md) · [Промпты](../prompts/system-prompts.md)
 
-> 🟢 Начинающим &nbsp; 🟡 Практикующим
+# Агенты
 
 10 AI-агентов с разными ролями, моделями и правами доступа.
 
-## Конфигурация
-
-```json
-{
-  "agent": {
-    "pm": {
-      "model": "opencode-go/glm-5.1",
-      "permissions": { "edit": false, "write": false, "bash": false }
-    },
-    "analyst": {
-      "model": "opencode-go/glm-5.1",
-      "permissions": { "edit": false, "write": false, "bash": false }
-    },
-    "architect": {
-      "model": "opencode-go/glm-5.1",
-      "permissions": { "edit": false, "write": false, "bash": false }
-    },
-    "developer": {
-      "model": "deepseek/deepseek-v4-pro",
-      "permissions": { "edit": true, "write": true, "bash": true }
-    },
-    "qa": {
-      "model": "opencode-go/minimax-m2.7",
-      "permissions": { "edit": true, "write": true, "bash": true }
-    },
-    "security": {
-      "model": "opencode-go/glm-5",
-      "permissions": { "edit": false, "write": false, "bash": false }
-    },
-    "devops": {
-      "model": "deepseek/deepseek-v4-pro",
-      "permissions": { "edit": true, "write": true, "bash": true }
-    },
-    "reviewer": {
-      "model": "opencode-go/qwen3.6-plus",
-      "permissions": { "edit": false, "write": false, "bash": false }
-    },
-    "researcher": {
-      "model": "deepseek/deepseek-v4-pro",
-      "permissions": { "edit": false, "write": false, "bash": false }
-    },
-    "designer": {
-      "model": "opencode-go/minimax-m2.7",
-      "permissions": { "edit": false, "write": false, "bash": false }
-    }
-  }
-}
-```
-
 ## Таблица ролей
 
-| Агент | Модель | Доступ | Задача | Вызов |
-|-------|--------|--------|--------|-------|
-| pm | glm-5.1 | read-only | Требования, приоритеты | `@pm` |
-| analyst | glm-5.1 | read-only | Анализ кодовой базы | `@analyst` |
-| architect | glm-5.1 | read-only | Проектирование | `@architect` |
-| developer | deepseek-v4-pro | full | Написание кода | `@developer` |
-| qa | minimax-m2.7 | full | Тесты | `@qa` |
-| security | glm-5 | read-only | Уязвимости | `@security` |
-| devops | deepseek-v4-pro | full | Docker, CI/CD | `@devops` |
-| reviewer | qwen3.6-plus | read-only | Код-ревью | `@reviewer` |
-| researcher | deepseek-v4-pro | read-only | Исследования | `@researcher` |
-| designer | minimax-m2.7 | read-only | UI/UX | `@designer` |
+| Агент | Модель | Доступ | Задача |
+|-------|--------|--------|--------|
+| developer | deepseek-v4-pro | full | Написание кода |
+| architect | glm-5.1 | read-only | Проектирование |
+| qa | minimax-m2.7 | full | Тестирование |
+| security | glm-5 | read-only | Уязвимости |
+| devops | deepseek-v4-pro | full | Docker, CI/CD |
+| reviewer | qwen3.6-plus | read-only | Код-ревью |
+| researcher | deepseek-v4-pro | read-only | Исследования |
+| designer | minimax-m2.7 | read-only | UI/UX |
+| pm | glm-5.1 | read-only | Требования |
+| analyst | glm-5.1 | read-only | Анализ базы |
 
 ## Почему такое разделение
 
-**Разные модели под разные задачи:**
-- DeepSeek V4 Pro лучше всего пишет код → developer, devops
-- GLM-5.1 лучше анализирует и проектирует → pm, analyst, architect
-- MiniMax M2.7 быстрый и дешёвый → qa, designer
-- Qwen3.6-Plus хорош в ревью → reviewer
+**Разные модели:** DeepSeek V4 Pro — код, GLM-5.1 — анализ, MiniMax M2.7 — тесты.
 
-**Разные права доступа:**
-- read-only агенты НЕ МОГУТ изменить код или выполнить bash-команды
-- Это значит что даже если модель "галлюцинирует" опасную команду — она не выполнится
-- 7 из 10 агентов read-only — принцип минимальных привилегий
+**Разные права:** 7 из 10 агентов read-only. Даже если модель «галлюцинирует» опасную команду — не выполнится.
 
-**Экономия:**
-- read-only агенты используют меньше токенов (не нужно резервировать контекст под запись)
-- Аналитические агенты на glm-5.1 через подписку OpenCode Go дешевле чем DeepSeek Pro
+**Экономия:** read-only агенты дешевле (не резервируют контекст под запись).
 
-## Примеры использования
+## Примеры
 
-```bash
+```
 @developer "Добавь эндпоинт POST /api/auth/login с JWT"
 @qa "Напиши тесты для AuthController"
 @security "Проверь безопасность модуля auth"
 @reviewer "Проверь PR #42"
-@architect "Спроектируй переход на event-driven архитектуру"
-@analyst "Найди все места где используется устаревший API"
+@architect "Спроектируй переход на event-driven"
+@analyst "Найди где используется устаревший API"
 @devops "Добавь healthcheck в Dockerfile"
-@researcher "Сравни gRPC vs REST для микросервисов"
-@designer "Создай landing page для продукта"
+@researcher "Сравни gRPC vs REST"
+@designer "Создай landing page"
 @pm "Разбей фичу 'платежи' на задачи"
 ```
 
-## Промпты агентов
-
-Каждый агент имеет свой системный промпт (см. [system-prompts.md](../prompts/system-prompts.md)):
-
-- **pm:** user story → acceptance criteria → priority → effort
-- **analyst:** находка → расположение → влияние → рекомендация
-- **architect:** минимум 2 варианта с trade-off анализом
-- **developer:** код без комментариев, guard clauses, стиль проекта
-- **qa:** unit > integration > e2e, happy path + edge cases
-- **security:** OWASP Top 10, CWE, код до/после
-- **devops:** healthcheck, resource limits, secrets management
-- **reviewer:** корректность, безопасность, производительность, читаемость
-- **researcher:** проблема → варианты → сравнение → рекомендация
-- **designer:** палитра, grid, clamp(), shadcn/ui, Lucide
+Каждый агент имеет свой оптимизированный промпт. [См. промпты](../prompts/system-prompts.md).

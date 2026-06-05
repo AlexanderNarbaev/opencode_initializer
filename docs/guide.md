@@ -1,4 +1,10 @@
-[← На главную](index.md) · [База знаний](KNOWLEDGE.md) · [Промпты](prompts/system-prompts.md)
+---
+layout: default
+title: Руководство по использованию — opencode_initializer
+description: Полное руководство: установка, настройка, OpenCode, MCP, плагины, агенты, память, GPU, решение проблем.
+---
+
+[Главная](index.md) · [База знаний](KNOWLEDGE.md) · [Промпты](prompts/system-prompts.md)
 
 # Полное руководство по использованию
 
