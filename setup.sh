@@ -3,9 +3,34 @@
 #  Ultimate Dev Machine Bootstrap v34.0 — Modular
 set -euo pipefail; IFS=$'\n\t'
 
+# ── Bootstrap: resolve script dir (supports curl|bash and local runs) ───────
+if [ -f "$(cd "$(dirname "$0")" 2>/dev/null && pwd)/lib/helpers.sh" ]; then
+  SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+elif [ -f "$HOME/opencode_initializer/lib/helpers.sh" ]; then
+  SCRIPT_DIR="$HOME/opencode_initializer"
+elif [ -f "$HOME/setup.sh" ] && [ -f "$(dirname "$(readlink -f "$HOME/setup.sh" 2>/dev/null || echo "$HOME/setup.sh")")/lib/helpers.sh" ]; then
+  SCRIPT_DIR="$(dirname "$(readlink -f "$HOME/setup.sh" 2>/dev/null || echo "$HOME/setup.sh")")"
+else
+  # Running from curl|bash — auto-clone the repo
+  REPO_URL="https://github.com/AlexanderNarbaev/opencode_initializer.git"
+  CACHE_DIR="${HOME}/.cache/opencode-setup/repo"
+  if [ -d "$CACHE_DIR/.git" ]; then
+    git -C "$CACHE_DIR" pull --ff-only -q 2>/dev/null || true
+  else
+    mkdir -p "$(dirname "$CACHE_DIR")"
+    git clone --depth 1 -q "$REPO_URL" "$CACHE_DIR" 2>/dev/null || {
+      echo "ERROR: Cannot clone $REPO_URL — check network"; exit 1
+    }
+  fi
+  SCRIPT_DIR="$CACHE_DIR"
+  # Re-exec from local copy so $0 is a real path
+  exec bash "$SCRIPT_DIR/setup.sh" "$@"
+fi
+export SCRIPT_DIR
+
 # ── Source infrastructure (must be first) ────────────────────────────────────
-source "$(cd "$(dirname "$0")" && pwd)/lib/helpers.sh"
-source "$(cd "$(dirname "$0")" && pwd)/lib/00-core.sh"
+source "$SCRIPT_DIR/lib/helpers.sh"
+source "$SCRIPT_DIR/lib/00-core.sh"
 
 # ── CLI argument parsing ────────────────────────────────────────────────────
 MODE="full"; NEW_PROJECT_DIR=""
