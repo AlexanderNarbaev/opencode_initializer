@@ -1,14 +1,14 @@
 ---
 layout: default
 title: Ultimate Dev Machine Bootstrap
-description: Одна команда — и ваша машина готова к AI-разработке. 8 языков, 13 MCP-серверов, 7 плагинов, 6 AI-провайдеров, GPU-рантаймы, ZSH+Chrome.
+description: Одна команда — и ваша машина готова к AI-разработке. 8 языков, 15 MCP-серверов, 7 плагинов, 6 AI-провайдеров, GPU-рантаймы, ZSH+Chrome.
 ---
 
 # Ultimate Dev Machine Bootstrap
 
 **Одна команда. 15 минут. Полная AI-среда разработки.**
 
-[![Version](https://img.shields.io/badge/version-v33.10-blue)](https://github.com/AlexanderNarbaev/opencode_initializer)
+[![Version](https://img.shields.io/badge/version-v34.0-blue)](https://github.com/AlexanderNarbaev/opencode_initializer)
 [![ShellCheck](https://img.shields.io/badge/shellcheck-passing-brightgreen)](https://github.com/AlexanderNarbaev/opencode_initializer/actions)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Stars](https://img.shields.io/github/stars/AlexanderNarbaev/opencode_initializer?style=social)](https://github.com/AlexanderNarbaev/opencode_initializer)
@@ -21,19 +21,21 @@ bash <(curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_in
 
 ## Что вы получите
 
-Один bash-скрипт (~2300 строк) устанавливает всё это с правильными настройками.
+Модульная архитектура (257-строчный оркестратор + 25 модулей) устанавливает всё это с правильными настройками.
 
 | Языки | MCP-серверы | Плагины | AI-провайдеры |
 |-------|-------------|---------|---------------|
 | Java 25 | context7 | damage-control | DeepSeek V4 Pro |
-| Node.js 22 | codegraph | stranger-danger | OpenCode Go |
-| Python 3.12 | playwright | codegraph | xAI Grok |
-| Go 1.24+ | agent-browser | auto-fallback | MiMo |
+| Node.js 24 | codegraph | stranger-danger | OpenCode Go |
+| Python 3.14 | playwright | codegraph | xAI Grok |
+| Go 1.26 | agent-browser | auto-fallback | MiMo |
 | Rust | memorylayer | dcp | Moonshot |
-| .NET 9 | filesystem | lazy-loader | MiniMax |
+| .NET 10 | filesystem | lazy-loader | MiniMax |
 | Kotlin | loopsense | orchestra | |
-| Zig | github | | |
+| Zig 0.16 | github | | |
 | | postgres | | |
+| | gitlab | | |
+| | google-maps | | |
 | | +4 more | | |
 
 ---
@@ -52,7 +54,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_in
 | | | |
 |---|---|---|
 | [MCP-серверы](tools/mcp-servers.md) | [Плагины](tools/plugins.md) | [Провайдеры](tools/providers.md) |
-| 13 серверов, примеры, команды | 7 плагинов, безопасность | 6 провайдеров, цены |
+| 15 серверов, примеры, команды | 7 плагинов, безопасность | 6 провайдеров, цены |
 | [Языки](tools/languages.md) | [LSP-серверы](tools/lsp-servers.md) | [GPU и LLM](tools/gpu-llm.md) |
 | 8 языков, менеджеры | 10 LSP, автодополнение | Локальный инференс |
 | [Безопасность](tools/security.md) | [Агенты](tools/agents.md) | |
@@ -151,12 +153,12 @@ DeepSeek V4 Pro (генерация кода)
 
 ### Языки (8)
 
-Java 25, Node.js 22, Python 3.12 + uv, Go 1.24+, Rust, .NET 9, Kotlin, Zig.
+Java 25, Node.js 24, Python 3.14 + uv, Go 1.26, Rust, .NET 10, Kotlin, Zig 0.16.
 [Подробнее](tools/languages.md)
 
-### MCP-серверы (13: 11 local + 2 remote)
+### MCP-серверы (15: 13 local + 2 remote)
 
-context7, filesystem, agentic-tools, codegraph, playwright, agent-browser, loopsense, sequential-thinking, memorylayer, github, postgres + sentry (remote), grep (remote). GitHub MCP включается при наличии токена.
+context7, filesystem, agentic-tools, codegraph, playwright, agent-browser, loopsense, sequential-thinking, memorylayer, github, postgres, gitlab, google-maps + sentry (remote), grep (remote). GitHub MCP включается при наличии токена.
 [Подробнее](tools/mcp-servers.md)
 
 ### Плагины (7)

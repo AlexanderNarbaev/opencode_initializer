@@ -1,5 +1,5 @@
 title: Ultimate Dev Machine Bootstrap
-description: Одна команда — и ваша машина готова к AI-разработке. 8 языков, 13 MCP-серверов, 7 плагинов безопасности, 6 AI-провайдеров, GPU-рантаймы для WSL2/Linux/macOS.
+description: Одна команда — и ваша машина готова к AI-разработке. 8 языков, 15 MCP-серверов, 7 плагинов безопасности, 6 AI-провайдеров, GPU-рантаймы для WSL2/Linux/macOS.
 remote_theme: pages-themes/hacker@v0.2.0
 plugins:
   - jekyll-remote-theme

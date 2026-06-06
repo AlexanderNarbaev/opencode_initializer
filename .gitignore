@@ -34,4 +34,5 @@ v[0-9]*.sh
 wal/
 .codegraph/
 .wslconfig
+.agentic-tools-mcp/
 *.log

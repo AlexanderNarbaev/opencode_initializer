@@ -6,10 +6,10 @@
 bash <(curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializer/main/setup.sh) --full
 ```
 
-## Что делает (v33.10)
+## Что делает (v34.0)
 
-- **8 языков**: Java 25 (Adoptium), Node.js 22, Python 3.12 + uv, Go 1.26, Rust 1.93, .NET 9, Kotlin, Zig
-- **13 MCP-серверов (11 local + 2 remote)**: context7, filesystem, agentic-tools, codegraph, playwright, agent-browser, loopsense, memorylayer, github, postgres, sequential-thinking (+ sentry, grep — remote)
+- **8 языков**: Java 25 (Adoptium), Node.js 24, Python 3.14 + uv, Go 1.26, Rust 1.93, .NET 10, Kotlin, Zig 0.16
+- **15 MCP-серверов (13 local + 2 remote)**: context7, filesystem, agentic-tools, codegraph, playwright, agent-browser, loopsense, memorylayer, github, postgres, sequential-thinking, gitlab, google-maps (+ sentry, grep — remote)
 - **7 плагинов**: opencode-codegraph, open-orchestra, opencode-dcp (контекст-прунинг), opencode-lazy-loader, opencode-stranger-danger (PII-фильтрация), opencode-damage-control (144 guardrails), opencode-auto-fallback (model switching)
 - **Dev-инструменты**: clawrouter (умный роутинг, 55+ моделей), agents-md-sync (AGENTS.md синхронизация), CLI `dev`
 - **10 LSP-серверов**: gopls, rust-analyzer, typescript, pyright, omnisharp, yaml, marksman, taplo, lua, zls
@@ -146,12 +146,16 @@ open http://localhost:3300     # Open WebUI — чат-интерфейс
 
 ```
 opencode_initializer/
-├── setup.sh              # основной скрипт (2309 строк)
+├── setup.sh              # оркестратор (257 строк)
+├── lib/                  # 21 модуль
+│   ├── helpers.sh, 00-core.sh (инфраструктура)
+│   ├── 01-system.sh через 19-finalize.sh
+├── modes/                # 4 режимных скрипта
+│   ├── health.sh, fix-zshrc.sh, upgrade.sh, interactive.sh
 ├── dev.sh                # CLI: dev install|remove|update|health|list|config
-├── lib/helpers.sh        # общие функции (_curl, _retry, _npm_install)
 ├── migrations/           # миграции (авто-запуск при dev update)
 ├── .github/workflows/    # CI (ShellCheck)
-├── v17.0.sh ... v27.0.sh # архивные версии
+├── v17.0.sh ... v33.11.sh # архивные версии (v33.11 — последняя монолитная)
 └── AGENTS.md             # документация для AI-агентов
 ```
 

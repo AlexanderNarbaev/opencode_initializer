@@ -2,7 +2,7 @@
 
 ## Identity
 Universal Dev Machine Bootstrap — однокомандная настройка AI-усиленной dev-машины для WSL2/Linux.
-Один bash-скрипт (~2300 строк), устанавливающий полный стек разработки с AI-агентами.
+Модульная архитектура: 257-строчный оркестратор + 25 модулей, устанавливающих полный стек разработки с AI-агентами.
 
 ## Язык общения
 Всё общение строго на русском языке. Код и комментарии — на английском.
@@ -10,14 +10,13 @@ Universal Dev Machine Bootstrap — однокомандная настройк�
 ## Project Structure
 ```
 opencode_initializer/
-├── setup.sh          ← основной скрипт (текущая версия, всегда актуальный)
-├── v17.0.sh          ← архивные версии (эволюция)
-├── v18.0.sh
-├── v18.2.sh
-├── v23.0.sh
-├── v25.0.sh
-├── v26.0.sh
-├── v27.0.sh
+├── setup.sh          ← оркестратор (257 строк, source модули из lib/)
+├── lib/              ← 21 модуль (00-core.sh … 19-finalize.sh + helpers.sh)
+├── modes/            ← 4 режимных скрипта (health, fix-zshrc, upgrade, interactive)
+├── dev.sh            ← CLI: dev install|remove|update|health|list|config
+├── migrations/       ← timestamped, idempotent, auto-run by 'dev update'
+├── .github/workflows/← CI (ShellCheck)
+├── v17.0.sh ... v33.11.sh ← архивные версии
 ├── README.md
 ├── AGENTS.md         ← этот файл
 └── .gitignore
@@ -30,13 +29,35 @@ opencode_initializer/
 
 ## Architecture (setup.sh)
 
-### Helper Functions (строки 1-70)
-- `_curl(url, [out], [opts])` — 5 retries, exponential backoff (2→4→8→16→32s), 24h cache
-- `_retry(max, desc, cmd...)` — retry wrapper для не-curl команд
-- `_npm_install(pkg, name)` — npm pack cache → npm install → bun install
-- `_step_skip(id, desc)` / `_step_done(id)` — прогресс выполнения
+### Orchestrator (257 lines)
+Minimal entry point that sources modules from `lib/` and dispatches modes from `modes/`.
 
-### Modes (строки 71-130)
+### Module Layout (lib/)
+| Module | Responsibility |
+|--------|---------------|
+| `helpers.sh` | `_curl()`, `_retry()`, `_npm_install()` — shared infrastructure |
+| `00-core.sh` | Progress tracking, step skip/done, OS detection, cache dirs |
+| `01-system.sh` | System packages (apt/dnf/pacman/apk/zypper/brew) |
+| `02-docker.sh` | Docker engine installation |
+| `03-chrome.sh` | Google Chrome + chromedriver (WSL2-aware) |
+| `04-zsh.sh` | Zsh + Oh My Zsh + P10k + 14 plugins |
+| `05-java.sh` | Java 25 (Adoptium API → SDKMAN → apt) |
+| `06-node.sh` | Node.js 24 (n → apt) |
+| `07-python.sh` | Python 3.14 + uv |
+| `08-go.sh` | Go 1.26 (direct download → apt) |
+| `09-rust.sh` | Rust 1.93 (rustup → apt) |
+| `10-dotnet.sh` | .NET 10 (dotnet-install → apt) |
+| `11-opencode.sh` | OpenCode CLI + Bun |
+| `12-mcp-lsp.sh` | 15 MCP servers + 10 LSP + Muninn + ChromaDB |
+| `13-chromadb.sh` | ChromaDB systemd service |
+| `14-shokunin.sh` | Shokunin + Superpowers + Caveman |
+| `15-security.sh` | Trivy, Qodana |
+| `16-llm.sh` | Ollama, vLLM, SGLang, Open WebUI (optional) |
+| `17-project.sh` | Project structure (AGENTS.md, WAL, agents, docker-compose) |
+| `18-opencode-json.sh` | opencode.json generation (Python inline) |
+| `19-finalize.sh` | Git config, PATH persistence, .zshrc fix, auth reminder, verification |
+
+### Modes (modes/)
 | Mode | Description |
 |------|-------------|
 | full | Complete bootstrap (default) |
@@ -49,30 +70,6 @@ opencode_initializer/
 | fix-config | Regenerate opencode.json |
 | fix-zshrc | Repair .zshrc |
 | dry-run | Preview mode, no changes |
-
-### Steps (строки 560+)
-1. System packages (apt)
-2. Docker (curl get.docker.com → apt fallback)
-3. Zsh + Oh My Zsh + P10k
-4. Java 25 (Adoptium API → SDKMAN for tools → apt fallback)
-5. Node.js 22 (n → apt)
-6. Python 3.12 + uv
-7. Go 1.24+ (direct download → apt)
-8. Rust (rustup → apt)
-9. .NET 9 (dotnet-install → apt)
-10. Clean old configs
-11. OpenCode CLI + Bun
-12. MCP servers (14) + LSP (10) + Muninn + ChromaDB
-13. ChromaDB systemd service
-14. Shokunin + Superpowers + Caveman
-15. Security tools (Trivy, Qodana)
-16. Project structure (AGENTS.md, WAL, agents, docker-compose)
-17. opencode.json generation (Python inline)
-18. Git config
-19. PATH persistence
-20. Fix .zshrc + P10k
-21. Auth reminder
-22. Verification (30+ checks)
 
 ### Multi-Provider Config (opencode.json)
 ```json
@@ -99,10 +96,11 @@ opencode_initializer/
 
 ## Testing & Verification
 ```bash
-bash -n setup.sh                    # syntax check
-bash setup.sh --health              # diagnostics (36 checks)
-bash setup.sh --fix-config          # regenerate opencode.json
-bash setup.sh --fix-zshrc           # repair shell config
+bash -n setup.sh                          # syntax check (orchestrator)
+for f in lib/*.sh modes/*.sh; do bash -n "$f"; done  # modular syntax check
+bash setup.sh --health                    # diagnostics (36 checks)
+bash setup.sh --fix-config                # regenerate opencode.json
+bash setup.sh --fix-zshrc                 # repair shell config
 ```
 
 ## Git Remotes
@@ -124,16 +122,20 @@ bash setup.sh --fix-zshrc           # repair shell config
 | v33.6 | MCP overhaul: fix bun detection (pkg_installed), codegraph serve, agent-browser-mcp-server, remove broken MCPs (codesorb/mcp-replay/datafy), open-orchestra → plugin, drop grep/sentry from local install |
 | v33.7 | Fix codegraph MCP: add missing --mcp flag to serve command (broken since v33.6) |
 | v33.9 | Fix **critical**: remove `dcp`/`damageControl` top-level keys (schema rejected them — hard crash). Convert to plugin tuple format. Bump all version strings. Add missing packages to upgrade mode. Add missing CLI flags to help. Regenerate valid opencode.json. Install dev CLI. Clean stale packages (codesorb, mcp-replay, datafy). |
-| v33.10 | ZSH: version check (5.8+), chsh default shell, +14 plugins (fzf-tab, zsh-completions, npm, bun, etc.), git via ghproxy mirrors. Google Chrome: apt repo install + chromedriver, WSL2-aware --no-sandbox, chrome-open launcher in .zshrc and ~/.local/bin. GitHub MCP: --github-token CLI arg, enabled+env when token present. Providers: dynamic _build_providers() based on available API keys. Postgres MCP: conditional enabled. auth.json: all 6 tokens. Interactive: Chrome option.
+| v33.10 | ZSH: version check (5.8+), chsh default shell, +14 plugins (fzf-tab, zsh-completions, npm, bun, etc.), git via ghproxy mirrors. Google Chrome: apt repo install + chromedriver, WSL2-aware --no-sandbox, chrome-open launcher in .zshrc and ~/.local/bin. GitHub MCP: --github-token CLI arg, enabled+env when token present. Providers: dynamic _build_providers() based on available API keys. Postgres MCP: conditional enabled. auth.json: all 6 tokens. Interactive: Chrome option. |
+| v33.11 | Version bumps (Node 24, Python 3.14, .NET 10, Go 1.26, Zig 0.16). Critical bug fixes (39), LSP fixes (3). Added gitlab + google-maps MCP servers. |
+| v34.0 | Modular architecture: 23 files, 257-line orchestrator. Bug fixes (39), LSP fixes (3), version bumps (Node 24, Python 3.14, .NET 10, Zig 0.16). New MCPs (gitlab, google-maps). |
 
-## Modular Architecture (v30)
+## Modular Architecture (v34)
 
 ```
 opencode_initializer/
-├── setup.sh              ← монолитный оркестратор (1839 строк)
+├── setup.sh              ← оркестратор (257 строк) + lib/ модули
 ├── dev.sh                ← CLI: dev install|remove|update|health|list|config
 ├── lib/
 │   └── helpers.sh        ← _curl, _retry, _npm_install (shared)
+├── modes/
+│   └── health.sh ...     ← режимные скрипты
 ├── migrations/
 │   └── YYYYMMDD-name.sh  ← timestamped, idempotent, auto-run by 'dev update'
 ├── .github/workflows/

@@ -9,9 +9,26 @@ err()   { echo -e "${RED}[✗]${NC} $(date +%H:%M:%S) $1" >&2; exit 1; }
 info()  { echo -e "${CYAN}[i]${NC} $(date +%H:%M:%S) $1"; }
 section() { echo; echo -e "${CYAN}─── $1 ───${NC}"; }
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DL_CACHE="${HOME}/.cache/opencode-setup"
 mkdir -p "$DL_CACHE"
 SECRETS_FILE="${HOME}/.config/opencode/secrets.env"
+mkdir -p "$(dirname "$SECRETS_FILE")"
+
+cleanup() {
+  local exit_code=$?
+  rm -f /tmp/docker-install.*.sh /tmp/uv-install.*.sh /tmp/bun-install.*.sh \
+        /tmp/sdkman-install.sh /tmp/superpowers.* /tmp/dotnet-install.*.sh \
+        /tmp/rustup-init.*.sh /tmp/opencode-install.sh /tmp/ollama-install.sh 2>/dev/null
+  npm config set strict-ssl true 2>/dev/null || true
+  if [ $exit_code -ne 0 ] && [ "${MODE:-}" != "health" ]; then
+    warn "Script exited with code $exit_code at $(date +%H:%M:%S)"
+    warn "Log: ${LOG_FILE:-not started}"
+    warn "Re-run: bash ~/setup.sh --health ; or resume with --full (progress tracked)"
+  fi
+  exit $exit_code
+}
+trap cleanup EXIT INT TERM
 
 _curl() {
   local url="$1" out="${2:-}" opts="${3:-}" attempt=1 max=5 cache_key cache_file

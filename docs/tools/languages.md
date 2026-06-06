@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Языки программирования — версии и менеджеры
-description: 8 языков: Java 25, Node.js 22, Python 3.12, Go 1.24+, Rust, .NET 9, Kotlin, Zig. Менеджеры пакетов, сравнение.
+description: 8 языков: Java 25, Node.js 24, Python 3.14, Go 1.26, Rust, .NET 10, Kotlin, Zig 0.16. Менеджеры пакетов, сравнение.
 ---
 
 [Главная](../index.md) · [Справка](../reference.md)
@@ -11,13 +11,13 @@ description: 8 языков: Java 25, Node.js 22, Python 3.12, Go 1.24+, Rust, .
 | Язык | Версия | Менеджер | Метод установки |
 |------|--------|----------|----------------|
 | Java | 25 LTS | SDKMAN | Adoptium API (GitHub CDN) |
-| Node.js | 22 LTS | n | npx n 22 |
-| Python | 3.12 | uv | uv python install 3.12 |
-| Go | 1.24+ | go toolchain | go.dev/dl |
+| Node.js | 24 LTS | n | npx n 24 |
+| Python | 3.14 | uv | uv python install 3.14 |
+| Go | 1.26 | go toolchain | go.dev/dl |
 | Rust | stable | rustup | sh.rustup.rs |
-| .NET | 9.0 | dotnet-install | dotnet-install.sh |
+| .NET | 10.0 | dotnet-install | dotnet-install.sh |
 | Kotlin | 2.1+ | SDKMAN | sdk install kotlin |
-| Zig | 0.14 | — | ziglang.org |
+| Zig | 0.16 | — | ziglang.org |
 
 ## Java 25 — Adoptium API
 
@@ -25,15 +25,15 @@ description: 8 языков: Java 25, Node.js 22, Python 3.12, Go 1.24+, Rust, .
 
 Дополнительно через SDKMAN: Gradle, Maven, Kotlin, jbang.
 
-## Node.js 22 — n
+## Node.js 24 — n
 
-Почему n: легче nvm (без shell-хуков), быстрее fnm (без Rust-зависимости). 22 — LTS до апреля 2027.
+Почему n: легче nvm (без shell-хуков), быстрее fnm (без Rust-зависимости). 24 — LTS.
 
-## Python 3.12 — uv
+## Python 3.14 — uv
 
-Почему uv: в 10-100x быстрее pip. Rust-based. Управляет версиями Python и пакетами. 3.12 — стабильный, все библиотеки совместимы.
+Почему uv: в 10-100x быстрее pip. Rust-based. Управляет версиями Python и пакетами. 3.14 — стабильный, все библиотеки совместимы.
 
-## Go 1.24+ — прямая загрузка
+## Go 1.26 — прямая загрузка
 
 Почему не apt: даёт старую версию. Прямая загрузка с go.dev — всегда свежая.
 
@@ -41,7 +41,7 @@ description: 8 языков: Java 25, Node.js 22, Python 3.12, Go 1.24+, Rust, .
 
 Официальный инсталлятор. Переключение каналов (stable/beta/nightly), компоненты (rust-analyzer, clippy).
 
-## .NET 9 — dotnet-install.sh
+## .NET 10 — dotnet-install.sh
 
 Microsoft-скрипт, всегда актуальная версия. apt может отставать.
 
