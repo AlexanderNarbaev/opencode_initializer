@@ -635,7 +635,7 @@ fi
 # ── Interactive Mode ───────────────────────────────────────────────────────
 if [ "$MODE" = "interactive" ]; then
   echo -e "${GREEN}============================================================${NC}"
-  echo -e "${GREEN}     Ultimate Dev Machine Bootstrap v33.9 — INTERACTIVE${NC}"
+  echo -e "${GREEN}     Ultimate Dev Machine Bootstrap v33.10 — INTERACTIVE${NC}"
   echo -e "${GREEN}============================================================${NC}"
   echo
 
@@ -685,9 +685,9 @@ if [ "$MODE" = "interactive" ]; then
   read -r -p "Rust? [Y/n]: " input; [ "$input" = "n" ] && DO_RUST="n"
   read -r -p ".NET 9? [Y/n]: " input; [ "$input" = "n" ] && DO_DOTNET="n"
   read -r -p "OpenCode CLI + Bun? [Y/n]: " input; [ "$input" = "n" ] && DO_OPENCODE="n"
-  read -r -p "MCP servers + LSP (14+10)? [Y/n]: " input; [ "$input" = "n" ] && DO_MCP="n"
+  read -r -p "MCP servers + LSP (13+10)? [Y/n]: " input; [ "$input" = "n" ] && DO_MCP="n"
   read -r -p "ChromaDB + Muninn memory? [Y/n]: " input; [ "$input" = "n" ] && DO_CHROMA="n"
-  read -r -p "Shokunin ecosystem (62+ skills)? [Y/n]: " input; [ "$input" = "n" ] && DO_SHOKUNIN="n"
+  read -r -p "Shokunin ecosystem + Superpowers (62+ skills)? [Y/n]: " input; [ "$input" = "n" ] && DO_SHOKUNIN="n"
   read -r -p "Trivy security scanner? [Y/n]: " input; [ "$input" = "n" ] && DO_TRIVY="n"
   read -r -p "Local LLM runtimes (Ollama, vLLM, Open WebUI)? [Y/n]: " input; [ "$input" = "n" ] && DO_LLM="n"
   read -r -p "Generate project files (AGENTS.md, WAL, docker-compose)? [Y/n]: " input; [ "$input" = "n" ] && DO_PROJECT="n"

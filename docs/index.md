@@ -1,14 +1,14 @@
 ---
 layout: default
 title: Ultimate Dev Machine Bootstrap
-description: Одна команда — и ваша машина готова к AI-разработке. 8 языков, 13 MCP-серверов, 7 плагинов, 6 AI-провайдеров, GPU-рантаймы.
+description: Одна команда — и ваша машина готова к AI-разработке. 8 языков, 13 MCP-серверов, 7 плагинов, 6 AI-провайдеров, GPU-рантаймы, ZSH+Chrome.
 ---
 
 # Ultimate Dev Machine Bootstrap
 
 **Одна команда. 15 минут. Полная AI-среда разработки.**
 
-[![Version](https://img.shields.io/badge/version-v33.9-blue)](https://github.com/AlexanderNarbaev/opencode_initializer)
+[![Version](https://img.shields.io/badge/version-v33.10-blue)](https://github.com/AlexanderNarbaev/opencode_initializer)
 [![ShellCheck](https://img.shields.io/badge/shellcheck-passing-brightgreen)](https://github.com/AlexanderNarbaev/opencode_initializer/actions)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Stars](https://img.shields.io/github/stars/AlexanderNarbaev/opencode_initializer?style=social)](https://github.com/AlexanderNarbaev/opencode_initializer)
@@ -32,7 +32,9 @@ bash <(curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_in
 | Rust | memorylayer | dcp | Moonshot |
 | .NET 9 | filesystem | lazy-loader | MiniMax |
 | Kotlin | loopsense | orchestra | |
-| Zig | +6 servers | | |
+| Zig | github | | |
+| | postgres | | |
+| | +4 more | | |
 
 ---
 
@@ -152,9 +154,9 @@ DeepSeek V4 Pro (генерация кода)
 Java 25, Node.js 22, Python 3.12 + uv, Go 1.24+, Rust, .NET 9, Kotlin, Zig.
 [Подробнее](tools/languages.md)
 
-### MCP-серверы (13)
+### MCP-серверы (13: 11 local + 2 remote)
 
-context7, filesystem, agentic-tools, codegraph, playwright, agent-browser, loopsense, sequential-thinking, memorylayer, github, postgres, sentry, grep. 9 активны, 4 опциональны.
+context7, filesystem, agentic-tools, codegraph, playwright, agent-browser, loopsense, sequential-thinking, memorylayer, github, postgres + sentry (remote), grep (remote). GitHub MCP включается при наличии токена.
 [Подробнее](tools/mcp-servers.md)
 
 ### Плагины (7)
@@ -164,13 +166,18 @@ stranger-danger, damage-control, codegraph, dcp, auto-fallback, lazy-loader, orc
 
 ### AI-провайдеры (6)
 
-DeepSeek (основной), OpenCode Go, xAI Grok, MiMo, Moonshot, MiniMax.
+DeepSeek (основной), OpenCode Go, xAI Grok, MiMo, Moonshot, MiniMax. Динамическая активация по наличию API-ключей.
 [Подробнее](tools/providers.md)
 
 ### LSP-серверы (10)
 
 gopls, rust-analyzer, typescript, pyright, omnisharp, yaml, marksman, taplo, lua, zls.
 [Подробнее](tools/lsp-servers.md)
+
+### ZSH + Chrome
+
+ZSH 5.8+ (chsh default), Oh My Zsh + P10k, 14 плагинов (fzf-tab, zsh-completions, npm, bun, ...). Google Chrome + chromedriver (WSL2-aware --no-sandbox), chrome-open лаунчер.
+[Подробнее](guide.md)
 
 ### Агенты (10 ролей)
 
