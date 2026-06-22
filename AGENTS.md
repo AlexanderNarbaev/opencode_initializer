@@ -13,7 +13,7 @@ opencode_initializer/
 ├── setup.sh          ← оркестратор (284 строки, source модули из src/lib/)
 ├── src/
 │   ├── lib/          ← 24 модуля (00-core.sh … 20-autoupdate.sh + helpers.sh + version-check.sh + pre-session-check.sh)
-│   └── src/modes/        ← 4 режимных скрипта (+ 6 встроенных режимов)
+│   └── modes/            ← 4 режимных скрипта (+ 6 встроенных режимов)
 ├── dev.sh            ← CLI
 ├── scripts/          ← утилиты (ai-router)
 ├── tests/            ← unit, integration, e2e
@@ -114,7 +114,7 @@ bash setup.sh --fix-zshrc                 # repair shell config
 
 ## Git Remotes
 - GitHub: https://github.com/AlexanderNarbaev/opencode_initializer
-- GitVerse: https://gitverse.ru/alexander.narbayev/opencode_initializer
+- GitVerse: https://gitverse.ru/AlexandrNarbaev/opencode_initializer
 
 ## Version History
 | Version | Key Change |
@@ -138,7 +138,7 @@ bash setup.sh --fix-zshrc                 # repair shell config
 | v35.0 | RU mirrors (goproxy.cn, npmmirror, yandex), CA certs improved, 8 new plugins (token-tracker, notify, pty, ignore, snip, snippets, envsitter-guard, command-inject, orchestrator), dead plugins removed, gopls via goproxy.cn, Ollama via snap, GOPROXY=goproxy.cn default, PATH +~/go/bin, tests: test_critical_path.sh (30+ checks). |
 | v35.1 | Pre-session provider/model check script. Version check expanded. 22→24 modules. |
 | v35.3 | Research-driven: +5 plugins (dcp, auto-fallback, goal-mode, swarm, vibeguard), +1 MCP (chrome-devtools), +5 LSP (bash, dockerfile, css, html, json), +3 CLI tools (btm, sd, typos). Fixed: ZSH crash (set -e leak), opencode.json validity (// comments), Gradle symlink, health 54→54 checks. New tests: test_mcp_registry.sh (52 checks), test_opencode_json_gen.sh (62 checks). README rewritten to international standard. CONTRIBUTING.md comprehensive guide. |
-| v1.0.0 | Full ecosystem expansion: 7-agent deep research, 28+ plugins, 21 MCPs, 13 LSPs, multi-agent routing |
+| v1.0.0 | Initial public release. Clean open source launch with full documentation (README, CHANGELOG, CONTRIBUTING, CODE_OF_CONDUCT, SECURITY). 8 languages, 21 MCPs, 15 plugins, 13 LSPs, 193-test suite. |
 
 ## Modular Architecture (v1.0.0)
 
@@ -152,7 +152,7 @@ opencode_initializer/
 │   │   ├── helpers.sh    ← _curl, _retry, _npm_install
 │   │   ├── pre-session-check.sh
 │   │   └── version-check.sh
-│   └── src/modes/
+│   └── modes/
 │       └── health.sh ... ← режимные скрипты
 ├── tests/                ← unit / integration / e2e
 ├── migrations/

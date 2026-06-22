@@ -156,7 +156,7 @@ Scope prefix (optional but recommended): `feat(A):` for Block A changes, `fix(zs
 1. All tests pass (`bash tests/run_tests.sh`)
 2. ShellCheck passes (`shellcheck setup.sh src/lib/*.sh src/modes/*.sh`)
 3. Version bumped in `src/lib/00-core.sh` (`SCRIPT_VERSION`)
-4. Changelog updated in `AGENTS.md`
+4. Changelog updated in `CHANGELOG.md`
 5. Tagged: `git tag -a v1.0.0 -m "v1.0.0: description"`
 6. Pushed to both remotes (GitHub + GitVerse)
 

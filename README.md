@@ -19,7 +19,7 @@
 curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializer/main/setup.sh | bash -s -- --full
 ```
 
-That's it. One command installs everything — 8 programming languages, 15 MCP servers, 15 OpenCode plugins, 12 LSP servers, and AI tooling.
+That's it. One command installs everything — 8 programming languages, 21 MCP servers, 15 OpenCode plugins, 13 LSP servers, and AI tooling.
 
 ## What It Sets Up
 
@@ -40,26 +40,27 @@ Java 25 · Node.js 24 · Python 3.14 + uv · Go 1.26 · Rust 1.96 · .NET 10 · 
 | `opencode-notify` · `opencode-pty` · `opencode-ignore` · `opencode-snip` · `opencode-snippets` | Productivity utilities |
 | `envsitter-guard` · `opencode-command-inject` | Environment & command safety |
 
-### MCP Servers (15)
+### MCP Servers (21)
 | Server | Category | Type |
 |--------|----------|------|
-| `context7` | Documentation | Local |
+| `context7` · `context7-official` | Documentation | Local |
 | `filesystem` | File operations | Local |
 | `agentic-tools` | Task management | Local |
 | `codegraph` | Code intelligence | Local |
-| `playwright` | Browser automation | Local |
-| `agent-browser` | Web browsing | Local |
+| `playwright` · `agent-browser` | Browser automation | Local |
 | `chrome-devtools` | Chrome DevTools Protocol | Local |
 | `loopsense` | Loop prevention | Local |
-| `github` | GitHub API | Local |
-| `postgres` | PostgreSQL | Local |
-| `sequential-thinking` | Reasoning | Local |
+| `github` · `gitlab` | Version control | Local |
+| `postgres` · `sqlite` | Databases | Local |
 | `memorylayer` | Persistent memory | Local |
-| `sentry` | Error monitoring | Remote |
-| `grep` | Code search | Remote |
-| `ollama` | Local LLM runtime | Local |
+| `sequential-thinking` | Reasoning | Local |
+| `memory` · `redis` | Knowledge graph / cache | Local |
+| `brave-search` | Web search | Remote |
+| `excalidraw` · `notion` | Visualization / docs | Local |
+| `google-maps` | Geospatial | Local |
+> Also available as remote-only: `sentry` (error monitoring), `grep` (code search)
 
-### LSP Servers (12)
+### LSP Servers (13)
 gopls · rust-analyzer · typescript · pyright · omnisharp · yaml · marksman · taplo · lua · zls · bash · dockerfile · css/html/json
 
 ### Infrastructure & Tools
@@ -67,7 +68,7 @@ Docker · ChromaDB + Muninn (vector memory) · GPU/LLM runtimes (Ollama, vLLM, S
 
 ### Security
 - All secrets in `~/.config/opencode/secrets.env` (chmod 600)
-- `open-code-dcp` + `vibeguard`: context pruning, PII filtering
+- `opencode-dcp` + `opencode-vibeguard`: context pruning, PII filtering
 - No hardcoded credentials in any file
 - ShellCheck CI on every push/PR
 - MIT licensed
@@ -217,7 +218,7 @@ Auto-detects OS and uses the correct package manager. Supports both `amd64` and 
 
 - **Issues**: [GitHub Issues](https://github.com/AlexanderNarbaev/opencode_initializer/issues)
 - **Discussions**: OpenCode [Discord](https://discord.gg/opencode)
-- **Mirrors**: [GitVerse](https://gitverse.ru/alexander.narbayev/opencode_initializer)
+- **Mirrors**: [GitVerse](https://gitverse.ru/AlexandrNarbaev/opencode_initializer)
 
 ## License
 

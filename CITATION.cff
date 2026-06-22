@@ -6,7 +6,6 @@ authors:
   - given-names: Alexander
     family-names: Narbaev
     email: alexander.narbayev@gmail.com
-    orcid: ""
 repository-code: "https://github.com/AlexanderNarbaev/opencode_initializer"
 abstract: "One-command AI-enhanced development environment setup for WSL2, Linux, and macOS."
 keywords:
