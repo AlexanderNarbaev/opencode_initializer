@@ -282,5 +282,6 @@ _step_skip step_project    || source "$SCRIPT_DIR/src/lib/17-project.sh"
 _step_skip step_json       || source "$SCRIPT_DIR/src/lib/18-opencode-json.sh"
 _step_skip step_finalize   || source "$SCRIPT_DIR/src/lib/19-finalize.sh"
 _step_skip step_autoupdate || source "$SCRIPT_DIR/src/lib/20-autoupdate.sh"
+_step_skip step_rag        || source "$SCRIPT_DIR/src/lib/21-rag.sh"
 
 echo "Bootstrap complete ($SCRIPT_VERSION)"

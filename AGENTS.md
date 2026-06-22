@@ -59,6 +59,7 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 | `18-opencode-json.sh` | opencode.json generation (Python inline, bun bin paths) |
 | `19-finalize.sh` | Git config, PATH, .zshrc, auth reminder, verification (36 checks) |
 | `20-autoupdate.sh` | topgrade + systemd weekly timer + unattended-upgrades + abtop |
+| `21-rag.sh` | RAG System — Corporate Knowledge Assistant (ETL + proxy + Qdrant + Gemma) |
 | `version-check.sh` | Version check: Rust/Go/Node/Python/Bun/OpenCode/Ollama/Zig + npm packages |
 | `pre-session-check.sh` | Pre-session provider/model validation + MCP status |
 

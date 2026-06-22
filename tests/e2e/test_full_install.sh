@@ -46,7 +46,7 @@ assert "upgrade mode sourced"      'grep -q "upgrade.sh" "'"$SETUP"'"'
 assert "interactive mode sourced"  'grep -q "interactive.sh" "'"$SETUP"'"'
 
 # ── Test: Version string ──────────────────────────────────────────────
-assert "version is v36.0" 'grep -q "v36.0" "'"$SETUP"'"'
+assert "version is v1.0.0" 'grep -q "v1.0.0" "'"$SETUP"'"'
 
 # ── Test: set -euo pipefail in all files ──────────────────────────────
 for f in "$PROJECT_DIR/setup.sh" "$PROJECT_DIR/src/lib/"*.sh "$PROJECT_DIR/src/modes/"*.sh; do

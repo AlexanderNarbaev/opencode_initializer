@@ -42,7 +42,7 @@ assert "00-core.sh has shebang"           'head -1 "'"$C"'" | grep -q "#!/usr/bi
 assert "00-core.sh has set -euo pipefail" 'grep -q "set -euo pipefail" "'"$C"'"'
 
 # ── Version ──────────────────────────────────────────────────────────────
-assert "SCRIPT_VERSION is v36.0" 'grep -qE "SCRIPT_VERSION.*v36\.0" "'"$C"'"'
+assert "SCRIPT_VERSION is v1.0.0" 'grep -qE "SCRIPT_VERSION.*v1\.0\.0" "'"$C"'"'
 
 # ── OS validation ────────────────────────────────────────────────────────
 assert "OS validation exists"       'grep -q "/etc/os-release" "'"$C"'"'
