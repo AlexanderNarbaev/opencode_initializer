@@ -139,21 +139,27 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
   section "LSP servers"
   npm install -g typescript-language-server typescript pyright yaml-language-server @taplo/cli bash-language-server dockerfile-language-server-nodejs vscode-langservers-extracted vscode-json-languageserver 2>/dev/null || true
 
-  # marksman — Markdown LSP (real one from artempyanykh/marksman, not npm marksman)
+  # marksman — Markdown LSP
   MARKSAN_VER="2026-02-08"
-  MARKSAN_URL="https://github.com/artempyanykh/marksman/releases/download/${MARKSAN_VER}/marksman-linux-x64"
+  MARKSAN_ARCH="x64"
+  [ "$(uname -m)" = "aarch64" ] && MARKSAN_ARCH="arm64"
+  MARKSAN_URL="https://github.com/artempyanykh/marksman/releases/download/${MARKSAN_VER}/marksman-linux-${MARKSAN_ARCH}"
   _curl "$MARKSAN_URL" "$HOME/.local/bin/marksman" && chmod +x "$HOME/.local/bin/marksman" && log "marksman ${MARKSAN_VER}" || warn "marksman failed"
 
-  # lua-language-server — Lua LSP (from LuaLS/lua-language-server GitHub)
+  # lua-language-server — Lua LSP
   LUA_LS_VER="3.17.0"
-  LUA_LS_URL="https://github.com/LuaLS/lua-language-server/releases/download/${LUA_LS_VER}/lua-language-server-${LUA_LS_VER}-linux-x64.tar.gz"
+  LUA_LS_ARCH="x64"
+  [ "$(uname -m)" = "aarch64" ] && LUA_LS_ARCH="arm64"
+  LUA_LS_URL="https://github.com/LuaLS/lua-language-server/releases/download/${LUA_LS_VER}/lua-language-server-${LUA_LS_VER}-linux-${LUA_LS_ARCH}.tar.gz"
   LUA_LS_TMP=$(mktemp -d /tmp/lua-ls.XXXXXX)
   _curl "$LUA_LS_URL" "$LUA_LS_TMP/lua-ls.tar.gz" && tar xzf "$LUA_LS_TMP/lua-ls.tar.gz" -C "$HOME/.local/bin" && log "lua-language-server ${LUA_LS_VER}" || warn "lua-language-server failed"
   rm -rf "$LUA_LS_TMP"
 
-  # zls — Zig Language Server (from zigtools/zls GitHub, not npm zls utility)
+  # zls — Zig Language Server
   ZLS_VER="0.15.1"
-  ZLS_URL="https://github.com/zigtools/zls/releases/download/${ZLS_VER}/zls-x86_64-linux.tar.gz"
+  ZLS_ARCH="x86_64"
+  [ "$(uname -m)" = "aarch64" ] && ZLS_ARCH="aarch64"
+  ZLS_URL="https://github.com/zigtools/zls/releases/download/${ZLS_VER}/zls-${ZLS_ARCH}-linux.tar.gz"
   ZLS_TMP=$(mktemp -d /tmp/zls.XXXXXX)
   _curl "$ZLS_URL" "$ZLS_TMP/zls.tar.gz" && tar xzf "$ZLS_TMP/zls.tar.gz" -C "$ZLS_TMP" && cp "$ZLS_TMP/zls" "$HOME/.local/bin/zls" && chmod +x "$HOME/.local/bin/zls" && log "zls ${ZLS_VER}" || warn "zls failed"
   rm -rf "$ZLS_TMP"

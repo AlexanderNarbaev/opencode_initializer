@@ -5,7 +5,7 @@ set -euo pipefail
 
 if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then
   section "Security tools"
-  _gate "INTERACTIVE_DO_TRIVY" || return 1
+  _gate "INTERACTIVE_DO_TRIVY" || { log "Security skipped (interactive)"; return 0; }
   command -v trivy &>/dev/null || sudo snap install trivy 2>/dev/null || sudo apt install -y -qq trivy 2>/dev/null || warn "trivy not installed"
   if ! command -v qodana &>/dev/null; then
     curl -fsSL --connect-timeout 30 --retry 2 --retry-delay 5 \

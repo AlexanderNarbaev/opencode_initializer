@@ -25,8 +25,8 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
   fi
 
   if [ ! -d "$HOME/.sdkman" ]; then
-    command -v zip &>/dev/null || sudo apt-get install -y zip 2>/dev/null || true
-    command -v unzip &>/dev/null || sudo apt-get install -y unzip 2>/dev/null || true
+    command -v zip &>/dev/null || _sudo apt-get install -y zip 2>/dev/null || true
+    command -v unzip &>/dev/null || _sudo apt-get install -y unzip 2>/dev/null || true
     _curl "https://get.sdkman.io" /tmp/sdkman-install.sh 2>/dev/null && \
       bash /tmp/sdkman-install.sh 2>/dev/null; rm -f /tmp/sdkman-install.sh || \
       warn "SDKMAN install failed — using apt fallback for build tools"

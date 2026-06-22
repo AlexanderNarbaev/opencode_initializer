@@ -150,11 +150,13 @@ if ! _check_net; then
   _check_net && log "WSL2 network recovered" || { warn "Network still limited — using apt fallbacks"; NET_OK=false; }
 fi
 
-PROXY_ENV=$(cmd.exe /c "reg query \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\" /v ProxyServer" 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+' || true)
-if [ -n "${PROXY_ENV:-}" ]; then
-  export HTTPS_PROXY="http://${PROXY_ENV}" HTTP_PROXY="http://${PROXY_ENV}"
-  info "WSL2 proxy detected: $PROXY_ENV"
-  _check_net && log "Proxy connectivity OK"
+if [ -n "${WSL_DISTRO_NAME:-}" ]; then
+  PROXY_ENV=$(cmd.exe /c "reg query \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\" /v ProxyServer" 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+' || true)
+  if [ -n "${PROXY_ENV:-}" ]; then
+    export HTTPS_PROXY="http://${PROXY_ENV}" HTTP_PROXY="http://${PROXY_ENV}"
+    info "WSL2 proxy detected: $PROXY_ENV"
+    _check_net && log "Proxy connectivity OK"
+  fi
 fi
 
 for svc in "https://github.com" "https://registry.npmjs.org" "https://get.sdkman.io" "https://astral.sh" "https://go.dev"; do
