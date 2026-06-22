@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+title: OpenCode Initializer
+message: "If you use this software, please cite it as below."
+type: software
+authors:
+  - given-names: Alexander
+    family-names: Narbaev
+    email: alexander.narbayev@gmail.com
+    orcid: ""
+repository-code: "https://github.com/AlexanderNarbaev/opencode_initializer"
+abstract: "One-command AI-enhanced development environment setup for WSL2, Linux, and macOS."
+keywords:
+  - dev-machine
+  - bootstrap
+  - opencode
+  - ai
+  - wsl2
+  - linux
+license: MIT
+version: 1.0.0
+date-released: 2026-06-22

@@ -1,0 +1,18 @@
+title: Ultimate Dev Machine Bootstrap
+description: Одна команда — и ваша машина готова к AI-разработке. 8 языков, 21 MCP-сервер, 15+ плагинов, 6 AI-провайдеров, GPU-рантаймы для WSL2/Linux/macOS.
+baseurl: /opencode_initializer
+remote_theme: pages-themes/hacker@v0.2.0
+plugins:
+  - jekyll-remote-theme
+  - jekyll-sitemap
+  - jekyll-seo-tag
+show_downloads: true
+google_analytics:
+lang: ru-RU
+author:
+  name: Alexander Narbaev
+  github: AlexanderNarbaev
+social:
+  name: Ultimate Dev Machine Bootstrap
+  links:
+    - https://github.com/AlexanderNarbaev/opencode_initializer

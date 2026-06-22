@@ -1,0 +1,30 @@
+name: Tests
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax check all shell scripts
+        run: |
+          for f in setup.sh dev.sh lib/*.sh modes/*.sh scripts/*.sh migrations/*.sh; do
+            bash -n "$f" || { echo "FAIL: $f"; exit 1; }
+          done
+          echo "All syntax checks passed"
+  unit-tests:
+    runs-on: ubuntu-latest
+    needs: syntax
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run unit tests
+        run: |
+          bash tests/run_tests.sh 2>&1 | tee test-output.log
+          if grep -q "FAIL" test-output.log; then
+            echo "Some tests failed!"
+            grep "FAIL" test-output.log
+            exit 1
+          fi

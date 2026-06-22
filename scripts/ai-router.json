@@ -1,0 +1,91 @@
+{
+  "$schema": "https://opencode.ai/orchestrator.json",
+  "version": "1.0.0",
+  "description": "AI Request Orchestrator — routes tasks to optimal provider/model based on complexity, cost, and availability",
+
+  "routing": {
+    "default_provider": "deepseek",
+    "default_model": "deepseek-v4-pro",
+    "fast_model": "deepseek-v4-flash",
+    "fallback_chain": ["deepseek", "xai", "minimax", "moonshot"],
+
+    "complexity_rules": {
+      "simple": {
+        "max_tokens": 2000,
+        "provider": "deepseek",
+        "model": "deepseek-v4-flash",
+        "cost_per_1k": 0.00014,
+        "examples": ["fix typo", "add comment", "rename variable", "format code"]
+      },
+      "medium": {
+        "max_tokens": 8000,
+        "provider": "deepseek",
+        "model": "deepseek-v4-pro",
+        "cost_per_1k": 0.00055,
+        "examples": ["implement feature", "refactor module", "add tests", "write docs"]
+      },
+      "complex": {
+        "max_tokens": 64000,
+        "provider": "deepseek",
+        "model": "deepseek-v4-pro",
+        "thinking": true,
+        "cost_per_1k": 0.00219,
+        "examples": ["system design", "architecture review", "debug complex bug", "security audit"]
+      }
+    },
+
+    "task_routing": {
+      "code_generation": {"provider": "deepseek", "model": "deepseek-v4-pro"},
+      "code_review": {"provider": "deepseek", "model": "deepseek-v4-flash"},
+      "testing": {"provider": "xai", "model": "grok-4.3"},
+      "documentation": {"provider": "deepseek", "model": "deepseek-v4-flash"},
+      "architecture": {"provider": "deepseek", "model": "deepseek-v4-pro", "thinking": true},
+      "security_audit": {"provider": "deepseek", "model": "deepseek-v4-pro", "thinking": true},
+      "devops": {"provider": "deepseek", "model": "deepseek-v4-flash"},
+      "ui_design": {"provider": "xai", "model": "grok-4.3"},
+      "research": {"provider": "deepseek", "model": "deepseek-v4-pro", "thinking": true},
+      "refactoring": {"provider": "deepseek", "model": "deepseek-v4-pro"},
+      "debugging": {"provider": "deepseek", "model": "deepseek-v4-pro"},
+      "data_analysis": {"provider": "deepseek", "model": "deepseek-v4-pro"}
+    }
+  },
+
+  "agents": {
+    "developer": {"model": "deepseek/deepseek-v4-pro", "temperature": 0.2},
+    "architect": {"model": "deepseek/deepseek-v4-pro", "temperature": 0.1},
+    "analyst": {"model": "deepseek/deepseek-v4-pro", "temperature": 0.1},
+    "researcher": {"model": "deepseek/deepseek-v4-pro", "temperature": 0.3},
+    "security": {"model": "deepseek/deepseek-v4-pro", "temperature": 0.1},
+    "pm": {"model": "deepseek/deepseek-v4-flash", "temperature": 0.2},
+    "devops": {"model": "deepseek/deepseek-v4-flash", "temperature": 0.2},
+    "reviewer": {"model": "deepseek/deepseek-v4-flash", "temperature": 0.1},
+    "qa": {"model": "xai/grok-4.3", "temperature": 0.2},
+    "designer": {"model": "xai/grok-4.3", "temperature": 0.5}
+  },
+
+  "cost_tracking": {
+    "enabled": true,
+    "budget_daily": 5.0,
+    "budget_monthly": 50.0,
+    "warn_threshold": 0.8,
+    "models": {
+      "deepseek-v4-pro": {"input": 0.55, "output": 2.19, "unit": "1M tokens"},
+      "deepseek-v4-flash": {"input": 0.14, "output": 0.55, "unit": "1M tokens"},
+      "grok-4.3": {"input": 2.00, "output": 8.00, "unit": "1M tokens"},
+      "minimax-M1": {"input": 0.40, "output": 1.60, "unit": "1M tokens"}
+    }
+  },
+
+  "projects": {
+    "opencode_initializer": {"domain": "dev-tools", "primary": "deepseek-v4-pro"},
+    "dev-machine": {"domain": "infra", "primary": "deepseek-v4-flash"},
+    "ai-agents": {"domain": "ai", "primary": "deepseek-v4-pro"},
+    "backend-services": {"domain": "backend", "primary": "deepseek-v4-pro"},
+    "frontend-apps": {"domain": "frontend", "primary": "grok-4.3"},
+    "infrastructure": {"domain": "infra", "primary": "deepseek-v4-flash"},
+    "data-engineering": {"domain": "data", "primary": "deepseek-v4-pro"},
+    "security-tools": {"domain": "security", "primary": "deepseek-v4-pro"},
+    "docs-knowledge": {"domain": "docs", "primary": "deepseek-v4-flash"},
+    "experiments": {"domain": "research", "primary": "deepseek-v4-flash"}
+  }
+}

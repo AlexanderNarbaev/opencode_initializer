@@ -1,0 +1,43 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Cache
+__pycache__/
+*.pyc
+.cache/
+
+# Secrets
+*.key
+*.pem
+.env
+.env.local
+
+# Logs
+*.log
+setup-*.log
+
+# Archive versions
+setup_v[0-9]*.sh
+!setup.sh
+
+# Temp
+/tmp/
+v[0-9]*.sh
+# .opencode/ — architecture docs ARE tracked, only generated files ignored
+.opencode/*.excalidraw
+wal/
+.codegraph/
+.wslconfig
+.agentic-tools-mcp/
+sqlite_mcp_server.db
+*.log
+# Ignore ai-router root copies (moved to scripts/)
+/ai-router.sh
+/ai-router.json
