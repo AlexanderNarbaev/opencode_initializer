@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# lib/00-core.sh — core infrastructure shared across all lib modules
-# Sources: lib/helpers.sh must be sourced before this file
+# src/lib/00-core.sh — core infrastructure shared across all lib modules
+# Sources: src/lib/helpers.sh must be sourced before this file
 # shellcheck disable=SC2034  # variables used by sourced modules
 set -euo pipefail
 
 # ── Version ──────────────────────────────────────────────────────────────────
-SCRIPT_VERSION="${SCRIPT_VERSION:-v36.0}"
+SCRIPT_VERSION="${SCRIPT_VERSION:-v1.0.0}"
 
 # ── OS validation ────────────────────────────────────────────────────────────
 if [ -f /etc/os-release ]; then

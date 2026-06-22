@@ -4,7 +4,7 @@
 set -euo pipefail
 
 echo -e "${GREEN}============================================================${NC}"
-echo -e "${GREEN}     Ultimate Dev Machine Bootstrap v36.0 — INTERACTIVE${NC}"
+echo -e "${GREEN}     Ultimate Dev Machine Bootstrap v1.0.0 — INTERACTIVE${NC}"
 echo -e "${GREEN}============================================================${NC}"
 echo
 

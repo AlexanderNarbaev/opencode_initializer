@@ -44,7 +44,6 @@ decisions: []
 next: []
 WALEOF
   fi
-  WALEOF
 
   # AGENTS.md
   if [ ! -f "$PROJECT_DIR/AGENTS.md" ]; then
