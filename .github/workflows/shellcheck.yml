@@ -1,4 +1,4 @@
-name: ShellCheck
+name: ShellCheck + shfmt
 on:
   push:
     branches: [main]
@@ -16,5 +16,14 @@ jobs:
       - name: Run ShellCheck
         uses: ludeeus/action-shellcheck@master
         with:
+          severity: warning
           scandir: '.'
           format: tty
+  shfmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run shfmt
+        uses: docker://mvdan/shfmt:latest
+        with:
+          args: -d -i 2 -ci .

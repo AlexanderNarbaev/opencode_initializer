@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ============================================================================
 #  Ultimate Dev Machine Bootstrap v1.0.0 — Modular
-set -euo pipefail; IFS=$'\n\t'
+set -euo pipefail; IFS=$'\n\t'; shopt -s inherit_errexit 2>/dev/null || true
 
 # ── Bootstrap: resolve script dir (supports curl|bash and local runs) ───────
 if [ -f "$(cd "$(dirname "$0")" 2>/dev/null && pwd)/src/lib/helpers.sh" ]; then
@@ -31,6 +31,12 @@ export SCRIPT_DIR
 # ── Source infrastructure (must be first) ────────────────────────────────────
 source "$SCRIPT_DIR/src/lib/helpers.sh"
 source "$SCRIPT_DIR/src/lib/00-core.sh"
+
+# ── Logging — tee all output to timestamped log ─────────────────────────────
+SETUP_LOG="${HOME}/.cache/opencode-setup/setup-$(date +%Y%m%d-%H%M%S).log"
+mkdir -p "$(dirname "$SETUP_LOG")"
+exec > >(tee -a "$SETUP_LOG") 2>&1
+log "Setup log: $SETUP_LOG"
 
 # ── CLI argument parsing ────────────────────────────────────────────────────
 MODE="full"; NEW_PROJECT_DIR=""
