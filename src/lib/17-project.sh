@@ -13,8 +13,8 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "new" ]; then
   if mkdir -p "$PROJECT_DIR" 2>/dev/null; then
     mkdir -p "$PROJECT_DIR"/{docs,wal,.lock,.opencode/{agents,skills/{code-review-checklist,deployment-checklist,testing-strategy,context-switching},commands,context},infra,icon,templates,output}
   else
-    warn "Cannot create $PROJECT_DIR (permission denied). Using ~/agi instead."
-    PROJECT_DIR="$HOME/agi"
+    warn "Cannot create $PROJECT_DIR (permission denied). Using ~/projects instead."
+    PROJECT_DIR="$HOME/projects"
     mkdir -p "$PROJECT_DIR"/{docs,wal,.lock,.opencode/{agents,skills/{code-review-checklist,deployment-checklist,testing-strategy,context-switching},commands,context},infra,icon,templates,output}
   fi
 

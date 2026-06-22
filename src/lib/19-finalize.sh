@@ -34,6 +34,9 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then
   sed -i "/MOONSHOT_API_KEY=/d" "$SECRETS_FILE" 2>/dev/null || true
   sed -i "/MINIMAX_API_KEY=/d" "$SECRETS_FILE" 2>/dev/null || true
   sed -i "/GITHUB_TOKEN=/d" "$SECRETS_FILE" 2>/dev/null || true
+  sed -i "/GITLAB_TOKEN=/d" "$SECRETS_FILE" 2>/dev/null || true
+  sed -i "/GITVERSE_TOKEN=/d" "$SECRETS_FILE" 2>/dev/null || true
+  sed -i "/GOOGLE_MAPS_API_KEY=/d" "$SECRETS_FILE" 2>/dev/null || true
   [ -n "${DEEPSEEK_KEY:-}" ] && echo "export DEEPSEEK_API_KEY=\"$DEEPSEEK_KEY\"" >> "$SECRETS_FILE"
   [ -n "${API_KEY:-}" ] && echo "export OPENCODE_API_KEY=\"$API_KEY\"" >> "$SECRETS_FILE"
   [ -n "${XAI_KEY:-}" ] && echo "export XAI_API_KEY=\"$XAI_KEY\"" >> "$SECRETS_FILE"
@@ -41,6 +44,9 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then
   [ -n "${MOONSHOT_KEY:-}" ] && echo "export MOONSHOT_API_KEY=\"$MOONSHOT_KEY\"" >> "$SECRETS_FILE"
   [ -n "${MINIMAX_KEY:-}" ] && echo "export MINIMAX_API_KEY=\"$MINIMAX_KEY\"" >> "$SECRETS_FILE"
   [ -n "${GITHUB_TOKEN:-}" ] && echo "export GITHUB_TOKEN=\"$GITHUB_TOKEN\"" >> "$SECRETS_FILE"
+  [ -n "${GITLAB_TOKEN:-}" ] && echo "export GITLAB_TOKEN=\"$GITLAB_TOKEN\"" >> "$SECRETS_FILE"
+  [ -n "${GITVERSE_TOKEN:-}" ] && echo "export GITVERSE_TOKEN=\"$GITVERSE_TOKEN\"" >> "$SECRETS_FILE"
+  [ -n "${GOOGLE_MAPS_KEY:-}" ] && echo "export GOOGLE_MAPS_API_KEY=\"$GOOGLE_MAPS_KEY\"" >> "$SECRETS_FILE"
   # Export for current shell so opencode verification works immediately
   [ -n "${DEEPSEEK_KEY:-}" ] && export DEEPSEEK_API_KEY="$DEEPSEEK_KEY"
   [ -n "${API_KEY:-}" ] && export OPENCODE_API_KEY="$API_KEY"
@@ -48,7 +54,9 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then
   [ -n "${MIMO_KEY:-}" ] && export MIMO_API_KEY="$MIMO_KEY"
   [ -n "${MOONSHOT_KEY:-}" ] && export MOONSHOT_API_KEY="$MOONSHOT_KEY"
   [ -n "${MINIMAX_KEY:-}" ] && export MINIMAX_API_KEY="$MINIMAX_KEY"
-  [ -n "${GITHUB_TOKEN:-}" ] && export GITHUB_TOKEN="$GITHUB_TOKEN"
+  [ -n "${GITLAB_TOKEN:-}" ] && export GITLAB_TOKEN="$GITLAB_TOKEN"
+  [ -n "${GITVERSE_TOKEN:-}" ] && export GITVERSE_TOKEN="$GITVERSE_TOKEN"
+  [ -n "${GOOGLE_MAPS_KEY:-}" ] && export GOOGLE_MAPS_API_KEY="$GOOGLE_MAPS_KEY"
   log "API keys stored in $SECRETS_FILE (chmod 600)"
 
   for rc in ~/.bashrc ~/.zshrc; do
@@ -146,7 +154,7 @@ _check "uv"            "uv --version"
 _check "bun"           "bun --version"
 _check "Gradle"        "gradle --version 2>&1 | head -2"
 _check "Maven"         "mvn --version 2>&1 | head -1"
-_check "Kotlin"        "kotlin -version 2>/dev/null || echo 'not installed'"
+_check "Kotlin"        "kotlin -version 2>/dev/null"
 _check "Zig"           "zig version 2>/dev/null || echo 'not installed'"
 _check "jbang"         "jbang --version"
 _check "Git"           "git --version"
