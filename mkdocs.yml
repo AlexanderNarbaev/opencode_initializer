@@ -1,0 +1,118 @@
+site_name: OpenCode Initializer
+site_description: Universal Dev Machine Bootstrap — one-command AI-enhanced development environment setup
+site_author: Alexander Narbaev
+copyright: "&copy; 2026 Alexander Narbaev. MIT License."
+
+repo_name: AlexanderNarbaev/opencode_initializer
+repo_url: https://github.com/AlexanderNarbaev/opencode_initializer
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.indexes
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+  icon:
+    repo: fontawesome/brands/github
+  language: en
+
+extra_css:
+  - stylesheets/extra.css
+
+plugins:
+  - search:
+      lang:
+        - en
+        - ru
+  - i18n:
+      docs_structure: suffix
+      fallback_to_default: true
+      reconfigure_material: true
+      languages:
+        - locale: en
+          name: English
+          default: true
+          build: true
+        - locale: ru
+          name: Русский
+          build: true
+  - minify:
+      minify_html: true
+      minify_js: true
+      minify_css: true
+      htmlmin_opts:
+        remove_comments: true
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.caret
+  - pymdownx.mark
+  - pymdownx.tilde
+  - toc:
+      permalink: true
+  - attr_list
+  - md_in_html
+  - footnotes
+  - def_list
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started/index.md
+  - User Guide: user-guide/index.md
+  - Advanced Guide: advanced/index.md
+  - Architecture: architecture/index.md
+  - Reference: reference/index.md
+  - Contributing: contributing/index.md
+  - FAQ: faq/index.md
+
+extra:
+  analytics: {}
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/AlexanderNarbaev/opencode_initializer
