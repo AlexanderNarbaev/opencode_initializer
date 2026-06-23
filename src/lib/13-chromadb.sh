@@ -39,6 +39,7 @@ Environment=CHROMA_SERVER_AUTHN_PROVIDER="chromadb.auth.token_authn.TokenAuthSer
 Environment=CHROMA_SERVER_AUTHN_CREDENTIALS="local-dev-token"
 Environment=CHROMA_SERVER_AUTHZ_PROVIDER="chromadb.auth.simple_rbac.SimpleRBACAuthorizationProvider"
 ExecStart=%h/.local/bin/chroma run --path %h/.local/share/chroma --port 8000 --host 127.0.0.1 --log-path %h/.local/share/chroma/logs
+ExecStartPost=/bin/bash -c 'for i in $(seq 1 30); do curl -sf http://127.0.0.1:8000/api/v2/heartbeat 2>/dev/null && exit 0; sleep 1; done; exit 1'
 Restart=on-failure
 RestartSec=5
 

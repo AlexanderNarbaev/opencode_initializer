@@ -96,8 +96,6 @@ _check "Skill: code-review"    "[ -f \"$HOME/projects/.opencode/skills/code-revi
 _check "Skill: deployment"     "[ -f \"$HOME/projects/.opencode/skills/deployment-checklist/SKILL.md\" ] || [ -f \"$HOME/agi/.opencode/skills/deployment-checklist/SKILL.md\" ]"
 _check "Skill: testing"        "[ -f \"$HOME/projects/.opencode/skills/testing-strategy/SKILL.md\" ] || [ -f \"$HOME/agi/.opencode/skills/testing-strategy/SKILL.md\" ]"
 _check "Skill: context-switch"  "[ -f \"$HOME/projects/.opencode/skills/context-switching/SKILL.md\" ] || [ -f \"$HOME/agi/.opencode/skills/context-switching/SKILL.md\" ]"
-_check "ChromaDB server"    "curl -sf http://127.0.0.1:8000/api/v2/heartbeat &>/dev/null"
-_check "ONNX model cached"  "[ -f ~/.cache/chroma/onnx_models/all-MiniLM-L6-v2/onnx/model.onnx ]"
 
 section "Config"
 _check "opencode.json"      "[ -f ~/.config/opencode/opencode.json ]"
@@ -105,6 +103,20 @@ _check "MCPs registered"    "python3 -c \"import json; c=json.load(open('$HOME/.
 _check "AGENTS.md"          "[ -f \"${PROJECT_DIR:-$HOME/projects}/AGENTS.md\" ]"
 _check "GLOBAL_WAL"           "[ -f \"${PROJECT_DIR:-$HOME/projects}/wal/state.yaml\" ]"
 _check "No stale scout"     "[ ! -f \"${PROJECT_DIR:-$HOME/projects}/.opencode/agents/scout.md\" ] && [ ! -f \"$HOME/.config/opencode/agents/scout.md\" ]"
+
+section "Systemd Services"
+_check "chromadb.service"   "systemctl --user is-active chromadb.service &>/dev/null"
+_check "ollama (snap)"      "snap services ollama 2>/dev/null | grep -q active || systemctl --user is-active ollama.service &>/dev/null"
+_check "open-webui (docker)" "docker ps --format '{{.Names}}' 2>/dev/null | grep -q open-webui || systemctl --user is-active open-webui.service &>/dev/null"
+_check "opencode-update.timer" "systemctl --user is-active opencode-update.timer &>/dev/null"
+_check "docker.service"     "systemctl is-active docker &>/dev/null"
+
+section "Memory Chain"
+_check "ChromaDB heartbeat"  "curl -sf http://127.0.0.1:8000/api/v2/heartbeat &>/dev/null"
+_check "ONNX model cached"   "[ -f ~/.cache/chroma/onnx_models/all-MiniLM-L6-v2/onnx/model.onnx ]"
+_check "MemoryLayer MCP bin" "[ -x ~/.bun/bin/memorylayer-mcp ]"
+_check "Muninn memory-read"  "[ -f ~/.config/opencode/skills/memory-read/SKILL.md ]"
+_check "Muninn memory-write" "[ -f ~/.config/opencode/skills/memory-write/SKILL.md ]"
 
 echo; log "Health: $PASS passed, $FAIL failed"
 exit 0

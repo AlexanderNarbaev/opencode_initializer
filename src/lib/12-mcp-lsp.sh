@@ -140,14 +140,14 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
   npm install -g typescript-language-server typescript pyright yaml-language-server @taplo/cli bash-language-server dockerfile-language-server-nodejs vscode-langservers-extracted vscode-json-languageserver 2>/dev/null || true
 
   # marksman — Markdown LSP
-  MARKSAN_VER="2026-02-08"
+  MARKSAN_VER="2026-05-23"
   MARKSAN_ARCH="x64"
   [ "$(uname -m)" = "aarch64" ] && MARKSAN_ARCH="arm64"
   MARKSAN_URL="https://github.com/artempyanykh/marksman/releases/download/${MARKSAN_VER}/marksman-linux-${MARKSAN_ARCH}"
   _curl "$MARKSAN_URL" "$HOME/.local/bin/marksman" && chmod +x "$HOME/.local/bin/marksman" && log "marksman ${MARKSAN_VER}" || warn "marksman failed"
 
   # lua-language-server — Lua LSP
-  LUA_LS_VER="3.17.0"
+  LUA_LS_VER="3.18.0"
   LUA_LS_ARCH="x64"
   [ "$(uname -m)" = "aarch64" ] && LUA_LS_ARCH="arm64"
   LUA_LS_URL="https://github.com/LuaLS/lua-language-server/releases/download/${LUA_LS_VER}/lua-language-server-${LUA_LS_VER}-linux-${LUA_LS_ARCH}.tar.gz"
@@ -156,7 +156,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
   rm -rf "$LUA_LS_TMP"
 
   # zls — Zig Language Server
-  ZLS_VER="0.15.1"
+  ZLS_VER="0.16.0"
   ZLS_ARCH="x86_64"
   [ "$(uname -m)" = "aarch64" ] && ZLS_ARCH="aarch64"
   ZLS_URL="https://github.com/zigtools/zls/releases/download/${ZLS_VER}/zls-${ZLS_ARCH}-linux.tar.gz"
