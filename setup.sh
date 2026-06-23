@@ -253,16 +253,30 @@ echo -e "${GREEN}     Log:  $LOG_FILE${NC}"
 echo -e "${GREEN}============================================================${NC}"
 
 # ── Execute steps ───────────────────────────────────────────────────────────
-_step_skip step_system     || source "$SCRIPT_DIR/src/lib/01-system.sh"
-_step_skip step_docker     || source "$SCRIPT_DIR/src/lib/02-docker.sh"
-_step_skip step_chrome     || source "$SCRIPT_DIR/src/lib/03-chrome.sh"
-_step_skip step_zsh        || source "$SCRIPT_DIR/src/lib/04-zsh.sh"
-_step_skip step_java       || source "$SCRIPT_DIR/src/lib/05-java.sh"
-_step_skip step_node       || source "$SCRIPT_DIR/src/lib/06-node.sh"
-_step_skip step_python     || source "$SCRIPT_DIR/src/lib/07-python.sh"
-_step_skip step_go         || source "$SCRIPT_DIR/src/lib/08-go.sh"
-_step_skip step_rust       || source "$SCRIPT_DIR/src/lib/09-rust.sh"
-_step_skip step_dotnet     || source "$SCRIPT_DIR/src/lib/10-dotnet.sh"
+TOTAL_STEPS=23; CURRENT_STEP=0
+
+_run_step() {
+  local step_key="$1" step_name="$2" module="$3"
+  CURRENT_STEP=$((CURRENT_STEP + 1))
+  if _step_skip "$step_key" 2>/dev/null; then return 0; fi
+  _progress "$CURRENT_STEP/$TOTAL_STEPS" "$step_name"
+  if [ "${DRY_RUN:-false}" = "true" ]; then
+    info "[DRY] $step_name ($module)"; return 0
+  fi
+  source "$module"
+  log "$step_name — done"
+}
+
+_run_step step_system     "System packages"        "$SCRIPT_DIR/src/lib/01-system.sh"
+_run_step step_docker     "Docker Engine"          "$SCRIPT_DIR/src/lib/02-docker.sh"
+_run_step step_chrome     "Google Chrome"          "$SCRIPT_DIR/src/lib/03-chrome.sh"
+_run_step step_zsh        "ZSH + Oh My Zsh"        "$SCRIPT_DIR/src/lib/04-zsh.sh"
+_run_step step_java       "Java 25"                "$SCRIPT_DIR/src/lib/05-java.sh"
+_run_step step_node       "Node.js 24"             "$SCRIPT_DIR/src/lib/06-node.sh"
+_run_step step_python     "Python 3.14 + uv"       "$SCRIPT_DIR/src/lib/07-python.sh"
+_run_step step_go         "Go 1.26"                "$SCRIPT_DIR/src/lib/08-go.sh"
+_run_step step_rust       "Rust 1.96"              "$SCRIPT_DIR/src/lib/09-rust.sh"
+_run_step step_dotnet     ".NET 10"                 "$SCRIPT_DIR/src/lib/10-dotnet.sh"
 
 # ── Clean old configs ────────────────────────────────────────────────────────
 if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then
@@ -278,16 +292,25 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then
   log "Old configs cleaned"
 fi
 
-_step_skip step_opencode   || source "$SCRIPT_DIR/src/lib/11-opencode.sh"
-_step_skip step_mcp        || source "$SCRIPT_DIR/src/lib/12-mcp-lsp.sh"
-_step_skip step_chromadb   || source "$SCRIPT_DIR/src/lib/13-chromadb.sh"
-_step_skip step_shokunin   || source "$SCRIPT_DIR/src/lib/14-shokunin.sh"
-_step_skip step_security   || source "$SCRIPT_DIR/src/lib/15-security.sh"
-_step_skip step_llm        || source "$SCRIPT_DIR/src/lib/16-llm.sh"
-_step_skip step_project    || source "$SCRIPT_DIR/src/lib/17-project.sh"
-_step_skip step_json       || source "$SCRIPT_DIR/src/lib/18-opencode-json.sh"
-_step_skip step_finalize   || source "$SCRIPT_DIR/src/lib/19-finalize.sh"
-_step_skip step_autoupdate || source "$SCRIPT_DIR/src/lib/20-autoupdate.sh"
-_step_skip step_rag        || source "$SCRIPT_DIR/src/lib/21-rag.sh"
+_run_step step_opencode   "OpenCode CLI"           "$SCRIPT_DIR/src/lib/11-opencode.sh"
+_run_step step_mcp        "MCP + LSP + Plugins"    "$SCRIPT_DIR/src/lib/12-mcp-lsp.sh"
+_run_step step_chromadb   "ChromaDB + Muninn"      "$SCRIPT_DIR/src/lib/13-chromadb.sh"
+_run_step step_shokunin   "Shokunin + Superpowers" "$SCRIPT_DIR/src/lib/14-shokunin.sh"
+_run_step step_security   "Trivy + Qodana"         "$SCRIPT_DIR/src/lib/15-security.sh"
+_run_step step_llm        "Ollama + vLLM"          "$SCRIPT_DIR/src/lib/16-llm.sh"
+_run_step step_project    "Project structure"      "$SCRIPT_DIR/src/lib/17-project.sh"
+_run_step step_json       "opencode.json"          "$SCRIPT_DIR/src/lib/18-opencode-json.sh"
+_run_step step_finalize   "Finalize + Verify"      "$SCRIPT_DIR/src/lib/19-finalize.sh"
+_run_step step_autoupdate "Auto-update system"     "$SCRIPT_DIR/src/lib/20-autoupdate.sh"
+_run_step step_rag        "RAG System (optional)"  "$SCRIPT_DIR/src/lib/21-rag.sh"
+_run_step step_mise        "mise tool manager"     "$SCRIPT_DIR/src/lib/22-mise.sh"
+_run_step step_just        "just task runner"      "$SCRIPT_DIR/src/lib/23-just.sh"
 
-echo "Bootstrap complete ($SCRIPT_VERSION)"
+echo ""
+echo -e "  ${GREEN}╔══════════════════════════════════════╗${NC}"
+echo -e "  ${GREEN}║   Bootstrap complete ($SCRIPT_VERSION)${NC}"
+echo -e "  ${GREEN}║   Steps: $CURRENT_STEP/$TOTAL_STEPS${NC}"
+echo -e "  ${GREEN}║   Log:   $LOG_FILE${NC}"
+echo -e "  ${GREEN}║   Run:   dev health${NC}"
+echo -e "  ${GREEN}╚══════════════════════════════════════╝${NC}"
+echo ""

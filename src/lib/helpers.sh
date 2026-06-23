@@ -2,12 +2,73 @@
 # lib/helpers.sh — shared functions for setup.sh and dev CLI
 set -euo pipefail
 
-GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RED='\033[0;31m'; CYAN='\033[0;36m'; NC='\033[0m'
+GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RED='\033[0;31m'; CYAN='\033[0;36m'; BLUE='\033[0;34m'; MAGENTA='\033[0;35m'; GRAY='\033[0;90m'; NC='\033[0m'
 log()   { echo -e "${GREEN}[✓]${NC} $(date +%H:%M:%S) $1"; }
 warn()  { echo -e "${YELLOW}[!]${NC} $(date +%H:%M:%S) $1" >&2; }
 err()   { echo -e "${RED}[✗]${NC} $(date +%H:%M:%S) $1" >&2; exit 1; }
 info()  { echo -e "${CYAN}[i]${NC} $(date +%H:%M:%S) $1"; }
 section() { echo; echo -e "${CYAN}─── $1 ───${NC}"; }
+
+# ── Progress indicators ───────────────────────────────────────────────────────
+# Spinner frames for in-line animation
+SPIN_CHARS='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
+_spin_idx=0
+_spin_pid=""
+
+# Start a spinner: _spin_start "Installing packages..."
+# Then after work done: _spin_stop "✓" or _spin_stop "✗"
+_spin_start() {
+  local msg="$1"
+  _spin_pid=""
+  printf "\r  ${CYAN}%s${NC} ${GRAY}%s${NC}" "${SPIN_CHARS:0:1}" "$msg"
+  (
+    local i=0
+    while true; do
+      printf "\r  ${CYAN}%s${NC} ${GRAY}%s${NC}" "${SPIN_CHARS:$((i % 10)):1}" "$msg"
+      i=$((i + 1))
+      sleep 0.1
+    done
+  ) &
+  _spin_pid=$!
+  disown $_spin_pid 2>/dev/null || true
+}
+
+_spin_stop() {
+  local result="${1:- }"
+  [ -n "$_spin_pid" ] && kill $_spin_pid 2>/dev/null || true
+  _spin_pid=""
+  case "$result" in
+    "✓") printf "\r  ${GREEN}✓${NC}\n" ;;
+    "✗") printf "\r  ${RED}✗${NC}\n" ;;
+    *)   printf "\r\033[K" ;;
+  esac
+}
+
+# One-line progress: _progress "Step 3/19" "Installing Node.js..."
+# Updates the same line with progress info
+_progress() {
+  local step="$1" msg="$2"
+  printf "\r  ${BLUE}[%s]${NC} ${GRAY}%s${NC}" "$step" "$msg"
+}
+
+# Run command with spinner: _run_spin "Installing..." cmd arg1 arg2
+_run_spin() {
+  local msg="$1"; shift
+  _spin_start "$msg"
+  if "$@" 2>/dev/null; then
+    _spin_stop "✓"
+    return 0
+  else
+    _spin_stop "✗"
+    return 1
+  fi
+}
+
+# Blurred progress line — for sensitive or verbose output
+_blur() {
+  local msg="$1" max="${2:-60}"
+  printf "\r  ${MAGENTA}▌${NC} ${GRAY}%.*s...${NC}" "$max" "$msg"
+}
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 DL_CACHE="${HOME}/.cache/opencode-setup"

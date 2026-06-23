@@ -181,13 +181,22 @@ step_skip "01-system"      # Skip if done
 step_mark "01-system"      # Mark as done
 ```
 
-This ensures re-runs are idempotent — already-installed components are skipped.
+Re-runs are idempotent — already-installed components are skipped.
+
+### Visual Progress
+
+During setup, you'll see:
+
+- **Step counter**: `[3/23] Installing Node.js...`
+- **Spinner**: `⠋ Installing packages...` during long operations
+- **Blurred log**: `▌ Installing chromedriver via apt...` for verbose output
+- **Colored status**: `[✓]` green = done, `[!]` yellow = warning, `[✗]` red = error
 
 ## Module Reference
 
 | Module | File | Lines | Purpose |
 |--------|------|-------|---------|
-| Helpers | `helpers.sh` | 94 | `_curl()`, `_retry()`, `_npm_install()`, `_sudo()` |
+| Helpers | `helpers.sh` | 120 | `_curl()`, `_retry()`, `_npm_install()`, `_spin_start()` / `_spin_stop()` |
 | Core | `00-core.sh` | 220 | OS/PKG/ARCH detection, mirrors, progress |
 | System | `01-system.sh` | 35 | System packages |
 | Docker | `02-docker.sh` | 37 | Docker Engine |
@@ -210,5 +219,7 @@ This ensures re-runs are idempotent — already-installed components are skipped
 | Finalize | `19-finalize.sh` | 220 | Git config, PATH, verification |
 | Autoupdate | `20-autoupdate.sh` | 80 | topgrade + systemd timer |
 | RAG | `21-rag.sh` | 30 | RAG System (optional) |
+| **mise** | `22-mise.sh` | 35 | mise-en-place universal tool manager |
+| **just** | `23-just.sh` | 55 | just task runner (Make alternative) |
 | Version | `version-check.sh` | 135 | Version comparison |
 | PreSession | `pre-session-check.sh` | 83 | Pre-session validation |
