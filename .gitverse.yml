@@ -1,0 +1,7 @@
+# GitVerse Pages configuration for opencode_initializer
+# Documentation site: MkDocs Material (RU + EN, light/dark themes)
+pages:
+  enabled: true
+  branch: gh-pages
+  source: site/
+  cname: ""

@@ -46,6 +46,9 @@ theme:
 extra_css:
   - stylesheets/extra.css
 
+extra_javascript:
+  - javascripts/extra.js
+
 plugins:
   - search:
       lang:
@@ -63,6 +66,7 @@ plugins:
         - locale: ru
           name: Русский
           build: true
+      material_alternate: true
   - minify:
       minify_html: true
       minify_js: true
@@ -116,3 +120,10 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/AlexanderNarbaev/opencode_initializer
+  alternate:
+    - name: English
+      link: /
+      lang: en
+    - name: Русский
+      link: /ru/
+      lang: ru

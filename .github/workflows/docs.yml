@@ -31,12 +31,12 @@ jobs:
           pip install mkdocs-material mkdocs-static-i18n mkdocs-minify-plugin
       - name: Build docs
         run: mkdocs build
-      - name: Upload artifact
+      - name: Upload artifact for GitHub Pages
         uses: actions/upload-pages-artifact@v3
         with:
           path: site/
 
-  deploy:
+  deploy-github:
     needs: build
     runs-on: ubuntu-latest
     environment:
@@ -46,3 +46,22 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  deploy-gitverse:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: github-pages
+          path: site/
+      - name: Deploy to GitVerse Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          deploy_key: ${{ secrets.GITVERSE_DEPLOY_KEY }}
+          external_repository: AlexandrNarbaev/opencode_initializer
+          publish_branch: gh-pages
+          publish_dir: site/
+          user_name: github-actions
+          user_email: github-actions@github.com
