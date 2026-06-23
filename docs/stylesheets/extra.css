@@ -17,7 +17,40 @@
   --md-typeset-a-color: hsl(210, 80%, 40%);
 }
 
-/* High contrast mode via prefers-contrast */
+/* ── Diagram & image zoom overlay ──────────────────────────── */
+.diagram-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 9999;
+  cursor: zoom-out;
+  align-items: center;
+  justify-content: center;
+}
+.diagram-overlay.active {
+  display: flex;
+}
+.diagram-overlay-content {
+  max-width: 95vw;
+  max-height: 95vh;
+  overflow: auto;
+  background: var(--md-default-bg-color);
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+.diagram-overlay-content .mermaid {
+  display: flex;
+  justify-content: center;
+}
+.diagram-overlay-content img {
+  display: block;
+  margin: 0 auto;
+}
+
+/* ── High contrast mode via prefers-contrast ─────────────────── */
 @media (prefers-contrast: high) {
   [data-md-color-scheme="slate"] {
     --md-default-fg-color: hsla(0, 0%, 100%, 1);

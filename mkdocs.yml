@@ -66,7 +66,6 @@ plugins:
         - locale: ru
           name: Русский
           build: true
-      material_alternate: true
   - minify:
       minify_html: true
       minify_js: true
