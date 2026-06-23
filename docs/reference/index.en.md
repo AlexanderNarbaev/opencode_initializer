@@ -223,3 +223,11 @@ During setup, you'll see:
 | **just** | `23-just.sh` | 55 | just task runner (Make alternative) |
 | Version | `version-check.sh` | 135 | Version comparison |
 | PreSession | `pre-session-check.sh` | 83 | Pre-session validation |
+
+---
+
+**See also:**
+- [MCP, LSP & Plugins](../reference/mcp-lsp-plugins/) — 24+13+18 component catalogue
+- [Architecture](../architecture/) — C4 diagrams and design decisions
+- [User Guide](../user-guide/) — daily CLI usage
+- [FAQ](../faq/) — troubleshooting and solutions

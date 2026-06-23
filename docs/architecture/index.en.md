@@ -211,3 +211,11 @@ graph LR
 | **Bun binary paths for MCP** | Absolute paths to `~/.bun/bin/` instead of `npx -y`, instant cold start |
 | **Auto-update via systemd** | topgrade runs weekly (Sun 04:00), unattended-upgrades for daily security |
 | **Bootstrap time logging** | `tee` to `~/.cache/opencode-setup/setup-YYYYMMDD-HHMMSS.log` |
+
+---
+
+**See also:**
+- [Reference](../reference/) — CLI reference and module table
+- [MCP, LSP & Plugins](../reference/mcp-lsp-plugins/) — full component catalogue
+- [User Guide](../user-guide/) — daily usage patterns
+- [Advanced Guide](../advanced/) — customization and optimization

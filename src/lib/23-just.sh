@@ -11,7 +11,7 @@ if ! command -v just &>/dev/null; then
   _progress "just" "Installing task runner..."
   _spin_start "Downloading just"
   
-  local just_ver="1.45.0"
+  local just_ver="1.54.0"
   local just_url="https://github.com/casey/just/releases/download/${just_ver}/just-${just_ver}-x86_64-unknown-linux-musl.tar.gz"
   local just_tmp="/tmp/just-${just_ver}.tar.gz"
   

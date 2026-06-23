@@ -110,7 +110,9 @@ nav:
   - User Guide: user-guide/index.md
   - Advanced Guide: advanced/index.md
   - Architecture: architecture/index.md
-  - Reference: reference/index.md
+  - Reference:
+    - reference/index.md
+    - MCP, LSP & Plugins: reference/mcp-lsp-plugins.md
   - Contributing: contributing/index.md
   - FAQ: faq/index.md
 

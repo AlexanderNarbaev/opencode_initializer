@@ -143,3 +143,11 @@ bash setup.sh --fix-zshrc
 - :fontawesome-brands-github: [GitHub Issues](https://github.com/AlexanderNarbaev/opencode_initializer/issues)
 - :fontawesome-solid-book: [Full Documentation](https://alexandernarbaev.github.io/opencode_initializer/)
 - :fontawesome-solid-code: [Source Code](https://github.com/AlexanderNarbaev/opencode_initializer)
+
+---
+
+**See also:**
+- [Getting Started](../getting-started/) — installation guide
+- [User Guide](../user-guide/) — daily usage
+- [Advanced Guide](../advanced/) — WSL2, GPU, customization
+- [Reference](../reference/) — CLI and config schema

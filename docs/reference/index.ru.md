@@ -222,3 +222,11 @@ step_mark "01-system"      # Отметить как сделанное
 | **just** | `23-just.sh` | 55 | just — таск-раннер (аналог Make) |
 | Version | `version-check.sh` | 135 | Сравнение версий |
 | PreSession | `pre-session-check.sh` | 83 | Предсессионная валидация |
+
+---
+
+**См. также:**
+- [MCP, LSP и плагины](../reference/mcp-lsp-plugins/) — каталог 24+13+18 компонентов
+- [Архитектура](../architecture/) — C4-диаграммы и проектные решения
+- [Руководство](../user-guide/) — повседневный CLI
+- [FAQ](../faq/) — решение проблем

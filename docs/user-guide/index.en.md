@@ -239,3 +239,11 @@ tar -czf opencode-backup-$(date +%Y%m%d).tar.gz \
   ~/.config/opencode/ \
   ~/opencode_initializer/opencode.json
 ```
+
+---
+
+**See also:**
+- [MCP, LSP & Plugins Reference](../reference/mcp-lsp-plugins/) — full catalogue of all servers
+- [Advanced Guide](../advanced/) — WSL2, GPU, customization
+- [FAQ](../faq/) — common issues and solutions
+- [Architecture](../architecture/) — C4 diagrams and module reference

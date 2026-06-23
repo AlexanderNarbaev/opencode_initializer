@@ -140,3 +140,11 @@ bash setup.sh --fix-zshrc
 - :fontawesome-brands-github: [GitHub Issues](https://github.com/AlexanderNarbaev/opencode_initializer/issues)
 - :fontawesome-solid-book: [Полная документация](https://alexandernarbaev.github.io/opencode_initializer/)
 - :fontawesome-solid-code: [Исходный код](https://github.com/AlexanderNarbaev/opencode_initializer)
+
+---
+
+**См. также:**
+- [Начало работы](../getting-started/) — руководство по установке
+- [Руководство](../user-guide/) — повседневное использование
+- [Продвинутое](../advanced/) — WSL2, GPU, кастомизация
+- [Справочник](../reference/) — CLI и схема конфигурации

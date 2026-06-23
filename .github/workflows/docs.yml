@@ -38,6 +38,7 @@ jobs:
 
   deploy-github:
     needs: build
+    if: github.ref == 'refs/heads/main' && github.repository == 'AlexanderNarbaev/opencode_initializer'
     runs-on: ubuntu-latest
     environment:
       name: github-pages

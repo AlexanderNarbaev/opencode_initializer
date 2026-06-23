@@ -139,3 +139,10 @@ Contributors are recognized in the [GitHub contributors graph](https://github.co
 ---
 
 :fontawesome-solid-heart: **Thank you for contributing!**
+
+---
+
+**See also:**
+- [Architecture](../architecture/) — system design and module layout
+- [Reference](../reference/) — CLI and config schema
+- [Getting Started](../getting-started/) — installation and first use

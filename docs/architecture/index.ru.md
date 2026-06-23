@@ -196,3 +196,11 @@ graph LR
 | **Bun binary paths для MCP** | Абсолютные пути к `~/.bun/bin/` вместо `npx -y`, мгновенный холодный старт |
 | **Автообновление через systemd** | topgrade еженедельно (Вс 04:00), unattended-upgrades ежедневно |
 | **Логирование установки** | `tee` в `~/.cache/opencode-setup/setup-YYYYMMDD-HHMMSS.log` |
+
+---
+
+**См. также:**
+- [Справочник](../reference/) — CLI и таблица модулей
+- [MCP, LSP и плагины](../reference/mcp-lsp-plugins/) — полный каталог
+- [Руководство](../user-guide/) — повседневное использование
+- [Продвинутое](../advanced/) — кастомизация и оптимизация
