@@ -199,7 +199,7 @@ if pkg_installed("@scitrera/memorylayer-mcp-server"):
     mcps["memorylayer"] = {"type": "local", "command": local_cmd("@scitrera/memorylayer-mcp-server", "memorylayer-mcp"), "enabled": True}
 
 if pkg_installed("chrome-devtools-mcp"):
-    mcps["chrome-devtools"] = {"type": "local", "command": ["npx", "-y", "chrome-devtools-mcp"], "enabled": True}
+    mcps["chrome-devtools"] = {"type": "local", "command": local_cmd("chrome-devtools-mcp", "chrome-devtools-mcp"), "enabled": True}
 
 if pkg_installed("brave-search-mcp"):
     bs_key = os.environ.get("BRAVE_API_KEY") or secrets.get("BRAVE_API_KEY", "")
