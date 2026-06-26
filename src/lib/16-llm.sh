@@ -21,6 +21,42 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]) && _gate "INTERACTIVE_DO_LLM
     log "Ollama already installed"
   fi
 
+  # ── Ollama user-level systemd service ──────────────────────────
+  if command -v ollama &>/dev/null; then
+    mkdir -p ~/.config/systemd/user
+
+    OLLAMA_BIN=""
+    if snap list ollama &>/dev/null 2>&1; then
+      OLLAMA_BIN="/snap/bin/ollama"
+    elif which ollama &>/dev/null 2>&1; then
+      OLLAMA_BIN="$(which ollama)"
+    fi
+
+    if [ -n "$OLLAMA_BIN" ]; then
+      cat > ~/.config/systemd/user/ollama.service << 'SVC'
+[Unit]
+Description=Ollama — Local LLM Runtime
+After=network.target
+
+[Service]
+Type=simple
+Environment=OLLAMA_HOST=127.0.0.1:11434
+ExecStart=OLLAMA_BIN_PLACEHOLDER serve
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target
+SVC
+      sed -i "s|OLLAMA_BIN_PLACEHOLDER|$OLLAMA_BIN|g" ~/.config/systemd/user/ollama.service
+
+      systemctl --user daemon-reload 2>/dev/null || true
+      systemctl --user enable ollama.service 2>/dev/null || true
+      systemctl --user start ollama.service 2>/dev/null || true
+      log "Ollama user systemd service installed"
+    fi
+  fi
+
   # Open WebUI — chat interface for Ollama (Docker-based)
   if command -v docker &>/dev/null && ! docker ps --format '{{.Names}}' 2>/dev/null | grep -q 'open-webui'; then
     info "Installing Open WebUI (Docker)..."

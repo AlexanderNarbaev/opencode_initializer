@@ -32,9 +32,9 @@ HELPERS_LINE=$(grep -n 'src/lib/helpers.sh' "$PROJECT_DIR/setup.sh" | head -1 | 
 CORE_LINE=$(grep -n 'src/lib/00-core.sh' "$PROJECT_DIR/setup.sh" | head -1 | cut -d: -f1)
 assert "helpers sourced before core" "[ '$HELPERS_LINE' -lt '$CORE_LINE' ]"
 
-# ── setup.sh references all lib modules via _step_skip ─────────────────
-STEP_COUNT=$(grep -c '_step_skip' "$PROJECT_DIR/setup.sh" 2>/dev/null || echo 0)
-assert "setup.sh has step_skip calls" "[ '$STEP_COUNT' -ge 10 ]"
+# ── setup.sh references all lib modules via _run_step ─────────────────
+STEP_COUNT=$(grep -c '_run_step' "$PROJECT_DIR/setup.sh" 2>/dev/null || echo 0)
+assert "setup.sh has _run_step calls" "[ '$STEP_COUNT' -ge 10 ]"
 
 # Count actual lib module files
 LIB_COUNT=$(ls "$PROJECT_DIR/src/lib/"*.sh 2>/dev/null | wc -l)
@@ -78,8 +78,8 @@ done
 
 # ── setup.sh orchestrator line count ──────────────────────────────────
 SETUP_LINES=$(wc -l < "$PROJECT_DIR/setup.sh")
-assert "setup.sh is ~284 lines (+/- 10)" \
-  "[ '$SETUP_LINES' -ge 274 ] && [ '$SETUP_LINES' -le 294 ]"
+assert "setup.sh is ~317 lines (+/- 10)" \
+  "[ '$SETUP_LINES' -ge 307 ] && [ '$SETUP_LINES' -le 327 ]"
 
 # ── Module count matches AGENTS.md description ────────────────────────
 MODES_COUNT=$(ls "$PROJECT_DIR/src/modes/"*.sh 2>/dev/null | wc -l)

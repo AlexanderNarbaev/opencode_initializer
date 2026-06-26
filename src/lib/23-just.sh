@@ -3,8 +3,6 @@
 # Installs just — a handy task runner for project automation
 set -euo pipefail
 
-_step_skip step_just && return 0
-
 section "Just — Task Runner"
 
 if ! command -v just &>/dev/null; then
@@ -66,5 +64,5 @@ JUSTFILE
   log "Created default justfile in $PROJECT_DIR"
 fi
 
-_step_done "step_just"
+_step_done step_just
 log "just configured — use 'just --list' to see available recipes"

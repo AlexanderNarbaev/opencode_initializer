@@ -3,8 +3,6 @@
 # Installs mise and configures it as optional alternative to per-language managers
 set -euo pipefail
 
-_step_skip step_mise && return 0
-
 section "mise — Universal Tool Manager"
 
 # Install mise if not present
@@ -40,5 +38,5 @@ if command -v mise &>/dev/null; then
   mise use -g node@lts 2>/dev/null || true
 fi
 
-_step_done "step_mise"
+_step_done step_mise
 log "mise configured — use 'mise bootstrap' for declarative env setup"

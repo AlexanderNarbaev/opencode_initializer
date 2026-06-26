@@ -118,5 +118,9 @@ _check "MemoryLayer MCP bin" "[ -x ~/.bun/bin/memorylayer-mcp ]"
 _check "Muninn memory-read"  "[ -f ~/.config/opencode/skills/memory-read/SKILL.md ]"
 _check "Muninn memory-write" "[ -f ~/.config/opencode/skills/memory-write/SKILL.md ]"
 
+section "MCP Binaries (~/.bun/bin/)"
+MCP_COUNT=$(ls ~/.bun/bin/ 2>/dev/null | grep -v -E '^(bun|bunx)$' | wc -l)
+echo -e "  ${GREEN}✓${NC} $MCP_COUNT MCP binaries installed"
+
 echo; log "Health: $PASS passed, $FAIL failed"
 exit 0

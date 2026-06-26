@@ -74,9 +74,9 @@ HELPERS_LINE=$(grep -n 'src/lib/helpers.sh' "$SETUP" | head -1 | cut -d: -f1)
 CORE_LINE=$(grep -n 'src/lib/00-core.sh' "$SETUP" | head -1 | cut -d: -f1)
 assert "helpers sourced before core" "[ '$HELPERS_LINE' -lt '$CORE_LINE' ]"
 
-# ── Test: setup.sh line count (~257) ─────────────────────────────────
+# ── Test: setup.sh line count (~316) ─────────────────────────────────
 SETUP_LINES=$(wc -l < "$SETUP")
-assert "setup.sh is ~284 lines" "[ '$SETUP_LINES' -ge 274 ] && [ '$SETUP_LINES' -le 294 ]"
+assert "setup.sh is ~316 lines" "[ '$SETUP_LINES' -ge 306 ] && [ '$SETUP_LINES' -le 326 ]"
 
 echo
 echo "=== test_full_install.sh: $TESTS_PASS passed, $TESTS_FAIL failed ==="

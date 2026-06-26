@@ -60,6 +60,7 @@ while [[ $# -gt 0 ]]; do case $1 in
   --minimax-key)       MINIMAX_KEY="$2"; shift 2;;
   --github-token)      GITHUB_TOKEN="$2"; shift 2;;
   --gitlab-token)      GITLAB_TOKEN="$2"; shift 2;;
+  --gitverse-token)    GITVERSE_TOKEN="$2"; shift 2;;
   --google-maps-key)   GOOGLE_MAPS_KEY="$2"; shift 2;;
   --fzf-key)           FZF_KEY="$2"; shift 2;;
   -n|--git-name)       GIT_NAME="$2"; shift 2;;
@@ -89,6 +90,7 @@ Options:
   --minimax-key       MiniMax M3 API key
   --github-token      GitHub personal access token (for MCP, gh CLI, etc.)
   --gitlab-token      GitLab personal access token (for GitLab MCP)
+  --gitverse-token    GitVerse personal access token (for GitVerse Pages)
   --google-maps-key   Google Maps API key (for location-aware MCP)
   -n, --git-name      Git user name
   -e, --git-email     Git user email
@@ -253,7 +255,7 @@ echo -e "${GREEN}     Log:  $LOG_FILE${NC}"
 echo -e "${GREEN}============================================================${NC}"
 
 # ── Execute steps ───────────────────────────────────────────────────────────
-TOTAL_STEPS=23; CURRENT_STEP=0
+TOTAL_STEPS=24; CURRENT_STEP=0
 
 _run_step() {
   local step_key="$1" step_name="$2" module="$3"
@@ -303,6 +305,7 @@ _run_step step_json       "opencode.json"          "$SCRIPT_DIR/src/lib/18-openc
 _run_step step_finalize   "Finalize + Verify"      "$SCRIPT_DIR/src/lib/19-finalize.sh"
 _run_step step_autoupdate "Auto-update system"     "$SCRIPT_DIR/src/lib/20-autoupdate.sh"
 _run_step step_rag        "RAG System (optional)"  "$SCRIPT_DIR/src/lib/21-rag.sh"
+_run_step step_webui      "Open WebUI service"    "$SCRIPT_DIR/src/lib/22-webui-service.sh"
 _run_step step_mise        "mise tool manager"     "$SCRIPT_DIR/src/lib/22-mise.sh"
 _run_step step_just        "just task runner"      "$SCRIPT_DIR/src/lib/23-just.sh"
 
