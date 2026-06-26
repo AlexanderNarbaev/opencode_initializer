@@ -53,6 +53,25 @@ if command -v vllm &>/dev/null; then
 YAML
 fi
 
+# Register multimodal models
+if command -v whisper-cli &>/dev/null; then
+  cat >> ~/.config/litellm/config.yaml << YAML
+  - model_name: whisper-1
+    litellm_params:
+      model: openai/whisper-1
+      api_base: http://localhost:8081/v1
+YAML
+fi
+
+if command -v ollama &>/dev/null && ollama list 2>/dev/null | grep -q 'llava'; then
+  cat >> ~/.config/litellm/config.yaml << YAML
+  - model_name: ollama/llava:7b
+    litellm_params:
+      model: ollama/llava:7b
+      api_base: http://localhost:11434
+YAML
+fi
+
 cat >> ~/.config/litellm/config.yaml << YAML
 
 litellm_version: 1

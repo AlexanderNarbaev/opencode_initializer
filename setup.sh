@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================================
-#  Ultimate Dev Machine Bootstrap v1.0.0 — Modular
+#  Ultimate Dev Machine Bootstrap v1.1.0 — Modular
 set -euo pipefail; IFS=$'\n\t'; shopt -s inherit_errexit 2>/dev/null || true
 
 # ── Bootstrap: resolve script dir (supports curl|bash and local runs) ───────
@@ -59,11 +59,23 @@ while [[ $# -gt 0 ]]; do case $1 in
   --mimo-key)          MIMO_KEY="$2"; shift 2;;
   --moonshot-key)      MOONSHOT_KEY="$2"; shift 2;;
   --minimax-key)       MINIMAX_KEY="$2"; shift 2;;
+  --openai-key)        OPENAI_API_KEY="$2"; shift 2;;
+  --anthropic-key)     ANTHROPIC_API_KEY="$2"; shift 2;;
+  --google-key)        GOOGLE_API_KEY="$2"; shift 2;;
+  --mistral-key)       MISTRAL_API_KEY="$2"; shift 2;;
+  --groq-key)          GROQ_API_KEY="$2"; shift 2;;
+  --together-key)      TOGETHER_API_KEY="$2"; shift 2;;
+  --cohere-key)        COHERE_API_KEY="$2"; shift 2;;
+  --fireworks-key)     FIREWORKS_API_KEY="$2"; shift 2;;
+  --cerebras-key)      CEREBRAS_API_KEY="$2"; shift 2;;
+  --perplexity-key)    PERPLEXITY_API_KEY="$2"; shift 2;;
   --github-token)      GITHUB_TOKEN="$2"; shift 2;;
   --gitlab-token)      GITLAB_TOKEN="$2"; shift 2;;
   --gitverse-token)    GITVERSE_TOKEN="$2"; shift 2;;
   --google-maps-key)   GOOGLE_MAPS_KEY="$2"; shift 2;;
   --fzf-key)           FZF_KEY="$2"; shift 2;;
+  --devbox-skip)       SKIP_DEVBOX=true; shift;;
+  --dotfiles-skip)     SKIP_DOTFILES=true; shift;;
   -n|--git-name)       GIT_NAME="$2"; shift 2;;
   -e|--git-email)      GIT_EMAIL="$2"; shift 2;;
   -s|--sudo-pass)      SUDO_PASS="$2"; shift 2;;
@@ -90,6 +102,16 @@ Options:
   --mimo-key          Xiaomi MiMo API key
   --moonshot-key      Moonshot (Kimi K2.6) API key
   --minimax-key       MiniMax M3 API key
+  --openai-key        OpenAI API key
+  --anthropic-key     Anthropic Claude API key
+  --google-key        Google Gemini API key
+  --mistral-key       Mistral API key
+  --groq-key          Groq Cloud API key
+  --together-key      Together AI API key
+  --cohere-key        Cohere API key
+  --fireworks-key     Fireworks AI API key
+  --cerebras-key      Cerebras API key
+  --perplexity-key    Perplexity API key
   --github-token      GitHub personal access token (for MCP, gh CLI, etc.)
   --gitlab-token      GitLab personal access token (for GitLab MCP)
   --gitverse-token    GitVerse personal access token (for GitVerse Pages)
@@ -97,6 +119,8 @@ Options:
   -n, --git-name      Git user name
   -e, --git-email     Git user email
   --fzf-key           FZF key binding for zsh (default: ^T)
+  --devbox-skip       Skip Devbox (Nix-based isolated dev environments)
+  --dotfiles-skip     Skip chezmoi dotfiles manager installation
   --dry-run           Preview mode: show what would be installed, make no changes
   -s, --sudo-pass     Sudo password (cached between steps)
   -h, --help          Show this help
@@ -258,7 +282,7 @@ echo -e "${GREEN}     Log:  $LOG_FILE${NC}"
 echo -e "${GREEN}============================================================${NC}"
 
 # ── Execute steps ───────────────────────────────────────────────────────────
-TOTAL_STEPS=26; CURRENT_STEP=0
+TOTAL_STEPS=29; CURRENT_STEP=0
 
 _run_step() {
   local step_key="$1" step_name="$2" module="$3"
@@ -297,6 +321,7 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then
   log "Old configs cleaned"
 fi
 
+_run_step step_providers "LLM Providers"       "$SCRIPT_DIR/src/lib/26-providers.sh"
 _run_step step_opencode   "OpenCode CLI"           "$SCRIPT_DIR/src/lib/11-opencode.sh"
 _run_step step_mcp        "MCP + LSP + Plugins"    "$SCRIPT_DIR/src/lib/12-mcp-lsp.sh"
 _run_step step_chromadb   "ChromaDB + Muninn"      "$SCRIPT_DIR/src/lib/13-chromadb.sh"
@@ -313,6 +338,9 @@ _run_step step_mise        "mise tool manager"     "$SCRIPT_DIR/src/lib/22-mise.
 _run_step step_just        "just task runner"      "$SCRIPT_DIR/src/lib/23-just.sh"
 _run_step step_websearch   "Web Search Engine"    "$SCRIPT_DIR/src/lib/24-websearch.sh"
 _run_step step_litellm    "LiteLLM API Gateway"  "$SCRIPT_DIR/src/lib/25-litellm.sh"
+_run_step step_providers  "Multi-Provider Config" "$SCRIPT_DIR/src/lib/26-providers.sh"
+[ "${SKIP_DOTFILES:-false}" != "true" ] && _run_step step_dotfiles   "Dotfiles (chezmoi)"    "$SCRIPT_DIR/src/lib/27-dotfiles.sh"
+[ "${SKIP_DEVBOX:-false}" != "true" ]   && _run_step step_devbox     "Devbox (Nix)"          "$SCRIPT_DIR/src/lib/28-devbox.sh"
 
 echo ""
 echo -e "  ${GREEN}╔══════════════════════════════════════╗${NC}"

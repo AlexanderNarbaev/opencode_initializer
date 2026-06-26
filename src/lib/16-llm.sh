@@ -177,6 +177,54 @@ SVC
     curl -sSf https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh 2>/dev/null | bash -s -- -v 0.15.1 2>/dev/null && log "WasmEdge installed" || warn "WasmEdge skipped"
   fi
 
+  # ── Multimodal: Speech Recognition (whisper.cpp) ─────────────────────────
+  if ! command -v whisper-cli &>/dev/null; then
+    info "Installing whisper.cpp (speech-to-text)..."
+    git clone --depth 1 https://github.com/ggerganov/whisper.cpp /tmp/whisper.cpp-build 2>/dev/null && \
+      (cd /tmp/whisper.cpp-build && bash ./models/download-ggml-model.sh base 2>/dev/null && \
+       make -j$(nproc) 2>/dev/null && cp main ~/.local/bin/whisper-cli) && \
+      log "whisper.cpp installed (base model)" || warn "whisper.cpp build failed"
+    rm -rf /tmp/whisper.cpp-build
+  else
+    log "whisper.cpp already installed"
+  fi
+
+  # ── Multimodal: Image Generation (stable-diffusion.cpp) ──────────────────
+  # CPU-only by default; GPU-accelerated if NVIDIA detected
+  if ! $HAS_NVIDIA_GPU && ! command -v sd &>/dev/null; then
+    info "Installing stable-diffusion.cpp (CPU image generation)..."
+    git clone --depth 1 https://github.com/leejet/stable-diffusion.cpp /tmp/sd.cpp-build 2>/dev/null && \
+      (cd /tmp/sd.cpp-build && mkdir -p build && cd build && \
+       cmake .. -DSD_SYSTEM_GGML=OFF 2>/dev/null && \
+       cmake --build . --config Release -j$(nproc) 2>/dev/null && \
+       cp bin/sd ~/.local/bin/) && log "stable-diffusion.cpp installed" || warn "sd.cpp build failed"
+    rm -rf /tmp/sd.cpp-build
+  fi
+
+  # ── Multimodal: Pull vision model for Ollama ─────────────────────────────
+  if command -v ollama &>/dev/null; then
+    if ! ollama list 2>/dev/null | grep -q 'llava'; then
+      info "Pulling vision model (llava:7b)..."
+      ollama pull llava:7b 2>/dev/null & log "Ollama: pulling llava:7b (vision, background)"
+    fi
+  fi
+
+  # ── ONNX Runtime ─────────────────────────────────────────────────────────
+  if ! python3 -c "import onnxruntime" 2>/dev/null; then
+    info "Installing ONNX Runtime (cross-platform inference)..."
+    pipx install onnxruntime 2>/dev/null && log "ONNX Runtime installed" || \
+    pip install --user onnxruntime 2>/dev/null && log "ONNX Runtime installed (pip)" || \
+    warn "ONNX Runtime install failed"
+  fi
+
+  MODEL_CACHE="$HOME/.cache/opencode-setup/models"
+  mkdir -p "$MODEL_CACHE"
+  if [ ! -f "$MODEL_CACHE/all-MiniLM-L6-v2.onnx" ]; then
+    info "Downloading ONNX embedding model (MiniLM-L6)..."
+    _curl "https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/onnx/model.onnx" \
+      "$MODEL_CACHE/all-MiniLM-L6-v2.onnx" 2>/dev/null && log "ONNX model cached" || warn "ONNX model download failed"
+  fi
+
   log "LLM runtimes configured"
   _step_done step_llm
 fi

@@ -62,42 +62,84 @@ def pkg_installed(pkg_name):
         pass
     return False
 
+# Env-var name registry for each provider — used to generate api_key references
+PROVIDER_ENV_VARS = {
+    "deepseek": "DEEPSEEK_API_KEY",
+    "opencode": "OPENCODE_API_KEY",
+    "xai": "XAI_API_KEY",
+    "mimo": "MIMO_API_KEY",
+    "moonshot": "MOONSHOT_API_KEY",
+    "minimax": "MINIMAX_API_KEY",
+    "openai": "OPENAI_API_KEY",
+    "anthropic": "ANTHROPIC_API_KEY",
+    "google": "GOOGLE_API_KEY",
+    "mistral": "MISTRAL_API_KEY",
+    "groq": "GROQ_API_KEY",
+    "together": "TOGETHER_API_KEY",
+    "cohere": "COHERE_API_KEY",
+    "fireworks": "FIREWORKS_API_KEY",
+    "cerebras": "CEREBRAS_API_KEY",
+    "perplexity": "PERPLEXITY_API_KEY",
+}
+
 def _build_providers():
-    """Build provider config based on available API keys, with fallback chains."""
+    """Build provider config based on available API keys, with fallback chains.
+    API keys use ${ENV_VAR} syntax — team-shareable without exposing secrets."""
     opts = {"options": {"timeout": 600000, "chunkTimeout": 60000, "setCacheKey": True}}
     providers = {}
 
-    # DeepSeek — always primary
-    providers["deepseek"] = dict(opts)
-    providers["deepseek"]["fallback"] = ["opencode", "xai", "minimax"]
+    all_keys = {
+        "deepseek": os.environ.get("DEEPSEEK_API_KEY") or secrets.get("DEEPSEEK_API_KEY", ""),
+        "opencode": os.environ.get("OPENCODE_API_KEY") or secrets.get("OPENCODE_API_KEY", ""),
+        "xai": os.environ.get("XAI_API_KEY") or secrets.get("XAI_API_KEY", ""),
+        "mimo": os.environ.get("MIMO_API_KEY") or secrets.get("MIMO_API_KEY", ""),
+        "moonshot": os.environ.get("MOONSHOT_API_KEY") or secrets.get("MOONSHOT_API_KEY", ""),
+        "minimax": os.environ.get("MINIMAX_API_KEY") or secrets.get("MINIMAX_API_KEY", ""),
+        "openai": os.environ.get("OPENAI_API_KEY") or secrets.get("OPENAI_API_KEY", ""),
+        "anthropic": os.environ.get("ANTHROPIC_API_KEY") or secrets.get("ANTHROPIC_API_KEY", ""),
+        "google": os.environ.get("GOOGLE_API_KEY") or secrets.get("GOOGLE_API_KEY", ""),
+        "mistral": os.environ.get("MISTRAL_API_KEY") or secrets.get("MISTRAL_API_KEY", ""),
+        "groq": os.environ.get("GROQ_API_KEY") or secrets.get("GROQ_API_KEY", ""),
+        "together": os.environ.get("TOGETHER_API_KEY") or secrets.get("TOGETHER_API_KEY", ""),
+        "cohere": os.environ.get("COHERE_API_KEY") or secrets.get("COHERE_API_KEY", ""),
+        "fireworks": os.environ.get("FIREWORKS_API_KEY") or secrets.get("FIREWORKS_API_KEY", ""),
+        "cerebras": os.environ.get("CEREBRAS_API_KEY") or secrets.get("CEREBRAS_API_KEY", ""),
+        "perplexity": os.environ.get("PERPLEXITY_API_KEY") or secrets.get("PERPLEXITY_API_KEY", ""),
+    }
 
-    # OpenCode — always available as backup
-    providers["opencode"] = dict(opts)
-    providers["opencode"]["fallback"] = ["deepseek", "minimax"]
+    provider_models = {
+        "deepseek": ("deepseek/deepseek-v4-pro", "deepseek/deepseek-v4-flash"),
+        "openai": ("openai/gpt-5", "openai/gpt-5-mini"),
+        "anthropic": ("anthropic/claude-sonnet-4-20250514", "anthropic/claude-haiku-4-20250514"),
+        "google": ("google/gemini-2.5-pro", "google/gemini-2.5-flash"),
+        "mistral": ("mistral/mistral-large-latest", "mistral/mistral-small-latest"),
+        "groq": ("groq/llama-4-maverick", "groq/llama-4-scout"),
+        "together": ("together/meta-llama/Llama-4-Maverick", "together/meta-llama/Llama-4-Scout"),
+        "xai": ("xai/grok-3", "xai/grok-3-mini"),
+        "minimax": ("minimax/minimax-m3", "minimax/minimax-m3"),
+        "mimo": ("mimo/mimo-v2", "mimo/mimo-v2"),
+        "moonshot": ("moonshot/kimi-k2.6", "moonshot/kimi-k2.6"),
+        "perplexity": ("perplexity/sonar-pro", "perplexity/sonar"),
+    }
 
-    # xAI/Grok — conditional
-    xai_key = os.environ.get("XAI_API_KEY") or secrets.get("XAI_API_KEY", "")
-    if xai_key:
-        providers["xai"] = dict(opts)
-        providers["xai"]["fallback"] = ["deepseek"]
+    fallback_chain = ["deepseek", "groq", "together", "openai", "minimax"]
 
-    # MiMo — conditional
-    mimo_key = os.environ.get("MIMO_API_KEY") or secrets.get("MIMO_API_KEY", "")
-    if mimo_key:
-        providers["mimo"] = dict(opts)
-        providers["mimo"]["fallback"] = ["deepseek"]
-
-    # Moonshot — conditional
-    moonshot_key = os.environ.get("MOONSHOT_API_KEY") or secrets.get("MOONSHOT_API_KEY", "")
-    if moonshot_key:
-        providers["moonshot"] = dict(opts)
-        providers["moonshot"]["fallback"] = ["deepseek"]
-
-    # MiniMax — conditional
-    minimax_key = os.environ.get("MINIMAX_API_KEY") or secrets.get("MINIMAX_API_KEY", "")
-    if minimax_key:
-        providers["minimax"] = dict(opts)
-        providers["minimax"]["fallback"] = ["deepseek"]
+    for provider, key in all_keys.items():
+        if key or provider in ("deepseek", "opencode"):
+            providers[provider] = dict(opts)
+            if provider in provider_models:
+                providers[provider]["default_model"] = provider_models[provider][0]
+                providers[provider]["small_model"] = provider_models[provider][1]
+            # Use ${ENV_VAR} reference so teams can share config without exposing keys
+            env_name = PROVIDER_ENV_VARS.get(provider)
+            if env_name:
+                providers[provider]["api_key"] = "${" + env_name + "}"
+            if provider != "deepseek":
+                providers[provider]["fallback"] = ["deepseek"]
+            elif provider == "deepseek":
+                chain = [p for p in fallback_chain if p != "deepseek" and p in providers]
+                if chain:
+                    providers["deepseek"]["fallback"] = chain[:3]
 
     return providers
 
@@ -480,6 +522,13 @@ config = {
 os.makedirs(os.path.dirname(config_path), exist_ok=True)
 
 with open(config_path, 'w') as f:
+    f.write("// ============================================================================\n")
+    f.write("// opencode.json — generated by opencode_initializer setup\n")
+    f.write("//\n")
+    f.write("// API key fields use ${ENV_VAR} substitution syntax.\n")
+    f.write("// Set the corresponding environment variable to activate a provider.\n")
+    f.write("// This file is safe to share — no secrets are stored in plain text.\n")
+    f.write("// ============================================================================\n")
     json.dump(config, f, indent=2)
 
 print(f"VALID:{len(mcps)}")

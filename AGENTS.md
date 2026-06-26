@@ -2,7 +2,7 @@
 
 ## Identity
 Universal Dev Machine Bootstrap — однокомандная настройка AI-усиленной dev-машины для WSL2/Linux.
-Модульная архитектура: 318-строчный оркестратор + 29 модулей + автообновление через systemd-таймер.
+Модульная архитектура: 352-строчный оркестратор + 32 модуля + автообновление через systemd-таймер.
 
 ## Язык общения
 Всё общение строго на русском языке. Код и комментарии — на английском.
@@ -10,9 +10,9 @@ Universal Dev Machine Bootstrap — однокомандная настройк�
 ## Project Structure
 ```
 opencode_initializer/
-├── setup.sh          ← оркестратор (316 строк, source модули из src/lib/)
+├── setup.sh          ← оркестратор (352 строк, source модули из src/lib/)
 ├── src/
-│   ├── lib/          ← 29 модулей (00-core.sh … 25-litellm.sh + helpers.sh + version-check.sh + pre-session-check.sh)
+│   ├── lib/          ← 32 модуля (00-core.sh … 28-devbox.sh + helpers.sh + version-check.sh + pre-session-check.sh)
 │   └── modes/            ← 4 режимных скрипта (+ 6 встроенных режимов)
 ├── dev.sh            ← CLI
 ├── scripts/          ← утилиты (ai-router)
@@ -31,10 +31,10 @@ opencode_initializer/
 
 ## Architecture (setup.sh)
 
-### Orchestrator (316 lines)
+### Orchestrator (352 lines)
 Minimal entry point that sources modules from `src/lib/` and dispatches modes from `src/modes/`.
 
-### Module Layout (src/lib/ — 26 modules + 3 infra)
+### Module Layout (src/lib/ — 29 modules + 3 infra)
 | Module | Responsibility |
 |--------|---------------|
 | `helpers.sh` | `_curl()`, `_retry()`, `_npm_install()`, `_sudo()` — shared infrastructure |
@@ -65,6 +65,9 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 | `23-just.sh` | just — task runner with default justfile |
 | `24-websearch.sh` | SearXNG web search + sanitizer proxy (internal hosts/IP/PII) |
 | `25-litellm.sh` | LiteLLM — OpenAI-compatible local API gateway |
+| `26-providers.sh` | 15+ LLM provider registry with session switching |
+| `27-dotfiles.sh` | chezmoi dotfiles manager for team config sharing |
+| `28-devbox.sh` | Devbox — Nix-based isolated dev environments |
 | `version-check.sh` | Version check: Rust/Go/Node/Python/Bun/OpenCode/Ollama/Zig + npm packages |
 | `pre-session-check.sh` | Pre-session provider/model validation + MCP status |
 
@@ -146,13 +149,13 @@ bash setup.sh --fix-zshrc                 # repair shell config
 | v35.1 | Pre-session provider/model check script. Version check expanded. 22→24 modules. |
 | v35.3 | Research-driven: +5 plugins (dcp, auto-fallback, goal-mode, swarm, vibeguard), +1 MCP (chrome-devtools), +5 LSP (bash, dockerfile, css, html, json), +3 CLI tools (btm, sd, typos). Fixed: ZSH crash (set -e leak), opencode.json validity (// comments), Gradle symlink, health 54→54 checks. New tests: test_mcp_registry.sh (52 checks), test_opencode_json_gen.sh (62 checks). README rewritten to international standard. CONTRIBUTING.md comprehensive guide. |
 | v1.0.0 | Initial public release. Clean open source launch with full documentation (README, CHANGELOG, CONTRIBUTING, CODE_OF_CONDUCT, SECURITY). 8 languages, 21 MCPs, 15 plugins, 13 LSPs, 193-test suite. |
-| v1.1.0 | Ecosystem expansion: hardware auto-detection (multi-vendor GPU/NPU), LiteLLM OpenAI-compatible API gateway, SearXNG web search + sanitizer proxy, CI/CD headless mode, Open WebUI systemd service, just task runner, mise tool manager. 24→29 modules, 23→26 steps, 60→65+ health checks. |
+| v1.1.0 | Ecosystem expansion: hardware auto-detection (multi-vendor GPU/NPU), LiteLLM OpenAI-compatible API gateway, SearXNG web search + sanitizer proxy, CI/CD headless mode, multimodal (whisper.cpp + stable-diffusion.cpp + llava), 15+ LLM providers, TUI/JSON/RPC/SDK interaction modes, chezmoi dotfiles, Devbox integration, ONNX runtime. 24→29 modules, 26→29 steps, 65+ health checks. |
 
 ## Modular Architecture (v1.0.0)
 
 ```
 opencode_initializer/
-├── setup.sh              ← оркестратор (316 строк)
+├── setup.sh              ← оркестратор (352 строки)
 ├── dev.sh                ← CLI
 ├── opencode.json         ← конфиг OpenCode
 ├── src/

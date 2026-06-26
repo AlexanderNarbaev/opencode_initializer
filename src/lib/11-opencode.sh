@@ -79,4 +79,21 @@ if dk or ak or xk or mk or msk or mmk or ghk or glk or gmk:
   else
     log "Bun already installed"
   fi
+
+  # Install interaction mode wrappers (TUI/JSON/RPC/SDK)
+  if [ -d "$SCRIPT_DIR/scripts" ]; then
+    for script in oc-tui oc-json oc-sdk oc-rpc; do
+      local src_tgt=""
+      if [ -f "$SCRIPT_DIR/scripts/${script}.sh" ]; then
+        src_tgt="$SCRIPT_DIR/scripts/${script}.sh"
+      elif [ -f "$SCRIPT_DIR/scripts/${script}.py" ]; then
+        src_tgt="$SCRIPT_DIR/scripts/${script}.py"
+      fi
+      if [ -n "$src_tgt" ]; then
+        cp "$src_tgt" "$HOME/.local/bin/${script}" 2>/dev/null || true
+        chmod +x "$HOME/.local/bin/${script}" 2>/dev/null || true
+      fi
+    done
+    log "Interaction mode wrappers installed (~/.local/bin/oc-*)"
+  fi
 fi

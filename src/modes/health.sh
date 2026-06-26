@@ -99,10 +99,26 @@ _check "Skill: context-switch"  "[ -f \"$HOME/projects/.opencode/skills/context-
 
 section "Config"
 _check "opencode.json"      "[ -f ~/.config/opencode/opencode.json ]"
-_check "MCPs registered"    "python3 -c \"import json; c=json.load(open('$HOME/.config/opencode/opencode.json')); m=len(c.get('mcp',{})); exit(0 if m>2 else 1)\" 2>/dev/null"
+  _check "MCPs registered"    "python3 -c \"import json; c=json.load(open('$HOME/.config/opencode/opencode.json')); m=len(c.get('mcp',{})); exit(0 if m>2 else 1)\" 2>/dev/null"
+  _check "Providers configured" "python3 -c \"import json; c=json.load(open('$HOME/.config/opencode/opencode.json')); p=len(c.get('provider',{})); exit(0 if p>=2 else 1)\" 2>/dev/null"
 _check "AGENTS.md"          "[ -f \"${PROJECT_DIR:-$HOME/projects}/AGENTS.md\" ]"
 _check "GLOBAL_WAL"           "[ -f \"${PROJECT_DIR:-$HOME/projects}/wal/state.yaml\" ]"
 _check "No stale scout"     "[ ! -f \"${PROJECT_DIR:-$HOME/projects}/.opencode/agents/scout.md\" ] && [ ! -f \"$HOME/.config/opencode/agents/scout.md\" ]"
+
+section "Multimodal & ONNX"
+_check "whisper.cpp"      "whisper-cli --help 2>/dev/null"
+_check "stable-diffusion" "sd --help 2>/dev/null"
+_check "llava (vision)"   "ollama list 2>/dev/null | grep -q llava"
+_check "ONNX Runtime"     "python3 -c \"import onnxruntime\" 2>/dev/null"
+
+section "Interaction Modes"
+_check "oc-tui wrapper"  "[ -x ~/.local/bin/oc-tui ]"
+_check "oc-json wrapper" "[ -x ~/.local/bin/oc-json ]"
+_check "oc-sdk wrapper"  "[ -x ~/.local/bin/oc-sdk ] || [ -x ~/.local/bin/oc-sdk.py ]"
+_check "oc-rpc wrapper"  "[ -x ~/.local/bin/oc-rpc ]"
+_check "dialog (TUI)"    "command -v dialog &>/dev/null || command -v whiptail &>/dev/null"
+_check "socat (RPC)"     "command -v socat &>/dev/null || command -v nc &>/dev/null"
+_check "LiteLLM API"     "curl -sf http://localhost:4000/v1/models &>/dev/null"
 
 section "Systemd Services"
 _check "chromadb.service"   "systemctl --user is-active chromadb.service &>/dev/null"

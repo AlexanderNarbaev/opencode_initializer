@@ -215,6 +215,7 @@ _check "Sanitizer proxy"    "curl -sf http://localhost:8888/search?q=test &>/dev
 
 echo
 log "Verification: $PASS passed, $FAIL failed"
+echo -e "  Providers: ${#PROVIDER_REGISTRY[@]} registered"
 
 echo -e "${GREEN}============================================================${NC}"
 echo -e "${GREEN}       BOOTSTRAP COMPLETE (${SCRIPT_VERSION}) · Mode: $MODE${NC}"
