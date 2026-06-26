@@ -6,11 +6,13 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/AlexanderNarbaev/opencode_initializer/actions"><img src="https://img.shields.io/github/actions/workflow/status/AlexanderNarbaev/opencode_initializer/test.yml?branch=main&label=tests" alt="Tests"></a>
-  <a href="https://github.com/AlexanderNarbaev/opencode_initializer"><img src="https://img.shields.io/github/stars/AlexanderNarbaev/opencode_initializer?style=social" alt="GitHub stars"></a>
+  <a href="https://github.com/AlexanderNarbaev/opencode_initializer/actions/workflows/test.yml"><img src="https://img.shields.io/github/actions/workflow/status/AlexanderNarbaev/opencode_initializer/test.yml?branch=main&label=tests" alt="Tests"></a>
+  <a href="https://github.com/AlexanderNarbaev/opencode_initializer/actions/workflows/shellcheck.yml"><img src="https://img.shields.io/github/actions/workflow/status/AlexanderNarbaev/opencode_initializer/shellcheck.yml?branch=main&label=shellcheck" alt="ShellCheck"></a>
+  <a href="https://alexandernarbaev.github.io/opencode_initializer/"><img src="https://img.shields.io/github/actions/workflow/status/AlexanderNarbaev/opencode_initializer/docs.yml?branch=main&label=docs" alt="Docs"></a>
+  <a href="https://alexandernarbaev.github.io/opencode_initializer/"><img src="https://img.shields.io/badge/docs-online-4051b5.svg" alt="Documentation"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"></a>
-  <a href="https://shellcheck.net"><img src="https://img.shields.io/badge/shellcheck-passing-brightgreen.svg" alt="ShellCheck"></a>
-  <a href="https://alexandernarbaev.github.io/opencode_initializer/"><img src="https://github.com/AlexanderNarbaev/opencode_initializer/actions/workflows/docs.yml/badge.svg" alt="Docs"></a>
+  <a href="https://github.com/AlexanderNarbaev/opencode_initializer"><img src="https://img.shields.io/github/stars/AlexanderNarbaev/opencode_initializer?style=social" alt="GitHub stars"></a>
+  <a href="https://gitverse.ru/AlexandrNarbaev/opencode_initializer"><img src="https://img.shields.io/badge/gitverse-mirror-8b5cf6.svg" alt="GitVerse Mirror"></a>
 </p>
 
 ---

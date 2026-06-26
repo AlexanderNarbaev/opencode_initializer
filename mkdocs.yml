@@ -1,6 +1,7 @@
 site_name: OpenCode Initializer
 site_description: Universal Dev Machine Bootstrap v1.1.0 — one-command AI-enhanced development environment with 29 modules, 16 providers, 21 MCPs, 15 plugins, 13 LSPs
 site_author: Alexander Narbaev
+site_url: https://alexandernarbaev.github.io/opencode_initializer/
 copyright: "&copy; 2025-2026 Alexander Narbaev. MIT License."
 
 repo_name: AlexanderNarbaev/opencode_initializer
@@ -9,6 +10,11 @@ edit_uri: edit/main/docs/
 
 theme:
   name: material
+  logo: assets/logo.svg
+  favicon: assets/favicon.svg
+  font:
+    text: Inter
+    code: JetBrains Mono
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
@@ -33,12 +39,17 @@ theme:
     - navigation.path
     - navigation.indexes
     - navigation.top
+    - navigation.instant
+    - navigation.instant.prefetch
+    - navigation.instant.progress
     - search.suggest
     - search.highlight
     - search.share
     - content.code.copy
     - content.code.annotate
     - content.tabs.link
+    - toc.follow
+    - header.autohide
   icon:
     repo: fontawesome/brands/github
   language: en
@@ -66,6 +77,23 @@ plugins:
         - locale: ru
           name: Русский
           build: true
+  - social:
+      cards: true
+      cards_layout: default
+      cards_layout_options:
+        background_color: "#4051b5"
+        color: "#ffffff"
+        font_family: Inter
+  - blog:
+      blog_dir: changelog
+      blog_toc: true
+      post_date_format: long
+      archive: false
+  - tags:
+      tags_file: tags.md
+  - git-revision-date-localized:
+      enable_creation_date: true
+      type: date
   - minify:
       minify_html: true
       minify_js: true
@@ -115,14 +143,21 @@ nav:
       - MCP, LSP & Plugins: reference/mcp-lsp-plugins.md
   - Guides:
       - Team Setup: guides/team-setup.md
+  - Changelog: changelog/index.md
+  - Tags: tags.md
   - Contributing: contributing/index.md
   - FAQ: faq/index.md
 
 extra:
   analytics: {}
+  generator: false
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/AlexanderNarbaev/opencode_initializer
+      name: GitHub
+    - icon: fontawesome/brands/git-alt
+      link: https://gitverse.ru/AlexandrNarbaev/opencode_initializer
+      name: GitVerse
   alternate:
     - name: English
       link: /
