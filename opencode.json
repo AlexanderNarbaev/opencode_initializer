@@ -2,11 +2,527 @@
   "$schema": "https://opencode.ai/config.json",
   "model": "deepseek/deepseek-v4-pro",
   "small_model": "deepseek/deepseek-v4-flash",
-  "provider": {
-    "deepseek": {},
-    "opencode": {}
+  "default_agent": "build",
+  "autoupdate": true,
+  "compaction": {
+    "auto": true,
+    "prune": true,
+    "tail_turns": 2,
+    "reserved": 10000
   },
-  "instructions": [
-    "AGENTS.md"
-  ]
+  "provider": {
+    "deepseek": {
+      "options": {
+        "timeout": 600000,
+        "chunkTimeout": 60000,
+        "setCacheKey": true
+      },
+      "fallback": [
+        "opencode",
+        "xai",
+        "minimax"
+      ]
+    },
+    "opencode": {
+      "options": {
+        "timeout": 600000,
+        "chunkTimeout": 60000,
+        "setCacheKey": true
+      },
+      "fallback": [
+        "deepseek",
+        "minimax"
+      ]
+    },
+    "xai": {
+      "options": {
+        "timeout": 600000,
+        "chunkTimeout": 60000,
+        "setCacheKey": true
+      },
+      "fallback": [
+        "deepseek"
+      ]
+    },
+    "mimo": {
+      "options": {
+        "timeout": 600000,
+        "chunkTimeout": 60000,
+        "setCacheKey": true
+      },
+      "fallback": [
+        "deepseek"
+      ]
+    },
+    "moonshot": {
+      "options": {
+        "timeout": 600000,
+        "chunkTimeout": 60000,
+        "setCacheKey": true
+      },
+      "fallback": [
+        "deepseek"
+      ]
+    },
+    "minimax": {
+      "options": {
+        "timeout": 600000,
+        "chunkTimeout": 60000,
+        "setCacheKey": true
+      },
+      "fallback": [
+        "deepseek"
+      ]
+    }
+  },
+  "tool_output": {
+    "max_lines": 2000,
+    "max_bytes": 51200
+  },
+  "watcher": {
+    "ignore": [
+      "node_modules/**",
+      "dist/**",
+      ".git/**",
+      "target/**",
+      "__pycache__/**"
+    ]
+  },
+  "experimental": {
+    "mcp_timeout": 30000,
+    "openTelemetry": true
+  },
+  "lsp": {
+    "gopls": {
+      "command": [
+        "gopls"
+      ],
+      "extensions": [
+        ".go"
+      ]
+    },
+    "rust-analyzer": {
+      "command": [
+        "rust-analyzer"
+      ],
+      "extensions": [
+        ".rs"
+      ]
+    },
+    "typescript": {
+      "command": [
+        "typescript-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".ts",
+        ".tsx",
+        ".js",
+        ".jsx"
+      ]
+    },
+    "pyright": {
+      "command": [
+        "pyright-langserver",
+        "--stdio"
+      ],
+      "extensions": [
+        ".py"
+      ]
+    },
+    "yaml": {
+      "command": [
+        "yaml-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".yaml",
+        ".yml"
+      ]
+    },
+    "marksman": {
+      "command": [
+        "marksman",
+        "server"
+      ],
+      "extensions": [
+        ".md"
+      ]
+    },
+    "taplo": {
+      "command": [
+        "taplo",
+        "lsp",
+        "stdio"
+      ],
+      "extensions": [
+        ".toml"
+      ]
+    },
+    "bash": {
+      "command": [
+        "bash-language-server",
+        "start"
+      ],
+      "extensions": [
+        ".sh",
+        ".bash"
+      ]
+    },
+    "dockerfile": {
+      "command": [
+        "docker-langserver",
+        "--stdio"
+      ],
+      "extensions": [
+        "Dockerfile"
+      ]
+    },
+    "css": {
+      "command": [
+        "vscode-css-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".css",
+        ".scss",
+        ".less"
+      ]
+    },
+    "html": {
+      "command": [
+        "vscode-html-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".html",
+        ".htm"
+      ]
+    },
+    "json": {
+      "command": [
+        "vscode-json-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".json",
+        ".jsonc"
+      ]
+    }
+  },
+  "plugin": [
+    "opencode-codegraph",
+    [
+      "opencode-dcp",
+      {
+        "compress": {
+          "enabled": true,
+          "minContextLimit": 20000,
+          "maxContextLimit": 48000,
+          "autoCompaction": true
+        },
+        "prune": {
+          "enabled": true,
+          "protectTokens": 40000,
+          "minTokens": 20000
+        }
+      }
+    ],
+    "opencode-auto-fallback",
+    "opencode-goal-mode",
+    "opencode-swarm",
+    "opencode-vibeguard",
+    "opencode-daytona",
+    "opencode-devcontainers",
+    "opencode-worktree",
+    "opencode-scheduler",
+    "opencode-background-agents",
+    "opencode-goal-plugin",
+    "opencode-conductor",
+    "opencode-zellij-namer",
+    "opencode-morph-plugin",
+    "opencode-supermemory",
+    "opencode-websearch-cited",
+    "opencode-firecrawl",
+    "opencode-plugin-otel"
+  ],
+  "mcp": {
+    "context7": {
+      "type": "local",
+      "command": [
+        "c7-mcp-server"
+      ],
+      "enabled": true
+    },
+    "git": {
+      "type": "local",
+      "command": [
+        "uvx",
+        "mcp-server-git"
+      ],
+      "enabled": true
+    },
+    "memory": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ],
+      "enabled": true
+    },
+    "fetch": {
+      "type": "local",
+      "command": [
+        "uvx",
+        "mcp-server-fetch"
+      ],
+      "enabled": true
+    },
+    "time": {
+      "type": "local",
+      "command": [
+        "uvx",
+        "mcp-server-time"
+      ],
+      "enabled": true
+    },
+    "redis": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-redis"
+      ],
+      "enabled": true
+    },
+    "filesystem": {
+      "type": "local",
+      "command": [
+        "/home/alexandr-narbaev/.bun/bin/mcp-server-filesystem",
+        "/tmp/test-dry-project"
+      ],
+      "enabled": true
+    },
+    "agentic-tools": {
+      "type": "local",
+      "command": [
+        "/home/alexandr-narbaev/.bun/bin/agentic-tools-mcp"
+      ],
+      "enabled": true
+    },
+    "codegraph": {
+      "type": "local",
+      "command": [
+        "codegraph",
+        "serve",
+        "--mcp"
+      ],
+      "enabled": true
+    },
+    "playwright": {
+      "type": "local",
+      "command": [
+        "/home/alexandr-narbaev/.bun/bin/playwright-mcp"
+      ],
+      "enabled": true
+    },
+    "agent-browser": {
+      "type": "local",
+      "command": [
+        "/home/alexandr-narbaev/.bun/bin/agent-browser-mcp-server"
+      ],
+      "enabled": true
+    },
+    "loopsense": {
+      "type": "local",
+      "command": [
+        "/home/alexandr-narbaev/.bun/bin/loopsense"
+      ],
+      "enabled": true
+    },
+    "github": {
+      "type": "local",
+      "command": [
+        "/home/alexandr-narbaev/.bun/bin/mcp-server-github"
+      ],
+      "enabled": true,
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PERSONAL_ACCESS_TOKEN}"
+      }
+    },
+    "postgres": {
+      "type": "local",
+      "command": [
+        "/home/alexandr-narbaev/.bun/bin/mcp-server-postgres"
+      ],
+      "enabled": false
+    },
+    "sequential-thinking": {
+      "type": "local",
+      "command": [
+        "/home/alexandr-narbaev/.bun/bin/mcp-server-sequential-thinking"
+      ],
+      "enabled": true
+    },
+    "memorylayer": {
+      "type": "local",
+      "command": [
+        "/home/alexandr-narbaev/.bun/bin/memorylayer-mcp"
+      ],
+      "enabled": true
+    },
+    "chrome-devtools": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "chrome-devtools-mcp"
+      ],
+      "enabled": true
+    },
+    "brave-search": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "brave-search-mcp"
+      ],
+      "enabled": false
+    },
+    "sqlite": {
+      "type": "local",
+      "command": [
+        "uvx",
+        "mcp-server-sqlite"
+      ],
+      "enabled": true
+    },
+    "excalidraw": {
+      "type": "local",
+      "command": [
+        "uvx",
+        "excalidraw-architect-mcp"
+      ],
+      "enabled": true
+    },
+    "context7-official": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@upstash/context7-mcp"
+      ],
+      "enabled": true
+    },
+    "notion": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@notionhq/notion-mcp-server"
+      ],
+      "enabled": false
+    },
+    "sentry": {
+      "type": "remote",
+      "url": "https://mcp.sentry.dev/mcp",
+      "enabled": false,
+      "timeout": 30000
+    },
+    "grep": {
+      "type": "remote",
+      "url": "https://mcp.grep.app",
+      "enabled": false,
+      "timeout": 30000
+    }
+  },
+  "agent": {
+    "build": {
+      "mode": "primary",
+      "model": "deepseek/deepseek-v4-pro",
+      "temperature": 0.2,
+      "permission": {
+        "edit": "allow",
+        "bash": {
+          "git *": "allow",
+          "npm *": "allow",
+          "grep *": "allow",
+          "rg *": "allow",
+          "rm *": "deny",
+          "*": "ask"
+        },
+        "read": {
+          "*.env": "deny",
+          "*.env.*": "deny",
+          "*": "allow"
+        },
+        "glob": "allow",
+        "grep": "allow",
+        "write": "allow",
+        "task": {
+          "general": "allow",
+          "explore": "allow",
+          "scout": "allow",
+          "reviewer": "allow",
+          "researcher": "allow",
+          "security-auditor": "allow",
+          "code-reviewer": "allow"
+        }
+      }
+    },
+    "plan": {
+      "mode": "primary",
+      "model": "deepseek/deepseek-v4-flash",
+      "temperature": 0.1,
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "write": "deny",
+        "webfetch": "allow",
+        "task": {
+          "researcher": "allow",
+          "explore": "allow"
+        }
+      }
+    },
+    "general": {
+      "mode": "subagent",
+      "model": "deepseek/deepseek-v4-pro",
+      "temperature": 0.2
+    },
+    "explore": {
+      "mode": "subagent",
+      "model": "deepseek/deepseek-v4-flash",
+      "temperature": 0.1,
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "write": "deny"
+      }
+    },
+    "code-reviewer": {
+      "mode": "subagent",
+      "model": "deepseek/deepseek-v4-pro",
+      "temperature": 0.1,
+      "permission": {
+        "edit": "deny",
+        "bash": {
+          "git diff *": "allow",
+          "git log *": "allow",
+          "*": "deny"
+        },
+        "task": "deny"
+      }
+    },
+    "compaction": {
+      "mode": "primary",
+      "hidden": true,
+      "model": "deepseek/deepseek-v4-flash",
+      "temperature": 0.1
+    }
+  }
 }
