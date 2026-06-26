@@ -19,7 +19,7 @@
 curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializer/main/setup.sh | bash -s -- --full
 ```
 
-That's it. One command installs everything — 8 programming languages, 21 MCP servers, 15 OpenCode plugins, 13 LSP servers, and AI tooling.
+That's it. One command installs everything — 8 programming languages, 21 MCP servers, 15 OpenCode plugins, 13 LSP servers, and AI tooling. Now with hardware auto-detection, LiteLLM API gateway, and SearXNG web search.
 
 ## What It Sets Up
 
@@ -64,7 +64,7 @@ Java 25 · Node.js 24 · Python 3.14 + uv · Go 1.26 · Rust 1.96 · .NET 10 · 
 gopls · rust-analyzer · typescript · pyright · omnisharp · yaml · marksman · taplo · lua · zls · bash · dockerfile · css/html/json
 
 ### Infrastructure & Tools
-Docker · ChromaDB + Muninn (vector memory) · GPU/LLM runtimes (Ollama, vLLM, SGLang, Open WebUI) · ZSH + Oh My Zsh + Powerlevel10k · Google Chrome + ChromeDriver · CLI `dev` tool
+Docker · ChromaDB + Muninn (vector memory) · GPU/LLM runtimes (Ollama, vLLM, SGLang, Open WebUI) · LiteLLM (OpenAI-compatible API gateway) · SearXNG (self-hosted web search) · Hardware auto-detection (NVIDIA, AMD, Intel, NPU, Apple Silicon) · ZSH + Oh My Zsh + Powerlevel10k · Google Chrome + ChromeDriver · CLI `dev` tool
 
 ### Security
 - All secrets in `~/.config/opencode/secrets.env` (chmod 600)
@@ -110,10 +110,11 @@ dev config              # Edit setup configuration
 
 | Mode | Description |
 |------|-------------|
-| `--full` | Complete installation (default) |
+| `--full` | Complete installation (26 steps, default) |
 | `--reinit` | Reinstall tools, preserve data |
 | `--new <dir>` | Initialize new project only |
-| `--health` | Diagnostics (60+ checks) |
+| `--ci` | Headless CI/CD: OpenCode CLI + essential MCPs |
+| `--health` | Diagnostics (65+ checks) |
 | `--update` | Update installed tools |
 | `--upgrade` | Full system upgrade chain |
 | `--interactive` | Component-by-component selection |
@@ -141,25 +142,27 @@ dev config              # Edit setup configuration
 
 ```
 opencode_initializer/
-├── setup.sh              # Orchestrator (284 lines)
+├── setup.sh              # Orchestrator (324 lines)
 ├── dev.sh                # CLI: dev install|remove|update|health|list|config
 ├── opencode.json         # OpenCode multi-provider config
 ├── src/
-│   ├── lib/              # 24 modules
+│   ├── lib/              # 29 modules
 │   │   ├── helpers.sh    # _curl, _retry, _npm_install infrastructure
 │   │   ├── 00-core.sh    # OS/PKG/ARCH detection, mirrors, progress tracking
 │   │   ├── 01-system.sh  # System packages (cross-distro)
 │   │   ├── ...
-│   │   └── 20-autoupdate.sh # topgrade + systemd timer
-│   └── modes/            # 4 + 6 built-in modes
-│       ├── health.sh     # Diagnostics (60+ checks)
+│   │   ├── 24-websearch.sh # SearXNG web search + sanitizer proxy
+│   │   └── 25-litellm.sh   # LiteLLM OpenAI-compatible API gateway
+│   └── modes/            # 5 mode scripts (+ 7 built-in)
+│       ├── ci.sh         # CI/CD headless mode
+│       ├── health.sh     # Diagnostics (65+ checks)
 │       ├── fix-zshrc.sh  # .zshrc repair
 │       ├── upgrade.sh    # Full system upgrade
 │       └── interactive.sh # Component-by-component selection
 ├── tests/                # Unit, integration, and E2E tests
 ├── migrations/           # Timestamped, idempotent migrations
 ├── scripts/              # Utility scripts (ai-router)
-├── docs/                 # Extended documentation + plans + research
+├── docs/                 # Extended documentation + plans + research + guides
 ├── .github/              # CI workflows, issue/PR templates
 ├── CHANGELOG.md
 ├── CONTRIBUTING.md
@@ -208,6 +211,7 @@ Auto-detects OS and uses the correct package manager. Supports both `amd64` and 
 ## Documentation
 
 - [Full Guide](docs/guide.md) — detailed feature reference
+- [Team Setup Guide](docs/guides/team-setup.md) — how to onboard colleagues
 - [AGENTS.md](AGENTS.md) — AI agent documentation
 - [Contributing Guide](CONTRIBUTING.md)
 - [Security Policy](SECURITY.md)

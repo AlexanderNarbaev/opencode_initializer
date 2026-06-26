@@ -8,29 +8,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Setup logging: `tee` to `~/.cache/opencode-setup/setup-YYYYMMDD-HHMMSS.log`
-- `shopt -s inherit_errexit` for stricter error handling
-- RAG System install module (`src/lib/21-rag.sh`) as optional component
-- Architecture-aware LSP downloads (arm64 + amd64) for marksman, zls, lua-language-server
+- Multimodal support (whisper.cpp speech-to-text, stable-diffusion.cpp image generation)
+- 15+ LLM providers with session switching (OpenAI, Anthropic, Google, Mistral, Groq, Together, Cohere, Fireworks, Cerebras, Perplexity)
+- Multiple interaction modes: TUI (terminal UI), JSON output, RPC server, Python SDK
+- Desktop model management web UI (Open WebUI admin features)
+- ONNX Runtime support for cross-platform model portability
+- Embeddable CI/CD mode (single binary deployment)
 
-### Fixed
-- Version consistency: all files now v1.0.0 (was v36.0 in 00-core.sh, interactive.sh)
-- CI test.yml: fixed paths `lib/` → `src/lib/`, `modes/` → `src/modes/`
-- Removed dangling `WALEOF` word in 17-project.sh (caused runtime error)
-- `sudo apt-get` → `_sudo` in 05-java.sh for non-interactive environments
-- `cmd.exe` proxy detection guarded behind WSL check
-- `return 1` crash in 15-security.sh replaced with safe `return 0`
-- All curl calls in version-check.sh and 08-go.sh: added `--retry 3 --retry-delay 2`
-- Secrets: added GITLAB_TOKEN, GITVERSE_TOKEN, GOOGLE_MAPS_KEY to secrets.env
-- topgrade systemd service: flexible path detection (cargo + system)
-- 17-project.sh backup dir `~/agi` → `~/projects`
-- Kotlin health check: removed falsy `|| echo` fallback
-- AGENTS.md: updated module count 24→25, added 21-rag.sh documentation
-- Test assertions: v36.0 → v1.0.0 (3 files)
+## [1.1.0] — 2026-06-26
+
+### Added
+- **Hardware auto-detection**: multi-vendor GPU (NVIDIA, AMD ROCm, Intel Arc) + NPU (Ryzen AI, Meteor Lake) + Apple Silicon detection
+- **LiteLLM API Gateway**: OpenAI-compatible `/v1` endpoint unifying Ollama, vLLM, SGLang backends with auto-routing and fallback chains
+- **SearXNG Web Search**: self-hosted private search engine + sanitizer proxy (strips internal hosts/IP/PII)
+- **CI/CD Headless Mode**: `--ci` flag for lightweight OpenCode CLI + essential MCPs (5 steps, no GUI, no Docker, no ZSH)
+- `22-webui-service.sh`: Open WebUI systemd user service for auto-start on login
+- `23-just.sh`: just task runner with default justfile
+- `24-websearch.sh`: SearXNG + sanitizer proxy
+- `25-litellm.sh`: LiteLLM OpenAI-compatible local API gateway
+- `22-mise.sh`: mise-en-place universal tool version manager
+- WebUI auto-install via `uv tool install open-webui` (Docker-less alternative)
+- `--mimo-key`, `--moonshot-key`, `--minimax-key` CLI flags
+- `--gitlab-token`, `--gitverse-token`, `--google-maps-key` CLI flags
+- RAG System module (`21-rag.sh`) as optional component
+- Architecture-aware LSP downloads (arm64 + amd64)
 
 ### Changed
-- Project structure: `lib/` → `src/lib/`, `modes/` → `src/modes/`, `plans/` → `docs/plans/`, `research/` → `docs/research/`
-- Documentation: full open source pack (CHANGELOG, CODE_OF_CONDUCT 2.1, SECURITY, CITATION.cff, FUNDING.yml, issue/PR templates)
+- Module count: 24 → 29 (21-rag, 22-mise, 22-webui-service, 23-just, 24-websearch, 25-litellm)
+- Step count: 23 → 26 in orchestrator
+- `16-llm.sh`: rewritten with multi-vendor GPU/NPU detection and optimal backend selection
+- Health checks: 60+ → 65+
+
+### Fixed
+- ChromaDB systemd service: proper working directory and restart policy
+- Ollama systemd service: WantedBy=default.target for auto-start
+- Open WebUI: runs as systemd user service, survives reboots
+- Version consistency: all files now v1.1.0
+- CI test.yml: fixed paths `lib/` → `src/lib/`, `modes/` → `src/modes/`
+- Removed dangling `WALEOF` word in 17-project.sh
+- `sudo apt-get` → `_sudo` in 05-java.sh
+- `cmd.exe` proxy detection guarded behind WSL check
+- `return 1` crash in 15-security.sh replaced with safe `return 0`
+- All curl calls: added `--retry 3 --retry-delay 2`
+- Secrets: added GITLAB_TOKEN, GITVERSE_TOKEN, GOOGLE_MAPS_KEY
+- topgrade systemd service: flexible path detection
+- 17-project.sh backup dir `~/agi` → `~/projects`
 
 ## [1.0.0] — 2026-06-22
 
@@ -54,5 +76,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Full open source documentation (README, CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, CHANGELOG)
 - GitVerse mirror
 
-[Unreleased]: https://github.com/AlexanderNarbaev/opencode_initializer/compare/v1.0.0...main
+[Unreleased]: https://github.com/AlexanderNarbaev/opencode_initializer/compare/v1.1.0...main
+[1.1.0]: https://github.com/AlexanderNarbaev/opencode_initializer/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/AlexanderNarbaev/opencode_initializer/releases/tag/v1.0.0

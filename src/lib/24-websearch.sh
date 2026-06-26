@@ -26,9 +26,9 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]) && _gate "INTERACTIVE_DO_SYS
 # EDIT CAREFULLY: one pattern per line, blank lines and # comments ignored.
 
 [hostname_patterns]
-*.cloudx.local
-*.internal.cloudx
-*.cloudx.internal
+*.internal.local
+*.corp.internal
+*.local.internal
 *.corp.internal
 *.intranet.local
 *.dev.internal

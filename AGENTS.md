@@ -63,7 +63,7 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 | `22-mise.sh` | mise-en-place — universal tool version manager |
 | `22-webui-service.sh` | Open WebUI systemd user service (auto-start) |
 | `23-just.sh` | just — task runner with default justfile |
-| `24-websearch.sh` | SearXNG web search + sanitizer proxy (CloudX/IP/PII) |
+| `24-websearch.sh` | SearXNG web search + sanitizer proxy (internal hosts/IP/PII) |
 | `25-litellm.sh` | LiteLLM — OpenAI-compatible local API gateway |
 | `version-check.sh` | Version check: Rust/Go/Node/Python/Bun/OpenCode/Ollama/Zig + npm packages |
 | `pre-session-check.sh` | Pre-session provider/model validation + MCP status |
@@ -146,6 +146,7 @@ bash setup.sh --fix-zshrc                 # repair shell config
 | v35.1 | Pre-session provider/model check script. Version check expanded. 22→24 modules. |
 | v35.3 | Research-driven: +5 plugins (dcp, auto-fallback, goal-mode, swarm, vibeguard), +1 MCP (chrome-devtools), +5 LSP (bash, dockerfile, css, html, json), +3 CLI tools (btm, sd, typos). Fixed: ZSH crash (set -e leak), opencode.json validity (// comments), Gradle symlink, health 54→54 checks. New tests: test_mcp_registry.sh (52 checks), test_opencode_json_gen.sh (62 checks). README rewritten to international standard. CONTRIBUTING.md comprehensive guide. |
 | v1.0.0 | Initial public release. Clean open source launch with full documentation (README, CHANGELOG, CONTRIBUTING, CODE_OF_CONDUCT, SECURITY). 8 languages, 21 MCPs, 15 plugins, 13 LSPs, 193-test suite. |
+| v1.1.0 | Ecosystem expansion: hardware auto-detection (multi-vendor GPU/NPU), LiteLLM OpenAI-compatible API gateway, SearXNG web search + sanitizer proxy, CI/CD headless mode, Open WebUI systemd service, just task runner, mise tool manager. 24→29 modules, 23→26 steps, 60→65+ health checks. |
 
 ## Modular Architecture (v1.0.0)
 
