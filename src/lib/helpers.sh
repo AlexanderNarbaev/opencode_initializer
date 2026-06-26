@@ -138,7 +138,8 @@ _npm_install() {
   local tgz="$MCP_CACHE/${pkg_name}-latest.tgz"
   [ -f "$tgz" ] && timeout 120 npm install -g "$tgz" --prefer-offline 2>/dev/null && { log "MCP: $name (cached)"; return 0; }
   if timeout 120 npm pack "$pkg@latest" --pack-destination "$MCP_CACHE" 2>/dev/null; then
-    local downloaded=$(ls -t "$MCP_CACHE/${pkg_name}-"*.tgz 2>/dev/null | head -1)
+    local downloaded
+    downloaded=$(ls -t "$MCP_CACHE/${pkg_name}-"*.tgz 2>/dev/null | head -1)
     [ -n "$downloaded" ] && timeout 120 npm install -g "$downloaded" --prefer-offline 2>/dev/null && { log "MCP: $name (npm pack)"; return 0; }
   fi
   timeout 120 npm install -g "${pkg}@latest" --prefer-offline 2>/dev/null && { log "MCP: $name (npm)"; return 0; }

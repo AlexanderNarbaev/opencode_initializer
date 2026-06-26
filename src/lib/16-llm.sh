@@ -166,7 +166,7 @@ SVC
       brew install llama.cpp 2>/dev/null && log "llama.cpp installed (brew)" || warn "llama.cpp brew install failed"
     else
       git clone --depth 1 https://github.com/ggerganov/llama.cpp /tmp/llama.cpp-build 2>/dev/null && \
-        make -C /tmp/llama.cpp-build -j$(nproc) llama-cli 2>/dev/null && \
+        make -C /tmp/llama.cpp-build -j"$(nproc)" llama-cli 2>/dev/null && \
         cp /tmp/llama.cpp-build/llama-cli ~/.local/bin/ && log "llama.cpp built" || warn "llama.cpp build failed"
       rm -rf /tmp/llama.cpp-build
     fi
@@ -182,7 +182,7 @@ SVC
     info "Installing whisper.cpp (speech-to-text)..."
     git clone --depth 1 https://github.com/ggerganov/whisper.cpp /tmp/whisper.cpp-build 2>/dev/null && \
       (cd /tmp/whisper.cpp-build && bash ./models/download-ggml-model.sh base 2>/dev/null && \
-       make -j$(nproc) 2>/dev/null && cp main ~/.local/bin/whisper-cli) && \
+       make -j"$(nproc)" 2>/dev/null && cp main ~/.local/bin/whisper-cli) && \
       log "whisper.cpp installed (base model)" || warn "whisper.cpp build failed"
     rm -rf /tmp/whisper.cpp-build
   else
@@ -196,7 +196,7 @@ SVC
     git clone --depth 1 https://github.com/leejet/stable-diffusion.cpp /tmp/sd.cpp-build 2>/dev/null && \
       (cd /tmp/sd.cpp-build && mkdir -p build && cd build && \
        cmake .. -DSD_SYSTEM_GGML=OFF 2>/dev/null && \
-       cmake --build . --config Release -j$(nproc) 2>/dev/null && \
+       cmake --build . --config Release -j"$(nproc)" 2>/dev/null && \
        cp bin/sd ~/.local/bin/) && log "stable-diffusion.cpp installed" || warn "sd.cpp build failed"
     rm -rf /tmp/sd.cpp-build
   fi

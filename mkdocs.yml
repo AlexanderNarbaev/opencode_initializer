@@ -39,15 +39,13 @@ theme:
     - navigation.path
     - navigation.indexes
     - navigation.top
-    - navigation.instant
-    - navigation.instant.prefetch
-    - navigation.instant.progress
     - search.suggest
     - search.highlight
     - search.share
     - content.code.copy
     - content.code.annotate
     - content.tabs.link
+    - toc.follow
     - toc.follow
     - header.autohide
   icon:
@@ -89,8 +87,7 @@ plugins:
       blog_toc: true
       post_date_format: long
       archive: false
-  - tags:
-      tags_file: tags.md
+  - tags
   - git-revision-date-localized:
       enable_creation_date: true
       type: date

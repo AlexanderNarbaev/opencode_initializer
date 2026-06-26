@@ -83,7 +83,7 @@ if dk or ak or xk or mk or msk or mmk or ghk or glk or gmk:
   # Install interaction mode wrappers (TUI/JSON/RPC/SDK)
   if [ -d "$SCRIPT_DIR/scripts" ]; then
     for script in oc-tui oc-json oc-sdk oc-rpc; do
-      local src_tgt=""
+      src_tgt=""
       if [ -f "$SCRIPT_DIR/scripts/${script}.sh" ]; then
         src_tgt="$SCRIPT_DIR/scripts/${script}.sh"
       elif [ -f "$SCRIPT_DIR/scripts/${script}.py" ]; then
