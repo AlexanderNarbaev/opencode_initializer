@@ -45,3 +45,4 @@ sqlite_mcp_server.db
 # Ignore ai-router root copies (moved to scripts/)
 /ai-router.sh
 /ai-router.json
+docs/changelog/index.md
