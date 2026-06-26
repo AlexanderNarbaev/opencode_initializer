@@ -211,6 +211,18 @@ if pkg_installed("brave-search-mcp"):
         bs_entry["enabled"] = False
     mcps["brave-search"] = bs_entry
 
+# SearXNG web search MCP — self-hosted, no API key needed
+# Prioritize sanitizer proxy (port 8888) over direct SearXNG (port 8080)
+if pkg_installed("mcp-searxng"):
+    sanitizer_ok = os.system("curl -sf http://localhost:8888/search?q=test >/dev/null 2>&1") == 0
+    searxng_url = "http://localhost:8888" if sanitizer_ok else "http://localhost:8080"
+    mcps["websearch"] = {
+        "type": "local",
+        "command": local_cmd("mcp-searxng", "mcp-searxng"),
+        "enabled": True,
+        "env": {"SEARXNG_URL": searxng_url}
+    }
+
 # SQLite MCP (Python, via uvx)
 if cmd_exists("mcp-server-sqlite") or shutil.which("uvx"):
     mcps["sqlite"] = {"type": "local", "command": ["uvx", "mcp-server-sqlite"], "enabled": True}

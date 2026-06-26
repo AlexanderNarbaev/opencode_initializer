@@ -83,7 +83,7 @@ assert "setup.sh is ~317 lines (+/- 10)" \
 
 # ── Module count matches AGENTS.md description ────────────────────────
 MODES_COUNT=$(ls "$PROJECT_DIR/src/modes/"*.sh 2>/dev/null | wc -l)
-assert "4 mode scripts" "[ '$MODES_COUNT' -eq 4 ]"
+assert "5 mode scripts" "[ '$MODES_COUNT' -eq 5 ]"
 
 echo
 echo "=== test_modules.sh: $TESTS_PASS passed, $TESTS_FAIL failed ==="

@@ -48,6 +48,7 @@ while [[ $# -gt 0 ]]; do case $1 in
   --update)            MODE="update"; shift;;
   --upgrade)           MODE="upgrade"; shift;;
   --interactive)       MODE="interactive"; shift;;
+  --ci)                MODE="ci"; shift;;
   --dry-run)           MODE="dry-run"; DRY_RUN=true; shift;;
   --fix-config)        MODE="fix-config"; shift;;
   --fix-zshrc)         MODE="fix-zshrc"; shift;;
@@ -79,6 +80,7 @@ Modes:
   --fix-config        Regenerate ~/.config/opencode/opencode.json with all MCPs
   --fix-zshrc         Repair ~/.zshrc: deduplicate, fix quotes, fix P10k
   --interactive       Interactive component-by-component selection
+  --ci                Headless CI/CD mode: OpenCode CLI + essential MCPs only
 
 Options:
   -p, --project-dir   Project directory (default: ~/projects)
@@ -115,6 +117,7 @@ esac; done
 
 # ── Early-exit modes ─────────────────────────────────────────────────────────
 if [ "$MODE" = "health" ]; then    source "$SCRIPT_DIR/src/modes/health.sh";      fi
+if [ "$MODE" = "ci" ]; then        source "$SCRIPT_DIR/src/modes/ci.sh";         fi
 if [ "$MODE" = "fix-zshrc" ]; then source "$SCRIPT_DIR/src/modes/fix-zshrc.sh";   fi
 if [ "$MODE" = "upgrade" ]; then   source "$SCRIPT_DIR/src/modes/upgrade.sh";     fi
 if [ "$MODE" = "interactive" ]; then source "$SCRIPT_DIR/src/modes/interactive.sh"; fi
@@ -255,7 +258,7 @@ echo -e "${GREEN}     Log:  $LOG_FILE${NC}"
 echo -e "${GREEN}============================================================${NC}"
 
 # ── Execute steps ───────────────────────────────────────────────────────────
-TOTAL_STEPS=24; CURRENT_STEP=0
+TOTAL_STEPS=26; CURRENT_STEP=0
 
 _run_step() {
   local step_key="$1" step_name="$2" module="$3"
@@ -308,6 +311,8 @@ _run_step step_rag        "RAG System (optional)"  "$SCRIPT_DIR/src/lib/21-rag.s
 _run_step step_webui      "Open WebUI service"    "$SCRIPT_DIR/src/lib/22-webui-service.sh"
 _run_step step_mise        "mise tool manager"     "$SCRIPT_DIR/src/lib/22-mise.sh"
 _run_step step_just        "just task runner"      "$SCRIPT_DIR/src/lib/23-just.sh"
+_run_step step_websearch   "Web Search Engine"    "$SCRIPT_DIR/src/lib/24-websearch.sh"
+_run_step step_litellm    "LiteLLM API Gateway"  "$SCRIPT_DIR/src/lib/25-litellm.sh"
 
 echo ""
 echo -e "  ${GREEN}╔══════════════════════════════════════╗${NC}"

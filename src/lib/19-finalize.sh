@@ -164,7 +164,7 @@ _check "opencode.json" "python3 -c \"import json; json.load(open('$HOME/.config/
 _check ".zshrc valid"  "python3 -c \"open('$HOME/.zshrc').read()\" 2>/dev/null"
 
 # MCP verification
-for mcp in context7 filesystem agentic-tools codegraph playwright agent-browser loopsense github postgres sequential-thinking memorylayer chrome-devtools git memory fetch time redis brave-search; do
+for mcp in context7 filesystem agentic-tools codegraph playwright agent-browser loopsense github postgres sequential-thinking memorylayer chrome-devtools git memory fetch time redis brave-search websearch; do
   case $mcp in
     context7)      _check "MCP context7"       "which c7-mcp-server" ;;
     filesystem)    _check "MCP filesystem"     "npm list -g @modelcontextprotocol/server-filesystem &>/dev/null" ;;
@@ -184,6 +184,7 @@ for mcp in context7 filesystem agentic-tools codegraph playwright agent-browser 
     time)           _check "MCP time"             "uvx mcp-server-time --help &>/dev/null" ;;
     redis)          _check "MCP redis"            "npm list -g @modelcontextprotocol/server-redis &>/dev/null" ;;
     brave-search)   _check "MCP brave-search"     "npm list -g brave-search-mcp &>/dev/null" ;;
+    websearch)      _check "MCP websearch"       "npm list -g mcp-searxng &>/dev/null" ;;
   esac
 done
 
@@ -204,6 +205,13 @@ _check "Muninn skills"      "[ -f ~/.config/opencode/skills/memory-read/SKILL.md
   _check "Skills testing-strategy" "[ -f \"$PROJECT_DIR/.opencode/skills/testing-strategy/SKILL.md\" ]"
   _check "Skills context-switching" "[ -f \"$PROJECT_DIR/.opencode/skills/context-switching/SKILL.md\" ]"
 _check "ChromaDB server"    "curl -sf http://127.0.0.1:8000/api/v2/heartbeat &>/dev/null"
+_check "LiteLLM gateway"    "curl -sf http://localhost:4000/health/liveliness &>/dev/null"
+_check "litellm"            "command -v litellm"
+
+# Web search verification
+_check "SearXNG container"  "docker ps --format '{{.Names}}' 2>/dev/null | grep -q searxng"
+_check "SearXNG API"        "curl -sf http://localhost:8080/search?q=test &>/dev/null"
+_check "Sanitizer proxy"    "curl -sf http://localhost:8888/search?q=test &>/dev/null"
 
 echo
 log "Verification: $PASS passed, $FAIL failed"

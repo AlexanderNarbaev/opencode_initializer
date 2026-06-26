@@ -2,7 +2,7 @@
 
 ## Identity
 Universal Dev Machine Bootstrap — однокомандная настройка AI-усиленной dev-машины для WSL2/Linux.
-Модульная архитектура: 316-строчный оркестратор + 27 модулей + автообновление через systemd-таймер.
+Модульная архитектура: 318-строчный оркестратор + 29 модулей + автообновление через systemd-таймер.
 
 ## Язык общения
 Всё общение строго на русском языке. Код и комментарии — на английском.
@@ -12,7 +12,7 @@ Universal Dev Machine Bootstrap — однокомандная настройк�
 opencode_initializer/
 ├── setup.sh          ← оркестратор (316 строк, source модули из src/lib/)
 ├── src/
-│   ├── lib/          ← 27 модулей (00-core.sh … 23-just.sh + helpers.sh + version-check.sh + pre-session-check.sh)
+│   ├── lib/          ← 29 модулей (00-core.sh … 25-litellm.sh + helpers.sh + version-check.sh + pre-session-check.sh)
 │   └── modes/            ← 4 режимных скрипта (+ 6 встроенных режимов)
 ├── dev.sh            ← CLI
 ├── scripts/          ← утилиты (ai-router)
@@ -34,7 +34,7 @@ opencode_initializer/
 ### Orchestrator (316 lines)
 Minimal entry point that sources modules from `src/lib/` and dispatches modes from `src/modes/`.
 
-### Module Layout (src/lib/ — 24 modules + 3 infra)
+### Module Layout (src/lib/ — 26 modules + 3 infra)
 | Module | Responsibility |
 |--------|---------------|
 | `helpers.sh` | `_curl()`, `_retry()`, `_npm_install()`, `_sudo()` — shared infrastructure |
@@ -54,7 +54,7 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 | `13-chromadb.sh` | ChromaDB systemd service |
 | `14-shokunin.sh` | Shokunin + Superpowers + Caveman |
 | `15-security.sh` | Trivy, Qodana |
-| `16-llm.sh` | Ollama, vLLM, SGLang, Open WebUI, WasmEdge (GPU-aware) |
+| `16-llm.sh` | Ollama, vLLM, SGLang, Open WebUI, WasmEdge (GPU-aware, multi-vendor) |
 | `17-project.sh` | Project structure (AGENTS.md, WAL, agents, docker-compose) |
 | `18-opencode-json.sh` | opencode.json generation (Python inline, bun bin paths) |
 | `19-finalize.sh` | Git config, PATH, .zshrc, auth reminder, verification (36 checks) |
@@ -63,6 +63,8 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 | `22-mise.sh` | mise-en-place — universal tool version manager |
 | `22-webui-service.sh` | Open WebUI systemd user service (auto-start) |
 | `23-just.sh` | just — task runner with default justfile |
+| `24-websearch.sh` | SearXNG web search + sanitizer proxy (CloudX/IP/PII) |
+| `25-litellm.sh` | LiteLLM — OpenAI-compatible local API gateway |
 | `version-check.sh` | Version check: Rust/Go/Node/Python/Bun/OpenCode/Ollama/Zig + npm packages |
 | `pre-session-check.sh` | Pre-session provider/model validation + MCP status |
 
@@ -72,10 +74,11 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 | full | Complete bootstrap (default) |
 | reinit | Reinstall tools, keep data |
 | new | Init new project only |
-| health | Diagnostics (60+ checks, 5 sections) |
+| health | Diagnostics (65+ checks, 7 sections) |
 | update | Update tools only |
 | upgrade | Full system update chain |
 | interactive | Component-by-component selection |
+| ci | Lightweight headless mode for CI/CD — OpenCode CLI + essential MCPs |
 | fix-config | Regenerate opencode.json |
 | fix-zshrc | Repair .zshrc |
 | dry-run | Preview mode, no changes |

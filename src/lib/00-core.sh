@@ -5,7 +5,7 @@
 set -euo pipefail
 
 # ── Version ──────────────────────────────────────────────────────────────────
-SCRIPT_VERSION="${SCRIPT_VERSION:-v1.0.0}"
+SCRIPT_VERSION="${SCRIPT_VERSION:-v1.1.0}"
 
 # ── OS validation ────────────────────────────────────────────────────────────
 if [ -f /etc/os-release ]; then
@@ -189,6 +189,7 @@ declare -A MCP_PACKAGES=(
   [sqlite]="mcp-server-sqlite"
   [excalidraw]="excalidraw-architect-mcp"
   [notion]="@notionhq/notion-mcp-server"
+  [websearch]="mcp-searxng"
 )
 # NOTE: git, fetch, time MCPs are Python packages — installed via uvx/pip (not npm)
 #       mcp-server-git, mcp-server-fetch, mcp-server-time on npm are security canaries!

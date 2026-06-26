@@ -110,6 +110,14 @@ _check "ollama (snap)"      "snap services ollama 2>/dev/null | grep -q active |
 _check "open-webui (docker)" "docker ps --format '{{.Names}}' 2>/dev/null | grep -q open-webui || systemctl --user is-active open-webui.service &>/dev/null"
 _check "opencode-update.timer" "systemctl --user is-active opencode-update.timer &>/dev/null"
 _check "docker.service"     "systemctl is-active docker &>/dev/null"
+_check "litellm (health)"   "curl -sf http://localhost:4000/health/liveliness &>/dev/null"
+_check "search-sanitizer.service" "systemctl --user is-active search-sanitizer.service &>/dev/null"
+
+section "Web Search (SearXNG)"
+_check "SearXNG container"  "docker ps --format '{{.Names}}' 2>/dev/null | grep -q searxng"
+_check "SearXNG API"        "curl -sf http://localhost:8080/search?q=test &>/dev/null"
+_check "Sanitizer proxy"    "curl -sf http://localhost:8888/search?q=test &>/dev/null"
+_check "websearch MCP"      "_mcp_ok mcp-searxng mcp-searxng"
 
 section "Memory Chain"
 _check "ChromaDB heartbeat"  "curl -sf http://127.0.0.1:8000/api/v2/heartbeat &>/dev/null"
