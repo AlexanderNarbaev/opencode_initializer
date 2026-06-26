@@ -24,9 +24,9 @@ section "Structure"
 assert "setup.sh exists" [ -f "$SCRIPTS_DIR/setup.sh" ]
 assert "dev.sh exists" [ -f "$SCRIPTS_DIR/dev.sh" ]
 assert "lib/ has >=22 modules" [ "$(ls "$SCRIPTS_DIR/src/lib/"*.sh 2>/dev/null | wc -l)" -ge 22 ]
-assert "modes/ has 4 scripts" [ "$(ls "$SCRIPTS_DIR/src/modes/"*.sh 2>/dev/null | wc -l)" -eq 4 ]
+assert "modes/ has 5 scripts" [ "$(ls "$SCRIPTS_DIR/src/modes/"*.sh 2>/dev/null | wc -l)" -eq 5 ]
 assert "migrations/ exists" [ -d "$SCRIPTS_DIR/migrations" ]
-assert "workflows directory exists" '[ -d "$SCRIPTS_DIR/.github/workflows" ]'
+assert "workflows directory exists" [ -d "$SCRIPTS_DIR/.github/workflows" ]
 
 # ── Core functions ──
 section "Core functions (dry import)"

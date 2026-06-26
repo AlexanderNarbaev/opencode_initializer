@@ -31,7 +31,7 @@ assert "help output is substantial" \
   'test $(echo "'"$HELP_OUTPUT"'" | wc -l) -ge 15'
 
 # ── Help contains all modes ───────────────────────────────────────────
-for mode in full reinit new health update upgrade fix-config fix-zshrc interactive; do
+for mode in full reinit new health update upgrade fix-config fix-zshrc interactive ci; do
   assert "help: --$mode" 'echo "'"$HELP_OUTPUT"'" | grep -q "\-\-'"$mode"'"'
 done
 

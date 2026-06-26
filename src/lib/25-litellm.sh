@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# lib/24-litellm.sh — OpenAI-compatible local API gateway (LiteLLM proxy)
+# lib/25-litellm.sh — OpenAI-compatible local API gateway (LiteLLM proxy)
 set -euo pipefail
 
 _step_skip step_litellm && return 0

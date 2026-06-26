@@ -8,12 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Multimodal support (whisper.cpp speech-to-text, stable-diffusion.cpp image generation)
-- 15+ LLM providers with session switching (OpenAI, Anthropic, Google, Mistral, Groq, Together, Cohere, Fireworks, Cerebras, Perplexity)
-- Multiple interaction modes: TUI (terminal UI), JSON output, RPC server, Python SDK
-- Desktop model management web UI (Open WebUI admin features)
-- ONNX Runtime support for cross-platform model portability
-- Embeddable CI/CD mode (single binary deployment)
+- GPU workload benchmarks for backend selection tuning
+- Cross-platform CI matrix expansion (macOS, ARM)
 
 ## [1.1.0] — 2026-06-26
 
@@ -26,16 +22,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `23-just.sh`: just task runner with default justfile
 - `24-websearch.sh`: SearXNG + sanitizer proxy
 - `25-litellm.sh`: LiteLLM OpenAI-compatible local API gateway
+- `26-providers.sh`: 15+ LLM provider registry (OpenAI, Anthropic, Google, Mistral, Groq, Together, Cohere, Fireworks, Cerebras, Perplexity) with session switching
+- `27-dotfiles.sh`: chezmoi dotfiles manager for team config sharing
+- `28-devbox.sh`: Devbox Nix-based isolated dev environments
 - `22-mise.sh`: mise-en-place universal tool version manager
 - WebUI auto-install via `uv tool install open-webui` (Docker-less alternative)
+- Multimodal support: whisper.cpp (speech-to-text), stable-diffusion.cpp (image generation), llava (vision)
+- Multiple interaction modes: TUI (terminal UI), JSON output, RPC server, Python SDK
+- ONNX Runtime cross-platform model portability
+- Env-var substitution for token/credential propagation
 - `--mimo-key`, `--moonshot-key`, `--minimax-key` CLI flags
 - `--gitlab-token`, `--gitverse-token`, `--google-maps-key` CLI flags
 - RAG System module (`21-rag.sh`) as optional component
 - Architecture-aware LSP downloads (arm64 + amd64)
 
 ### Changed
-- Module count: 24 → 29 (21-rag, 22-mise, 22-webui-service, 23-just, 24-websearch, 25-litellm)
-- Step count: 23 → 26 in orchestrator
+- Module count: 24 → 33 (21-rag, 22-mise, 22-webui-service, 23-just, 24-websearch, 25-litellm, 26-providers, 27-dotfiles, 28-devbox)
+- Step count: 23 → 29 in orchestrator
 - `16-llm.sh`: rewritten with multi-vendor GPU/NPU detection and optimal backend selection
 - Health checks: 60+ → 65+
 

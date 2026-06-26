@@ -137,7 +137,7 @@ dev version-check
 After installation, a handy `dev` CLI tool is available:
 
 ```bash
-dev health          # Full diagnostics (60+ checks)
+dev health          # Full diagnostics (65+ checks)
 dev version-check   # Compare installed vs latest versions
 dev update          # Update all tools
 dev list            # List installed components

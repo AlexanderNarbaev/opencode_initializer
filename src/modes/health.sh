@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# src/modes/health.sh — health check mode (36 checks, 5 sections)
+# src/modes/health.sh — health check mode (115+ checks, 11 sections)
 # Sources: src/lib/helpers.sh, src/lib/00-core.sh must be sourced before
 set -euo pipefail
 

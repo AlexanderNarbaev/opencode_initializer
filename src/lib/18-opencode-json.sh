@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# lib/18-opencode-json.sh — opencode.json generation with all detected MCPs + LSP (STEP 14)
+# lib/18-opencode-json.sh — opencode.json generation with all detected MCPs + LSP (STEP 19)
 # Requires: MODE, PROJECT_DIR
 set -euo pipefail
 
@@ -539,7 +539,7 @@ PYGEN
   if echo "$RESULT" | grep -q "VALID:"; then
     MCP_COUNT=$(echo "$RESULT" | grep "VALID:" | cut -d: -f2)
     log "opencode.json valid — ${MCP_COUNT} MCP server(s) registered"
-    _step_done step_opencode_json
+    _step_done step_json
   else
     warn "opencode.json generation produced unexpected output"
   fi

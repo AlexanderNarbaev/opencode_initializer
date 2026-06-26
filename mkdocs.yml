@@ -1,7 +1,7 @@
 site_name: OpenCode Initializer
-site_description: Universal Dev Machine Bootstrap — one-command AI-enhanced development environment setup
+site_description: Universal Dev Machine Bootstrap v1.1.0 — one-command AI-enhanced development environment with 29 modules, 16 providers, 21 MCPs, 15 plugins, 13 LSPs
 site_author: Alexander Narbaev
-copyright: "&copy; 2026 Alexander Narbaev. MIT License."
+copyright: "&copy; 2025-2026 Alexander Narbaev. MIT License."
 
 repo_name: AlexanderNarbaev/opencode_initializer
 repo_url: https://github.com/AlexanderNarbaev/opencode_initializer
@@ -111,8 +111,10 @@ nav:
   - Advanced Guide: advanced/index.md
   - Architecture: architecture/index.md
   - Reference:
-    - reference/index.md
-    - MCP, LSP & Plugins: reference/mcp-lsp-plugins.md
+      - reference/index.md
+      - MCP, LSP & Plugins: reference/mcp-lsp-plugins.md
+  - Guides:
+      - Team Setup: guides/team-setup.md
   - Contributing: contributing/index.md
   - FAQ: faq/index.md
 

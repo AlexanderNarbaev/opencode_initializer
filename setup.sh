@@ -321,7 +321,6 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then
   log "Old configs cleaned"
 fi
 
-_run_step step_providers "LLM Providers"       "$SCRIPT_DIR/src/lib/26-providers.sh"
 _run_step step_opencode   "OpenCode CLI"           "$SCRIPT_DIR/src/lib/11-opencode.sh"
 _run_step step_mcp        "MCP + LSP + Plugins"    "$SCRIPT_DIR/src/lib/12-mcp-lsp.sh"
 _run_step step_chromadb   "ChromaDB + Muninn"      "$SCRIPT_DIR/src/lib/13-chromadb.sh"

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# lib/12-mcp-lsp.sh — MCP servers + LSP servers (STEP 9)
+# lib/12-mcp-lsp.sh — MCP servers + LSP servers (STEP 13)
 # Requires: MCP_PACKAGES, _npm_install, _retry
 set -euo pipefail
 

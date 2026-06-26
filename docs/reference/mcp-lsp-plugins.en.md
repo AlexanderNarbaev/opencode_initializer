@@ -2,9 +2,11 @@
 
 Complete reference of all AI infrastructure configured by OpenCode Initializer.
 
-## MCP Servers (24)
+## MCP Servers (21 local + 4 remote)
 
 MCP (Model Context Protocol) servers extend OpenCode with external tools and data sources.
+
+### Local Servers
 
 | Server | Package | Category | Description |
 |--------|---------|----------|-------------|
@@ -26,11 +28,16 @@ MCP (Model Context Protocol) servers extend OpenCode with external tools and dat
 | **brave-search** | `brave-search-mcp` | Search | Web search via Brave Search API |
 | **context7** | `context7-mcp` | Search | Code documentation search |
 | **context7-official** | `@upstash/context7-mcp` | Search | Official Context7 library documentation |
-| **sentry** | `@sentry/mcp` | Monitoring | Error tracking and performance monitoring (remote) |
-| **grep** | `grep-mcp` | Utility | Content search across codebase (remote) |
 | **agentic-tools** | `@pimzino/agentic-tools-mcp` | Agent | Task management, project planning |
 | **codegraph** | `codegraph-mcp` | Analysis | Code dependency and call graph analysis |
 | **loopsense** | `@loopsense/mcp` | Analysis | Code quality and best practices |
+
+### Remote Servers
+
+| Server | Package | Category | Description |
+|--------|---------|----------|-------------|
+| **sentry** | `@sentry/mcp` | Monitoring | Error tracking and performance monitoring |
+| **grep** | `grep-mcp` | Utility | Content search across codebase |
 | **excalidraw** | `excalidraw-mcp` | Design | Architecture diagrams and technical drawings |
 | **google-maps** | `mcp-server-google-maps` | Location | Google Maps geocoding and routing |
 
@@ -44,7 +51,7 @@ MCP servers are defined in `opencode.json` under `mcpServers`. Each server can b
     "filesystem": {
       "type": "local",
       "command": ["/home/user/.bun/bin/mcp-server-filesystem", "/path/to/project"],
-      "enabled": true  // set to false to disable
+      "enabled": true
     }
   }
 }
@@ -56,9 +63,9 @@ Platform-specific servers (GitHub, GitLab, Postgres, Google Maps) are **conditio
 
 Most MCP servers use **absolute Bun binary paths** (`~/.bun/bin/mcp-server-*`) instead of `npx -y`. This means:
 
-- :zap: **0.5s cold start** vs 5-15s with npx
-- :package: **No network** required after install
-- :recycle: **Survives npm cache clears**
+- 0.5s cold start vs 5-15s with npx
+- No network required after install
+- Survives npm cache clears
 
 ## LSP Servers (13)
 
@@ -91,7 +98,7 @@ LSP (Language Server Protocol) servers provide intelligent code analysis for Ope
 
 The installer auto-detects CPU architecture and downloads the correct binary.
 
-## Plugins (18)
+## Plugins (15)
 
 OpenCode plugins extend the assistant's capabilities.
 
@@ -103,6 +110,7 @@ OpenCode plugins extend the assistant's capabilities.
 | **goal-mode** | Structured goal-driven development |
 | **vibeguard** | Quality gate before completion |
 | **orchestrator** | Task orchestration and delegation |
+| **auto-fallback** | Automatic provider fallback |
 | **notify** | Desktop notifications |
 | **pty** | Terminal emulation |
 | **snip** | Code snippet management |
@@ -110,11 +118,7 @@ OpenCode plugins extend the assistant's capabilities.
 | **envsitter-guard** | Environment variable protection |
 | **command-inject** | Command injection for subagents |
 | **ignore** | Pattern-based file ignoring |
-| **auto-fallback** | Automatic provider fallback |
 | **gitlab** | GitLab integration |
-| **google-maps** | Google Maps integration |
-| **chrome-devtools** | Chrome DevTools integration |
-| **postgres** | PostgreSQL integration (conditional) |
 
 ## Configuration Reference
 
@@ -154,9 +158,9 @@ OpenCode plugins extend the assistant's capabilities.
 
 ### Adding Custom MCP/LSP/Plugin
 
-1. **MCP Server**: Add to `opencode.json` → `mcpServers`
-2. **LSP Server**: Add to `opencode.json` → `lsp`
-3. **Plugin**: Add to `opencode.json` → `plugin` array
+1. **MCP Server**: Add to `opencode.json` -> `mcpServers`
+2. **LSP Server**: Add to `opencode.json` -> `lsp`
+3. **Plugin**: Add to `opencode.json` -> `plugin` array
 
 For system-wide installation, modify `src/lib/12-mcp-lsp.sh` and run `bash setup.sh --reinit`.
 

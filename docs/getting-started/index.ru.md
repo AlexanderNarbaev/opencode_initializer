@@ -116,7 +116,7 @@ dev version-check
 ### CLI `dev`
 
 ```bash
-dev health          # Полная диагностика (60+ проверок)
+dev health          # Полная диагностика (65+ проверок)
 dev version-check   # Сравнить версии с последними
 dev update          # Обновить инструменты
 dev list            # Список установленного

@@ -2,9 +2,11 @@
 
 Полный справочник всей AI-инфраструктуры, настраиваемой OpenCode Initializer.
 
-## MCP-серверы (24)
+## MCP-серверы (21 локальный + 4 удалённых)
 
 MCP (Model Context Protocol) серверы расширяют OpenCode внешними инструментами и источниками данных.
+
+### Локальные серверы
 
 | Сервер | Пакет | Категория | Описание |
 |--------|-------|-----------|----------|
@@ -26,21 +28,26 @@ MCP (Model Context Protocol) серверы расширяют OpenCode внеш
 | **brave-search** | `brave-search-mcp` | Поиск | Веб-поиск через Brave Search API |
 | **context7** | `context7-mcp` | Поиск | Поиск по документации кода |
 | **context7-official** | `@upstash/context7-mcp` | Поиск | Официальная документация библиотек Context7 |
-| **sentry** | `@sentry/mcp` | Мониторинг | Отслеживание ошибок (удалённый) |
-| **grep** | `grep-mcp` | Утилиты | Поиск по содержимому (удалённый) |
 | **agentic-tools** | `@pimzino/agentic-tools-mcp` | Агент | Управление задачами, планирование |
 | **codegraph** | `codegraph-mcp` | Анализ | Анализ зависимостей и графа вызовов |
 | **loopsense** | `@loopsense/mcp` | Анализ | Качество кода и лучшие практики |
-| **excalidraw** | `excalidraw-mcp` | Дизайн | Архитектурные диаграммы |
+
+### Удалённые серверы
+
+| Сервер | Пакет | Категория | Описание |
+|--------|-------|-----------|----------|
+| **sentry** | `@sentry/mcp` | Мониторинг | Отслеживание ошибок и производительности |
+| **grep** | `grep-mcp` | Утилиты | Поиск по содержимому кодовой базы |
+| **excalidraw** | `excalidraw-mcp` | Дизайн | Архитектурные диаграммы и технические рисунки |
 | **google-maps** | `mcp-server-google-maps` | Локация | Геокодирование и маршруты Google Maps |
 
 ### Холодный старт
 
 Большинство MCP-серверов используют **абсолютные пути к Bun** (`~/.bun/bin/mcp-server-*`) вместо `npx -y`:
 
-- :zap: **0.5с холодный старт** против 5-15с с npx
-- :package: **Без сети** после установки
-- :recycle: **Переживает** очистку кэша npm
+- 0.5с холодный старт против 5-15с с npx
+- Без сети после установки
+- Переживает очистку кэша npm
 
 ## LSP-серверы (13)
 
@@ -60,7 +67,18 @@ MCP (Model Context Protocol) серверы расширяют OpenCode внеш
 | **dockerfile-ls** | Dockerfile | Подсветка синтаксиса, валидация |
 | **css/html/json** | Web | Поддержка CSS/HTML/JSON |
 
-## Плагины (18)
+### Архитектурно-зависимые LSP
+
+| Сервер | amd64 | arm64 |
+|--------|-------|-------|
+| gopls | :white_check_mark: | :white_check_mark: |
+| rust-analyzer | :white_check_mark: | :white_check_mark: |
+| omnisharp | :white_check_mark: x64 | :white_check_mark: arm64 |
+| zls | :white_check_mark: x86_64 | :white_check_mark: aarch64 |
+
+Установщик автоматически определяет архитектуру CPU и загружает правильный бинарник.
+
+## Плагины (15)
 
 | Плагин | Описание |
 |--------|----------|
@@ -70,6 +88,7 @@ MCP (Model Context Protocol) серверы расширяют OpenCode внеш
 | **goal-mode** | Структурированная разработка по целям |
 | **vibeguard** | Контроль качества перед завершением |
 | **orchestrator** | Оркестрация и делегирование задач |
+| **auto-fallback** | Автоматическое переключение провайдеров |
 | **notify** | Уведомления на рабочий стол |
 | **pty** | Эмуляция терминала |
 | **snip** | Управление сниппетами кода |
@@ -77,11 +96,51 @@ MCP (Model Context Protocol) серверы расширяют OpenCode внеш
 | **envsitter-guard** | Защита переменных окружения |
 | **command-inject** | Внедрение команд для субагентов |
 | **ignore** | Игнорирование файлов по шаблону |
-| **auto-fallback** | Автоматическое переключение провайдеров |
 | **gitlab** | Интеграция с GitLab |
-| **google-maps** | Интеграция с Google Maps |
-| **chrome-devtools** | Интеграция с Chrome DevTools |
-| **postgres** | Интеграция с PostgreSQL (условно) |
+
+## Конфигурация
+
+### Форматы команд MCP-серверов
+
+```json
+// Локальный сервер (bun — быстрый холодный старт)
+{
+  "type": "local",
+  "command": ["/home/user/.bun/bin/mcp-server-filesystem", "/project"]
+}
+
+// Локальный сервер (npx fallback — если bun отсутствует)
+{
+  "type": "local",
+  "command": ["npx", "-y", "@modelcontextprotocol/server-filesystem", "/project"]
+}
+
+// Удалённый сервер (HTTP)
+{
+  "type": "remote",
+  "url": "https://mcp.example.com/sse"
+}
+```
+
+### Формат плагинов
+
+```json
+{
+  "plugin": [
+    ["token-tracker@latest"],
+    ["dcp@v2.0.0"],
+    ["swarm@latest"]
+  ]
+}
+```
+
+### Добавление своих MCP/LSP/плагинов
+
+1. **MCP-сервер**: Добавить в `opencode.json` -> `mcpServers`
+2. **LSP-сервер**: Добавить в `opencode.json` -> `lsp`
+3. **Плагин**: Добавить в `opencode.json` -> `plugin`
+
+Для общесистемной установки измените `src/lib/12-mcp-lsp.sh` и запустите `bash setup.sh --reinit`.
 
 ---
 
