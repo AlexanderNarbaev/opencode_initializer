@@ -47,12 +47,12 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
 
   # Muninn via pipx (skills only, not an MCP server)
   if ! command -v muninn-remembers &>/dev/null; then
-    _retry 3 "Muninn pipx install" pipx install muninn-remembers 2>/dev/null || true
+    _retry 3 "Muninn pipx install" pipx install muninn-remembers 2>/dev/null && log "Muninn installed" || warn "Muninn: install failed"
   else
-    pipx install --force muninn-remembers 2>/dev/null || true
+    log "Muninn $(muninn-remembers --version 2>/dev/null || echo 'installed')"
   fi
   if command -v muninn-remembers &>/dev/null; then
-    muninn-remembers install opencode 2>/dev/null || warn "Muninn: skills install failed"
+    muninn-remembers install opencode 2>/dev/null && log "Muninn: opencode skills" || warn "Muninn: skills install failed"
   fi
 
   # ChromaDB (vector database for muninn memory)

@@ -109,6 +109,9 @@ section "Multimodal & ONNX"
 _check "whisper.cpp"      "whisper-cli --help 2>/dev/null"
 _check "stable-diffusion" "sd --help 2>/dev/null"
 _check "llava (vision)"   "ollama list 2>/dev/null | grep -q llava"
+_check "qwen3:1.8b"       "ollama list 2>/dev/null | grep -q qwen3:1.8b"
+_check "qwen3:14b"        "ollama list 2>/dev/null | grep -q qwen3:14b"
+_check "mxbai-embed"      "ollama list 2>/dev/null | grep -q mxbai-embed"
 _check "ONNX Runtime"     "python3 -c \"import onnxruntime\" 2>/dev/null"
 
 section "Interaction Modes"
@@ -141,6 +144,10 @@ _check "ONNX model cached"   "[ -f ~/.cache/chroma/onnx_models/all-MiniLM-L6-v2/
 _check "MemoryLayer MCP bin" "[ -x ~/.bun/bin/memorylayer-mcp ]"
 _check "Muninn memory-read"  "[ -f ~/.config/opencode/skills/memory-read/SKILL.md ]"
 _check "Muninn memory-write" "[ -f ~/.config/opencode/skills/memory-write/SKILL.md ]"
+_check "Session dir"           "[ -d ~/.config/opencode/sessions ]"
+_check "Session writable"      "[ -w ~/.config/opencode/sessions ]"
+_check "CodeGraph index"       "[ -f .codegraph/codegraph.db ]"
+_check "LiteLLM service"       "systemctl --user is-active litellm.service &>/dev/null"
 
 section "MCP Binaries (~/.bun/bin/)"
 MCP_COUNT=$(ls ~/.bun/bin/ 2>/dev/null | grep -v -E '^(bun|bunx)$' | wc -l)

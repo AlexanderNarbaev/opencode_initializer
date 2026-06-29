@@ -10,6 +10,7 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "new" ]; then
   [ -z "$PROJECT_DIR" ] && err "PROJECT_DIR is empty"
 
   section "Project structure: $PROJECT_DIR"
+  mkdir -p "$HOME/.config/opencode/sessions" 2>/dev/null || true
   if mkdir -p "$PROJECT_DIR" 2>/dev/null; then
     mkdir -p "$PROJECT_DIR"/{docs,wal,.lock,.opencode/{agents,skills/{code-review-checklist,deployment-checklist,testing-strategy,context-switching},commands,context},infra,icon,templates,output}
   else

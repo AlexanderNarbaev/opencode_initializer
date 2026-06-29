@@ -37,7 +37,8 @@ Wants=network-online.target
 [Service]
 Type=oneshot
 ExecStartPre=/bin/mkdir -p %h/.cache/opencode-setup
-ExecStart=/bin/sh -c 'if [ -x "$HOME/.cargo/bin/topgrade" ]; then $HOME/.cargo/bin/topgrade --yes --no-retry --skip-notify; elif command -v topgrade >/dev/null; then topgrade --yes --no-retry --skip-notify; else echo "topgrade not found" >&2; fi'
+ExecStart=/bin/sh -c 'export PATH="$HOME/.cargo/bin:$HOME/.local/bin:/usr/local/bin:$PATH"; if command -v topgrade >/dev/null 2>&1; then topgrade --yes --no-retry --skip-notify 2>&1; else echo "topgrade not found" >&2; fi'
+TimeoutStartSec=7200
 ExecStartPost=/bin/bash -c 'echo "$(date -Iseconds) topgrade completed" >> %h/.cache/opencode-setup/update.log'
 StandardOutput=journal
 StandardError=journal

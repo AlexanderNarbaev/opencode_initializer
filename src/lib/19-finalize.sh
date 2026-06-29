@@ -112,6 +112,10 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then
   fi
 fi
 
+# ── Session memory directory ──────────────────────────────────────────────
+mkdir -p "$HOME/.config/opencode/sessions" 2>/dev/null || true
+chmod 700 "$HOME/.config/opencode/sessions" 2>/dev/null || true
+
 # ── STEP 18b: Config file + dev CLI ─────────────────────────────────────────
 if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then
   section "Config file + dev CLI"
@@ -199,7 +203,9 @@ done
   _check "Plugin firecrawl"         "npm list -g @lyculs/opencode-firecrawl &>/dev/null"
   _check "Plugin otel"              "npm list -g @devtheops/opencode-plugin-otel &>/dev/null"
 
+_check "Muninn binary"      "command -v muninn-remembers &>/dev/null"
 _check "Muninn skills"      "[ -f ~/.config/opencode/skills/memory-read/SKILL.md ]"
+_check "Session memory"     "[ -d ~/.config/opencode/sessions ]"
   _check "Skills code-review"      "[ -f \"$PROJECT_DIR/.opencode/skills/code-review-checklist/SKILL.md\" ]"
   _check "Skills deployment"       "[ -f \"$PROJECT_DIR/.opencode/skills/deployment-checklist/SKILL.md\" ]"
   _check "Skills testing-strategy" "[ -f \"$PROJECT_DIR/.opencode/skills/testing-strategy/SKILL.md\" ]"

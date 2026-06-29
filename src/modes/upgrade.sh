@@ -45,11 +45,17 @@ command -v rustup &>/dev/null && rustup update 2>/dev/null && log "Rust toolchai
 section "UPGRADE: Go"
 if command -v go &>/dev/null; then
   GO_CURRENT=$(go version 2>/dev/null | grep -oP 'go\K[0-9.]+' | head -1)
-  GO_LATEST=$(curl -s --connect-timeout 10 https://go.dev/dl/ 2>/dev/null | grep -oP 'go[0-9.]+\.linux-amd64\.tar\.gz' | head -1 | grep -oP 'go\K[0-9.]+')
-  if [ -n "$GO_LATEST" ] && [ "$GO_CURRENT" != "$GO_LATEST" ]; then
-    info "Go $GO_CURRENT → $GO_LATEST available. Re-run --reinit to upgrade."
+  GO_MINOR=$(echo "$GO_CURRENT" | cut -d. -f2)
+  GO_LATEST=$(curl -s --connect-timeout 10 --retry 3 'https://go.dev/VERSION?m=text' 2>/dev/null | head -1 | tr -d 'go \n' || echo "1.26.4")
+  if [ "$GO_MINOR" -lt 26 ] 2>/dev/null; then
+    info "Go ${GO_CURRENT} → ${GO_LATEST}"
+    GO_TAR="/tmp/go${GO_LATEST}.linux-amd64.tar.gz"
+    curl -fsSL --connect-timeout 30 "https://go.dev/dl/go${GO_LATEST}.linux-amd64.tar.gz" -o "$GO_TAR" 2>/dev/null && \
+      sudo rm -rf /usr/local/go 2>/dev/null || true
+    sudo tar -C /usr/local -xzf "$GO_TAR" && log "Go ${GO_LATEST}" || warn "Go upgrade failed"
+    rm -f "$GO_TAR"
   else
-    log "Go $GO_CURRENT up to date"
+    log "Go ${GO_CURRENT} (latest)"
   fi
 fi
 
