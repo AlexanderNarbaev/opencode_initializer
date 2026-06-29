@@ -1,5 +1,11 @@
 # AGENTS.md — opencode_initializer
 
+## Status: v2.0.0-alpha — Phase 0 Complete
+
+| Phase | Status | Description |
+|-------|--------|-------------|
+| 0 | Done | Foundation: 30-infra.sh, 31-cockpit.sh, tests, Go apt fallback |
+
 ## Identity
 Universal Dev Machine Bootstrap — однокомандная настройка AI-усиленной dev-машины для WSL2/Linux.
 Модульная архитектура: 351-строчный оркестратор + 33 модуля + автообновление через systemd-таймер.
@@ -70,6 +76,8 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 | `28-devbox.sh` | Devbox — Nix-based isolated dev environments |
 | `version-check.sh` | Version check: Rust/Go/Node/Python/Bun/OpenCode/Ollama/Zig + npm packages |
 | `pre-session-check.sh` | Pre-session provider/model validation + MCP status |
+| `30-infra.sh` | Infrastructure provisioning: PostgreSQL + Qdrant + Redis via Docker Compose |
+| `31-cockpit.sh` | Cockpit C++ server management daemon (build + systemd service) |
 
 ### Modes (src/modes/)
 | Mode | Description |
@@ -112,6 +120,8 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 10. **Auto-update via systemd timer** (v34.5) — topgrade runs weekly (Sun 04:00), unattended-upgrades for daily security
 11. **Version check** (v34.5) — `dev version-check` compares installed versions against latest from GitHub/APIs
 
+12. **Infrastructure as Code** (v2.0) — PostgreSQL + Qdrant + Redis via Docker Compose, Cockpit MCP daemon
+
 ## Testing & Verification
 ```bash
 bash -n setup.sh                          # syntax check (orchestrator)
@@ -150,6 +160,17 @@ bash setup.sh --fix-zshrc                 # repair shell config
 | v35.3 | Research-driven: +5 plugins (dcp, auto-fallback, goal-mode, swarm, vibeguard), +1 MCP (chrome-devtools), +5 LSP (bash, dockerfile, css, html, json), +3 CLI tools (btm, sd, typos). Fixed: ZSH crash (set -e leak), opencode.json validity (// comments), Gradle symlink, health 54→54 checks. New tests: test_mcp_registry.sh (52 checks), test_opencode_json_gen.sh (62 checks). README rewritten to international standard. CONTRIBUTING.md comprehensive guide. |
 | v1.0.0 | Initial public release. Clean open source launch with full documentation (README, CHANGELOG, CONTRIBUTING, CODE_OF_CONDUCT, SECURITY). 8 languages, 21 MCPs, 15 plugins, 13 LSPs, 193-test suite. |
 | v1.1.0 | Ecosystem expansion: hardware auto-detection (multi-vendor GPU/NPU), LiteLLM OpenAI-compatible API gateway, SearXNG web search + sanitizer proxy, CI/CD headless mode, multimodal (whisper.cpp + stable-diffusion.cpp + llava), 15+ LLM providers, TUI/JSON/RPC/SDK interaction modes, chezmoi dotfiles, Devbox integration, ONNX runtime. 24→29 modules, 26→29 steps, 65+ health checks. |
+
+| v2.0.0-alpha | Phase 0: +2 modules (30-infra.sh, 31-cockpit.sh), Go apt fallback, new unit tests, CHANGELOG. |
+
+## Phase Plan (v2.0.0)
+| Phase | Scope |
+|-------|-------|
+| 0 | Done — Infra modules, Go apt fallback, tests, AGENTS.md |
+| 1 | Cockpit C++ implementation, MCP service registry |
+| 2 | Infra provisioning idempotency, health checks |
+| 3 | Integration tests, CI/CD for new modules |
+| 4 | Documentation, migration scripts, v2.0.0 stable release |
 
 ## Modular Architecture (v1.0.0)
 

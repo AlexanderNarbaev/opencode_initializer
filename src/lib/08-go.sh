@@ -32,6 +32,14 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
         rm -f "$GO_TAR"
         export PATH="/usr/local/go/bin:$PATH"
       fi
+      # If direct download failed but version is still old, try apt
+      if ! /usr/local/go/bin/go version &>/dev/null; then
+        _sudo add-apt-repository -y ppa:longsleep/golang-backports 2>/dev/null || true
+        _sudo apt-get update -qq 2>/dev/null || true
+        _sudo apt-get install -y -qq golang-go 2>/dev/null && log "Go upgraded via apt" || true
+        export PATH="/usr/local/go/bin:$HOME/go/bin:$PATH"
+        hash -r 2>/dev/null || true
+      fi
     else
       log "Go $(go version 2>/dev/null | cut -d' ' -f3) already installed"
     fi

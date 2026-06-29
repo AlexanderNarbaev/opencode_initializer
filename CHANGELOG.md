@@ -5,6 +5,18 @@ All notable changes to opencode_initializer will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha] — 2026-06-29
+
+### Added
+- `30-infra.sh`: Infrastructure provisioning — PostgreSQL + Qdrant + Redis via Docker Compose
+- `31-cockpit.sh`: Cockpit C++ server management daemon (build + systemd service)
+- Go apt fallback in `08-go.sh`: if direct download fails, use ppa:longsleep/golang-backports
+- Unit tests: `tests/unit/test_infra.sh`, `tests/unit/test_cockpit.sh`
+
+### Changed
+- Module count: 29 → 35
+- AGENTS.md: Phase 0-4 plan, new module entries, IaC design decision, v2.0.0-alpha header
+
 ## [Unreleased]
 
 ### Added
