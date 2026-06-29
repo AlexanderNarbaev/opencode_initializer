@@ -25,6 +25,7 @@ usage() {
   echo "  dev infra up [svc]    Start infra services (postgres, qdrant, redis, kafka, neo4j, minio)"
   echo "  dev infra down [svc]  Stop infra services"
   echo "  dev infra status      Show infra service status"
+  echo "  dev gui start|stop|status  Manage GUI web interface"
   echo "  dev plugins list      List plugins by tier and status"
 }
 
@@ -229,6 +230,24 @@ for p in data['tiers']['on_demand']:
   esac
 }
 
+cmd_gui() {
+  local action="${2:-status}"
+  case "$action" in
+    start)
+      section "Starting OpenCode GUI"
+      systemctl --user start opencode-gui.service 2>/dev/null && log "GUI started on port 4200" || err "Failed to start GUI. Check: systemctl --user status opencode-gui"
+      ;;
+    stop)
+      section "Stopping OpenCode GUI"
+      systemctl --user stop opencode-gui.service 2>/dev/null && log "GUI stopped" || warn "GUI not running"
+      ;;
+    status|"")
+      systemctl --user status opencode-gui.service 2>/dev/null || warn "GUI service not installed. Run: setup.sh --full"
+      ;;
+    *) err "Unknown: dev gui $action. Use: start|stop|status" ;;
+  esac
+}
+
 case "${1:-}" in
   install)  cmd_install "${2:-}" ;;
   remove)   cmd_remove "${2:-}" ;;
@@ -241,6 +260,7 @@ case "${1:-}" in
   autoupdate) cmd_autoupdate ;;
   infra)     cmd_infra "${@}" ;;
   plugins)   cmd_plugins "${@}" ;;
+  gui)       cmd_gui "${@}" ;;
   -h|--help|help|"") usage ;;
   *)        err "Unknown: $1. Use: dev install|remove|update|health|list|config|self-update|version-check|autoupdate|infra|plugins" ;;
 esac

@@ -296,7 +296,7 @@ echo -e "${GREEN}     Log:  $LOG_FILE${NC}"
 echo -e "${GREEN}============================================================${NC}"
 
 # ── Execute steps ───────────────────────────────────────────────────────────
-TOTAL_STEPS=30; CURRENT_STEP=0
+TOTAL_STEPS=31; CURRENT_STEP=0
 
 _run_step() {
   local step_key="$1" step_name="$2" module="$3"
@@ -355,6 +355,7 @@ _run_step step_litellm    "LiteLLM API Gateway"  "$SCRIPT_DIR/src/lib/25-litellm
 _run_step step_providers  "Multi-Provider Config" "$SCRIPT_DIR/src/lib/26-providers.sh"
 [ "${SKIP_DOTFILES:-false}" != "true" ] && _run_step step_dotfiles   "Dotfiles (chezmoi)"    "$SCRIPT_DIR/src/lib/27-dotfiles.sh"
 [ "${SKIP_DEVBOX:-false}" != "true" ]   && _run_step step_devbox     "Devbox (Nix)"          "$SCRIPT_DIR/src/lib/28-devbox.sh"
+[ "${SKIP_GUI:-false}" != "true" ]      && _run_step step_gui        "Web GUI Interface"    "$SCRIPT_DIR/src/lib/33-gui.sh"
 
 echo ""
 echo -e "  ${GREEN}╔══════════════════════════════════════╗${NC}"
