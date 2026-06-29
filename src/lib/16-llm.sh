@@ -91,7 +91,7 @@ with open(os.path.join(home, '.config/litellm/hardware.json'), 'w') as f:
     rm -f /tmp/ollama-install.sh
     if command -v ollama &>/dev/null; then
       if $HAS_GPU; then
-        ollama pull qwen3:14b 2>/dev/null & log "Ollama: pulling qwen3:14b (GPU-optimized, background)"
+        ollama pull qwen3:14b 2>/dev/null || warn "Ollama: qwen3:14b pull failed (retry manually)"
       else
         ollama pull qwen3:1.7b 2>/dev/null && log "Ollama: qwen3:1.7b pulled" || warn "Ollama: qwen3:1.7b pull failed"
       fi
