@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -43,6 +44,14 @@ type model struct {
 	width     int
 	height    int
 	loading   bool
+
+	logsLines  []string
+	logsScroll int
+
+	infraServiceNames []string
+	infraSelected     int
+	infraMsg          string
+	infraMsgTime      time.Time
 }
 
 func (m model) Init() tea.Cmd {
@@ -80,6 +89,78 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "4", "F4":
 			m.activeTab = 3
 			return m, nil
+		case "5", "F5":
+			m.activeTab = 4
+			return m, nil
+		case "6", "F6":
+			m.activeTab = 5
+			return m, nil
+		case "7", "F7":
+			m.activeTab = 6
+			return m, nil
+
+		case "up", "down":
+			if m.activeTab == 5 {
+				if msg.String() == "up" && m.logsScroll > 0 {
+					m.logsScroll--
+				}
+				if msg.String() == "down" && m.logsScroll < len(m.logsLines)-1 {
+					m.logsScroll++
+				}
+				return m, nil
+			}
+			if m.activeTab == 6 && len(m.infraServiceNames) > 0 {
+				if msg.String() == "up" && m.infraSelected > 0 {
+					m.infraSelected--
+				}
+				if msg.String() == "down" && m.infraSelected < len(m.infraServiceNames)-1 {
+					m.infraSelected++
+				}
+				return m, nil
+			}
+
+		case "s", "k", "r":
+			if m.activeTab == 6 && len(m.infraServiceNames) > 0 && m.infraSelected < len(m.infraServiceNames) {
+				svc := m.infraServiceNames[m.infraSelected]
+				infraFile := filepath.Join(configDir, "infra.yml")
+				var action string
+				switch msg.String() {
+				case "s":
+					action = "start"
+				case "k":
+					action = "stop"
+				case "r":
+					action = "restart"
+				}
+				go func() {
+					exec.Command("docker", "compose", "-f", infraFile, action, svc).Run()
+				}()
+				m.infraMsg = fmt.Sprintf("[%s] %s %s", time.Now().Format("15:04:05"), action, svc)
+				m.infraMsgTime = time.Now()
+				return m, tick()
+			}
+
+		case "enter":
+			if m.activeTab == 6 && len(m.infraServiceNames) > 0 && m.infraSelected < len(m.infraServiceNames) {
+				svc := m.infraServiceNames[m.infraSelected]
+				infraFile := filepath.Join(configDir, "infra.yml")
+				out, err := exec.Command("docker", "compose", "-f", infraFile, "ps", "--format", "{{.Name}}\t{{.Status}}", svc).Output()
+				if err == nil {
+					status := strings.ToLower(string(out))
+					if strings.Contains(status, "up") || strings.Contains(status, "running") {
+						go exec.Command("docker", "compose", "-f", infraFile, "restart", svc).Run()
+						m.infraMsg = fmt.Sprintf("[%s] restart %s", time.Now().Format("15:04:05"), svc)
+					} else {
+						go exec.Command("docker", "compose", "-f", infraFile, "start", svc).Run()
+						m.infraMsg = fmt.Sprintf("[%s] start %s", time.Now().Format("15:04:05"), svc)
+					}
+				} else {
+					go exec.Command("docker", "compose", "-f", infraFile, "start", svc).Run()
+					m.infraMsg = fmt.Sprintf("[%s] start %s", time.Now().Format("15:04:05"), svc)
+				}
+				m.infraMsgTime = time.Now()
+				return m, tick()
+			}
 		}
 
 	case tea.WindowSizeMsg:
@@ -95,6 +176,16 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.tables[1].SetRows(msg.plugins)
 		m.tables[2].SetRows(msg.gpu)
 		m.tables[3].SetRows(msg.sessions)
+		m.tables[4].SetRows(msg.tasks)
+		m.tables[6].SetRows(msg.infra)
+		m.logsLines = msg.logs
+		m.infraServiceNames = msg.infraNames
+		if m.logsScroll >= len(m.logsLines) {
+			m.logsScroll = len(m.logsLines) - 1
+		}
+		if m.logsScroll < 0 {
+			m.logsScroll = 0
+		}
 		m.loading = false
 
 	case refreshTick:
@@ -102,17 +193,19 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	activeIdx := m.activeTab
-	var cmd tea.Cmd
-	m.tables[activeIdx], cmd = m.tables[activeIdx].Update(msg)
-	if cmd != nil {
-		cmds = append(cmds, cmd)
+	if activeIdx != 5 {
+		var cmd tea.Cmd
+		m.tables[activeIdx], cmd = m.tables[activeIdx].Update(msg)
+		if cmd != nil {
+			cmds = append(cmds, cmd)
+		}
 	}
 
 	return m, tea.Batch(cmds...)
 }
 
 func (m model) View() string {
-	title := styleTitle.Render("opencode-cockpit v1.0.0")
+	title := styleTitle.Render("opencode-cockpit v2.0.0")
 	status := ""
 	if m.loading {
 		status = styleLoading.Render(" ⟳ refreshing...")
@@ -129,27 +222,147 @@ func (m model) View() string {
 	}
 	tabBar := lipgloss.JoinHorizontal(lipgloss.Top, tabs...) + "\n\n"
 
-	activeTable := m.tables[m.activeTab].View()
+	var content string
+	if m.activeTab == 5 {
+		content = m.logsView()
+	} else if m.activeTab == 6 {
+		content = m.infraView()
+	} else {
+		content = m.tables[m.activeTab].View()
+	}
 
-	help := "\n 1:Srv 2:Plugins 3:GPU 4:Sessions  Tab/Shift+Tab  r:refresh  q:quit\n"
+	help := "\n 1:Srv 2:Plugins 3:GPU 4:Sessions 5:Tasks 6:Logs 7:Infra  Tab/Shift+Tab  r:refresh  q:quit\n"
+	if m.activeTab == 6 {
+		help = "\n 1-7:tabs  ↑↓:select  s:start  k:stop  r:restart  enter:toggle  r:refresh  q:quit\n"
+	}
+	if m.activeTab == 5 {
+		help = "\n 1-7:tabs  ↑↓:scroll  r:refresh  q:quit\n"
+	}
 
-	return header + tabBar + activeTable + help
+	return header + tabBar + content + help
+}
+
+func (m model) logsView() string {
+	if len(m.logsLines) == 0 {
+		return styleGray.Render("  No opencode service logs available.\n  Ensure journalctl is accessible and services are running.\n")
+	}
+
+	visibleHeight := m.height - 11
+	if visibleHeight < 5 {
+		visibleHeight = 5
+	}
+
+	start := m.logsScroll
+	end := start + visibleHeight
+	if end > len(m.logsLines) {
+		end = len(m.logsLines)
+		start = end - visibleHeight
+		if start < 0 {
+			start = 0
+		}
+	}
+
+	var sb strings.Builder
+	sb.WriteString(styleGray.Render(fmt.Sprintf("  ── journalctl --user ── [%d/%d] ── tail mode ──\n", m.logsScroll+1, len(m.logsLines))))
+	for i := start; i < end; i++ {
+		line := m.logsLines[i]
+		if i == m.logsScroll && m.activeTab == 5 {
+			sb.WriteString(styleCyan.Render("> "))
+		} else {
+			sb.WriteString("  ")
+		}
+		sb.WriteString(colorizeLogLine(line))
+		sb.WriteString("\n")
+	}
+
+	scrollPct := 0
+	if len(m.logsLines) > 0 {
+		scrollPct = (m.logsScroll * 100) / (len(m.logsLines) - 1)
+	}
+	sb.WriteString(styleGray.Render(fmt.Sprintf("  ── %d%% scrolled ──\n", scrollPct)))
+
+	return sb.String()
+}
+
+func colorizeLogLine(line string) string {
+	lower := strings.ToLower(line)
+	switch {
+	case strings.Contains(lower, "error") || strings.Contains(lower, "fail") || strings.Contains(lower, "fatal"):
+		return styleRed.Render(line)
+	case strings.Contains(lower, "warn") || strings.Contains(lower, "warning"):
+		return styleYellow.Render(line)
+	case strings.Contains(lower, "start") || strings.Contains(lower, "enabled"):
+		return styleGreen.Render(line)
+	default:
+		return styleGray.Render(line)
+	}
+}
+
+func (m model) infraView() string {
+	if len(m.infraServiceNames) == 0 {
+		return styleGray.Render("  No infra services found.\n  Ensure ~/.config/opencode/infra.yml exists and docker compose is available.\n")
+	}
+
+	var sb strings.Builder
+	sb.WriteString(styleGray.Render(fmt.Sprintf("  ── docker compose -f ~/.config/opencode/infra.yml ──\n")))
+
+	infraFile := filepath.Join(configDir, "infra.yml")
+	for i, svc := range m.infraServiceNames {
+		prefix := "  "
+		style := styleGray
+		if i == m.infraSelected {
+			prefix = styleCyan.Render("\u25b6 ")
+			style = styleCyan
+		} else {
+			prefix = "  "
+		}
+
+		out, err := exec.Command("docker", "compose", "-f", infraFile, "ps", "--format", "{{.Status}}", svc).Output()
+		statusStr := "unknown"
+		statusStyle := styleGray
+		if err == nil {
+			statusStr = strings.TrimSpace(string(out))
+			lowerS := strings.ToLower(statusStr)
+			if strings.Contains(lowerS, "up") || strings.Contains(lowerS, "running") {
+				statusStyle = styleGreen
+			} else if strings.Contains(lowerS, "exit") || strings.Contains(lowerS, "down") {
+				statusStyle = styleRed
+			}
+		}
+		sb.WriteString(fmt.Sprintf("%s%s  %s\n", prefix, style.Render(svc), statusStyle.Render(statusStr)))
+	}
+
+	if m.infraMsg != "" && time.Since(m.infraMsgTime) < 10*time.Second {
+		sb.WriteString("\n  " + styleYellow.Render(m.infraMsg) + "\n")
+	}
+
+	sb.WriteString(styleGray.Render("\n  s:start  k:stop  r:restart  enter:toggle"))
+
+	return sb.String()
 }
 
 type tickResult struct {
-	services []table.Row
-	plugins  []table.Row
-	gpu      []table.Row
-	sessions []table.Row
+	services   []table.Row
+	plugins    []table.Row
+	gpu        []table.Row
+	sessions   []table.Row
+	tasks      []table.Row
+	logs       []string
+	infra      []table.Row
+	infraNames []string
 }
 
 func tick() tea.Cmd {
 	return func() tea.Msg {
 		return tickResult{
-			services: fetchServices(),
-			plugins:  fetchPlugins(),
-			gpu:      fetchGPU(),
-			sessions: fetchSessions(),
+			services:   fetchServices(),
+			plugins:    fetchPlugins(),
+			gpu:        fetchGPU(),
+			sessions:   fetchSessions(),
+			tasks:      fetchTasks(),
+			logs:       fetchLogs(),
+			infra:      fetchInfra(),
+			infraNames: fetchInfraNames(),
 		}
 	}
 }
@@ -208,7 +421,7 @@ func fetchServices() []table.Row {
 	}
 
 	if len(rows) == 0 {
-		rows = append(rows, table.Row{"—", "no services detected", "—"})
+		rows = append(rows, table.Row{"\u2014", "no services detected", "\u2014"})
 	}
 	return rows
 }
@@ -233,22 +446,22 @@ func fetchPlugins() []table.Row {
 	pluginPath := filepath.Join(configDir, "plugins.json")
 	data, err := os.ReadFile(pluginPath)
 	if err != nil {
-		rows = append(rows, table.Row{"—", "no plugins.json", "—", "—"})
+		rows = append(rows, table.Row{"\u2014", "no plugins.json", "\u2014", "\u2014"})
 		return rows
 	}
 
 	var reg pluginRegistry
 	if err := json.Unmarshal(data, &reg); err != nil {
-		rows = append(rows, table.Row{"—", "invalid json", "—", "—"})
+		rows = append(rows, table.Row{"\u2014", "invalid json", "\u2014", "\u2014"})
 		return rows
 	}
 
 	for _, name := range reg.Tiers.Always {
 		installed := pluginInstalled(name)
 		if installed {
-			rows = append(rows, table.Row{name, styleGreen.Render("always"), styleGreen.Render("enabled"), "—"})
+			rows = append(rows, table.Row{name, styleGreen.Render("always"), styleGreen.Render("enabled"), "\u2014"})
 		} else {
-			rows = append(rows, table.Row{name, styleGray.Render("always"), styleGray.Render("not installed"), "—"})
+			rows = append(rows, table.Row{name, styleGray.Render("always"), styleGray.Render("not installed"), "\u2014"})
 		}
 	}
 
@@ -283,13 +496,13 @@ func fetchPlugins() []table.Row {
 			var parts []string
 			for _, d := range ce.cfg.Depends {
 				if containsStr(depsMet, d) {
-					parts = append(parts, styleGreen.Render("✓"+d))
+					parts = append(parts, styleGreen.Render("\u2713"+d))
 				} else {
-					parts = append(parts, styleRed.Render("✗"+d))
+					parts = append(parts, styleRed.Render("\u2717"+d))
 				}
 			}
 			for _, d := range depsMissing {
-				parts = append(parts, styleRed.Render("✗"+d))
+				parts = append(parts, styleRed.Render("\u2717"+d))
 			}
 			depsInfo = strings.Join(parts, " ")
 		}
@@ -299,14 +512,14 @@ func fetchPlugins() []table.Row {
 	for _, name := range reg.Tiers.OnDemand {
 		installed := pluginInstalled(name)
 		if installed {
-			rows = append(rows, table.Row{name, styleMagenta.Render("on-demand"), styleGreen.Render("available"), "—"})
+			rows = append(rows, table.Row{name, styleMagenta.Render("on-demand"), styleGreen.Render("available"), "\u2014"})
 		} else {
-			rows = append(rows, table.Row{name, styleMagenta.Render("on-demand"), styleGray.Render("not installed"), "—"})
+			rows = append(rows, table.Row{name, styleMagenta.Render("on-demand"), styleGray.Render("not installed"), "\u2014"})
 		}
 	}
 
 	if len(rows) == 0 {
-		rows = append(rows, table.Row{"—", "no plugins registered", "—", "—"})
+		rows = append(rows, table.Row{"\u2014", "no plugins registered", "\u2014", "\u2014"})
 	}
 	return rows
 }
@@ -431,8 +644,37 @@ func fetchGPU() []table.Row {
 		}
 	}
 
+	out, err = exec.Command("docker", "system", "df", "-v").Output()
+	if err == nil {
+		scanner := bufio.NewScanner(strings.NewReader(string(out)))
+		inOpenCodeSection := false
+		for scanner.Scan() {
+			line := scanner.Text()
+			if strings.Contains(line, "opencode") {
+				inOpenCodeSection = true
+				fields := strings.Fields(line)
+				if len(fields) >= 2 {
+					volName := fields[0]
+					volSize := fields[1]
+					if len(fields) >= 3 {
+						volSize = fields[len(fields)-1]
+					}
+					rows = append(rows, table.Row{
+						"Volume:" + volName,
+						fmt.Sprintf("disk:%s", volSize),
+						"",
+					})
+				}
+				continue
+			}
+			if inOpenCodeSection && strings.TrimSpace(line) == "" {
+				inOpenCodeSection = false
+			}
+		}
+	}
+
 	if len(rows) == 0 {
-		rows = append(rows, table.Row{"—", "no GPU / no models", "—"})
+		rows = append(rows, table.Row{"\u2014", "no GPU / no models", "\u2014"})
 	}
 	return rows
 }
@@ -468,8 +710,8 @@ func renderVRAMBar(used, total int) string {
 		barColor = lipgloss.Color("220")
 	}
 
-	filledBlock := lipgloss.NewStyle().Foreground(barColor).Render(strings.Repeat("█", filled))
-	emptyBlock := styleGray.Render(strings.Repeat("░", barWidth-filled))
+	filledBlock := lipgloss.NewStyle().Foreground(barColor).Render(strings.Repeat("\u2588", filled))
+	emptyBlock := styleGray.Render(strings.Repeat("\u2591", barWidth-filled))
 	pct := fmt.Sprintf(" %.0f%%", ratio*100)
 
 	return fmt.Sprintf("%d/%d MiB %s%s%s", used, total, filledBlock, emptyBlock, pct)
@@ -490,7 +732,7 @@ func fetchSessions() []table.Row {
 	sessionsDir := filepath.Join(configDir, "sessions")
 	entries, err := os.ReadDir(sessionsDir)
 	if err != nil {
-		rows = append(rows, table.Row{"—", "no sessions dir", "—", "—"})
+		rows = append(rows, table.Row{"\u2014", "no sessions dir", "\u2014", "\u2014"})
 		return rows
 	}
 
@@ -552,7 +794,7 @@ func fetchSessions() []table.Row {
 	}
 
 	if len(rows) == 0 {
-		rows = append(rows, table.Row{"—", "no sessions", "—", "—"})
+		rows = append(rows, table.Row{"\u2014", "no sessions", "\u2014", "\u2014"})
 	}
 	return rows
 }
@@ -564,7 +806,7 @@ func detectSessionProject(sessPath string) string {
 		metaPath := filepath.Join(sessPath, "metadata.json")
 		data, err = os.ReadFile(metaPath)
 		if err != nil {
-			return "—"
+			return "\u2014"
 		}
 	}
 	var meta struct {
@@ -583,7 +825,7 @@ func detectSessionProject(sessPath string) string {
 			return filepath.Base(meta.CWD)
 		}
 	}
-	return "—"
+	return "\u2014"
 }
 
 func detectSessionStatus(sessPath string) string {
@@ -667,6 +909,204 @@ func containsStr(slice []string, item string) bool {
 	return false
 }
 
+func fetchTasks() []table.Row {
+	var rows []table.Row
+
+	pluginPath := filepath.Join(configDir, "plugins.json")
+	data, err := os.ReadFile(pluginPath)
+	hasOrchestrator := false
+	if err == nil {
+		var reg pluginRegistry
+		if json.Unmarshal(data, &reg) == nil {
+			for _, name := range reg.Tiers.Always {
+				if strings.Contains(name, "orchestrator") {
+					hasOrchestrator = true
+					break
+				}
+			}
+			if !hasOrchestrator {
+				for name, cfg := range reg.Tiers.Conditional {
+					if strings.Contains(name, "orchestrator") && cfg.Enabled {
+						hasOrchestrator = true
+						break
+					}
+				}
+			}
+		}
+	}
+
+	taskPaths := []string{
+		".swarm/plan.json",
+		filepath.Join(configDir, "tasks.json"),
+		filepath.Join(configDir, "plan.json"),
+	}
+
+	var taskFile string
+	for _, p := range taskPaths {
+		if _, err := os.Stat(p); err == nil {
+			taskFile = p
+			break
+		}
+	}
+
+	if taskFile != "" {
+		taskData, err := os.ReadFile(taskFile)
+		if err == nil {
+			var plan struct {
+				Phases []struct {
+					Name  string `json:"name"`
+					Tasks []struct {
+						ID          string `json:"id"`
+						Description string `json:"description"`
+						Status      string `json:"status"`
+						Size        string `json:"size"`
+					} `json:"tasks"`
+				} `json:"phases"`
+			}
+			if json.Unmarshal(taskData, &plan) == nil {
+				for _, phase := range plan.Phases {
+					for _, task := range phase.Tasks {
+						statusStyled := styleGray.Render(task.Status)
+						switch task.Status {
+						case "completed", "done":
+							statusStyled = styleGreen.Render(task.Status)
+						case "in_progress", "in-progress":
+							statusStyled = styleYellow.Render(task.Status)
+						case "blocked":
+							statusStyled = styleRed.Render(task.Status)
+						}
+
+						priority := task.Size
+						if priority == "" {
+							priority = "\u2014"
+						}
+
+						agent := "\u2014"
+						if hasOrchestrator {
+							agent = "orchestrator"
+						}
+
+						rows = append(rows, table.Row{
+							fmt.Sprintf("%s: %s", task.ID, task.Description),
+							statusStyled,
+							priority,
+							agent,
+						})
+					}
+				}
+			}
+		}
+	}
+
+	if len(rows) == 0 {
+		if !hasOrchestrator {
+			rows = append(rows, table.Row{"\u2014", "No task tracker configured", "\u2014", "\u2014"})
+		} else {
+			rows = append(rows, table.Row{"\u2014", "No tasks found", "\u2014", "\u2014"})
+		}
+	}
+
+	return rows
+}
+
+func fetchLogs() []string {
+	var lines []string
+
+	serviceUnits := []string{"chromadb", "litellm", "open-webui", "ollama", "cockpit", "searxng", "qdrant"}
+	args := []string{"--user", "--no-pager", "-n", "30"}
+	for _, u := range serviceUnits {
+		args = append(args, "-u", u)
+	}
+
+	out, err := exec.Command("journalctl", args...).Output()
+	if err != nil {
+		lines = append(lines, "journalctl not available or no logs found")
+		return lines
+	}
+
+	scanner := bufio.NewScanner(strings.NewReader(string(out)))
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.TrimSpace(line) != "" {
+			lines = append(lines, line)
+		}
+	}
+
+	if len(lines) == 0 {
+		lines = append(lines, "No log entries for opencode services")
+	}
+
+	return lines
+}
+
+func fetchInfraNames() []string {
+	infraFile := filepath.Join(configDir, "infra.yml")
+	if _, err := os.Stat(infraFile); os.IsNotExist(err) {
+		return nil
+	}
+
+	out, err := exec.Command("docker", "compose", "-f", infraFile, "ps", "--format", "{{.Name}}").Output()
+	if err != nil {
+		return nil
+	}
+
+	var names []string
+	for _, line := range strings.Split(strings.TrimSpace(string(out)), "\n") {
+		if line != "" {
+			names = append(names, strings.TrimSpace(line))
+		}
+	}
+	return names
+}
+
+func fetchInfra() []table.Row {
+	var rows []table.Row
+
+	infraFile := filepath.Join(configDir, "infra.yml")
+	if _, err := os.Stat(infraFile); os.IsNotExist(err) {
+		rows = append(rows, table.Row{"\u2014", "infra.yml not found", "\u2014"})
+		return rows
+	}
+
+	out, err := exec.Command("docker", "compose", "-f", infraFile, "ps", "--format", "{{.Name}}\t{{.Status}}\t{{.Ports}}").Output()
+	if err != nil {
+		rows = append(rows, table.Row{"\u2014", "docker compose unavailable", strconv.Itoa(0)})
+		return rows
+	}
+
+	for _, line := range strings.Split(strings.TrimSpace(string(out)), "\n") {
+		if line == "" {
+			continue
+		}
+		parts := strings.SplitN(line, "\t", 3)
+		name := parts[0]
+		status := ""
+		ports := ""
+		if len(parts) >= 2 {
+			status = parts[1]
+		}
+		if len(parts) >= 3 {
+			ports = parts[2]
+		}
+
+		statusStyled := styleGreen.Render(status)
+		lowerS := strings.ToLower(status)
+		if strings.Contains(lowerS, "exit") || strings.Contains(lowerS, "down") || strings.Contains(lowerS, "unhealthy") {
+			statusStyled = styleRed.Render(status)
+		} else if strings.Contains(lowerS, "restarting") {
+			statusStyled = styleYellow.Render(status)
+		}
+
+		rows = append(rows, table.Row{name, statusStyled, ports})
+	}
+
+	if len(rows) == 0 {
+		rows = append(rows, table.Row{"\u2014", "no infra services running", "\u2014"})
+	}
+
+	return rows
+}
+
 func newTable(cols []table.Column) table.Model {
 	t := table.New(
 		table.WithColumns(cols),
@@ -685,7 +1125,7 @@ func newTable(cols []table.Column) table.Model {
 }
 
 func main() {
-	tabs := []string{"Services", "Plugins", "GPU", "Sessions"}
+	tabs := []string{"Services", "Plugins", "GPU", "Sessions", "Tasks", "Logs", "Infra"}
 
 	svcCols := []table.Column{
 		{Title: "Name", Width: 35},
@@ -709,12 +1149,29 @@ func main() {
 		{Title: "Status", Width: 25},
 		{Title: "Memory", Width: 20},
 	}
+	taskCols := []table.Column{
+		{Title: "Task", Width: 50},
+		{Title: "Status", Width: 20},
+		{Title: "Priority", Width: 15},
+		{Title: "Agent", Width: 20},
+	}
+	logsCols := []table.Column{
+		{Title: "Logs", Width: 110},
+	}
+	infraCols := []table.Column{
+		{Title: "Service", Width: 40},
+		{Title: "Status", Width: 35},
+		{Title: "Ports", Width: 35},
+	}
 
 	tables := []table.Model{
 		newTable(svcCols),
 		newTable(plugCols),
 		newTable(gpuCols),
 		newTable(sessCols),
+		newTable(taskCols),
+		newTable(logsCols),
+		newTable(infraCols),
 	}
 
 	m := model{
