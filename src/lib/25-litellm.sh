@@ -22,7 +22,7 @@ mkdir -p ~/.config/litellm
 OLLAMA_MODELS="qwen3:1.8b"
 if command -v ollama &>/dev/null; then
   OLLAMA_MODELS=$(ollama list 2>/dev/null | awk 'NR>1{print $1}' | tr '\n' ',' | sed 's/,$//')
-  [ -z "$OLLAMA_MODELS" ] && OLLAMA_MODELS="qwen3:1.8b"
+  [ -z "$OLLAMA_MODELS" ] && OLLAMA_MODELS="qwen3:0.6b"
 fi
 
 cat > ~/.config/litellm/config.yaml << 'YAML'
@@ -82,7 +82,7 @@ router_settings:
   allowed_fails: 3
   num_retries: 2
   fallbacks:
-    - ollama/qwen3:1.8b
+    - ollama/qwen3:0.6b
 YAML
 
 log "LiteLLM config written: ~/.config/litellm/config.yaml"

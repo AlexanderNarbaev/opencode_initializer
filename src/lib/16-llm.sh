@@ -93,7 +93,7 @@ with open(os.path.join(home, '.config/litellm/hardware.json'), 'w') as f:
       if $HAS_GPU; then
         ollama pull qwen3:14b 2>/dev/null & log "Ollama: pulling qwen3:14b (GPU-optimized, background)"
       else
-        ollama pull qwen3:1.8b 2>/dev/null & log "Ollama: pulling qwen3:1.8b (CPU-friendly, background)"
+        ollama pull qwen3:1.7b 2>/dev/null && log "Ollama: qwen3:1.7b pulled" || warn "Ollama: qwen3:1.7b pull failed"
       fi
     fi
   else
