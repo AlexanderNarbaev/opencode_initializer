@@ -25,6 +25,7 @@ usage() {
   echo "  dev infra up [svc]    Start infra services (postgres, qdrant, redis, kafka, neo4j, minio)"
   echo "  dev infra down [svc]  Stop infra services"
   echo "  dev infra status      Show infra service status"
+  echo "  dev plugins list      List plugins by tier and status"
 }
 
 cmd_list() {
@@ -191,7 +192,45 @@ cmd_infra() {
   esac
 }
 
+cmd_plugins() {
+  PLUGINS_JSON="$HOME/.config/opencode/plugins.json"
+  action="${2:-list}"
+  target="${3:-}"
+
+  case "$action" in
+    list|ls)
+      section "Plugin Registry ($PLUGINS_JSON)"
+      if [ -f "$PLUGINS_JSON" ]; then
+        python3 -c "
+import json, os
+with open('$PLUGINS_JSON') as f:
+    data = json.load(f)
+print('ALWAYS (enabled unconditionally):')
+for p in data['tiers']['always']:
+    print(f'  \033[32m●\033[0m {p}')
+print()
+print('CONDITIONAL (enabled when deps met):')
+for p, cfg in sorted(data['tiers']['conditional'].items()):
+    deps = ', '.join(cfg.get('depends', []))
+    auto = 'auto' if cfg.get('auto_enable') else 'manual'
+    status = '\033[32menabled\033[0m' if cfg.get('enabled') else '\033[90mdisabled\033[0m'
+    print(f'  {status} {p} (deps: [{deps}], {auto})')
+print()
+print('ON-DEMAND (manual enable only):')
+for p in data['tiers']['on_demand']:
+    print(f'  \033[90m○\033[0m {p}')
+" 2>&1
+      else
+        warn "No plugins.json found at $PLUGINS_JSON"
+        echo "  Run: setup.sh --reinit  to regenerate"
+      fi
+      ;;
+    *) err "Unknown: dev plugins $action. Use: list" ;;
+  esac
+}
+
 case "${1:-}" in
+  install)  cmd_install "${2:-}" ;;
   remove)   cmd_remove "${2:-}" ;;
   update)   cmd_update ;;
   health)   cmd_health ;;
@@ -200,6 +239,8 @@ case "${1:-}" in
   self-update) cmd_self_update ;;
   version-check) cmd_version_check ;;
   autoupdate) cmd_autoupdate ;;
+  infra)     cmd_infra "${@}" ;;
+  plugins)   cmd_plugins "${@}" ;;
   -h|--help|help|"") usage ;;
-  *)        err "Unknown: $1. Use: dev install|remove|update|health|list|config|self-update|version-check|autoupdate" ;;
+  *)        err "Unknown: $1. Use: dev install|remove|update|health|list|config|self-update|version-check|autoupdate|infra|plugins" ;;
 esac

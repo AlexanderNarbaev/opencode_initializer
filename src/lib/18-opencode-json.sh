@@ -313,11 +313,86 @@ lsp_check("vscode-css-language-server", "css", ["vscode-css-language-server", "-
 lsp_check("vscode-html-language-server", "html", ["vscode-html-language-server", "--stdio"], [".html", ".htm"])
 lsp_check("vscode-json-language-server", "json", ["vscode-json-language-server", "--stdio"], [".json", ".jsonc"])
 
-# Plugins — opencode-codegraph (always) + conditional
+# Plugins — read from tier-based registry (plugins.yml)
 plugins = ["opencode-codegraph"]
-if pkg_installed("open-orchestra"):
-    plugins.append("open-orchestra")
-if pkg_installed("@tarquinen/opencode-dcp"):
+plugin_registry_path = os.path.join(home, ".config", "opencode", "plugins.json")
+project_override = os.path.join(PROJECT_DIR, ".opencode", "plugins.json")
+
+def load_plugin_registry():
+    registry = {"tiers": {"always": [], "conditional": {}, "on_demand": []}}
+    if os.path.exists(plugin_registry_path):
+        try:
+            with open(plugin_registry_path) as f:
+                data = json.load(f)
+                if "tiers" in data:
+                    registry["tiers"] = data["tiers"]
+        except: pass
+    if os.path.exists(project_override):
+        try:
+            with open(project_override) as f:
+                data = json.load(f)
+                if "tiers" in data:
+                    for tier_name in ["always", "on_demand"]:
+                        if tier_name in data["tiers"]:
+                            registry["tiers"][tier_name] = data["tiers"][tier_name]
+                    if "conditional" in data["tiers"]:
+                        for pkg, cfg in data["tiers"]["conditional"].items():
+                            registry["tiers"]["conditional"][pkg] = cfg
+        except: pass
+    return registry
+
+def check_dep(name):
+    if name == "postgresql":
+        return subprocess.run(["docker", "ps", "--format", "{{.Names}}"], capture_output=True, text=True).stdout.find("opencode-postgres") != -1
+    if name == "qdrant":
+        return subprocess.run(["docker", "ps", "--format", "{{.Names}}"], capture_output=True, text=True).stdout.find("opencode-qdrant") != -1
+    if name == "redis":
+        return subprocess.run(["docker", "ps", "--format", "{{.Names}}"], capture_output=True, text=True).stdout.find("opencode-redis") != -1
+    if name == "docker":
+        return shutil.which("docker") is not None
+    if name == "daytona_daemon":
+        return shutil.which("daytona") is not None
+    if name == "git_worktree":
+        return os.path.exists(os.path.join(PROJECT_DIR, ".git", "worktrees")) or False
+    if name == "goal_mode":
+        return True  # always available
+    if name == "zellij":
+        return shutil.which("zellij") is not None
+    return False
+
+registry = load_plugin_registry()
+
+# Always tier — always included if package installed
+for pkg in registry["tiers"].get("always", []):
+    if pkg == "opencode-codegraph":
+        continue  # already added
+    npm_name = pkg
+    if pkg_installed(npm_name):
+        plugins.append(pkg)
+
+# Conditional tier — included if enabled AND deps met
+for pkg, cfg in registry["tiers"].get("conditional", {}).items():
+    npm_name = pkg
+    if not isinstance(cfg, dict):
+        continue
+    enabled = cfg.get("enabled", False)
+    auto = cfg.get("auto_enable", False)
+    deps = cfg.get("depends", [])
+    # Auto-enable if deps are met
+    if auto and not enabled:
+        if all(check_dep(d) for d in deps):
+            enabled = True
+    if enabled and pkg_installed(npm_name):
+        plugins.append(pkg)
+
+# On-demand tier — only if explicitly enabled by user
+for pkg in registry["tiers"].get("on_demand", []):
+    npm_name = pkg if isinstance(pkg, str) else pkg.get("name", "")
+    if pkg_installed(npm_name):
+        plugins.append(pkg)
+
+# Always add dcp with config if installed (legacy — will move to always tier)
+if pkg_installed("@tarquinen/opencode-dcp") and "opencode-dcp" not in plugins:
     plugins.append(["opencode-dcp", {
         "compress": {
             "enabled": True,
@@ -331,75 +406,7 @@ if pkg_installed("@tarquinen/opencode-dcp"):
             "minTokens": 20000
         }
     }])
-if pkg_installed("opencode-lazy-loader"):
-    plugins.append("opencode-lazy-loader")
-if pkg_installed("@gitdamnit/opencode-stranger-danger"):
-    plugins.append("opencode-stranger-danger")
-if pkg_installed("opencode-damage-control"):
-    plugins.append(["opencode-damage-control", {
-        "guardrails": {
-            "input": {
-                "piiFiltering": True,
-                "promptInjectionPrevention": True
-            },
-            "deterministicPolicies": {
-                "blockedCommands": ["rm -rf /", "DROP TABLE", "terraform destroy"],
-                "blockedPaths": ["~/.ssh", "~/.aws", ".env"]
-            }
-        },
-        "audit": {
-            "logTamperResistant": True,
-            "logRetentionDays": 365
-        }
-    }])
-if pkg_installed("opencode-auto-fallback"):
-    plugins.append("opencode-auto-fallback")
-if pkg_installed("opencode-goal-mode"):
-    plugins.append("opencode-goal-mode")
-if pkg_installed("opencode-swarm"):
-    plugins.append("opencode-swarm")
-if pkg_installed("opencode-vibeguard"):
-    plugins.append("opencode-vibeguard")
 
-# Infrastructure plugins
-if pkg_installed("opencode-daytona"):
-    plugins.append("opencode-daytona")
-if pkg_installed("opencode-devcontainers"):
-    plugins.append("opencode-devcontainers")
-if pkg_installed("opencode-worktree"):
-    plugins.append("opencode-worktree")
-if pkg_installed("opencode-scheduler"):
-    plugins.append("opencode-scheduler")
-
-# AI-enhancement plugins
-if pkg_installed("opencode-background-agents"):
-    plugins.append("opencode-background-agents")
-if pkg_installed("@zenobius/opencode-skillful"):
-    plugins.append("opencode-skillful")
-if pkg_installed("opencode-goal-plugin"):
-    plugins.append("opencode-goal-plugin")
-if pkg_installed("opencode-conductor"):
-    plugins.append("opencode-conductor")
-
-# QoL plugins
-if pkg_installed("opencode-zellij-namer"):
-    plugins.append("opencode-zellij-namer")
-if pkg_installed("@morphllm/opencode-morph-plugin"):
-    plugins.append("opencode-morph-plugin")
-
-# Memory/context plugins
-if pkg_installed("opencode-supermemory"):
-    plugins.append("opencode-supermemory")
-if pkg_installed("opencode-websearch-cited"):
-    plugins.append("opencode-websearch-cited")
-
-# Utility
-if pkg_installed("@lyculs/opencode-firecrawl"):
-    plugins.append("opencode-firecrawl")
-
-# Telemetry
-if pkg_installed("@devtheops/opencode-plugin-otel"):
-    plugins.append("opencode-plugin-otel")
 
 # Build config
 config = {
