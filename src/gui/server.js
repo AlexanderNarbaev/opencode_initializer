@@ -10,6 +10,7 @@ const PORT = process.env.GUI_PORT || 4200;
 const HOST = process.env.GUI_HOST || '127.0.0.1';
 const INFRA_FILE = path.join(process.env.HOME, '.config', 'opencode', 'infra.yml');
 const PLUGINS_FILE = path.join(process.env.HOME, '.config', 'opencode', 'plugins.json');
+const SESSIONS_DIR = path.join(process.env.HOME, '.config', 'opencode', 'sessions');
 const CACHE_TTL = 5000;
 
 let cache = { status: null, infra: null, plugins: null };
@@ -97,6 +98,47 @@ function getPlugins() {
   }
 }
 
+function getSessions() {
+  if (!fs.existsSync(SESSIONS_DIR)) return { sessions: [] };
+  try {
+    const entries = fs.readdirSync(SESSIONS_DIR, { withFileTypes: true });
+    const now = Date.now();
+    return {
+      sessions: entries
+        .filter(e => e.isDirectory())
+        .map(e => {
+          const stat = fs.statSync(path.join(SESSIONS_DIR, e.name));
+          const ageMs = now - stat.mtimeMs;
+          const ageDays = Math.floor(ageMs / 86400000);
+          const ageHours = Math.floor((ageMs % 86400000) / 3600000);
+          const age = ageDays > 0 ? ageDays + 'd ' + ageHours + 'h' : ageHours + 'h';
+          return { name: e.name, mtime: stat.mtime.toISOString(), age };
+        })
+        .sort((a, b) => new Date(b.mtime) - new Date(a.mtime))
+    };
+  } catch (e) {
+    return { error: e.message, sessions: [] };
+  }
+}
+
+function getGPUInfo() {
+  const result = { nvidia: null, ollama: null, error: null };
+  result.nvidia = safeExec('nvidia-smi --query-gpu=name,memory.used,memory.total,utilization.gpu,temperature.gpu --format=csv,noheader 2>/dev/null');
+  result.ollama = safeExec('ollama list 2>/dev/null');
+  if (!result.nvidia && !result.ollama) result.error = 'No GPU tools available (nvidia-smi/ollama)';
+  return result;
+}
+
+function getMetrics() {
+  return {
+    memory: safeExec('free -h 2>/dev/null'),
+    disk: safeExec('df -h / /home 2>/dev/null'),
+    uptime: safeExec('uptime 2>/dev/null'),
+    load: safeExec('cat /proc/loadavg 2>/dev/null'),
+    timestamp: new Date().toISOString()
+  };
+}
+
 function handleStatus(req, res) {
   if (Date.now() - lastFetch < CACHE_TTL && cache.status) {
     return jsonResponse(res, 200, cache.status);
@@ -121,6 +163,21 @@ function handleInfra(req, res) {
 
 function handlePlugins(req, res) {
   const data = getPlugins();
+  jsonResponse(res, 200, data);
+}
+
+function handleSessions(req, res) {
+  const data = getSessions();
+  jsonResponse(res, 200, data);
+}
+
+function handleGPU(req, res) {
+  const data = getGPUInfo();
+  jsonResponse(res, 200, data);
+}
+
+function handleMetrics(req, res) {
+  const data = getMetrics();
   jsonResponse(res, 200, data);
 }
 
@@ -167,6 +224,9 @@ const server = http.createServer((req, res) => {
   if (url.pathname === '/api/status' && method === 'GET') return handleStatus(req, res);
   if (url.pathname === '/api/infra' && method === 'GET') return handleInfra(req, res);
   if (url.pathname === '/api/plugins' && method === 'GET') return handlePlugins(req, res);
+  if (url.pathname === '/api/sessions' && method === 'GET') return handleSessions(req, res);
+  if (url.pathname === '/api/gpu' && method === 'GET') return handleGPU(req, res);
+  if (url.pathname === '/api/metrics' && method === 'GET') return handleMetrics(req, res);
   if (method === 'POST') {
     const match = url.pathname.match(/^\/api\/infra\/([^/]+)\/(start|stop|restart)$/);
     if (match) return handleInfraAction(req, res, match[1], match[2]);

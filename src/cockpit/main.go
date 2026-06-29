@@ -119,7 +119,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			}
 
-		case "s", "k", "r":
+		case "s", "k", "x":
 			if m.activeTab == 6 && len(m.infraServiceNames) > 0 && m.infraSelected < len(m.infraServiceNames) {
 				svc := m.infraServiceNames[m.infraSelected]
 				infraFile := filepath.Join(configDir, "infra.yml")
@@ -478,14 +478,15 @@ func fetchPlugins() []table.Row {
 	for _, ce := range condEntries {
 		tier := styleCyan.Render("conditional")
 		depsMet, depsMissing := checkPluginDeps(ce.cfg.Depends)
+		depsOK := len(depsMet) == len(ce.cfg.Depends)
 		var statusStr string
-		if ce.cfg.Enabled && depsMet {
+		if ce.cfg.Enabled && depsOK {
 			statusStr = styleGreen.Render("enabled")
-		} else if ce.cfg.Enabled && !depsMet {
+		} else if ce.cfg.Enabled && !depsOK {
 			statusStr = styleYellow.Render("awaiting deps")
-		} else if ce.cfg.AutoEnable && depsMet {
+		} else if ce.cfg.AutoEnable && depsOK {
 			statusStr = styleGreen.Render("auto-enabled")
-		} else if ce.cfg.AutoEnable && !depsMet {
+		} else if ce.cfg.AutoEnable && !depsOK {
 			statusStr = styleYellow.Render("awaiting deps (auto)")
 		} else {
 			statusStr = styleGray.Render("disabled")
