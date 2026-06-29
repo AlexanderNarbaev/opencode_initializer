@@ -83,6 +83,9 @@ while [[ $# -gt 0 ]]; do case $1 in
   --with-neo4j)        INFRA_SERVICES="${INFRA_SERVICES:-}neo4j "; shift;;
   --with-minio)        INFRA_SERVICES="${INFRA_SERVICES:-}minio "; shift;;
   --with-all-infra)    INFRA_SERVICES="postgres qdrant redis kafka neo4j minio"; shift;;
+  --with-observability) INFRA_SERVICES="${INFRA_SERVICES:-}prometheus grafana "; OBSERVABILITY_ENABLED=true; shift;;
+  --with-prometheus)    INFRA_SERVICES="${INFRA_SERVICES:-}prometheus "; OBSERVABILITY_ENABLED=true; shift;;
+  --with-grafana)       INFRA_SERVICES="${INFRA_SERVICES:-}grafana "; OBSERVABILITY_ENABLED=true; shift;;
   -n|--git-name)       GIT_NAME="$2"; shift 2;;
   -e|--git-email)      GIT_EMAIL="$2"; shift 2;;
   -s|--sudo-pass)      SUDO_PASS="$2"; shift 2;;
@@ -296,7 +299,7 @@ echo -e "${GREEN}     Log:  $LOG_FILE${NC}"
 echo -e "${GREEN}============================================================${NC}"
 
 # ── Execute steps ───────────────────────────────────────────────────────────
-TOTAL_STEPS=31; CURRENT_STEP=0
+TOTAL_STEPS=32; CURRENT_STEP=0
 
 _run_step() {
   local step_key="$1" step_name="$2" module="$3"
@@ -356,6 +359,7 @@ _run_step step_providers  "Multi-Provider Config" "$SCRIPT_DIR/src/lib/26-provid
 [ "${SKIP_DOTFILES:-false}" != "true" ] && _run_step step_dotfiles   "Dotfiles (chezmoi)"    "$SCRIPT_DIR/src/lib/27-dotfiles.sh"
 [ "${SKIP_DEVBOX:-false}" != "true" ]   && _run_step step_devbox     "Devbox (Nix)"          "$SCRIPT_DIR/src/lib/28-devbox.sh"
 [ "${SKIP_GUI:-false}" != "true" ]      && _run_step step_gui        "Web GUI Interface"    "$SCRIPT_DIR/src/lib/33-gui.sh"
+[ "${OBSERVABILITY_ENABLED:-false}" = "true" ] && _run_step step_observability "Observability Stack" "$SCRIPT_DIR/src/lib/32-observability.sh"
 
 echo ""
 echo -e "  ${GREEN}╔══════════════════════════════════════╗${NC}"

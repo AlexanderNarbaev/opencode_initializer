@@ -25,6 +25,7 @@ usage() {
   echo "  dev infra up [svc]    Start infra services (postgres, qdrant, redis, kafka, neo4j, minio)"
   echo "  dev infra down [svc]  Stop infra services"
   echo "  dev infra status      Show infra service status"
+  echo "  dev observability up|down|status  Manage Prometheus + Grafana"
   echo "  dev gui start|stop|status  Manage GUI web interface"
   echo "  dev plugins list      List plugins by tier and status"
 }
@@ -230,6 +231,48 @@ for p in data['tiers']['on_demand']:
   esac
 }
 
+cmd_observability() {
+  INFRA_CONFIG="$HOME/.config/opencode/infra.yml"
+  action="${2:-status}"
+
+  case "$action" in
+    up)
+      if [ ! -f "$INFRA_CONFIG" ]; then
+        err "No infra config found. Run: setup.sh --with-observability  to create it"
+      fi
+      section "Starting observability services (Prometheus + Grafana)..."
+      if ! grep -q "prom/prometheus" "$INFRA_CONFIG" 2>/dev/null; then
+        err "Prometheus not in infra.yml. Run: setup.sh --with-observability"
+      fi
+      docker compose -f "$INFRA_CONFIG" up -d --wait prometheus grafana 2>/dev/null && \
+        log "Observability services started (Prometheus :9090, Grafana :3001)" || \
+        warn "Some observability services failed to start"
+      ;;
+    down)
+      if [ ! -f "$INFRA_CONFIG" ]; then
+        err "No infra config found"
+      fi
+      section "Stopping observability services..."
+      docker compose -f "$INFRA_CONFIG" stop prometheus grafana 2>/dev/null && \
+        log "Observability services stopped" || \
+        warn "Failed to stop observability services"
+      ;;
+    status|"")
+      section "Observability Services Status"
+      if [ -f "$INFRA_CONFIG" ]; then
+        if grep -q "prom/prometheus" "$INFRA_CONFIG" 2>/dev/null; then
+          docker compose -f "$INFRA_CONFIG" ps prometheus grafana 2>/dev/null || echo "  No observability services running"
+        else
+          echo "  Observability services not configured. Run: setup.sh --with-observability"
+        fi
+      else
+        echo "  No infra config. Run: setup.sh --with-all-infra"
+      fi
+      ;;
+    *) err "Unknown: dev observability $action. Use: up|down|status" ;;
+  esac
+}
+
 cmd_gui() {
   local action="${2:-status}"
   case "$action" in
@@ -260,7 +303,8 @@ case "${1:-}" in
   autoupdate) cmd_autoupdate ;;
   infra)     cmd_infra "${@}" ;;
   plugins)   cmd_plugins "${@}" ;;
+  observability) cmd_observability "${@}" ;;
   gui)       cmd_gui "${@}" ;;
   -h|--help|help|"") usage ;;
-  *)        err "Unknown: $1. Use: dev install|remove|update|health|list|config|self-update|version-check|autoupdate|infra|plugins" ;;
+  *)        err "Unknown: $1. Use: dev install|remove|update|health|list|config|self-update|version-check|autoupdate|infra|plugins|observability" ;;
 esac
