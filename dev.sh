@@ -22,9 +22,9 @@ usage() {
   echo "  dev list              List installed components"
   echo "  dev config            Edit setup config"
   echo "  dev self-update       Update dev CLI from git (pull + install)"
-  echo "  dev version-check     Check installed versions against latest"
-  echo "  dev autoupdate        Run full system update (topgrade)"
-  exit 0
+  echo "  dev infra up [svc]    Start infra services (postgres, qdrant, redis, kafka, neo4j, minio)"
+  echo "  dev infra down [svc]  Stop infra services"
+  echo "  dev infra status      Show infra service status"
 }
 
 cmd_list() {
@@ -147,8 +147,51 @@ cmd_autoupdate() {
   fi
 }
 
+cmd_infra() {
+  INFRA_CONFIG="$HOME/.config/opencode/infra.yml"
+  action="${2:-status}"
+  target="${3:-}"
+
+  case "$action" in
+    up)
+      if [ ! -f "$INFRA_CONFIG" ]; then
+        err "No infra config found. Run: setup.sh --with-all-infra  to create it"
+      fi
+      section "Starting infra services..."
+      if [ -n "$target" ]; then
+        docker compose -f "$INFRA_CONFIG" up -d --wait "$target" 2>/dev/null && \
+          log "Started: $target" || warn "Failed to start $target"
+      else
+        docker compose -f "$INFRA_CONFIG" up -d --wait 2>/dev/null && \
+          log "All infra services started" || warn "Some services failed"
+      fi
+      ;;
+    down)
+      if [ ! -f "$INFRA_CONFIG" ]; then
+        err "No infra config found"
+      fi
+      section "Stopping infra services..."
+      if [ -n "$target" ]; then
+        docker compose -f "$INFRA_CONFIG" stop "$target" 2>/dev/null && \
+          log "Stopped: $target" || warn "Failed to stop $target"
+      else
+        docker compose -f "$INFRA_CONFIG" down 2>/dev/null && \
+          log "All infra services stopped" || warn "Failed to stop"
+      fi
+      ;;
+    status|"")
+      section "Infra Services Status"
+      if [ -f "$INFRA_CONFIG" ]; then
+        docker compose -f "$INFRA_CONFIG" ps 2>/dev/null || echo "  No services running"
+      else
+        echo "  No infra config. Run: setup.sh --with-all-infra"
+      fi
+      ;;
+    *) err "Unknown: dev infra $action. Use: up|down|status" ;;
+  esac
+}
+
 case "${1:-}" in
-  install)  cmd_install "${2:-}" ;;
   remove)   cmd_remove "${2:-}" ;;
   update)   cmd_update ;;
   health)   cmd_health ;;

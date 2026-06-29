@@ -76,6 +76,13 @@ while [[ $# -gt 0 ]]; do case $1 in
   --fzf-key)           FZF_KEY="$2"; shift 2;;
   --devbox-skip)       SKIP_DEVBOX=true; shift;;
   --dotfiles-skip)     SKIP_DOTFILES=true; shift;;
+  --with-postgres)     INFRA_SERVICES="${INFRA_SERVICES:-}postgres "; shift;;
+  --with-qdrant)       INFRA_SERVICES="${INFRA_SERVICES:-}qdrant "; shift;;
+  --with-redis)        INFRA_SERVICES="${INFRA_SERVICES:-}redis "; shift;;
+  --with-kafka)        INFRA_SERVICES="${INFRA_SERVICES:-}kafka "; shift;;
+  --with-neo4j)        INFRA_SERVICES="${INFRA_SERVICES:-}neo4j "; shift;;
+  --with-minio)        INFRA_SERVICES="${INFRA_SERVICES:-}minio "; shift;;
+  --with-all-infra)    INFRA_SERVICES="postgres qdrant redis kafka neo4j minio"; shift;;
   -n|--git-name)       GIT_NAME="$2"; shift 2;;
   -e|--git-email)      GIT_EMAIL="$2"; shift 2;;
   -s|--sudo-pass)      SUDO_PASS="$2"; shift 2;;
@@ -121,6 +128,13 @@ Options:
   --fzf-key           FZF key binding for zsh (default: ^T)
   --devbox-skip       Skip Devbox (Nix-based isolated dev environments)
   --dotfiles-skip     Skip chezmoi dotfiles manager installation
+  --with-postgres     Enable PostgreSQL 18 in Docker (needed for memory/plugins)
+  --with-qdrant       Enable Qdrant vector DB (needed for code search / RAG)
+  --with-redis        Enable Redis 7 cache (needed for sessions / PubSub)
+  --with-kafka        Enable Kafka message broker (needed for event streaming)
+  --with-neo4j        Enable Neo4j graph DB (needed for knowledge graph)
+  --with-minio        Enable MinIO S3 storage (needed for artifacts)
+  --with-all-infra    Enable all Docker infrastructure services
   --dry-run           Preview mode: show what would be installed, make no changes
   -s, --sudo-pass     Sudo password (cached between steps)
   -h, --help          Show this help
@@ -282,7 +296,7 @@ echo -e "${GREEN}     Log:  $LOG_FILE${NC}"
 echo -e "${GREEN}============================================================${NC}"
 
 # ── Execute steps ───────────────────────────────────────────────────────────
-TOTAL_STEPS=29; CURRENT_STEP=0
+TOTAL_STEPS=30; CURRENT_STEP=0
 
 _run_step() {
   local step_key="$1" step_name="$2" module="$3"
@@ -298,6 +312,7 @@ _run_step() {
 
 _run_step step_system     "System packages"        "$SCRIPT_DIR/src/lib/01-system.sh"
 _run_step step_docker     "Docker Engine"          "$SCRIPT_DIR/src/lib/02-docker.sh"
+[ "${INFRA_SERVICES:-}" != "" ] && _run_step step_infra "Infrastructure Services" "$SCRIPT_DIR/src/lib/30-infra.sh"
 _run_step step_chrome     "Google Chrome"          "$SCRIPT_DIR/src/lib/03-chrome.sh"
 _run_step step_zsh        "ZSH + Oh My Zsh"        "$SCRIPT_DIR/src/lib/04-zsh.sh"
 _run_step step_java       "Java 25"                "$SCRIPT_DIR/src/lib/05-java.sh"
