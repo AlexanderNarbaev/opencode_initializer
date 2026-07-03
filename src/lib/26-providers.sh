@@ -1,11 +1,45 @@
 #!/usr/bin/env bash
-# lib/26-providers.sh — Multi-provider registry (15+ LLM providers)
+# lib/26-providers.sh — Multi-provider registry (15+ cloud + 4 local OpenAI-compatible)
 set -euo pipefail
 
 _step_skip step_providers && return 0
 
 section "Multi-Provider Configuration"
 
+# ── Isolated circuit: only use local providers ───────────────────────────────
+if [ "${ISOLATED_CIRCUIT:-false}" = "true" ]; then
+  info "ISOLATED CIRCUIT: using local providers only"
+
+  declare -A PROVIDER_REGISTRY
+  PROVIDER_REGISTRY=(
+    [ollama]="OPencode_LOCAL_ENDPOINT|--local-endpoint|Ollama (local)|yes"
+    [litellm]="OPencode_LOCAL_ENDPOINT|--local-endpoint|LiteLLM proxy (local)|yes"
+    [vllm]="OPencode_LOCAL_ENDPOINT|--local-endpoint|vLLM (local)|yes"
+    [sglang]="OPencode_LOCAL_ENDPOINT|--local-endpoint|SGLang (local)|yes"
+  )
+
+  AVAILABLE_PROVIDERS=""
+  for backend in ollama litellm vllm sglang; do
+    port=""
+    case "$backend" in
+      ollama)  port="11434";;
+      litellm) port="4000";;
+      vllm)    port="8000";;
+      sglang)  port="30000";;
+    esac
+    if curl -s "http://localhost:$port/v1/models" --max-time 2 >/dev/null 2>&1; then
+      AVAILABLE_PROVIDERS="$AVAILABLE_PROVIDERS $backend"
+      log "Provider: $backend (localhost:$port — detected)"
+    fi
+  done
+
+  [ -z "$AVAILABLE_PROVIDERS" ] && warn "No local backends detected. Start Ollama: ollama serve"
+  export AVAILABLE_PROVIDERS
+  _step_done step_providers
+  return 0
+fi
+
+# ── Cloud provider registry ──────────────────────────────────────────────────
 # Provider registry: short_name | api_key_env | cli_flag | description | free_tier
 declare -A PROVIDER_REGISTRY
 PROVIDER_REGISTRY=(
@@ -25,6 +59,10 @@ PROVIDER_REGISTRY=(
   [fireworks]="FIREWORKS_API_KEY|--fireworks-key|Fireworks AI|no"
   [cerebras]="CEREBRAS_API_KEY|--cerebras-key|Cerebras (fast inference)|no"
   [perplexity]="PERPLEXITY_API_KEY|--perplexity-key|Perplexity (online search)|no"
+  [ollama]="OPencode_LOCAL_ENDPOINT|--local-endpoint|Ollama (localhost:11434)|yes"
+  [litellm]="OPencode_LOCAL_ENDPOINT|--local-endpoint|LiteLLM proxy (localhost:4000)|yes"
+  [vllm]="OPencode_LOCAL_ENDPOINT|--local-endpoint|vLLM (localhost:8000)|yes"
+  [sglang]="OPencode_LOCAL_ENDPOINT|--local-endpoint|SGLang (localhost:30000)|yes"
 )
 
 AVAILABLE_PROVIDERS=""

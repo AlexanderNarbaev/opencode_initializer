@@ -28,6 +28,7 @@ usage() {
   echo "  dev observability up|down|status  Manage Prometheus + Grafana"
   echo "  dev gui start|stop|status  Manage GUI web interface"
   echo "  dev plugins list      List plugins by tier and status"
+  echo "  dev isolated on|off|status  Toggle isolated circuit mode (local-only LLM)"
 }
 
 cmd_list() {
@@ -291,6 +292,78 @@ cmd_gui() {
   esac
 }
 
+cmd_isolated() {
+  local action="${2:-status}"
+  local CONFIG="$HOME/.config/opencode-setup/setup.conf"
+  mkdir -p "$(dirname "$CONFIG")"
+
+  case "$action" in
+    on|enable)
+      section "Enabling Isolated Circuit Mode"
+      if grep -q "^ISOLATED_CIRCUIT=" "$CONFIG" 2>/dev/null; then
+        sed -i 's/^ISOLATED_CIRCUIT=.*/ISOLATED_CIRCUIT=true/' "$CONFIG"
+      else
+        echo "ISOLATED_CIRCUIT=true" >> "$CONFIG"
+      fi
+      export ISOLATED_CIRCUIT=true
+      log "Isolated circuit: ENABLED"
+      info "All LLM providers now use local OpenAI-compatible servers."
+      info "Recommended: ensure Ollama or LiteLLM is running."
+
+      # Regenerate opencode.json with local providers
+      if command -v opencode &>/dev/null; then
+        source "$SCRIPTS_DIR/src/lib/18-opencode-json.sh" 2>/dev/null || true
+        log "opencode.json regenerated with local providers"
+      fi
+      ;;
+    off|disable)
+      section "Disabling Isolated Circuit Mode"
+      if grep -q "^ISOLATED_CIRCUIT=" "$CONFIG" 2>/dev/null; then
+        sed -i 's/^ISOLATED_CIRCUIT=.*/ISOLATED_CIRCUIT=false/' "$CONFIG"
+      else
+        echo "ISOLATED_CIRCUIT=false" >> "$CONFIG"
+      fi
+      export ISOLATED_CIRCUIT=false
+      log "Isolated circuit: DISABLED"
+      info "Cloud providers (DeepSeek, OpenAI, etc.) are now available."
+      info "Set API keys via: ~/.config/opencode/secrets.env"
+
+      # Regenerate opencode.json with cloud providers
+      if command -v opencode &>/dev/null; then
+        source "$SCRIPTS_DIR/src/lib/18-opencode-json.sh" 2>/dev/null || true
+        log "opencode.json regenerated with cloud providers"
+      fi
+      ;;
+    status|"")
+      section "Isolated Circuit Status"
+      local current="${ISOLATED_CIRCUIT:-false}"
+      [ -z "$current" ] && [ -f "$CONFIG" ] && . "$CONFIG" 2>/dev/null && current="${ISOLATED_CIRCUIT:-false}"
+      case "${current,,}" in true|1|yes|on|enabled) current="true";; *) current="false";; esac
+
+      if [ "$current" = "true" ]; then
+        echo "  Isolated Circuit: ${GREEN}ENABLED${NC}"
+        echo "  All LLM providers use local OpenAI-compatible servers."
+        echo "  Local endpoint: ${OPencode_LOCAL_ENDPOINT:-http://localhost:4000/v1}"
+        echo ""
+        echo "  Running backends:"
+        for backend in ollama:11434 litellm:4000 vllm:8000 sglang:30000; do
+          name="${backend%%:*}"
+          port="${backend##*:}"
+          if ss -tlnp 2>/dev/null | grep -q ":$port "; then
+            echo "    ${GREEN}●${NC} $name (port $port) — running"
+          else
+            echo "    ○ $name (port $port) — not running"
+          fi
+        done
+      else
+        echo "  Isolated Circuit: DISABLED"
+        echo "  Cloud providers available."
+      fi
+      ;;
+    *) err "Unknown: dev isolated $action. Use: on|off|status" ;;
+  esac
+}
+
 case "${1:-}" in
   install)  cmd_install "${2:-}" ;;
   remove)   cmd_remove "${2:-}" ;;
@@ -305,6 +378,7 @@ case "${1:-}" in
   plugins)   cmd_plugins "${@}" ;;
   observability) cmd_observability "${@}" ;;
   gui)       cmd_gui "${@}" ;;
+  isolated)  cmd_isolated "${@}" ;;
   -h|--help|help|"") usage ;;
   *)        err "Unknown: $1. Use: dev install|remove|update|health|list|config|self-update|version-check|autoupdate|infra|plugins|observability" ;;
 esac

@@ -5,17 +5,38 @@ All notable changes to opencode_initializer will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.0-alpha] — 2026-06-29
+## [2.0.0-alpha] — 2026-07-03
 
 ### Added
-- `30-infra.sh`: Infrastructure provisioning — PostgreSQL + Qdrant + Redis via Docker Compose
-- `31-cockpit.sh`: Cockpit C++ server management daemon (build + systemd service)
+- `30-infra.sh`: Infrastructure provisioning — PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer via Docker Compose
+- `31-cockpit.sh`: Cockpit TUI server management daemon (build + systemd service)
+- `32-isolated.sh`: **Isolated Circuit Mode** — air-gapped / offline-first LLM operation
+  - Flag: `--isolated` / `--no-isolated` CLI, `ISOLATED_CIRCUIT=true` config, env var
+  - Local OpenAI-compatible backends: Ollama (:11434), LiteLLM (:4000), vLLM (:8000), SGLang (:30000)
+  - Auto-detection of running backends at `/v1/models`
+  - Config persist: `~/.config/opencode-setup/setup.conf`
+  - `dev isolated on|off|status` CLI command
+  - Cockpit TUI: `[ISOLATED]` indicator in header
+- MemoryLayer AI memory: Docker backend + Ollama embed proxy (mxbai-embed-large, 1024-dim) + systemd auto-start
+- Embed proxy: `scripts/embed-proxy.py` — bridges Ollama embeddings to MemoryLayer API format
+- `opencode-embed-proxy.service`: systemd user service for Ollama embedding proxy
+- Observability stack: Prometheus (:9090) + Grafana (:3001) with auto-provisioning
 - Go apt fallback in `08-go.sh`: if direct download fails, use ppa:longsleep/golang-backports
 - Unit tests: `tests/unit/test_infra.sh`, `tests/unit/test_cockpit.sh`
 
 ### Changed
-- Module count: 29 → 35
+- Module count: 29 → 36
+- `30-infra.sh`: expanded from 6→9 services (added prometheus, grafana, memorylayer)
+- `26-providers.sh`: 15 cloud + 4 local OpenAI-compatible providers
+- `18-opencode-json.sh`: `_build_providers()` supports ISOLATED_CIRCUIT mode
+- `00-core.sh`: ISOLATED_CIRCUIT auto-load from config
 - AGENTS.md: Phase 0-4 plan, new module entries, IaC design decision, v2.0.0-alpha header
+- Cockpit: 7-tab TUI (F1 System, F2 Plugins, F3 GPU/Models, F4 Sessions, F5 Tasks, F6 Logs, F7 Infra) + `[ISOLATED]` indicator
+- Cockpit: Web GUI foundation for remote management
+
+### Fixed
+- MemoryLayer: backend not running — deployed Docker container + Ollama embed proxy pipeline
+- `test_infra.sh`: isolated from real config (uses temp dir), +4 new assertions
 
 ## [Unreleased]
 

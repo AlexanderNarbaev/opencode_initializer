@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# lib/30-infra.sh — Docker Infrastructure Layer (PostgreSQL, Qdrant, Redis, Kafka, Neo4j, MinIO)
+# lib/30-infra.sh — Docker Infrastructure Layer (PostgreSQL, Qdrant, Redis, Prometheus, Grafana, MemoryLayer, Kafka, Neo4j, MinIO)
 # Requires: MODE, Docker, INFRA_SERVICES
 set -euo pipefail
 
@@ -7,7 +7,7 @@ _step_skip step_infra && return 0
 
 section "Infrastructure Services (Docker)"
 
-INFRA_CONFIG="$HOME/.config/opencode/infra.yml"
+INFRA_CONFIG="${INFRA_CONFIG:-$HOME/.config/opencode/infra.yml}"
 SERVICES_DIR="$HOME/.config/opencode"
 mkdir -p "$SERVICES_DIR"
 
@@ -19,6 +19,9 @@ declare -A INFRA_SERVICE_MAP=(
   [kafka]="Kafka message broker (port 9092)"
   [neo4j]="Neo4j graph DB (port 7474)"
   [minio]="MinIO S3 storage (port 9000)"
+  [prometheus]="Prometheus monitoring (port 9090)"
+  [grafana]="Grafana dashboards (port 3001)"
+  [memorylayer]="MemoryLayer AI memory server (port 61001)"
 )
 
 # ── Determine which services to enable ────────────────────────────────────
@@ -46,8 +49,8 @@ fi
 
 # ── Auto-enable core services if no selection ─────────────────────────────
 if [ -z "$ENABLED_SERVICES" ] && ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]); then
-  ENABLED_SERVICES="postgres qdrant redis"
-  info "Default infra services: postgres, qdrant, redis"
+  ENABLED_SERVICES="postgres qdrant redis prometheus grafana memorylayer"
+  info "Default infra services: postgres, qdrant, redis, prometheus, grafana, memorylayer"
 fi
 
 [ -z "$ENABLED_SERVICES" ] && log "No infra services selected — skipping" && return 0
@@ -148,6 +151,44 @@ NEO4J
     restart: unless-stopped
 MINIO
       ;;
+    prometheus)
+      cat >> "$INFRA_CONFIG" << 'PROMETHEUS'
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: opencode-prometheus
+    ports: ["127.0.0.1:9090:9090"]
+    volumes:
+      - $HOME/.config/opencode/prometheus.yml:/etc/prometheus/prometheus.yml
+      - opencode_prometheus_data:/prometheus
+    command: --config.file=/etc/prometheus/prometheus.yml
+    restart: unless-stopped
+PROMETHEUS
+      ;;
+    grafana)
+      cat >> "$INFRA_CONFIG" << 'GRAFANA'
+  grafana:
+    image: grafana/grafana:latest
+    container_name: opencode-grafana
+    ports: ["127.0.0.1:3001:3000"]
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+    volumes:
+      - opencode_grafana_data:/var/lib/grafana
+    restart: unless-stopped
+GRAFANA
+      ;;
+    memorylayer)
+      cat >> "$INFRA_CONFIG" << 'MEMORYLAYER'
+  memorylayer:
+    image: scitrera/memorylayer-server:latest
+    container_name: opencode-memorylayer
+    network_mode: host
+    user: root
+    volumes: [opencode_memorylayer_data:/data]
+    restart: unless-stopped
+MEMORYLAYER
+      ;;
   esac
 done
 
@@ -161,9 +202,12 @@ for svc in $ENABLED_SERVICES; do
     postgres) echo "  opencode_pgdata:" >> "$INFRA_CONFIG" ;;
     qdrant)   echo "  opencode_qdrant_data:" >> "$INFRA_CONFIG" ;;
     redis)    echo "  opencode_redis_data:" >> "$INFRA_CONFIG" ;;
-    kafka)    echo "  opencode_kafka_data:" >> "$INFRA_CONFIG" ;;
-    neo4j)    echo "  opencode_neo4j_data:" >> "$INFRA_CONFIG" ;;
-    minio)    echo "  opencode_minio_data:" >> "$INFRA_CONFIG" ;;
+    kafka)        echo "  opencode_kafka_data:" >> "$INFRA_CONFIG" ;;
+    neo4j)        echo "  opencode_neo4j_data:" >> "$INFRA_CONFIG" ;;
+    minio)        echo "  opencode_minio_data:" >> "$INFRA_CONFIG" ;;
+    prometheus)   echo "  opencode_prometheus_data:" >> "$INFRA_CONFIG" ;;
+    grafana)      echo "  opencode_grafana_data:" >> "$INFRA_CONFIG" ;;
+    memorylayer)  echo "  opencode_memorylayer_data:" >> "$INFRA_CONFIG" ;;
   esac
 done
 

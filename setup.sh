@@ -49,6 +49,8 @@ while [[ $# -gt 0 ]]; do case $1 in
   --upgrade)           MODE="upgrade"; shift;;
   --interactive)       MODE="interactive"; shift;;
   --ci)                MODE="ci"; shift;;
+  --isolated)          ISOLATED_CIRCUIT="true"; shift;;
+  --no-isolated)       ISOLATED_CIRCUIT="false"; shift;;
   --dry-run)           MODE="dry-run"; DRY_RUN=true; shift;;
   --fix-config)        MODE="fix-config"; shift;;
   --fix-zshrc)         MODE="fix-zshrc"; shift;;

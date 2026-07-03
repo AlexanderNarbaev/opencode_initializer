@@ -78,6 +78,7 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 | `pre-session-check.sh` | Pre-session provider/model validation + MCP status |
 | `30-infra.sh` | Infrastructure provisioning: PostgreSQL + Qdrant + Redis via Docker Compose |
 | `31-cockpit.sh` | Cockpit C++ server management daemon (build + systemd service) |
+| `32-isolated.sh` | Isolated Circuit Mode — local-only LLM providers (air-gapped) |
 
 ### Modes (src/modes/)
 | Mode | Description |

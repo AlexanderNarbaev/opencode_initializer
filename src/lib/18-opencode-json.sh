@@ -84,9 +84,41 @@ PROVIDER_ENV_VARS = {
 
 def _build_providers():
     """Build provider config based on available API keys, with fallback chains.
+    When ISOLATED_CIRCUIT=true, generates local-only OpenAI-compatible providers.
     API keys use ${ENV_VAR} syntax — team-shareable without exposing secrets."""
     opts = {"options": {"timeout": 600000, "chunkTimeout": 60000, "setCacheKey": True}}
     providers = {}
+
+    isolated = os.environ.get("ISOLATED_CIRCUIT", "false").lower() in ("true", "1", "yes", "on")
+    local_endpoint = os.environ.get("OPencode_LOCAL_ENDPOINT", "http://localhost:4000/v1")
+
+    if isolated:
+        # ── Isolated Circuit: local OpenAI-compatible providers only ─────────
+        local_backends = {
+            "ollama": ("http://localhost:11434/v1", "ollama/qwen3:14b", "ollama/qwen3:0.6b"),
+            "litellm": ("http://localhost:4000/v1", "litellm/qwen3:14b", "litellm/qwen3:0.6b"),
+        }
+
+        # Auto-detect running backends
+        import urllib.request as urlreq
+        for name, (url, default_model, small_model) in local_backends.items():
+            try:
+                urlreq.urlopen(url + "/models", timeout=2)
+                providers[name] = dict(opts)
+                providers[name]["base_url"] = url
+                providers[name]["default_model"] = default_model
+                providers[name]["small_model"] = small_model
+                providers[name]["api_key"] = "not-needed"
+            except Exception:
+                pass
+
+        primary = "ollama" if "ollama" in providers else "litellm"
+        if primary in providers:
+            providers[primary]["fallback"] = [p for p in ["ollama", "litellm"] if p in providers and p != primary]
+
+        return providers
+
+    # ── Cloud providers (normal mode) ────────────────────────────────────────
 
     all_keys = {
         "deepseek": os.environ.get("DEEPSEEK_API_KEY") or secrets.get("DEEPSEEK_API_KEY", ""),

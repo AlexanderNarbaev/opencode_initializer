@@ -12,8 +12,8 @@ import (
 	"strings"
 	"time"
 
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/bubbles/table"
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
@@ -209,6 +209,10 @@ func (m model) View() string {
 	status := ""
 	if m.loading {
 		status = styleLoading.Render(" ⟳ refreshing...")
+	}
+	// Isolated circuit indicator
+	if isIsolated() {
+		title = title + styleCyan.Render(" [ISOLATED]")
 	}
 	header := fmt.Sprintf("%s%s\n", title, status)
 
@@ -905,6 +909,23 @@ func containsStr(slice []string, item string) bool {
 	for _, s := range slice {
 		if s == item {
 			return true
+		}
+	}
+	return false
+}
+
+func isIsolated() bool {
+	configFile := filepath.Join(homeDir, ".config", "opencode-setup", "setup.conf")
+	data, err := os.ReadFile(configFile)
+	if err != nil {
+		return false
+	}
+	for _, line := range strings.Split(string(data), "\n") {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "ISOLATED_CIRCUIT=") {
+			val := strings.TrimPrefix(line, "ISOLATED_CIRCUIT=")
+			val = strings.Trim(val, `"'`)
+			return val == "true" || val == "1" || val == "yes" || val == "on" || val == "enabled"
 		}
 	}
 	return false

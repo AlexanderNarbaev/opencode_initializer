@@ -5,7 +5,7 @@
 set -euo pipefail
 
 # ── Version ──────────────────────────────────────────────────────────────────
-SCRIPT_VERSION="${SCRIPT_VERSION:-v1.1.0}"
+SCRIPT_VERSION="${SCRIPT_VERSION:-v2.0.0-alpha}"
 
 # ── OS validation ────────────────────────────────────────────────────────────
 if [ -f /etc/os-release ]; then
@@ -219,3 +219,18 @@ export PATH="$CORE_PATH:$PATH"
 export N_PREFIX="$N_PREFIX"
 npm config set prefix "$NPM_GLOBAL" 2>/dev/null || true
 OPENCODE_VER="${OPENCODE_VER:-latest}"
+
+# ── Isolated Circuit Mode ────────────────────────────────────────────────────
+# When enabled, all LLM providers use local OpenAI-compatible servers.
+# Set via: --isolated flag, ISOLATED_CIRCUIT=true in setup.conf, or env var.
+ISOLATED_CIRCUIT="${ISOLATED_CIRCUIT:-}"
+[ -z "$ISOLATED_CIRCUIT" ] && [ -f "$HOME/.config/opencode-setup/setup.conf" ] && \
+  . "$HOME/.config/opencode-setup/setup.conf" 2>/dev/null && \
+  ISOLATED_CIRCUIT="${ISOLATED_CIRCUIT:-}"
+[ -z "$ISOLATED_CIRCUIT" ] && ISOLATED_CIRCUIT="${OPencode_ISOLATED_CIRCUIT:-}"
+[ -z "$ISOLATED_CIRCUIT" ] && ISOLATED_CIRCUIT="false"
+case "${ISOLATED_CIRCUIT,,}" in true|1|yes|on|enabled) ISOLATED_CIRCUIT="true";; *) ISOLATED_CIRCUIT="false";; esac
+export ISOLATED_CIRCUIT
+
+OPencode_LOCAL_ENDPOINT="${OPencode_LOCAL_ENDPOINT:-http://localhost:4000/v1}"
+export OPencode_LOCAL_ENDPOINT
