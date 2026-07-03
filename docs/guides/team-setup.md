@@ -244,6 +244,6 @@ bash setup.sh --fix-config --deepseek-key "sk-..."
 ## Next Steps
 
 - Read the [architecture overview](../architecture/) for C4 diagrams and module layout
-- Read [AGENTS.md](../../AGENTS.md) for AI agent documentation
+- Read [AGENTS.md](https://github.com/AlexanderNarbaev/opencode_initializer/blob/main/AGENTS.md) for AI agent documentation
 - Read the [user guide](../user-guide/) for daily CLI usage
 - Report issues on [GitHub](https://github.com/AlexanderNarbaev/opencode_initializer/issues)
