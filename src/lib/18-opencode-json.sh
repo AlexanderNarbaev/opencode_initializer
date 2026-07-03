@@ -8,7 +8,7 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "fix-config" ];
 
   generate_opencode_json() {
     python3 <<'PYGEN'
-import json, os, shutil
+import json, os, shutil, subprocess
 
 home = os.path.expanduser("~")
 project_dir = os.environ.get("PROJECT_DIR", os.path.join(home, "projects"))
@@ -373,7 +373,7 @@ lsp_check("vscode-json-language-server", "json", ["vscode-json-language-server",
 # Plugins — read from tier-based registry (plugins.yml)
 plugins = ["opencode-codegraph"]
 plugin_registry_path = os.path.join(home, ".config", "opencode", "plugins.json")
-project_override = os.path.join(PROJECT_DIR, ".opencode", "plugins.json")
+project_override = os.path.join(os.environ.get("PROJECT_DIR", os.path.join(home, "projects")), ".opencode", "plugins.json")
 
 def load_plugin_registry():
     registry = {"tiers": {"always": [], "conditional": {}, "on_demand": []}}
@@ -410,7 +410,7 @@ def check_dep(name):
     if name == "daytona_daemon":
         return shutil.which("daytona") is not None
     if name == "git_worktree":
-        return os.path.exists(os.path.join(PROJECT_DIR, ".git", "worktrees")) or False
+        return os.path.exists(os.path.join(os.environ.get("PROJECT_DIR", os.path.join(home, "projects")), ".git", "worktrees")) or False
     if name == "goal_mode":
         return True  # always available
     if name == "zellij":
@@ -466,6 +466,8 @@ if pkg_installed("@tarquinen/opencode-dcp") and "opencode-dcp" not in plugins:
 
 
 # Build config
+providers = _build_providers()
+
 config = {
     "$schema": "https://opencode.ai/config.json",
     "model": "deepseek/deepseek-v4-pro",
@@ -478,7 +480,7 @@ config = {
         "tail_turns": 3,
         "reserved": 8000
     },
-    "provider": _build_providers(),
+    "provider": providers,
     "tool_output": {
         "max_lines": 2000,
         "max_bytes": 51200
@@ -632,6 +634,7 @@ config = {
             "temperature": 0.1,
             "permission": {"edit": "allow", "write": "allow", "read": "allow", "grep": "allow", "glob": "allow", "webfetch": "allow"}
         },
+    },
     "context_budget": {
         "enabled": True,
         "warn_at_percent": 70,
@@ -670,7 +673,6 @@ config = {
         "max_agent_depth": 5,
         "request_timeout_ms": 600000
     },
-    }
 }
 
 os.makedirs(os.path.dirname(config_path), exist_ok=True)
