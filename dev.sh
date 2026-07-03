@@ -364,6 +364,82 @@ cmd_isolated() {
   esac
 }
 
+cmd_models() {
+  local task="${2:-}"
+  local ROUTER="$HOME/.config/opencode/model-router/recommend.sh"
+
+  if [ ! -f "$ROUTER" ]; then
+    err "Model router not installed. Run: bash setup.sh --full"
+    return 1
+  fi
+
+  if [ -z "$task" ]; then
+    section "Available Task Profiles"
+    echo "  coding     — Primary coding, implementation, refactoring"
+    echo "  reasoning  — Complex reasoning, architecture, planning"
+    echo "  fast       — Quick answers, exploration, compaction"
+    echo "  agentic    — Tool use, multi-step workflows, autonomous agents"
+    echo "  budget     — Cost-sensitive tasks, bulk operations"
+    echo "  vision     — Image analysis, multimodal tasks"
+    echo "  isolated   — Air-gapped operation (local models)"
+    echo "  ru_cn      — Optimized for Russian/Chinese language tasks"
+    echo ""
+    echo "Usage: dev models <task-type>"
+    echo "Example: dev models coding"
+    return 0
+  fi
+
+  bash "$ROUTER" "$task"
+}
+
+cmd_backup() {
+  local action="${2:-create}"
+  local BACKUP_DIR="$HOME/.config/opencode-setup/backups"
+  local TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+
+  case "$action" in
+    create)
+      section "Creating Config Backup"
+      mkdir -p "$BACKUP_DIR"
+      local BACKUP_FILE="$BACKUP_DIR/opencode-backup-$TIMESTAMP.tar.gz"
+      local FILES=""
+      [ -f "$HOME/.config/opencode/opencode.json" ] && FILES="$FILES $HOME/.config/opencode/opencode.json"
+      [ -f "$HOME/.config/opencode/secrets.env" ] && FILES="$FILES $HOME/.config/opencode/secrets.env"
+      [ -f "$HOME/.config/opencode-setup/setup.conf" ] && FILES="$FILES $HOME/.config/opencode-setup/setup.conf"
+      [ -f "$HOME/.config/opencode/infra.yml" ] && FILES="$FILES $HOME/.config/opencode/infra.yml"
+      [ -f "$HOME/.zshrc" ] && FILES="$FILES $HOME/.zshrc"
+      [ -d "$HOME/.config/opencode/model-router" ] && FILES="$FILES $HOME/.config/opencode/model-router"
+
+      if [ -z "$FILES" ]; then
+        warn "No config files found to backup"
+        return 0
+      fi
+
+      tar czf "$BACKUP_FILE" $FILES 2>/dev/null && \
+        log "Backup created: $BACKUP_FILE ($(du -h "$BACKUP_FILE" | cut -f1))" || \
+        warn "Backup failed"
+      ;;
+    list)
+      section "Available Backups"
+      ls -lh "$BACKUP_DIR"/opencode-backup-*.tar.gz 2>/dev/null || echo "  No backups found"
+      ;;
+    restore)
+      local FILE="${3:-}"
+      if [ -z "$FILE" ]; then
+        echo "Available backups:"
+        ls -lh "$BACKUP_DIR"/opencode-backup-*.tar.gz 2>/dev/null || echo "  No backups found"
+        echo "Usage: dev backup restore <file>"
+        return 0
+      fi
+      section "Restoring from $FILE"
+      tar xzf "$FILE" -C / 2>/dev/null && log "Restored from $FILE" || warn "Restore failed"
+      ;;
+    *)
+      err "Unknown: dev backup $action. Use: create|list|restore"
+      ;;
+  esac
+}
+
 case "${1:-}" in
   install)  cmd_install "${2:-}" ;;
   remove)   cmd_remove "${2:-}" ;;
@@ -379,6 +455,8 @@ case "${1:-}" in
   observability) cmd_observability "${@}" ;;
   gui)       cmd_gui "${@}" ;;
   isolated)  cmd_isolated "${@}" ;;
+  models)    cmd_models "${@}" ;;
+  backup)    cmd_backup "${@}" ;;
   -h|--help|help|"") usage ;;
-  *)        err "Unknown: $1. Use: dev install|remove|update|health|list|config|self-update|version-check|autoupdate|infra|plugins|observability" ;;
+  *)        err "Unknown: $1. Use: dev install|remove|update|health|list|config|self-update|version-check|autoupdate|infra|plugins|observability|models|backup" ;;
 esac

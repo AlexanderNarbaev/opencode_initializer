@@ -362,6 +362,7 @@ _run_step step_providers  "Multi-Provider Config" "$SCRIPT_DIR/src/lib/26-provid
 [ "${SKIP_DEVBOX:-false}" != "true" ]   && _run_step step_devbox     "Devbox (Nix)"          "$SCRIPT_DIR/src/lib/28-devbox.sh"
 [ "${SKIP_GUI:-false}" != "true" ]      && _run_step step_gui        "Web GUI Interface"    "$SCRIPT_DIR/src/lib/35-gui.sh"
 [ "${OBSERVABILITY_ENABLED:-false}" = "true" ] && _run_step step_observability "Observability Stack" "$SCRIPT_DIR/src/lib/34-observability.sh"
+_run_step step_model_router "Model Routing Intelligence" "$SCRIPT_DIR/src/lib/36-model-router.sh"
 
 echo ""
 echo -e "  ${GREEN}╔══════════════════════════════════════╗${NC}"

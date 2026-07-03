@@ -170,6 +170,29 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
   command -v dotnet &>/dev/null && timeout 10 dotnet tool list -g 2>/dev/null || true
   log "LSP servers staged (installed if toolchains present)"
   set -e  # restore strict mode
+
+  # ── Post-install verification ─────────────────────────────────────────────
+  info "Verifying MCP servers..."
+  _mcp_ok=0; _mcp_miss=0; _lsp_ok=0; _lsp_miss=0
+  for mcp in c7-mcp-server mcp-server-filesystem agentic-tools-mcp codegraph playwright-mcp agent-browser-mcp-server chrome-devtools-mcp mcp-server-github mcp-server-postgres mcp-server-sequential-thinking memorylayer-mcp; do
+    if [ -x "$HOME/.bun/bin/$mcp" ] || which "$mcp" &>/dev/null; then
+      _mcp_ok=$((_mcp_ok+1))
+    else
+      _mcp_miss=$((_mcp_miss+1))
+      warn "MCP not found: $mcp"
+    fi
+  done
+  info "Verifying LSP servers..."
+  for lsp in gopls rust-analyzer typescript-language-server pyright-langserver yaml-language-server marksman taplo bash-language-server docker-langserver; do
+    if command -v "$lsp" &>/dev/null; then
+      _lsp_ok=$((_lsp_ok+1))
+    else
+      _lsp_miss=$((_lsp_miss+1))
+      warn "LSP not found: $lsp"
+    fi
+  done
+  log "MCP: ${_mcp_ok} installed, ${_mcp_miss} missing | LSP: ${_lsp_ok} installed, ${_lsp_miss} missing"
+
   _step_done step_mcp
 
   # Global mirror configs for pip, Go (only if not already configured)
