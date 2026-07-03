@@ -31,7 +31,12 @@ document.addEventListener("DOMContentLoaded", () => {
     img.addEventListener("click", (e) => {
       e.stopPropagation()
       const content = overlay.querySelector(".diagram-overlay-content")
-      content.innerHTML = `<img src="${img.src}" alt="${img.alt}" style="max-width:95vw;max-height:95vh">`
+      content.textContent = ''
+      const zoomImg = document.createElement('img')
+      zoomImg.src = img.src
+      zoomImg.alt = img.alt
+      zoomImg.style.cssText = 'max-width:95vw;max-height:95vh'
+      content.appendChild(zoomImg)
       overlay.classList.add("active")
     })
   })
