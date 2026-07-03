@@ -446,7 +446,6 @@ cmd_backup() {
       [ -f "$HOME/.config/opencode/infra.yml" ] && FILES="$FILES $HOME/.config/opencode/infra.yml"
       [ -f "$HOME/.zshrc" ] && FILES="$FILES $HOME/.zshrc"
       [ -d "$HOME/.config/opencode/model-router" ] && FILES="$FILES $HOME/.config/opencode/model-router"
-      [ -d "$HOME/Projects/rag-system" ] && FILES="$FILES $HOME/Projects/rag-system"
       [ -d "$HOME/.config/opencode/skills" ] && FILES="$FILES $HOME/.config/opencode/skills"
 
       if [ -z "$FILES" ]; then
