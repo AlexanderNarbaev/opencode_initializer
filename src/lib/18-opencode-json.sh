@@ -504,7 +504,7 @@ config = {
             "mode": "primary",
             "model": "deepseek/deepseek-v4-pro",
             "temperature": 0.2,
-            "system": "Follow CO-STAR output contract. Prefer atomic edits over full-file rewrites. #S1 for simple fixes, escalate to #S2 when touching >3 files or edit fails twice. Verify after every write. [CTX: build]",
+            "system": "[CTX: build] Build agent. Apply CO-STAR output. Prefer atomic edits. Verify after write. Use System 2 for >3 files.",
             "permission": {
                 "edit": "allow",
                 "bash": {
@@ -538,7 +538,7 @@ config = {
             "mode": "primary",
             "model": "zai/glm-5.2" if "zai" in providers else "deepseek/deepseek-v4-pro",
             "temperature": 0.1,
-            "system": "Use System 2 (slow, methodical) reasoning for all outputs. Analyze dependencies before proposing architectures. Verify every claim against source ladder (official docs first). Never skip the WAL — journal every architectural decision with rationale. [CTX: plan]",
+            "system": "[CTX: plan] Plan agent. Use System 2 (methodical) reasoning. Verify ALL claims against Source Ladder. Never fabricate.",
             "permission": {
                 "edit": "deny",
                 "bash": "deny",
@@ -556,12 +556,14 @@ config = {
         "general": {
             "mode": "subagent",
             "model": "deepseek/deepseek-v4-pro",
-            "temperature": 0.2
+            "temperature": 0.2,
+            "system": "[CTX: general] General agent. Use System 1 for fast tasks, System 2 for complex. Delegate to researcher/scout for investigation."
         },
         "explore": {
             "mode": "subagent",
             "model": "deepseek/deepseek-v4-flash",
             "temperature": 0.1,
+            "system": "[CTX: explore] Explorer agent. Read-only. Use grep/glob/codegraph for discovery. Report findings concisely.",
             "permission": {
                 "edit": "deny",
                 "bash": "deny",
@@ -572,6 +574,7 @@ config = {
             "mode": "subagent",
             "model": "zai/glm-5.2" if "zai" in providers else "deepseek/deepseek-v4-pro",
             "temperature": 0.1,
+            "system": "[CTX: review] Code reviewer. Apply Source Ladder for API verification. Flag deprecated features. Check for security issues.",
             "permission": {
                 "edit": "deny",
                 "bash": {
@@ -586,54 +589,63 @@ config = {
             "mode": "primary",
             "hidden": True,
             "model": "deepseek/deepseek-v4-flash",
-            "temperature": 0.1
+            "temperature": 0.1,
+            "system": "[CTX: compact] Compaction agent. Preserve key decisions, WAL entries, and protected constraints. Discard redundant context."
         },
         "researcher": {
             "mode": "subagent",
             "model": "deepseek/deepseek-v4-flash",
             "temperature": 0.1,
+            "system": "[CTX: research] Research agent. Use web search and documentation. Cite sources [L1]-[L4]. Flag speculation.",
             "permission": {"edit": "deny", "bash": "deny", "write": "deny", "read": "allow", "grep": "allow", "glob": "allow", "webfetch": "allow"}
         },
         "scout": {
             "mode": "subagent",
             "model": "deepseek/deepseek-v4-flash",
             "temperature": 0.1,
+            "system": "[CTX: scout] Scout agent. Fast codebase exploration. Find files, symbols, patterns. Report paths and line numbers.",
             "permission": {"edit": "deny", "bash": "deny", "write": "deny", "read": "allow", "grep": "allow", "glob": "allow"}
         },
         "reviewer": {
             "mode": "subagent",
             "model": "zai/glm-5.2" if "zai" in providers else "deepseek/deepseek-v4-pro",
             "temperature": 0.1,
+            "system": "[CTX: review] Review agent. Adversarial review. Find bugs, regressions, security issues. Be specific with file:line references.",
             "permission": {"edit": "deny", "bash": {"git diff *": "allow", "git log *": "allow", "*": "deny"}, "write": "deny", "read": "allow", "grep": "allow"}
         },
         "security-auditor": {
             "mode": "subagent",
             "model": "deepseek/deepseek-v4-pro",
             "temperature": 0.1,
+            "system": "[CTX: security] Security auditor. Check for: secrets in code, injection vectors, unsafe commands, exposed ports.",
             "permission": {"edit": "deny", "write": "deny", "read": "allow", "grep": "allow", "bash": {"git diff *": "allow", "grep *": "allow", "*": "deny"}}
         },
         "test-engineer": {
             "mode": "subagent",
             "model": "deepseek/deepseek-v4-flash",
             "temperature": 0.1,
+            "system": "[CTX: test] Test engineer. Write tests that verify behavior, not implementation. Cover edge cases. Test-driven approach.",
             "permission": {"edit": "allow", "write": "allow", "read": "allow", "grep": "allow", "glob": "allow", "bash": {"npm test *": "allow", "cargo test *": "allow", "go test *": "allow", "python3 *test*": "allow", "*": "ask"}}
         },
         "critic": {
             "mode": "subagent",
             "model": "deepseek/deepseek-v4-pro",
             "temperature": 0.3,
+            "system": "[CTX: critic] Critic agent. Challenge assumptions. Find contradictions. Play devil advocate. Rate confidence 0-1.",
             "permission": {"edit": "deny", "write": "deny", "bash": "deny", "read": "allow", "grep": "allow", "glob": "allow"}
         },
         "sme": {
             "mode": "subagent",
             "model": "deepseek/deepseek-v4-flash",
             "temperature": 0.1,
+            "system": "[CTX: sme] Domain expert. Provide deep knowledge in specific domains. Flag when outside expertise. Cite authoritative sources.",
             "permission": {"edit": "deny", "write": "deny", "read": "allow", "grep": "allow", "glob": "allow", "webfetch": "allow"}
         },
         "docs": {
             "mode": "subagent",
             "model": "deepseek/deepseek-v4-flash",
             "temperature": 0.1,
+            "system": "[CTX: docs] Documentation agent. Write clear, concise docs. Use active voice. Keep examples current. Verify all commands work.",
             "permission": {"edit": "allow", "write": "allow", "read": "allow", "grep": "allow", "glob": "allow", "webfetch": "allow"}
         },
         "orchestrator": {
@@ -641,6 +653,7 @@ config = {
             "model": "zai/glm-5.2" if "zai" in providers else "deepseek/deepseek-v4-pro",
             "temperature": 0.2,
             "description": "Multi-agent orchestrator — decomposes tasks and dispatches to parallel workers",
+            "system": "[CTX: orch] Orchestrator. Decompose tasks into parallel subtasks. Dispatch to specialized agents. Aggregate results. Track dependencies.",
             "permission": {
                 "task": {
                     "build": "allow",
