@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# lib/32-observability.sh — Grafana + Prometheus observability stack
+# lib/34-observability.sh — Grafana + Prometheus observability stack
 # Requires: Docker, MODE, infra.yml
 set -euo pipefail
 

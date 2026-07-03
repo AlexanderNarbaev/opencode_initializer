@@ -66,6 +66,8 @@ def pkg_installed(pkg_name):
 PROVIDER_ENV_VARS = {
     "deepseek": "DEEPSEEK_API_KEY",
     "opencode": "OPENCODE_API_KEY",
+    "zai": "ZAI_API_KEY",
+    "openrouter": "OPENROUTER_API_KEY",
     "xai": "XAI_API_KEY",
     "mimo": "MIMO_API_KEY",
     "moonshot": "MOONSHOT_API_KEY",
@@ -80,6 +82,8 @@ PROVIDER_ENV_VARS = {
     "fireworks": "FIREWORKS_API_KEY",
     "cerebras": "CEREBRAS_API_KEY",
     "perplexity": "PERPLEXITY_API_KEY",
+    "alibaba": "ALIBABA_API_KEY",
+    "deepinfra": "DEEPINFRA_API_KEY",
 }
 
 def _build_providers():
@@ -123,6 +127,8 @@ def _build_providers():
     all_keys = {
         "deepseek": os.environ.get("DEEPSEEK_API_KEY") or secrets.get("DEEPSEEK_API_KEY", ""),
         "opencode": os.environ.get("OPENCODE_API_KEY") or secrets.get("OPENCODE_API_KEY", ""),
+        "zai": os.environ.get("ZAI_API_KEY") or secrets.get("ZAI_API_KEY", ""),
+        "openrouter": os.environ.get("OPENROUTER_API_KEY") or secrets.get("OPENROUTER_API_KEY", ""),
         "xai": os.environ.get("XAI_API_KEY") or secrets.get("XAI_API_KEY", ""),
         "mimo": os.environ.get("MIMO_API_KEY") or secrets.get("MIMO_API_KEY", ""),
         "moonshot": os.environ.get("MOONSHOT_API_KEY") or secrets.get("MOONSHOT_API_KEY", ""),
@@ -137,27 +143,33 @@ def _build_providers():
         "fireworks": os.environ.get("FIREWORKS_API_KEY") or secrets.get("FIREWORKS_API_KEY", ""),
         "cerebras": os.environ.get("CEREBRAS_API_KEY") or secrets.get("CEREBRAS_API_KEY", ""),
         "perplexity": os.environ.get("PERPLEXITY_API_KEY") or secrets.get("PERPLEXITY_API_KEY", ""),
+        "alibaba": os.environ.get("ALIBABA_API_KEY") or secrets.get("ALIBABA_API_KEY", ""),
+        "deepinfra": os.environ.get("DEEPINFRA_API_KEY") or secrets.get("DEEPINFRA_API_KEY", ""),
     }
 
     provider_models = {
         "deepseek": ("deepseek/deepseek-v4-pro", "deepseek/deepseek-v4-flash"),
+        "zai": ("zai/glm-5.2", "zai/glm-4-flash"),
+        "openrouter": ("openrouter/deepseek/deepseek-v4-pro", "openrouter/deepseek/deepseek-v4-flash"),
         "openai": ("openai/gpt-5", "openai/gpt-5-mini"),
-        "anthropic": ("anthropic/claude-sonnet-4-20250514", "anthropic/claude-haiku-4-20250514"),
+        "anthropic": ("anthropic/claude-opus-4-20250514", "anthropic/claude-haiku-4-20250514"),
         "google": ("google/gemini-2.5-pro", "google/gemini-2.5-flash"),
         "mistral": ("mistral/mistral-large-latest", "mistral/mistral-small-latest"),
         "groq": ("groq/llama-4-maverick", "groq/llama-4-scout"),
         "together": ("together/meta-llama/Llama-4-Maverick", "together/meta-llama/Llama-4-Scout"),
-        "xai": ("xai/grok-3", "xai/grok-3-mini"),
+        "xai": ("xai/grok-4", "xai/grok-4-mini"),
         "minimax": ("minimax/minimax-m3", "minimax/minimax-m3"),
         "mimo": ("mimo/mimo-v2", "mimo/mimo-v2"),
-        "moonshot": ("moonshot/kimi-k2.6", "moonshot/kimi-k2.6"),
+        "moonshot": ("moonshot/kimi-k2", "moonshot/kimi-k2"),
         "perplexity": ("perplexity/sonar-pro", "perplexity/sonar"),
+        "alibaba": ("alibaba/qwen3-235b", "alibaba/qwen3-14b"),
+        "deepinfra": ("deepinfra/meta-llama/Llama-4-Maverick", "deepinfra/meta-llama/Llama-4-Scout"),
     }
 
-    fallback_chain = ["deepseek", "groq", "together", "openai", "minimax"]
+    fallback_chain = ["deepseek", "zai", "groq", "together", "openai", "minimax"]
 
     for provider, key in all_keys.items():
-        if key or provider in ("deepseek", "opencode"):
+        if key or provider in ("deepseek", "opencode", "zai"):
             providers[provider] = dict(opts)
             if provider in provider_models:
                 providers[provider]["default_model"] = provider_models[provider][0]
@@ -166,12 +178,25 @@ def _build_providers():
             env_name = PROVIDER_ENV_VARS.get(provider)
             if env_name:
                 providers[provider]["api_key"] = "${" + env_name + "}"
-            if provider != "deepseek":
+            # Set baseURL for OpenAI-compatible providers
+            if provider == "zai":
+                providers[provider]["base_url"] = "https://api.z.ai/api/paas/v4"
+            elif provider == "openrouter":
+                providers[provider]["base_url"] = "https://openrouter.ai/api/v1"
+            elif provider == "deepinfra":
+                providers[provider]["base_url"] = "https://api.deepinfra.com/v1/openai"
+            elif provider == "fireworks":
+                providers[provider]["base_url"] = "https://api.fireworks.ai/inference/v1"
+            if provider not in ("deepseek", "zai"):
                 providers[provider]["fallback"] = ["deepseek"]
             elif provider == "deepseek":
                 chain = [p for p in fallback_chain if p != "deepseek" and p in providers]
                 if chain:
                     providers["deepseek"]["fallback"] = chain[:3]
+            elif provider == "zai":
+                chain = [p for p in fallback_chain if p != "zai" and p in providers]
+                if chain:
+                    providers["zai"]["fallback"] = chain[:3]
 
     return providers
 

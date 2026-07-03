@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# src/lib/22-mise.sh — mise-en-place: universal tool version manager
+# src/lib/29-mise.sh — mise-en-place: universal tool version manager
 # Installs mise and configures it as optional alternative to per-language managers
 set -euo pipefail
 

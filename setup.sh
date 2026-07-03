@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================================
-#  Ultimate Dev Machine Bootstrap v1.1.0 — Modular
+#  Ultimate Dev Machine Bootstrap v2.0.0 — Modular
 set -euo pipefail; IFS=$'\n\t'; shopt -s inherit_errexit 2>/dev/null || true
 
 # ── Bootstrap: resolve script dir (supports curl|bash and local runs) ───────
@@ -353,15 +353,15 @@ _run_step step_finalize   "Finalize + Verify"      "$SCRIPT_DIR/src/lib/19-final
 _run_step step_autoupdate "Auto-update system"     "$SCRIPT_DIR/src/lib/20-autoupdate.sh"
 _run_step step_rag        "RAG System (optional)"  "$SCRIPT_DIR/src/lib/21-rag.sh"
 _run_step step_webui      "Open WebUI service"    "$SCRIPT_DIR/src/lib/22-webui-service.sh"
-_run_step step_mise        "mise tool manager"     "$SCRIPT_DIR/src/lib/22-mise.sh"
+_run_step step_mise        "mise tool manager"     "$SCRIPT_DIR/src/lib/29-mise.sh"
 _run_step step_just        "just task runner"      "$SCRIPT_DIR/src/lib/23-just.sh"
 _run_step step_websearch   "Web Search Engine"    "$SCRIPT_DIR/src/lib/24-websearch.sh"
 _run_step step_litellm    "LiteLLM API Gateway"  "$SCRIPT_DIR/src/lib/25-litellm.sh"
 _run_step step_providers  "Multi-Provider Config" "$SCRIPT_DIR/src/lib/26-providers.sh"
 [ "${SKIP_DOTFILES:-false}" != "true" ] && _run_step step_dotfiles   "Dotfiles (chezmoi)"    "$SCRIPT_DIR/src/lib/27-dotfiles.sh"
 [ "${SKIP_DEVBOX:-false}" != "true" ]   && _run_step step_devbox     "Devbox (Nix)"          "$SCRIPT_DIR/src/lib/28-devbox.sh"
-[ "${SKIP_GUI:-false}" != "true" ]      && _run_step step_gui        "Web GUI Interface"    "$SCRIPT_DIR/src/lib/33-gui.sh"
-[ "${OBSERVABILITY_ENABLED:-false}" = "true" ] && _run_step step_observability "Observability Stack" "$SCRIPT_DIR/src/lib/32-observability.sh"
+[ "${SKIP_GUI:-false}" != "true" ]      && _run_step step_gui        "Web GUI Interface"    "$SCRIPT_DIR/src/lib/35-gui.sh"
+[ "${OBSERVABILITY_ENABLED:-false}" = "true" ] && _run_step step_observability "Observability Stack" "$SCRIPT_DIR/src/lib/34-observability.sh"
 
 echo ""
 echo -e "  ${GREEN}╔══════════════════════════════════════╗${NC}"

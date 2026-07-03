@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# lib/26-providers.sh — Multi-provider registry (15+ cloud + 4 local OpenAI-compatible)
+# lib/26-providers.sh — Multi-provider registry (20+ cloud + 4 local OpenAI-compatible)
 set -euo pipefail
 
 _step_skip step_providers && return 0
@@ -41,17 +41,20 @@ fi
 
 # ── Cloud provider registry ──────────────────────────────────────────────────
 # Provider registry: short_name | api_key_env | cli_flag | description | free_tier
+# Updated 2026-07: added z.ai (GLM-5.2), OpenRouter, Alibaba Qwen3, DeepInfra
 declare -A PROVIDER_REGISTRY
 PROVIDER_REGISTRY=(
   [deepseek]="DEEPSEEK_API_KEY|--deepseek-key|DeepSeek V4 Pro|yes"
   [opencode]="OPENCODE_API_KEY|-k|OpenCode Go proxy|yes"
-  [xai]="XAI_API_KEY|--xai-key|xAI Grok 3|no"
+  [zai]="ZAI_API_KEY|--zai-key|z.ai GLM-5.2|yes"
+  [openrouter]="OPENROUTER_API_KEY|--openrouter-key|OpenRouter (100+ models)|yes"
+  [xai]="XAI_API_KEY|--xai-key|xAI Grok 4|no"
   [mimo]="MIMO_API_KEY|--mimo-key|Xiaomi MiMo V2|yes"
-  [moonshot]="MOONSHOT_API_KEY|--moonshot-key|Moonshot Kimi K2.6|no"
+  [moonshot]="MOONSHOT_API_KEY|--moonshot-key|Moonshot Kimi K2|no"
   [minimax]="MINIMAX_API_KEY|--minimax-key|MiniMax M3|no"
   [openai]="OPENAI_API_KEY|--openai-key|OpenAI GPT-5|no"
-  [anthropic]="ANTHROPIC_API_KEY|--anthropic-key|Anthropic Claude 4|no"
-  [google]="GOOGLE_API_KEY|--google-key|Google Gemini 2.5|yes"
+  [anthropic]="ANTHROPIC_API_KEY|--anthropic-key|Anthropic Claude 4 Opus|no"
+  [google]="GOOGLE_API_KEY|--google-key|Google Gemini 2.5 Pro|yes"
   [mistral]="MISTRAL_API_KEY|--mistral-key|Mistral Large 3|no"
   [groq]="GROQ_API_KEY|--groq-key|Groq Cloud (fast inference)|yes"
   [together]="TOGETHER_API_KEY|--together-key|Together AI|yes"
@@ -59,6 +62,8 @@ PROVIDER_REGISTRY=(
   [fireworks]="FIREWORKS_API_KEY|--fireworks-key|Fireworks AI|no"
   [cerebras]="CEREBRAS_API_KEY|--cerebras-key|Cerebras (fast inference)|no"
   [perplexity]="PERPLEXITY_API_KEY|--perplexity-key|Perplexity (online search)|no"
+  [alibaba]="ALIBABA_API_KEY|--alibaba-key|Alibaba Qwen3|yes"
+  [deepinfra]="DEEPINFRA_API_KEY|--deepinfra-key|DeepInfra (fast inference)|yes"
   [ollama]="OPencode_LOCAL_ENDPOINT|--local-endpoint|Ollama (localhost:11434)|yes"
   [litellm]="OPencode_LOCAL_ENDPOINT|--local-endpoint|LiteLLM proxy (localhost:4000)|yes"
   [vllm]="OPencode_LOCAL_ENDPOINT|--local-endpoint|vLLM (localhost:8000)|yes"

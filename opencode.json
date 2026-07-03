@@ -18,9 +18,21 @@
         "setCacheKey": true
       },
       "fallback": [
+        "zai",
         "opencode",
         "xai",
         "minimax"
+      ]
+    },
+    "zai": {
+      "options": {
+        "timeout": 600000,
+        "chunkTimeout": 60000,
+        "setCacheKey": true
+      },
+      "fallback": [
+        "deepseek",
+        "opencode"
       ]
     },
     "opencode": {
@@ -31,6 +43,7 @@
       },
       "fallback": [
         "deepseek",
+        "zai",
         "minimax"
       ]
     },
