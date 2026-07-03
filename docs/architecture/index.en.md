@@ -1,6 +1,6 @@
 # Architecture
 
-OpenCode Initializer follows a modular architecture: a lightweight **orchestrator** (`setup.sh`, 373 lines) that sources 38 **modules** and dispatches 11 **modes**.
+OpenCode Initializer follows a modular architecture: a lightweight **orchestrator** (`setup.sh`, 561 lines) that sources 38 **modules** and dispatches 11 **modes**.
 
 ## C4 Level 1: System Context
 
@@ -120,7 +120,7 @@ C4Container
 
 ```mermaid
 flowchart TD
-    A["setup.sh (373 lines)"] --> B["Detect SCRIPT_DIR"]
+    A["setup.sh (561 lines)"] --> B["Detect SCRIPT_DIR"]
     B --> C["Source helpers.sh"]
     C --> D["Source 00-core.sh"]
     D --> E{"Parse CLI args"}

@@ -46,7 +46,6 @@ theme:
     - content.code.annotate
     - content.tabs.link
     - toc.follow
-    - toc.follow
     - header.autohide
   icon:
     repo: fontawesome/brands/github
@@ -157,8 +156,8 @@ extra:
       name: GitVerse
   alternate:
     - name: English
-      link: /
+      link: /opencode_initializer/
       lang: en
     - name: Русский
-      link: /ru/
+      link: /opencode_initializer/ru/
       lang: ru

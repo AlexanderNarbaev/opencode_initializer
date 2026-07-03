@@ -108,12 +108,12 @@ mkdocs gh-deploy # Деплой (только мейнтейнеры)
 
 ```
 opencode_initializer/
-├── setup.sh              # Оркестратор (352 строки)
+├── setup.sh              # Оркестратор (561 строка)
 ├── dev.sh                # CLI инструмент
 ├── opencode.json         # AI конфиг
 ├── mkdocs.yml            # Конфиг документации
 ├── src/
-│   ├── lib/              # 29 модулей
+│   ├── lib/              # 39 модулей
 │   └── modes/            # 5 режимных скриптов
 ├── tests/                # Наборы тестов
 ├── docs/                 # Документация (этот сайт)
@@ -130,3 +130,10 @@ opencode_initializer/
 ---
 
 :fontawesome-solid-heart: **Спасибо за вклад!**
+
+## :fontawesome-solid-book: См. также
+
+- [Справочник](../reference/) — CLI и схема opencode.json
+- [MCP, LSP и плагины](../reference/mcp-lsp-plugins/) — каталог компонентов
+- [FAQ](../faq/) — частые вопросы
+- [Архитектура](../architecture/) — C4-диаграммы и проектные решения

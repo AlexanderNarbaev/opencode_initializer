@@ -104,7 +104,6 @@ export FIREWORKS_API_KEY="..."        # Fireworks
 export MISTRAL_API_KEY="..."          # Mistral
 export COHERE_API_KEY="..."           # Cohere
 export PERPLEXITY_API_KEY="..."       # Perplexity
-export REPLICATE_API_KEY="..."        # Replicate
 
 bash setup.sh --full
 ```
@@ -159,7 +158,7 @@ chrome-open https://github.com  # Открыть конкретный URL
 
 ## :fontawesome-solid-eye: Что происходит при установке
 
-Скрипт проходит следующие этапы:
+Скрипт проходит следующие этапы (32 модуля):
 
 | # | Этап | Что делает | ~Время |
 |---|------|-----------|--------|
@@ -170,7 +169,7 @@ chrome-open https://github.com  # Открыть конкретный URL
 | 5 | **ZSH** | Zsh + Oh My Zsh + P10k + плагины | 2м |
 | 6 | **Языки** | Java, Node, Python, Go, Rust, .NET, Zig | 10м |
 | 7 | **OpenCode CLI** | OpenCode + Bun | 1м |
-| 8 | **MCP + LSP** | 21 MCP-серверов + 13 LSP-серверов | 5м |
+| 8 | **MCP + LSP** | 24 MCP-серверов + 12 LSP-серверов | 5м |
 | 9 | **ChromaDB** | Векторная БД + Muninn | 1м |
 | 10 | **LLM** | Ollama, vLLM, SGLang, Open WebUI | 5м |
 | 11 | **Проект** | AGENTS.md, структура проекта | 1с |
@@ -181,7 +180,7 @@ chrome-open https://github.com  # Открыть конкретный URL
 ### Проверить всё
 
 ```bash
-# Полная диагностика (65+ проверок в 7 разделах)
+# Полная диагностика (115+ проверок в 11 разделах)
 dev health
 
 # Сравнить версии с последними релизами
@@ -195,13 +194,17 @@ dev list
 
 | Раздел | Проверки | Примеры |
 |--------|----------|---------|
-| Система | ОС, пакеты, DNS, зеркала, диск | apt/dnf/pacman работает |
-| Языки | Java, Node, Python, Go, Rust, .NET, Zig | Версия >= минимум |
-| Инструменты | Docker, Chrome, Bun, OpenCode CLI | Бинарник в PATH |
-| Оболочка | ZSH, Oh My Zsh, плагины, .zshrc | Оболочка функционирует |
-| MCP | Бинарники серверов, пути bun, конфиг | Холодный старт проверен |
-| LLM | Ollama, vLLM, Open WebUI | GPU определён, сервис работает |
-| Безопасность | Права секретов, API-ключи | `chmod 600`, токены на месте |
+| Core CLI | OpenCode, dev CLI, setup.sh | Бинарник в PATH, версия |
+| MCP Servers | Все настроенные MCP | Бинарники серверов, конфиг, холодный старт |
+| LSP Servers | Конфигурации языковых серверов | Бинарники установлены, PATH |
+| Services | Docker, PostgreSQL, Qdrant, Redis | Статус сервисов, порты |
+| Config | opencode.json, AGENTS.md, .zshrc | JSON валиден, права корректны |
+| Multimodal & ONNX | Мультимедиа + ONNX | Инструменты установлены |
+| Interaction Modes | CLI режимы | Флаги режимов работают |
+| Systemd Services | Ollama, Open WebUI, ChromaDB | Сервисы включены, запущены |
+| Web Search (SearXNG) | Self-hosted поиск | Статус сервиса, прокси |
+| Memory Chain | MemoryLayer, Muninn | Сервисы памяти работают |
+| MCP Binaries | ~/.bun/bin/ записи | Бинарники присутствуют |
 
 ### Первые шаги после установки
 
@@ -234,7 +237,7 @@ dev list
 ### CLI `dev`
 
 ```bash
-dev health          # Полная диагностика (65+ проверок)
+dev health          # Полная диагностика (115+ проверок)
 dev version-check   # Сравнить версии с последними
 dev update          # Обновить инструменты
 dev list            # Список установленного
@@ -243,6 +246,13 @@ dev remove java     # Удалить компонент
 dev config          # Редактировать конфиг
 dev autoupdate      # Полное обновление системы
 dev self-update     # Обновить сам setup.sh
+dev infra           # Управление инфраструктурой (start/stop/status)
+dev plugins         # Управление плагинами (install/remove/list)
+dev observability   # Grafana + Prometheus мониторинг
+dev gui             # Веб-интерфейс управления
+dev isolated        # Режим Isolated Circuit (on/off/status)
+dev models          # Рекомендации моделей и управление
+dev backup          # Бэкап/восстановление конфигурации
 ```
 
 ## :fontawesome-solid-play: Типовые сценарии

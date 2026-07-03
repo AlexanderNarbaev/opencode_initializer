@@ -14,8 +14,8 @@ bash setup.sh [РЕЖИМ] [ОПЦИИ]
 
 | Режим | Флаг | Описание |
 |-------|------|----------|
-| **Полный** | *(по умолчанию)* | Полная установка — все 8 языков, 21 MCP, 15 плагинов, 13 LSP |
-| **Диагностика** | `--health` | Диагностика — 65+ проверок в 7 разделах |
+| **Полный** | *(по умолчанию)* | Полная установка — все 8 языков, 24 MCP, 18 плагинов, 12 LSP |
+| **Диагностика** | `--health` | Диагностика — 115+ проверок в 11 разделах |
 | **Интерактивный** | `--interactive` | Выбор компонентов по одному |
 | **Переустановка** | `--reinit` | Переустановить инструменты, сохранить данные |
 | **Новый проект** | `--new <папка>` | Только инициализация нового проекта |
@@ -78,7 +78,7 @@ dev <команда> [аргументы]
 
 | Команда | Описание |
 |---------|----------|
-| `dev health` | Полная диагностика (65+ проверок, 7 разделов) |
+| `dev health` | Полная диагностика (115+ проверок, 11 разделов) |
 | `dev version-check` | Сравнить установленные и последние версии |
 | `dev update` | Обновить инструменты + миграции |
 | `dev list` | Список установленных компонентов |
@@ -140,7 +140,7 @@ dev self-update
 
 ### Конфигурация провайдеров
 
-Провайдеры строятся динамически на основе доступных API ключей (всего 16):
+Провайдеры строятся динамически на основе доступных API ключей (всего 24):
 
 | Провайдер | Переменная окружения | MCP-серверы |
 |-----------|---------------------|-------------|
@@ -159,7 +159,6 @@ dev self-update
 | `perplexity` | `PERPLEXITY_API_KEY` | — |
 | `mistral` | `MISTRAL_API_KEY` | — |
 | `cohere` | `COHERE_API_KEY` | — |
-| `replicate` | `REPLICATE_API_KEY` | — |
 | `github` | `GITHUB_TOKEN` | github-mcp |
 | `gitlab` | `GITLAB_TOKEN` | gitlab-mcp |
 
@@ -183,7 +182,6 @@ dev self-update
 | `PERPLEXITY_API_KEY` | Perplexity API | Нет |
 | `MISTRAL_API_KEY` | Mistral API | Нет |
 | `COHERE_API_KEY` | Cohere API | Нет |
-| `REPLICATE_API_KEY` | Replicate API | Нет |
 
 Все переменные хранятся в `~/.config/opencode/secrets.env` с `chmod 600`.
 
@@ -246,7 +244,7 @@ step_mark "01-system"      # Отметить как сделанное
 | Rust | `09-rust.sh` | Rust 1.96 (rustup) |
 | .NET | `10-dotnet.sh` | .NET 10 |
 | OpenCode | `11-opencode.sh` | OpenCode CLI + Bun |
-| MCP/LSP | `12-mcp-lsp.sh` | 21 MCP + 15 плагинов + 13 LSP + Muninn |
+| MCP/LSP | `12-mcp-lsp.sh` | 24 MCP + 18 плагинов + 12 LSP + Muninn |
 | ChromaDB | `13-chromadb.sh` | ChromaDB + systemd сервис |
 | Shokunin | `14-shokunin.sh` | Shokunin + Superpowers + Caveman |
 | Security | `15-security.sh` | Trivy, Qodana |
@@ -261,7 +259,8 @@ step_mark "01-system"      # Отметить как сделанное
 | just | `23-just.sh` | just — таск-раннер с дефолтным justfile |
 | WebSearch | `24-websearch.sh` | SearXNG веб-поиск + sanitizer proxy |
 | LiteLLM | `25-litellm.sh` | LiteLLM OpenAI-совместимый API-шлюз |
-| Providers | `26-providers.sh` | Реестр 16 LLM-провайдеров с переключением сессий |
+| Providers | `26-providers.sh` | Реестр 24 LLM-провайдеров с переключением сессий |
+| Infrastructure | `30-infra.sh` | PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer |
 | Dotfiles | `27-dotfiles.sh` | chezmoi — менеджер dotfiles для командного шеринга |
 | Devbox | `28-devbox.sh` | Devbox — изолированные Nix-окружения |
 | Version Check | `version-check.sh` | Сравнение версий (8+ инструментов, npm пакеты) |
@@ -270,7 +269,7 @@ step_mark "01-system"      # Отметить как сделанное
 ---
 
 **См. также:**
-- [MCP, LSP и плагины](../reference/mcp-lsp-plugins/) — каталог 21+13+15 компонентов
+- [MCP, LSP и плагины](../reference/mcp-lsp-plugins/) — каталог 24+12+18 компонентов
 - [Архитектура](../architecture/) — C4-диаграммы и проектные решения
 - [Руководство](../user-guide/) — повседневный CLI
 - [FAQ](../faq/) — решение проблем

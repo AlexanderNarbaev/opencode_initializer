@@ -25,12 +25,18 @@ flowchart LR
 dev health
 ```
 
-Вывод охватывает 5 разделов:
-1. **Система** — ОС, ядро, пакетный менеджер, место на диске
-2. **Оболочка** — ZSH, плагины, версия Oh My Zsh
-3. **Языки** — Java, Node, Python, Go, Rust, .NET, Zig
-4. **Инструменты** — Docker, Chrome, OpenCode, Bun
-5. **AI/LLM** — MCP-серверы, Ollama, ChromaDB
+Вывод охватывает 11 разделов:
+1. **Core CLI** — OpenCode, dev CLI, setup.sh
+2. **MCP Servers** — Все настроенные MCP-серверы
+3. **LSP Servers** — Конфигурации языковых серверов
+4. **Services** — Docker, PostgreSQL, Qdrant, Redis
+5. **Config** — opencode.json, AGENTS.md, .zshrc
+6. **Multimodal & ONNX** — Мультимедиа + ONNX
+7. **Interaction Modes** — Режимы CLI
+8. **Systemd Services** — Ollama, Open WebUI, ChromaDB
+9. **Web Search (SearXNG)** — Self-hosted поиск
+10. **Memory Chain** — MemoryLayer, Muninn
+11. **MCP Binaries** — ~/.bun/bin/ записи
 
 ### Проверка версий
 
@@ -51,6 +57,57 @@ dev update
 
 # Полное обновление системы (все пакеты)
 dev autoupdate
+```
+
+### Управление инфраструктурой
+
+```bash
+dev infra start     # Запустить все сервисы
+dev infra stop      # Остановить все сервисы
+dev infra status    # Проверить статус
+```
+
+### Управление плагинами
+
+```bash
+dev plugins list    # Список установленных плагинов
+dev plugins install # Установить плагин
+dev plugins remove  # Удалить плагин
+```
+
+### Наблюдаемость
+
+```bash
+dev observability   # Открыть дашборды Grafana
+```
+
+### Веб-интерфейс
+
+```bash
+dev gui             # Запустить веб-интерфейс (порт 4200)
+```
+
+### Режим Isolated Circuit
+
+```bash
+dev isolated on     # Включить air-gapped LLM
+dev isolated off    # Выключить, использовать облако
+dev isolated status # Проверить состояние
+```
+
+### Управление моделями
+
+```bash
+dev models coding   # Рекомендации моделей для кодинга
+dev models install <model>  # Загрузить локальную модель
+```
+
+### Бэкап конфигурации
+
+```bash
+dev backup create   # Создать бэкап
+dev backup list     # Список бэкапов
+dev backup restore  # Восстановить из бэкапа
 ```
 
 ## Работа с AI

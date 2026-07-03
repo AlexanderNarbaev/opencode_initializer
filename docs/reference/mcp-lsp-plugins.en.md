@@ -2,7 +2,7 @@
 
 Complete reference of all AI infrastructure configured by OpenCode Initializer.
 
-## MCP Servers (21 local + 4 remote)
+## MCP Servers (22 local + 2 remote)
 
 MCP (Model Context Protocol) servers extend OpenCode with external tools and data sources.
 
@@ -28,6 +28,7 @@ MCP (Model Context Protocol) servers extend OpenCode with external tools and dat
 | **brave-search** | `brave-search-mcp` | Search | Web search via Brave Search API |
 | **context7** | `context7-mcp` | Search | Code documentation search |
 | **context7-official** | `@upstash/context7-mcp` | Search | Official Context7 library documentation |
+| **notion** | `@notionhq/notion-mcp-server` | Platform | Notion workspace integration |
 | **agentic-tools** | `@pimzino/agentic-tools-mcp` | Agent | Task management, project planning |
 | **codegraph** | `codegraph-mcp` | Analysis | Code dependency and call graph analysis |
 | **loopsense** | `@loopsense/mcp` | Analysis | Code quality and best practices |
@@ -38,8 +39,6 @@ MCP (Model Context Protocol) servers extend OpenCode with external tools and dat
 |--------|---------|----------|-------------|
 | **sentry** | `@sentry/mcp` | Monitoring | Error tracking and performance monitoring |
 | **grep** | `grep-mcp` | Utility | Content search across codebase |
-| **excalidraw** | `excalidraw-mcp` | Design | Architecture diagrams and technical drawings |
-| **google-maps** | `mcp-server-google-maps` | Location | Google Maps geocoding and routing |
 
 ### Enabling/Disabling MCP Servers
 
@@ -67,7 +66,7 @@ Most MCP servers use **absolute Bun binary paths** (`~/.bun/bin/mcp-server-*`) i
 - No network required after install
 - Survives npm cache clears
 
-## LSP Servers (13)
+## LSP Servers (12)
 
 LSP (Language Server Protocol) servers provide intelligent code analysis for OpenCode.
 
@@ -85,7 +84,6 @@ LSP (Language Server Protocol) servers provide intelligent code analysis for Ope
 | **zls** | Zig | Full Zig language support |
 | **bash-ls** | Bash/Shell | Shell script analysis, diagnostics |
 | **dockerfile-ls** | Dockerfile | Syntax highlighting, validation, autocomplete |
-| **css/html/json** | Web | CSS/HTML/JSON language support |
 
 ### Architecture-dependent LSPs
 
@@ -98,27 +96,30 @@ LSP (Language Server Protocol) servers provide intelligent code analysis for Ope
 
 The installer auto-detects CPU architecture and downloads the correct binary.
 
-## Plugins (15)
+## Plugins (18)
 
 OpenCode plugins extend the assistant's capabilities.
 
 | Plugin | Description |
 |--------|-------------|
-| **token-tracker** | Track token usage per session |
-| **dcp** | Damage Control Protocol — prevent harmful actions |
-| **swarm** | Multi-agent coordination |
-| **goal-mode** | Structured goal-driven development |
+| **codegraph** | Code dependency and call graph analysis in-editor |
+| **dcp** | Damage Control Protocol — prevent harmful actions, context compression |
+| **auto-fallback** | Automatic provider fallback on errors |
+| **goal-mode** | Structured goal-driven development with contracts |
+| **swarm** | Multi-agent coordination and review workflow |
 | **vibeguard** | Quality gate before completion |
-| **orchestrator** | Task orchestration and delegation |
-| **auto-fallback** | Automatic provider fallback |
-| **notify** | Desktop notifications |
-| **pty** | Terminal emulation |
-| **snip** | Code snippet management |
-| **snippets** | Reusable code templates |
-| **envsitter-guard** | Environment variable protection |
-| **command-inject** | Command injection for subagents |
-| **ignore** | Pattern-based file ignoring |
-| **gitlab** | GitLab integration |
+| **devcontainers** | Dev container workspace management |
+| **worktree** | Git worktree isolation for feature branches |
+| **scheduler** | Background job scheduling via systemd/launchd |
+| **background-agents** | Async background agent delegation |
+| **goal-plugin** | Goal-oriented task management and tracking |
+| **conductor** | Development track orchestration and planning |
+| **zellij-namer** | Automatic Zellij session naming |
+| **morph-plugin** | Context-aware model morphing and adaptation |
+| **supermemory** | Persistent cross-session memory for agents |
+| **websearch-cited** | Grounded web search with inline citations |
+| **firecrawl** | Web page crawling and content extraction |
+| **plugin-otel** | OpenTelemetry observability and tracing |
 
 ## Configuration Reference
 
@@ -149,9 +150,9 @@ OpenCode plugins extend the assistant's capabilities.
 ```json
 {
   "plugin": [
-    ["token-tracker@latest"],
-    ["dcp@v2.0.0"],
-    ["swarm@latest"]
+    "opencode-codegraph",
+    ["opencode-dcp", { "compress": { "enabled": true } }],
+    "opencode-auto-fallback"
   ]
 }
 ```

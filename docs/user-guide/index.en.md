@@ -25,12 +25,18 @@ Run this first thing to verify your environment:
 dev health
 ```
 
-Output covers 5 sections:
-1. **System** — OS, kernel, package manager, disk space
-2. **Shell** — ZSH, plugins, Oh My Zsh version
-3. **Languages** — Java, Node, Python, Go, Rust, .NET, Zig
-4. **Tools** — Docker, Chrome, OpenCode, Bun
-5. **AI/LLM** — MCP servers, Ollama, ChromaDB
+Output covers 11 sections:
+1. **Core CLI** — OpenCode, dev CLI, setup.sh
+2. **MCP Servers** — All configured MCP servers
+3. **LSP Servers** — Language server configurations
+4. **Services** — Docker, PostgreSQL, Qdrant, Redis
+5. **Config** — opencode.json, AGENTS.md, .zshrc
+6. **Multimodal & ONNX** — Multimedia + ONNX support
+7. **Interaction Modes** — CLI modes
+8. **Systemd Services** — Ollama, Open WebUI, ChromaDB
+9. **Web Search (SearXNG)** — Self-hosted search engine
+10. **Memory Chain** — MemoryLayer, Muninn
+11. **MCP Binaries** — ~/.bun/bin/ entries
 
 ### Version Check
 
@@ -51,6 +57,57 @@ dev update
 
 # Full system update (all packages)
 dev autoupdate
+```
+
+### Infrastructure Management
+
+```bash
+dev infra start     # Start all infra services
+dev infra stop      # Stop all infra services
+dev infra status    # Check service status
+```
+
+### Plugin Management
+
+```bash
+dev plugins list    # List installed plugins
+dev plugins install # Install new plugin
+dev plugins remove  # Remove plugin
+```
+
+### Observability
+
+```bash
+dev observability   # Open Grafana dashboards
+```
+
+### Web GUI
+
+```bash
+dev gui             # Start web management interface (port 4200)
+```
+
+### Isolated Circuit Mode
+
+```bash
+dev isolated on     # Enable air-gapped LLM mode
+dev isolated off    # Disable, use cloud providers
+dev isolated status # Check current state
+```
+
+### Model Management
+
+```bash
+dev models coding   # Recommend models for coding tasks
+dev models install <model>  # Download local Ollama model
+```
+
+### Config Backup
+
+```bash
+dev backup create   # Create config backup
+dev backup list     # List available backups
+dev backup restore  # Restore from backup
 ```
 
 ## Working with AI

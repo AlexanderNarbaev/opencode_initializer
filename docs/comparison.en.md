@@ -12,13 +12,13 @@ OpenCode Initializer fills a unique niche: no other tool combines **system-level
 |---------|:---:|:---:|:---:|:---:|:---:|:---:|
 | **Time to working env** | 15-20 min | 2-3 days | 30-60 min | 10-15 min | 20-40 min | 10-30 min |
 | **8 languages auto-installed** | :white_check_mark: | :x: | :white_check_mark: (via nixpkgs) | :x: (manual per project) | :x: (manual Dockerfile) | :white_check_mark: |
-| **21 MCP servers** | :white_check_mark: auto | :x: | :x: | :x: | :x: (manual config) | :x: |
-| **15 OpenCode plugins** | :white_check_mark: auto | :x: | :x: | :x: | :x: | :x: |
-| **13 LSP servers** | :white_check_mark: auto | :x: (manual) | :white_check_mark: (nixpkgs) | :x: (per IDE) | :x: (per IDE) | :x: |
+| **24 MCP servers** | :white_check_mark: auto | :x: | :x: | :x: | :x: (manual config) | :x: |
+| **18 OpenCode plugins** | :white_check_mark: auto | :x: | :x: | :x: | :x: | :x: |
+| **12 LSP servers** | :white_check_mark: auto | :x: (manual) | :white_check_mark: (nixpkgs) | :x: (per IDE) | :x: (per IDE) | :x: |
 | **Local LLM runtimes** | :white_check_mark: GPU-aware | :x: | :x: | :x: | :x: | :x: |
 | **LiteLLM API gateway** | :white_check_mark: | :x: | :x: | :x: | :x: | :x: |
 | **SearXNG web search** | :white_check_mark: | :x: | :x: | :x: | :x: | :x: |
-| **16 LLM providers** | :white_check_mark: dynamic | :x: | :x: | :x: | :x: | :x: |
+| **24 LLM providers** | :white_check_mark: dynamic | :x: | :x: | :x: | :x: | :x: |
 | **AI agent memory (Muninn)** | :white_check_mark: | :x: | :x: | :x: | :x: | :x: |
 | **Team dotfiles (chezmoi)** | :white_check_mark: | :x: | :white_check_mark: (nix home-manager) | :x: | :x: | :x: |
 | **multi-distro support** | :white_check_mark: 6 PMs | N/A | :white_check_mark: (Nix) | :white_check_mark: (any) | :white_check_mark: (any) | Varies |
@@ -75,8 +75,8 @@ OpenCode Initializer does all of this automatically in a single command.
 [Docker Development Containers](https://containers.dev/) provide reproducible, containerized environments. They're excellent for team consistency.
 
 **Where OpenCode Initializer adds value:**
-- MCP and LSP servers are auto-configured (21+13 servers)
-- OpenCode plugins pre-installed and configured (15 plugins)
+- MCP and LSP servers are auto-configured (24+12 servers)
+- OpenCode plugins pre-installed and configured (18 plugins)
 - 24 LLM providers (20 cloud + 4 local) with dynamic registration
 - Hardware-aware: GPU auto-detection, optimal backend selection
 - No container overhead: native performance
@@ -90,7 +90,7 @@ OpenCode Initializer does all of this automatically in a single command.
 Many bootstrap scripts exist (Laptop, thoughtbot/laptop, omakub, etc.). They typically install system packages and language runtimes.
 
 **Where OpenCode Initializer adds value:**
-- AI-native: MCP servers, LSP servers, OpenCode plugins, 16 LLM providers
+- AI-native: MCP servers, LSP servers, OpenCode plugins, 24 LLM providers
 - Infrastructure: Docker, ChromaDB, LiteLLM, SearXNG
 - GPU-aware LLM runtimes with auto-detection
 - AI agent memory (Muninn + ChromaDB)

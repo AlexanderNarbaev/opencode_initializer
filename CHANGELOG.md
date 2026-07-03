@@ -52,7 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `26-providers.sh`: 15→20 cloud + 4 local OpenAI-compatible providers (24 total)
 - `18-opencode-json.sh`: `_build_providers()` supports ISOLATED_CIRCUIT mode + z.ai/OpenRouter/Alibaba/DeepInfra
 - `00-core.sh`: ISOLATED_CIRCUIT auto-load from config, version v2.0.0
-- `setup.sh`: version v2.0.0, 373 lines
+- `setup.sh`: version v2.0.0, 561 lines
 - opencode.json: z.ai provider added with fallback chain
 - Model IDs verified against models.dev: Grok 4→4.3, Kimi K2→K2.7 Code, Claude→Opus 4.8, GPT-5→5.5, Gemini→3.5 Flash, Qwen3→3.7 Plus
 - `pre-session-check.sh`: expanded from 5 to 24 providers + local backends + model recommendations
@@ -69,7 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `test_infra.sh`: isolated from real config (uses temp dir), +4 new assertions
 - `test_core.sh`: version assertion updated for v2.0.0
 - `test_helpers.sh`: version assertion updated for v2.0.0
-- `test_modules.sh`: line count bounds adjusted for 373-line orchestrator
+- `test_modules.sh`: line count bounds adjusted for 561-line orchestrator
 - Duplicate module numbers resolved (22 and 32)
 
 ## [Unreleased]

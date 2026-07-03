@@ -17,12 +17,12 @@
 | Метрика | Значение |
 |---------|----------|
 | Модулей | 39 (+ 3 инфраструктурных) |
-| Оркестратор | 373 строки Bash |
+| Оркестратор | 561 строки Bash |
 | Режимов CLI | 11 (full, health, interactive, ci и другие) |
 | Языков | 8 |
 | MCP-серверов | 24 |
-| LSP-серверов | 13 |
-| Плагинов OpenCode | 15 |
+| LSP-серверов | 12 |
+| Плагинов OpenCode | 18 |
 | AI-провайдеров | 24 (20 облачных + 4 локальных) |
 | Model Router | 8 профилей (coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn) |
 | Инфраструктура | 6 сервисов (PostgreSQL, Qdrant, Redis, Prometheus, Grafana, MemoryLayer) |
@@ -37,8 +37,8 @@
 
 - :fontawesome-solid-code: **8 языков программирования** — Java 25, Node.js 24, Python 3.14, Go 1.26, Rust 1.96, .NET 10, Kotlin, Zig
 - :fontawesome-solid-robot: **24 MCP-серверов** — GitHub, GitLab, Filesystem, Playwright, Chrome DevTools, SQLite, Postgres, Memory, Excalidraw, Brave Search, Context7, Google Maps и другие
-- :fontawesome-solid-puzzle-piece: **15 плагинов OpenCode** — token-tracker, dcp, swarm, goal-mode, vibeguard, orchestrator, auto-fallback, notify, pty, snip, snippets, envsitter-guard, command-inject, ignore
-- :fontawesome-solid-gears: **13 LSP-серверов** — gopls, rust-analyzer, tsserver, pyright, omnisharp, yaml, marksman, taplo, lua, zls, bash, dockerfile, css/html/json
+- :fontawesome-solid-puzzle-piece: **18 плагинов OpenCode** — codegraph, dcp, auto-fallback, goal-mode, swarm, vibeguard, devcontainers, worktree, scheduler, background-agents, goal-plugin, conductor, zellij-namer, morph-plugin, supermemory, websearch-cited, firecrawl, plugin-otel
+- :fontawesome-solid-gears: **12 LSP-серверов** — gopls, rust-analyzer, tsserver, pyright, omnisharp, yaml, marksman, taplo, lua, zls, bash, dockerfile
 - :fontawesome-solid-box: **Infrastructure as Code** — PostgreSQL, Qdrant, Redis, Prometheus, Grafana, MemoryLayer через Docker Compose
 - :fontawesome-solid-display: **Cockpit TUI** — 7-вкладочный терминальный UI для управления сервером
 - :fontawesome-solid-shield-halved: **Isolated Circuit Mode** — air-gapped LLM с локальными бэкендами
@@ -97,7 +97,7 @@ bash setup.sh --full \
   --google-maps-key "..."
 ```
 
-### Isolated Circuit Mode (Air-Gapped)
+### Режим Isolated Circuit (Air-Gapped)
 
 ```bash
 bash setup.sh --full --isolated    # Только локальные LLM-бэкенды
@@ -117,9 +117,9 @@ dev isolated status                 # Проверить текущее сост
 | **AI/ML** | Ollama, vLLM, SGLang, Open WebUI, ChromaDB, WasmEdge, ONNX |
 | **API-шлюз** | LiteLLM — OpenAI-совместимый эндпоинт для всех провайдеров |
 | **Веб-поиск** | SearXNG self-hosted поиск + sanitizer proxy |
-| **MCP-серверы** | 21 сервер для AI-ассистированной разработки |
-| **LSP-серверы** | 13 языковых серверов |
-| **Плагины** | 15 плагинов продуктивности OpenCode |
+| **MCP-серверы** | 24 сервера для AI-ассистированной разработки |
+| **LSP-серверы** | 12 языковых серверов |
+| **Плагины** | 18 плагинов продуктивности OpenCode |
 | **Безопасность** | Trivy, Qodana |
 | **Утилиты** | bat, btm, fd, ripgrep, sd, typos, topgrade, just, mise |
 | **Dotfiles** | chezmoi для командного шеринга конфигов |

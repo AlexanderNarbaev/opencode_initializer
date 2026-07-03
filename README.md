@@ -2,7 +2,7 @@
 
 <p align="center">
   <b>One-command AI-enhanced development environment setup for WSL2, Linux, and macOS.</b><br>
-  <sub>373-line orchestrator · 39 modules · 11 modes · 24 MCPs · 15 plugins · 13 LSPs · 24 providers · model routing · GUI</sub>
+  <sub>561-line orchestrator · 39 modules · 11 modes · 24 MCPs · 15 plugins · 13 LSPs · 24 providers · model routing · GUI</sub>
 </p>
 
 <p align="center">
@@ -58,7 +58,7 @@ One command installs everything: 8 languages, 38 infrastructure modules, 21 MCP 
 
 ```
 opencode_initializer/
-├── setup.sh                  # Orchestrator (373 lines)
+├── setup.sh                  # Orchestrator (561 lines)
 ├── dev.sh                    # CLI: dev install|remove|update|health|list|config|isolated
 ├── opencode.json             # Generated OpenCode multi-provider config (24 providers)
 ├── src/

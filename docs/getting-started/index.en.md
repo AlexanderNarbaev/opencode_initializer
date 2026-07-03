@@ -104,7 +104,6 @@ export FIREWORKS_API_KEY="..."        # Fireworks
 export MISTRAL_API_KEY="..."          # Mistral
 export COHERE_API_KEY="..."           # Cohere
 export PERPLEXITY_API_KEY="..."       # Perplexity
-export REPLICATE_API_KEY="..."        # Replicate
 
 bash setup.sh --full
 ```
@@ -159,7 +158,7 @@ chrome-open https://github.com  # Open specific URL
 
 ## :fontawesome-solid-eye: What Happens During Install
 
-The script runs through these stages:
+The script runs through these stages (32 modules total):
 
 ```mermaid
 flowchart LR
@@ -169,7 +168,7 @@ flowchart LR
     D --> E[ZSH]
     E --> F["Languages (8)"]
     F --> G[OpenCode CLI]
-    G --> H["MCP + LSP (21+13)"]
+    G --> H["MCP + LSP (24+12)"]
     H --> I[ChromaDB]
     I --> J[LLM Tools]
     J --> K[Project Setup]
@@ -188,7 +187,7 @@ flowchart LR
 | 5 | **ZSH** | Zsh + Oh My Zsh + P10k + plugins | 2m |
 | 6 | **Languages** | Java, Node, Python, Go, Rust, .NET, Zig | 10m |
 | 7 | **OpenCode CLI** | OpenCode + Bun runtime | 1m |
-| 8 | **MCP + LSP** | 21 MCP servers + 13 LSP servers | 5m |
+| 8 | **MCP + LSP** | 24 MCP servers + 12 LSP servers | 5m |
 | 9 | **ChromaDB** | Vector database + Muninn memory | 1m |
 | 10 | **LLM Tools** | Ollama, vLLM, SGLang, Open WebUI | 5m |
 | 11 | **Project Setup** | AGENTS.md, project structure | 1s |
@@ -199,7 +198,7 @@ flowchart LR
 ### Verify Everything Works
 
 ```bash
-# Full diagnostics (65+ checks across 7 sections)
+# Full diagnostics (115+ checks across 11 sections)
 dev health
 
 # Compare installed versions against latest releases
@@ -213,13 +212,17 @@ dev list
 
 | Section | Checks | Examples |
 |---------|--------|----------|
-| System | OS, packages, DNS, mirrors, disk | apt/dnf/pacman working |
-| Languages | Java, Node, Python, Go, Rust, .NET, Zig | Version >= minimum |
-| Tools | Docker, Chrome, Bun, OpenCode CLI | Binary in PATH |
-| Shell | ZSH, Oh My Zsh, plugins, .zshrc | Shell functional |
-| MCP | Server binaries, bun paths, config | Cold-start verified |
-| LLM | Ollama, vLLM, Open WebUI | GPU detected, service running |
-| Security | Secrets permissions, API keys | `chmod 600`, tokens present |
+| Core CLI | OpenCode, dev CLI, setup.sh | Binary in PATH, version check |
+| MCP Servers | All configured MCP servers | Server binaries, config, cold-start |
+| LSP Servers | Language server configurations | Binaries installed, PATH valid |
+| Services | Docker, PostgreSQL, Qdrant, Redis | Service status, ports |
+| Config | opencode.json, AGENTS.md, .zshrc | JSON valid, permissions correct |
+| Multimodal & ONNX | Multimedia + ONNX support | Tools installed, paths checked |
+| Interaction Modes | CLI modes, interactive/fix/dry-run | Mode flags functional |
+| Systemd Services | Ollama, Open WebUI, ChromaDB | Services enabled, running |
+| Web Search (SearXNG) | Self-hosted search engine | Service status, proxy config |
+| Memory Chain | MemoryLayer, Muninn | Memory services operational |
+| MCP Binaries | ~/.bun/bin/ entries | Binaries present, executable |
 
 ### First Steps After Install
 
@@ -254,7 +257,7 @@ dev list
 After installation, a handy `dev` CLI tool is available:
 
 ```bash
-dev health          # Full diagnostics (65+ checks)
+dev health          # Full diagnostics (115+ checks)
 dev version-check   # Compare installed vs latest versions
 dev update          # Update all tools
 dev list            # List installed components
@@ -263,6 +266,13 @@ dev remove java     # Remove a component
 dev config          # Edit setup config
 dev autoupdate      # Run full system update (topgrade)
 dev self-update     # Update setup.sh itself from GitHub
+dev infra           # Manage infrastructure services (start/stop/status)
+dev plugins         # Manage OpenCode plugins (install/remove/list)
+dev observability   # Grafana + Prometheus monitoring
+dev gui             # Web management interface
+dev isolated        # Isolated Circuit Mode (on/off/status)
+dev models          # Model recommendations and management
+dev backup          # Config backup/restore
 ```
 
 ## :fontawesome-solid-play: Common First-Run Scenarios
