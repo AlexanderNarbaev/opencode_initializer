@@ -46,3 +46,4 @@ sqlite_mcp_server.db
 /ai-router.sh
 /ai-router.json
 docs/changelog/index.md
+.opencode/state/
