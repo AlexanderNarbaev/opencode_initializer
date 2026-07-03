@@ -71,7 +71,7 @@ cmd_update() {
     local ts=$(basename "$mig" .sh)
     if [ ! -f "$DL_CACHE/.mig-$ts" ]; then
       info "Running migration: $(basename "$mig")"
-      bash "$mig" && echo "$ts" > "$DL_CACHE/.mig-$ts" && log "Migration: $ts OK" || warn "Migration: $ts FAILED"
+      bash "$mig" && echo "$ts" >"$DL_CACHE/.mig-$ts" && log "Migration: $ts OK" || warn "Migration: $ts FAILED"
     fi
   done
 
@@ -83,18 +83,18 @@ cmd_install() {
   local pkg="$1"
   section "Installing $pkg"
   case "$pkg" in
-    docker)    bash "$SCRIPTS_DIR/setup.sh" --reinit -s "${SUDO_PASS:-}" 2>/dev/null ;;
-    java)      bash "$SCRIPTS_DIR/setup.sh" --reinit -s "${SUDO_PASS:-}" 2>/dev/null ;;
-    node)      bash "$SCRIPTS_DIR/setup.sh" --reinit -s "${SUDO_PASS:-}" 2>/dev/null ;;
-    python)    bash "$SCRIPTS_DIR/setup.sh" --reinit -s "${SUDO_PASS:-}" 2>/dev/null ;;
-    go)        bash "$SCRIPTS_DIR/setup.sh" --reinit -s "${SUDO_PASS:-}" 2>/dev/null ;;
-    rust)      bash "$SCRIPTS_DIR/setup.sh" --reinit -s "${SUDO_PASS:-}" 2>/dev/null ;;
-    dotnet)    bash "$SCRIPTS_DIR/setup.sh" --reinit -s "${SUDO_PASS:-}" 2>/dev/null ;;
-    opencode)  bash "$SCRIPTS_DIR/setup.sh" --reinit -s "${SUDO_PASS:-}" 2>/dev/null ;;
-    mcp)       bash "$SCRIPTS_DIR/setup.sh" --reinit -s "${SUDO_PASS:-}" 2>/dev/null ;;
-    llm)       bash "$SCRIPTS_DIR/setup.sh" --reinit -s "${SUDO_PASS:-}" 2>/dev/null ;;
+    docker) bash "$SCRIPTS_DIR/setup.sh" --reinit -s "${SUDO_PASS:-}" 2>/dev/null ;;
+    java) bash "$SCRIPTS_DIR/setup.sh" --reinit -s "${SUDO_PASS:-}" 2>/dev/null ;;
+    node) bash "$SCRIPTS_DIR/setup.sh" --reinit -s "${SUDO_PASS:-}" 2>/dev/null ;;
+    python) bash "$SCRIPTS_DIR/setup.sh" --reinit -s "${SUDO_PASS:-}" 2>/dev/null ;;
+    go) bash "$SCRIPTS_DIR/setup.sh" --reinit -s "${SUDO_PASS:-}" 2>/dev/null ;;
+    rust) bash "$SCRIPTS_DIR/setup.sh" --reinit -s "${SUDO_PASS:-}" 2>/dev/null ;;
+    dotnet) bash "$SCRIPTS_DIR/setup.sh" --reinit -s "${SUDO_PASS:-}" 2>/dev/null ;;
+    opencode) bash "$SCRIPTS_DIR/setup.sh" --reinit -s "${SUDO_PASS:-}" 2>/dev/null ;;
+    mcp) bash "$SCRIPTS_DIR/setup.sh" --reinit -s "${SUDO_PASS:-}" 2>/dev/null ;;
+    llm) bash "$SCRIPTS_DIR/setup.sh" --reinit -s "${SUDO_PASS:-}" 2>/dev/null ;;
     autoupdate) bash "$SCRIPTS_DIR/setup.sh" --reinit -s "${SUDO_PASS:-}" 2>/dev/null ;;
-    *)         warn "Unknown: $pkg. Available: docker java node python go rust dotnet opencode mcp llm autoupdate" ;;
+    *) warn "Unknown: $pkg. Available: docker java node python go rust dotnet opencode mcp llm autoupdate" ;;
   esac
 }
 
@@ -102,14 +102,36 @@ cmd_remove() {
   local pkg="$1"
   section "Removing $pkg"
   case "$pkg" in
-    docker) _sudo apt-get remove -y docker.io docker-compose-v2 2>/dev/null && log "docker removed" || warn "not found";;
-    java)   _sudo apt-get remove -y openjdk-25-jdk 2>/dev/null; _sudo rm -rf /usr/lib/jvm/jdk-25* 2>/dev/null; log "Java removed";;
-    node)   _sudo apt-get remove -y nodejs 2>/dev/null; rm -rf ~/.n ~/.npm-global 2>/dev/null; log "Node.js removed";;
-    python) _sudo apt-get remove -y python3 2>/dev/null; log "Python removed";;
-    go)     _sudo apt-get remove -y golang-go 2>/dev/null; _sudo rm -rf /usr/local/go 2>/dev/null; log "Go removed";;
-    rust)   _sudo apt-get remove -y cargo rustc 2>/dev/null; rm -rf ~/.cargo 2>/dev/null; log "Rust removed";;
-    dotnet) rm -rf ~/.dotnet 2>/dev/null; log ".NET removed";;
-    *)      warn "Unknown: $pkg (remove manually)";;
+    docker) _sudo apt-get remove -y docker.io docker-compose-v2 2>/dev/null && log "docker removed" || warn "not found" ;;
+    java)
+      _sudo apt-get remove -y openjdk-25-jdk 2>/dev/null
+      _sudo rm -rf /usr/lib/jvm/jdk-25* 2>/dev/null
+      log "Java removed"
+      ;;
+    node)
+      _sudo apt-get remove -y nodejs 2>/dev/null
+      rm -rf ~/.n ~/.npm-global 2>/dev/null
+      log "Node.js removed"
+      ;;
+    python)
+      _sudo apt-get remove -y python3 2>/dev/null
+      log "Python removed"
+      ;;
+    go)
+      _sudo apt-get remove -y golang-go 2>/dev/null
+      _sudo rm -rf /usr/local/go 2>/dev/null
+      log "Go removed"
+      ;;
+    rust)
+      _sudo apt-get remove -y cargo rustc 2>/dev/null
+      rm -rf ~/.cargo 2>/dev/null
+      log "Rust removed"
+      ;;
+    dotnet)
+      rm -rf ~/.dotnet 2>/dev/null
+      log ".NET removed"
+      ;;
+    *) warn "Unknown: $pkg (remove manually)" ;;
   esac
 }
 
@@ -126,7 +148,7 @@ cmd_self_update() {
       local ts=$(basename "$mig" .sh)
       if [ ! -f "$DL_CACHE/.mig-$ts" ]; then
         info "Migration: $(basename "$mig")"
-        bash "$mig" && echo "$ts" > "$DL_CACHE/.mig-$ts" && log "Migration: $ts OK" || warn "Migration: $ts FAILED"
+        bash "$mig" && echo "$ts" >"$DL_CACHE/.mig-$ts" && log "Migration: $ts OK" || warn "Migration: $ts FAILED"
       fi
     done
   else
@@ -144,7 +166,7 @@ cmd_autoupdate() {
   if command -v topgrade &>/dev/null; then
     topgrade --yes --no-retry --skip-notify
     log "autoupdate complete"
-    echo "$(date -Iseconds) manual topgrade" >> "$DL_CACHE/update.log"
+    echo "$(date -Iseconds) manual topgrade" >>"$DL_CACHE/update.log"
   else
     warn "topgrade not installed. Install: cargo install topgrade"
     cmd_update
@@ -163,10 +185,10 @@ cmd_infra() {
       fi
       section "Starting infra services..."
       if [ -n "$target" ]; then
-        docker compose -f "$INFRA_CONFIG" up -d --wait "$target" 2>/dev/null && \
+        docker compose -f "$INFRA_CONFIG" up -d --wait "$target" 2>/dev/null &&
           log "Started: $target" || warn "Failed to start $target"
       else
-        docker compose -f "$INFRA_CONFIG" up -d --wait 2>/dev/null && \
+        docker compose -f "$INFRA_CONFIG" up -d --wait 2>/dev/null &&
           log "All infra services started" || warn "Some services failed"
       fi
       ;;
@@ -176,14 +198,14 @@ cmd_infra() {
       fi
       section "Stopping infra services..."
       if [ -n "$target" ]; then
-        docker compose -f "$INFRA_CONFIG" stop "$target" 2>/dev/null && \
+        docker compose -f "$INFRA_CONFIG" stop "$target" 2>/dev/null &&
           log "Stopped: $target" || warn "Failed to stop $target"
       else
-        docker compose -f "$INFRA_CONFIG" down 2>/dev/null && \
+        docker compose -f "$INFRA_CONFIG" down 2>/dev/null &&
           log "All infra services stopped" || warn "Failed to stop"
       fi
       ;;
-    status|"")
+    status | "")
       section "Infra Services Status"
       if [ -f "$INFRA_CONFIG" ]; then
         docker compose -f "$INFRA_CONFIG" ps 2>/dev/null || echo "  No services running"
@@ -201,7 +223,7 @@ cmd_plugins() {
   target="${3:-}"
 
   case "$action" in
-    list|ls)
+    list | ls)
       section "Plugin Registry ($PLUGINS_JSON)"
       if [ -f "$PLUGINS_JSON" ]; then
         python3 -c "
@@ -245,8 +267,8 @@ cmd_observability() {
       if ! grep -q "prom/prometheus" "$INFRA_CONFIG" 2>/dev/null; then
         err "Prometheus not in infra.yml. Run: setup.sh --with-observability"
       fi
-      docker compose -f "$INFRA_CONFIG" up -d --wait prometheus grafana 2>/dev/null && \
-        log "Observability services started (Prometheus :9090, Grafana :3001)" || \
+      docker compose -f "$INFRA_CONFIG" up -d --wait prometheus grafana 2>/dev/null &&
+        log "Observability services started (Prometheus :9090, Grafana :3001)" ||
         warn "Some observability services failed to start"
       ;;
     down)
@@ -254,11 +276,11 @@ cmd_observability() {
         err "No infra config found"
       fi
       section "Stopping observability services..."
-      docker compose -f "$INFRA_CONFIG" stop prometheus grafana 2>/dev/null && \
-        log "Observability services stopped" || \
+      docker compose -f "$INFRA_CONFIG" stop prometheus grafana 2>/dev/null &&
+        log "Observability services stopped" ||
         warn "Failed to stop observability services"
       ;;
-    status|"")
+    status | "")
       section "Observability Services Status"
       if [ -f "$INFRA_CONFIG" ]; then
         if grep -q "prom/prometheus" "$INFRA_CONFIG" 2>/dev/null; then
@@ -285,7 +307,7 @@ cmd_gui() {
       section "Stopping OpenCode GUI"
       systemctl --user stop opencode-gui.service 2>/dev/null && log "GUI stopped" || warn "GUI not running"
       ;;
-    status|"")
+    status | "")
       systemctl --user status opencode-gui.service 2>/dev/null || warn "GUI service not installed. Run: setup.sh --full"
       ;;
     *) err "Unknown: dev gui $action. Use: start|stop|status" ;;
@@ -298,12 +320,12 @@ cmd_isolated() {
   mkdir -p "$(dirname "$CONFIG")"
 
   case "$action" in
-    on|enable)
+    on | enable)
       section "Enabling Isolated Circuit Mode"
       if grep -q "^ISOLATED_CIRCUIT=" "$CONFIG" 2>/dev/null; then
         sed -i 's/^ISOLATED_CIRCUIT=.*/ISOLATED_CIRCUIT=true/' "$CONFIG"
       else
-        echo "ISOLATED_CIRCUIT=true" >> "$CONFIG"
+        echo "ISOLATED_CIRCUIT=true" >>"$CONFIG"
       fi
       export ISOLATED_CIRCUIT=true
       log "Isolated circuit: ENABLED"
@@ -316,12 +338,12 @@ cmd_isolated() {
         log "opencode.json regenerated with local providers"
       fi
       ;;
-    off|disable)
+    off | disable)
       section "Disabling Isolated Circuit Mode"
       if grep -q "^ISOLATED_CIRCUIT=" "$CONFIG" 2>/dev/null; then
         sed -i 's/^ISOLATED_CIRCUIT=.*/ISOLATED_CIRCUIT=false/' "$CONFIG"
       else
-        echo "ISOLATED_CIRCUIT=false" >> "$CONFIG"
+        echo "ISOLATED_CIRCUIT=false" >>"$CONFIG"
       fi
       export ISOLATED_CIRCUIT=false
       log "Isolated circuit: DISABLED"
@@ -334,11 +356,11 @@ cmd_isolated() {
         log "opencode.json regenerated with cloud providers"
       fi
       ;;
-    status|"")
+    status | "")
       section "Isolated Circuit Status"
       local current="${ISOLATED_CIRCUIT:-false}"
       [ -z "$current" ] && [ -f "$CONFIG" ] && . "$CONFIG" 2>/dev/null && current="${ISOLATED_CIRCUIT:-false}"
-      case "${current,,}" in true|1|yes|on|enabled) current="true";; *) current="false";; esac
+      case "${current,,}" in true | 1 | yes | on | enabled) current="true" ;; *) current="false" ;; esac
 
       if [ "$current" = "true" ]; then
         echo "  Isolated Circuit: ${GREEN}ENABLED${NC}"
@@ -453,8 +475,8 @@ cmd_backup() {
         return 0
       fi
 
-      tar czf "$BACKUP_FILE" $FILES 2>/dev/null && \
-        log "Backup created: $BACKUP_FILE ($(du -h "$BACKUP_FILE" | cut -f1))" || \
+      tar czf "$BACKUP_FILE" $FILES 2>/dev/null &&
+        log "Backup created: $BACKUP_FILE ($(du -h "$BACKUP_FILE" | cut -f1))" ||
         warn "Backup failed"
       ;;
     list)
@@ -479,22 +501,22 @@ cmd_backup() {
 }
 
 case "${1:-}" in
-  install)  cmd_install "${2:-}" ;;
-  remove)   cmd_remove "${2:-}" ;;
-  update)   cmd_update ;;
-  health)   cmd_health ;;
-  list|ls)  cmd_list ;;
-  config)   cmd_config ;;
+  install) cmd_install "${2:-}" ;;
+  remove) cmd_remove "${2:-}" ;;
+  update) cmd_update ;;
+  health) cmd_health ;;
+  list | ls) cmd_list ;;
+  config) cmd_config ;;
   self-update) cmd_self_update ;;
   version-check) cmd_version_check ;;
   autoupdate) cmd_autoupdate ;;
-  infra)     cmd_infra "${@}" ;;
-  plugins)   cmd_plugins "${@}" ;;
+  infra) cmd_infra "${@}" ;;
+  plugins) cmd_plugins "${@}" ;;
   observability) cmd_observability "${@}" ;;
-  gui)       cmd_gui "${@}" ;;
-  isolated)  cmd_isolated "${@}" ;;
-  models)    cmd_models "${@}" ;;
-  backup)    cmd_backup "${@}" ;;
-  -h|--help|help|"") usage ;;
-  *)        err "Unknown: $1. Use: dev install|remove|update|health|list|config|self-update|version-check|autoupdate|infra|plugins|observability|models|backup" ;;
+  gui) cmd_gui "${@}" ;;
+  isolated) cmd_isolated "${@}" ;;
+  models) cmd_models "${@}" ;;
+  backup) cmd_backup "${@}" ;;
+  -h | --help | help | "") usage ;;
+  *) err "Unknown: $1. Use: dev install|remove|update|health|list|config|self-update|version-check|autoupdate|infra|plugins|observability|models|backup" ;;
 esac

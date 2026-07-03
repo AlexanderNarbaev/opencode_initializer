@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # ============================================================================
 #  Ultimate Dev Machine Bootstrap v2.0.0 — Modular
-set -euo pipefail; IFS=$'\n\t'; shopt -s inherit_errexit 2>/dev/null || true
+set -euo pipefail
+IFS=$'\n\t'
+shopt -s inherit_errexit 2>/dev/null || true
 
 # ── Bootstrap: resolve script dir (supports curl|bash and local runs) ───────
 if [ -f "$(cd "$(dirname "$0")" 2>/dev/null && pwd)/src/lib/helpers.sh" ]; then
@@ -19,7 +21,8 @@ else
   else
     mkdir -p "$(dirname "$CACHE_DIR")"
     git clone --depth 1 -q "$REPO_URL" "$CACHE_DIR" 2>/dev/null || {
-      echo "ERROR: Cannot clone $REPO_URL — check network"; exit 1
+      echo "ERROR: Cannot clone $REPO_URL — check network"
+      exit 1
     }
   fi
   SCRIPT_DIR="$CACHE_DIR"
@@ -39,59 +42,220 @@ exec > >(tee -a "$SETUP_LOG") 2>&1
 log "Setup log: $SETUP_LOG"
 
 # ── CLI argument parsing ────────────────────────────────────────────────────
-MODE="full"; NEW_PROJECT_DIR=""
+MODE="full"
+NEW_PROJECT_DIR=""
 while [[ $# -gt 0 ]]; do case $1 in
-  --full)              MODE="full"; shift;;
-  --reinit)            MODE="reinit"; shift;;
-  --new)               MODE="new"; NEW_PROJECT_DIR="${2:-}"; [ -z "$NEW_PROJECT_DIR" ] && { warn "Usage: --new <dir>"; exit 1; }; shift 2;;
-  --health)            MODE="health"; shift;;
-  --update)            MODE="update"; shift;;
-  --upgrade)           MODE="upgrade"; shift;;
-  --interactive)       MODE="interactive"; shift;;
-  --ci)                MODE="ci"; shift;;
-  --isolated)          ISOLATED_CIRCUIT="true"; shift;;
-  --no-isolated)       ISOLATED_CIRCUIT="false"; shift;;
-  --dry-run)           MODE="dry-run"; DRY_RUN=true; shift;;
-  --fix-config)        MODE="fix-config"; shift;;
-  --fix-zshrc)         MODE="fix-zshrc"; shift;;
-  -p|--project-dir)    PROJECT_DIR="$2"; shift 2;;
-  -k|--api-key)        API_KEY="$2"; shift 2;;
-  --deepseek-key)      DEEPSEEK_KEY="$2"; shift 2;;
-  --xai-key)           XAI_KEY="$2"; shift 2;;
-  --mimo-key)          MIMO_KEY="$2"; shift 2;;
-  --moonshot-key)      MOONSHOT_KEY="$2"; shift 2;;
-  --minimax-key)       MINIMAX_KEY="$2"; shift 2;;
-  --openai-key)        OPENAI_API_KEY="$2"; shift 2;;
-  --anthropic-key)     ANTHROPIC_API_KEY="$2"; shift 2;;
-  --google-key)        GOOGLE_API_KEY="$2"; shift 2;;
-  --mistral-key)       MISTRAL_API_KEY="$2"; shift 2;;
-  --groq-key)          GROQ_API_KEY="$2"; shift 2;;
-  --together-key)      TOGETHER_API_KEY="$2"; shift 2;;
-  --cohere-key)        COHERE_API_KEY="$2"; shift 2;;
-  --fireworks-key)     FIREWORKS_API_KEY="$2"; shift 2;;
-  --cerebras-key)      CEREBRAS_API_KEY="$2"; shift 2;;
-  --perplexity-key)    PERPLEXITY_API_KEY="$2"; shift 2;;
-  --github-token)      GITHUB_TOKEN="$2"; shift 2;;
-  --gitlab-token)      GITLAB_TOKEN="$2"; shift 2;;
-  --gitverse-token)    GITVERSE_TOKEN="$2"; shift 2;;
-  --google-maps-key)   GOOGLE_MAPS_KEY="$2"; shift 2;;
-  --fzf-key)           FZF_KEY="$2"; shift 2;;
-  --devbox-skip)       SKIP_DEVBOX=true; shift;;
-  --dotfiles-skip)     SKIP_DOTFILES=true; shift;;
-  --with-postgres)     INFRA_SERVICES="${INFRA_SERVICES:-}postgres "; shift;;
-  --with-qdrant)       INFRA_SERVICES="${INFRA_SERVICES:-}qdrant "; shift;;
-  --with-redis)        INFRA_SERVICES="${INFRA_SERVICES:-}redis "; shift;;
-  --with-kafka)        INFRA_SERVICES="${INFRA_SERVICES:-}kafka "; shift;;
-  --with-neo4j)        INFRA_SERVICES="${INFRA_SERVICES:-}neo4j "; shift;;
-  --with-minio)        INFRA_SERVICES="${INFRA_SERVICES:-}minio "; shift;;
-  --with-all-infra)    INFRA_SERVICES="postgres qdrant redis kafka neo4j minio"; shift;;
-  --with-observability) INFRA_SERVICES="${INFRA_SERVICES:-}prometheus grafana "; OBSERVABILITY_ENABLED=true; shift;;
-  --with-prometheus)    INFRA_SERVICES="${INFRA_SERVICES:-}prometheus "; OBSERVABILITY_ENABLED=true; shift;;
-  --with-grafana)       INFRA_SERVICES="${INFRA_SERVICES:-}grafana "; OBSERVABILITY_ENABLED=true; shift;;
-  -n|--git-name)       GIT_NAME="$2"; shift 2;;
-  -e|--git-email)      GIT_EMAIL="$2"; shift 2;;
-  -s|--sudo-pass)      SUDO_PASS="$2"; shift 2;;
-  -h|--help) cat <<'USAGE'
+  --full)
+    MODE="full"
+    shift
+    ;;
+  --reinit)
+    MODE="reinit"
+    shift
+    ;;
+  --new)
+    MODE="new"
+    NEW_PROJECT_DIR="${2:-}"
+    [ -z "$NEW_PROJECT_DIR" ] && {
+      warn "Usage: --new <dir>"
+      exit 1
+    }
+    shift 2
+    ;;
+  --health)
+    MODE="health"
+    shift
+    ;;
+  --update)
+    MODE="update"
+    shift
+    ;;
+  --upgrade)
+    MODE="upgrade"
+    shift
+    ;;
+  --interactive)
+    MODE="interactive"
+    shift
+    ;;
+  --ci)
+    MODE="ci"
+    shift
+    ;;
+  --isolated)
+    ISOLATED_CIRCUIT="true"
+    shift
+    ;;
+  --no-isolated)
+    ISOLATED_CIRCUIT="false"
+    shift
+    ;;
+  --dry-run)
+    MODE="dry-run"
+    DRY_RUN=true
+    shift
+    ;;
+  --fix-config)
+    MODE="fix-config"
+    shift
+    ;;
+  --fix-zshrc)
+    MODE="fix-zshrc"
+    shift
+    ;;
+  -p | --project-dir)
+    PROJECT_DIR="$2"
+    shift 2
+    ;;
+  -k | --api-key)
+    API_KEY="$2"
+    shift 2
+    ;;
+  --deepseek-key)
+    DEEPSEEK_KEY="$2"
+    shift 2
+    ;;
+  --xai-key)
+    XAI_KEY="$2"
+    shift 2
+    ;;
+  --mimo-key)
+    MIMO_KEY="$2"
+    shift 2
+    ;;
+  --moonshot-key)
+    MOONSHOT_KEY="$2"
+    shift 2
+    ;;
+  --minimax-key)
+    MINIMAX_KEY="$2"
+    shift 2
+    ;;
+  --openai-key)
+    OPENAI_API_KEY="$2"
+    shift 2
+    ;;
+  --anthropic-key)
+    ANTHROPIC_API_KEY="$2"
+    shift 2
+    ;;
+  --google-key)
+    GOOGLE_API_KEY="$2"
+    shift 2
+    ;;
+  --mistral-key)
+    MISTRAL_API_KEY="$2"
+    shift 2
+    ;;
+  --groq-key)
+    GROQ_API_KEY="$2"
+    shift 2
+    ;;
+  --together-key)
+    TOGETHER_API_KEY="$2"
+    shift 2
+    ;;
+  --cohere-key)
+    COHERE_API_KEY="$2"
+    shift 2
+    ;;
+  --fireworks-key)
+    FIREWORKS_API_KEY="$2"
+    shift 2
+    ;;
+  --cerebras-key)
+    CEREBRAS_API_KEY="$2"
+    shift 2
+    ;;
+  --perplexity-key)
+    PERPLEXITY_API_KEY="$2"
+    shift 2
+    ;;
+  --github-token)
+    GITHUB_TOKEN="$2"
+    shift 2
+    ;;
+  --gitlab-token)
+    GITLAB_TOKEN="$2"
+    shift 2
+    ;;
+  --gitverse-token)
+    GITVERSE_TOKEN="$2"
+    shift 2
+    ;;
+  --google-maps-key)
+    GOOGLE_MAPS_KEY="$2"
+    shift 2
+    ;;
+  --fzf-key)
+    FZF_KEY="$2"
+    shift 2
+    ;;
+  --devbox-skip)
+    SKIP_DEVBOX=true
+    shift
+    ;;
+  --dotfiles-skip)
+    SKIP_DOTFILES=true
+    shift
+    ;;
+  --with-postgres)
+    INFRA_SERVICES="${INFRA_SERVICES:-}postgres "
+    shift
+    ;;
+  --with-qdrant)
+    INFRA_SERVICES="${INFRA_SERVICES:-}qdrant "
+    shift
+    ;;
+  --with-redis)
+    INFRA_SERVICES="${INFRA_SERVICES:-}redis "
+    shift
+    ;;
+  --with-kafka)
+    INFRA_SERVICES="${INFRA_SERVICES:-}kafka "
+    shift
+    ;;
+  --with-neo4j)
+    INFRA_SERVICES="${INFRA_SERVICES:-}neo4j "
+    shift
+    ;;
+  --with-minio)
+    INFRA_SERVICES="${INFRA_SERVICES:-}minio "
+    shift
+    ;;
+  --with-all-infra)
+    INFRA_SERVICES="postgres qdrant redis kafka neo4j minio"
+    shift
+    ;;
+  --with-observability)
+    INFRA_SERVICES="${INFRA_SERVICES:-}prometheus grafana "
+    OBSERVABILITY_ENABLED=true
+    shift
+    ;;
+  --with-prometheus)
+    INFRA_SERVICES="${INFRA_SERVICES:-}prometheus "
+    OBSERVABILITY_ENABLED=true
+    shift
+    ;;
+  --with-grafana)
+    INFRA_SERVICES="${INFRA_SERVICES:-}grafana "
+    OBSERVABILITY_ENABLED=true
+    shift
+    ;;
+  -n | --git-name)
+    GIT_NAME="$2"
+    shift 2
+    ;;
+  -e | --git-email)
+    GIT_EMAIL="$2"
+    shift 2
+    ;;
+  -s | --sudo-pass)
+    SUDO_PASS="$2"
+    shift 2
+    ;;
+  -h | --help)
+    cat <<'USAGE'
 Usage: bash setup.sh [MODE] [OPTIONS]
 
 Modes:
@@ -154,21 +318,23 @@ Examples:
   bash setup.sh --interactive          # Interactive component selection
   bash setup.sh --upgrade              # Full system update chain
 USAGE
-  exit 0;;
-  *) err "Unknown: $1. Use -h for help.";;
-esac; done
+    exit 0
+    ;;
+  *) err "Unknown: $1. Use -h for help." ;;
+esac done
 
 # ── Early-exit modes ─────────────────────────────────────────────────────────
-if [ "$MODE" = "health" ]; then    source "$SCRIPT_DIR/src/modes/health.sh";      fi
-if [ "$MODE" = "ci" ]; then        source "$SCRIPT_DIR/src/modes/ci.sh";         fi
-if [ "$MODE" = "fix-zshrc" ]; then source "$SCRIPT_DIR/src/modes/fix-zshrc.sh";   fi
-if [ "$MODE" = "upgrade" ]; then   source "$SCRIPT_DIR/src/modes/upgrade.sh";     fi
+if [ "$MODE" = "health" ]; then source "$SCRIPT_DIR/src/modes/health.sh"; fi
+if [ "$MODE" = "ci" ]; then source "$SCRIPT_DIR/src/modes/ci.sh"; fi
+if [ "$MODE" = "fix-zshrc" ]; then source "$SCRIPT_DIR/src/modes/fix-zshrc.sh"; fi
+if [ "$MODE" = "upgrade" ]; then source "$SCRIPT_DIR/src/modes/upgrade.sh"; fi
 if [ "$MODE" = "interactive" ]; then source "$SCRIPT_DIR/src/modes/interactive.sh"; fi
 
 # ── Sudo — authenticate before any sudo operations ──────────────────────────
 [ "$EUID" -eq 0 ] && err "Do not run as root."
 if [ -z "${SUDO_PASS:-}" ] && [ "$MODE" != "new" ] && [ "$MODE" != "fix-config" ]; then
-  read -r -s -p "Sudo password (cached): " SUDO_PASS 2>/dev/null || true; echo
+  read -r -s -p "Sudo password (cached): " SUDO_PASS 2>/dev/null || true
+  echo
 fi
 if [ -n "${SUDO_PASS:-}" ]; then
   echo "$SUDO_PASS" | sudo -S true 2>/dev/null || err "Wrong sudo password"
@@ -177,7 +343,8 @@ fi
 
 # ── DNS + CA certs — after interactive (which may change MODE to full) ──────
 if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]; then
-  _set_dns; _install_ca_certs
+  _set_dns
+  _install_ca_certs
 fi
 
 # ── Preflight: network check + WSL2 fix ─────────────────────────────────────
@@ -201,7 +368,10 @@ if ! _check_net; then
   sudo dhclient -r eth0 2>/dev/null || true
   sudo dhclient eth0 2>/dev/null || true
   sleep 3
-  _check_net && log "WSL2 network recovered" || { warn "Network still limited — using apt fallbacks"; NET_OK=false; }
+  _check_net && log "WSL2 network recovered" || {
+    warn "Network still limited — using apt fallbacks"
+    NET_OK=false
+  }
 fi
 
 if [ -n "${WSL_DISTRO_NAME:-}" ]; then
@@ -215,7 +385,10 @@ fi
 
 for svc in "https://github.com" "https://registry.npmjs.org" "https://get.sdkman.io" "https://astral.sh" "https://go.dev"; do
   name=$(echo "$svc" | awk -F/ '{print $3}')
-  _curl "$svc" >/dev/null 2>&1 || { warn "$name unreachable — using apt"; [ "$name" = "github.com" ] && NET_OK=false; }
+  _curl "$svc" >/dev/null 2>&1 || {
+    warn "$name unreachable — using apt"
+    [ "$name" = "github.com" ] && NET_OK=false
+  }
 done
 $NET_OK || warn "Limited connectivity — using apt fallbacks where possible"
 echo
@@ -227,7 +400,7 @@ if grep -qi wsl /proc/version 2>/dev/null || grep -qi microsoft /proc/version 2>
   WSL_CONF_FILE="$WSL_USERPROFILE/.wslconfig"
   if [ ! -f "$WSL_CONF_FILE" ]; then
     log "Generating $WSL_CONF_FILE"
-    cat > "$WSL_CONF_FILE" << 'WSLCONF'
+    cat >"$WSL_CONF_FILE" <<'WSLCONF'
 [wsl2]
 memory=8GB
 processors=4
@@ -247,7 +420,7 @@ WSLCONF
   fi
   WSL_DIST_CONF="/etc/wsl.conf"
   if [ ! -f "$WSL_DIST_CONF" ] || ! grep -q 'systemd=true' "$WSL_DIST_CONF" 2>/dev/null; then
-    sudo tee "$WSL_DIST_CONF" << 'WSLDIST' > /dev/null
+    sudo tee "$WSL_DIST_CONF" <<'WSLDIST' >/dev/null
 [boot]
 systemd=true
 
@@ -301,7 +474,8 @@ echo -e "${GREEN}     Log:  $LOG_FILE${NC}"
 echo -e "${GREEN}============================================================${NC}"
 
 # ── Execute steps ───────────────────────────────────────────────────────────
-TOTAL_STEPS=32; CURRENT_STEP=0
+TOTAL_STEPS=32
+CURRENT_STEP=0
 
 _run_step() {
   local step_key="$1" step_name="$2" module="$3"
@@ -309,23 +483,24 @@ _run_step() {
   if _step_skip "$step_key" 2>/dev/null; then return 0; fi
   _progress "$CURRENT_STEP/$TOTAL_STEPS" "$step_name"
   if [ "${DRY_RUN:-false}" = "true" ]; then
-    info "[DRY] $step_name ($module)"; return 0
+    info "[DRY] $step_name ($module)"
+    return 0
   fi
   source "$module"
   log "$step_name — done"
 }
 
-_run_step step_system     "System packages"        "$SCRIPT_DIR/src/lib/01-system.sh"
-_run_step step_docker     "Docker Engine"          "$SCRIPT_DIR/src/lib/02-docker.sh"
+_run_step step_system "System packages" "$SCRIPT_DIR/src/lib/01-system.sh"
+_run_step step_docker "Docker Engine" "$SCRIPT_DIR/src/lib/02-docker.sh"
 [ "${INFRA_SERVICES:-}" != "" ] && _run_step step_infra "Infrastructure Services" "$SCRIPT_DIR/src/lib/30-infra.sh"
-_run_step step_chrome     "Google Chrome"          "$SCRIPT_DIR/src/lib/03-chrome.sh"
-_run_step step_zsh        "ZSH + Oh My Zsh"        "$SCRIPT_DIR/src/lib/04-zsh.sh"
-_run_step step_java       "Java 25"                "$SCRIPT_DIR/src/lib/05-java.sh"
-_run_step step_node       "Node.js 24"             "$SCRIPT_DIR/src/lib/06-node.sh"
-_run_step step_python     "Python 3.14 + uv"       "$SCRIPT_DIR/src/lib/07-python.sh"
-_run_step step_go         "Go 1.26"                "$SCRIPT_DIR/src/lib/08-go.sh"
-_run_step step_rust       "Rust 1.96"              "$SCRIPT_DIR/src/lib/09-rust.sh"
-_run_step step_dotnet     ".NET 10"                 "$SCRIPT_DIR/src/lib/10-dotnet.sh"
+_run_step step_chrome "Google Chrome" "$SCRIPT_DIR/src/lib/03-chrome.sh"
+_run_step step_zsh "ZSH + Oh My Zsh" "$SCRIPT_DIR/src/lib/04-zsh.sh"
+_run_step step_java "Java 25" "$SCRIPT_DIR/src/lib/05-java.sh"
+_run_step step_node "Node.js 24" "$SCRIPT_DIR/src/lib/06-node.sh"
+_run_step step_python "Python 3.14 + uv" "$SCRIPT_DIR/src/lib/07-python.sh"
+_run_step step_go "Go 1.26" "$SCRIPT_DIR/src/lib/08-go.sh"
+_run_step step_rust "Rust 1.96" "$SCRIPT_DIR/src/lib/09-rust.sh"
+_run_step step_dotnet ".NET 10" "$SCRIPT_DIR/src/lib/10-dotnet.sh"
 
 # ── Clean old configs ────────────────────────────────────────────────────────
 if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then
@@ -341,38 +516,38 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then
   log "Old configs cleaned"
 fi
 
-_run_step step_opencode   "OpenCode CLI"           "$SCRIPT_DIR/src/lib/11-opencode.sh"
-_run_step step_mcp        "MCP + LSP + Plugins"    "$SCRIPT_DIR/src/lib/12-mcp-lsp.sh"
-_run_step step_chromadb   "ChromaDB + Muninn"      "$SCRIPT_DIR/src/lib/13-chromadb.sh"
-_run_step step_shokunin   "Shokunin + Superpowers" "$SCRIPT_DIR/src/lib/14-shokunin.sh"
-_run_step step_security   "Trivy + Qodana"         "$SCRIPT_DIR/src/lib/15-security.sh"
-_run_step step_llm        "Ollama + vLLM"          "$SCRIPT_DIR/src/lib/16-llm.sh"
-_run_step step_project    "Project structure"      "$SCRIPT_DIR/src/lib/17-project.sh"
-_run_step step_json       "opencode.json"          "$SCRIPT_DIR/src/lib/18-opencode-json.sh"
-_run_step step_finalize   "Finalize + Verify"      "$SCRIPT_DIR/src/lib/19-finalize.sh"
-_run_step step_autoupdate "Auto-update system"     "$SCRIPT_DIR/src/lib/20-autoupdate.sh"
+_run_step step_opencode "OpenCode CLI" "$SCRIPT_DIR/src/lib/11-opencode.sh"
+_run_step step_mcp "MCP + LSP + Plugins" "$SCRIPT_DIR/src/lib/12-mcp-lsp.sh"
+_run_step step_chromadb "ChromaDB + Muninn" "$SCRIPT_DIR/src/lib/13-chromadb.sh"
+_run_step step_shokunin "Shokunin + Superpowers" "$SCRIPT_DIR/src/lib/14-shokunin.sh"
+_run_step step_security "Trivy + Qodana" "$SCRIPT_DIR/src/lib/15-security.sh"
+_run_step step_llm "Ollama + vLLM" "$SCRIPT_DIR/src/lib/16-llm.sh"
+_run_step step_project "Project structure" "$SCRIPT_DIR/src/lib/17-project.sh"
+_run_step step_json "opencode.json" "$SCRIPT_DIR/src/lib/18-opencode-json.sh"
+_run_step step_finalize "Finalize + Verify" "$SCRIPT_DIR/src/lib/19-finalize.sh"
+_run_step step_autoupdate "Auto-update system" "$SCRIPT_DIR/src/lib/20-autoupdate.sh"
 # ── Parallel: independent optional modules (R17: Performance) ────────────────
 if [ "${DRY_RUN:-false}" != "true" ] && [ "${PARALLEL_INSTALL:-true}" = "true" ]; then
   info "Installing optional modules in parallel..."
-  _run_step step_rag        "RAG System (optional)"  "$SCRIPT_DIR/src/lib/21-rag.sh" &
-  _run_step step_webui      "Open WebUI service"    "$SCRIPT_DIR/src/lib/22-webui-service.sh" &
-  _run_step step_mise        "mise tool manager"     "$SCRIPT_DIR/src/lib/29-mise.sh" &
-  _run_step step_just        "just task runner"      "$SCRIPT_DIR/src/lib/23-just.sh" &
-  _run_step step_websearch   "Web Search Engine"    "$SCRIPT_DIR/src/lib/24-websearch.sh" &
-  _run_step step_litellm    "LiteLLM API Gateway"  "$SCRIPT_DIR/src/lib/25-litellm.sh" &
+  _run_step step_rag "RAG System (optional)" "$SCRIPT_DIR/src/lib/21-rag.sh" &
+  _run_step step_webui "Open WebUI service" "$SCRIPT_DIR/src/lib/22-webui-service.sh" &
+  _run_step step_mise "mise tool manager" "$SCRIPT_DIR/src/lib/29-mise.sh" &
+  _run_step step_just "just task runner" "$SCRIPT_DIR/src/lib/23-just.sh" &
+  _run_step step_websearch "Web Search Engine" "$SCRIPT_DIR/src/lib/24-websearch.sh" &
+  _run_step step_litellm "LiteLLM API Gateway" "$SCRIPT_DIR/src/lib/25-litellm.sh" &
   wait
 else
-  _run_step step_rag        "RAG System (optional)"  "$SCRIPT_DIR/src/lib/21-rag.sh"
-  _run_step step_webui      "Open WebUI service"    "$SCRIPT_DIR/src/lib/22-webui-service.sh"
-  _run_step step_mise        "mise tool manager"     "$SCRIPT_DIR/src/lib/29-mise.sh"
-  _run_step step_just        "just task runner"      "$SCRIPT_DIR/src/lib/23-just.sh"
-  _run_step step_websearch   "Web Search Engine"    "$SCRIPT_DIR/src/lib/24-websearch.sh"
-  _run_step step_litellm    "LiteLLM API Gateway"  "$SCRIPT_DIR/src/lib/25-litellm.sh"
+  _run_step step_rag "RAG System (optional)" "$SCRIPT_DIR/src/lib/21-rag.sh"
+  _run_step step_webui "Open WebUI service" "$SCRIPT_DIR/src/lib/22-webui-service.sh"
+  _run_step step_mise "mise tool manager" "$SCRIPT_DIR/src/lib/29-mise.sh"
+  _run_step step_just "just task runner" "$SCRIPT_DIR/src/lib/23-just.sh"
+  _run_step step_websearch "Web Search Engine" "$SCRIPT_DIR/src/lib/24-websearch.sh"
+  _run_step step_litellm "LiteLLM API Gateway" "$SCRIPT_DIR/src/lib/25-litellm.sh"
 fi
-_run_step step_providers  "Multi-Provider Config" "$SCRIPT_DIR/src/lib/26-providers.sh"
-[ "${SKIP_DOTFILES:-false}" != "true" ] && _run_step step_dotfiles   "Dotfiles (chezmoi)"    "$SCRIPT_DIR/src/lib/27-dotfiles.sh"
-[ "${SKIP_DEVBOX:-false}" != "true" ]   && _run_step step_devbox     "Devbox (Nix)"          "$SCRIPT_DIR/src/lib/28-devbox.sh"
-[ "${SKIP_GUI:-false}" != "true" ]      && _run_step step_gui        "Web GUI Interface"    "$SCRIPT_DIR/src/lib/35-gui.sh"
+_run_step step_providers "Multi-Provider Config" "$SCRIPT_DIR/src/lib/26-providers.sh"
+[ "${SKIP_DOTFILES:-false}" != "true" ] && _run_step step_dotfiles "Dotfiles (chezmoi)" "$SCRIPT_DIR/src/lib/27-dotfiles.sh"
+[ "${SKIP_DEVBOX:-false}" != "true" ] && _run_step step_devbox "Devbox (Nix)" "$SCRIPT_DIR/src/lib/28-devbox.sh"
+[ "${SKIP_GUI:-false}" != "true" ] && _run_step step_gui "Web GUI Interface" "$SCRIPT_DIR/src/lib/35-gui.sh"
 [ "${OBSERVABILITY_ENABLED:-false}" = "true" ] && _run_step step_observability "Observability Stack" "$SCRIPT_DIR/src/lib/34-observability.sh"
 _run_step step_model_router "Model Routing Intelligence" "$SCRIPT_DIR/src/lib/36-model-router.sh"
 

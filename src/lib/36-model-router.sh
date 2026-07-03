@@ -14,7 +14,7 @@ mkdir -p "$ROUTER_DIR"
 # Each profile maps a task type to the best model + fallback chain
 # Models verified against models.dev (2026-07-03)
 
-cat > "$ROUTER_DIR/task-profiles.json" << 'PROFILES'
+cat >"$ROUTER_DIR/task-profiles.json" <<'PROFILES'
 {
   "coding": {
     "description": "Primary coding, implementation, refactoring",
@@ -79,7 +79,7 @@ log "Task profiles written to $ROUTER_DIR/task-profiles.json"
 
 # ── Cost table (per 1M tokens, from models.dev 2026-07) ─────────────────────
 
-cat > "$ROUTER_DIR/cost-table.json" << 'COSTS'
+cat >"$ROUTER_DIR/cost-table.json" <<'COSTS'
 {
   "deepseek/deepseek-v4-pro": {"input": 0.00, "output": 0.00, "context": 1000000, "free": true},
   "deepseek/deepseek-v4-flash": {"input": 0.00, "output": 0.00, "context": 1000000, "free": true},
@@ -106,7 +106,7 @@ log "Cost table written to $ROUTER_DIR/cost-table.json"
 
 # ── Model recommendation script ─────────────────────────────────────────────
 
-cat > "$ROUTER_DIR/recommend.sh" << 'RECOMMEND'
+cat >"$ROUTER_DIR/recommend.sh" <<'RECOMMEND'
 #!/usr/bin/env bash
 # recommend.sh — Recommend best model for a task type
 # Usage: recommend.sh <task-type> [--json]
@@ -196,7 +196,7 @@ fi
 
 # ── Team model preferences (R15: Team Collaboration) ────────────────────────
 # Allows teams to share model preferences via chezmoi/git
-cat > "$ROUTER_DIR/team-prefs.json" << 'TEAM'
+cat >"$ROUTER_DIR/team-prefs.json" <<'TEAM'
 {
   "_comment": "Team model preferences — share via chezmoi or git. Override task profiles for team-wide consistency.",
   "_usage": "Edit this file to set team-wide model preferences. Each task profile can be overridden.",

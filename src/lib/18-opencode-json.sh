@@ -7,7 +7,7 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "fix-config" ];
   section "Generating opencode.json with all MCPs"
 
   generate_opencode_json() {
-    python3 << 'PYGEN'
+    python3 <<'PYGEN'
 import json, os, shutil
 
 home = os.path.expanduser("~")
@@ -612,7 +612,8 @@ PYGEN
   if [ "${MCP_COUNT:-0}" -gt 0 ] 2>/dev/null; then
     section "MCP cold-start test"
     set +e
-    MCP_PASS=0; MCP_FAIL=0
+    MCP_PASS=0
+    MCP_FAIL=0
     for mcp_name in $(python3 -c "
 import json
 c=json.load(open('$HOME/.config/opencode/opencode.json'))
@@ -624,7 +625,7 @@ name = os.environ.get('MCP_NAME','')
 c = json.load(open(os.path.expanduser('~/.config/opencode/opencode.json')))
 m = c.get('mcp',{}).get(name,{})
 sys.stdout.write(json.dumps(m.get('command',[])))
-" 2>/dev/null > /tmp/opencode-mcp-cmd.$$.json
+" 2>/dev/null >/tmp/opencode-mcp-cmd.$$.json
       mcp_enabled=$(MCP_NAME="$mcp_name" python3 -c "
 import json, os
 name = os.environ.get('MCP_NAME','')
@@ -640,23 +641,23 @@ m = c.get('mcp',{}).get(name,{})
 print(m.get('type', 'local'))
 " 2>/dev/null)
       if [ "$mcp_enabled" = "False" ] || [ "$mcp_type" = "remote" ]; then
-        MCP_PASS=$((MCP_PASS+1))
+        MCP_PASS=$((MCP_PASS + 1))
         continue
       fi
-      binary=$(python3 -c "import json,sys; arr=json.load(sys.stdin); print(arr[0] if arr else '')" 2>/dev/null < /tmp/opencode-mcp-cmd.$$.json)
+      binary=$(python3 -c "import json,sys; arr=json.load(sys.stdin); print(arr[0] if arr else '')" 2>/dev/null </tmp/opencode-mcp-cmd.$$.json)
       rm -f /tmp/opencode-mcp-cmd.$$.json
       if echo "$binary" | grep -qE "^(npx|bunx)$"; then
         if which npx &>/dev/null || which bunx &>/dev/null; then
-          MCP_PASS=$((MCP_PASS+1))
+          MCP_PASS=$((MCP_PASS + 1))
         else
           warn "MCP $mcp_name: npx/bunx not found"
-          MCP_FAIL=$((MCP_FAIL+1))
+          MCP_FAIL=$((MCP_FAIL + 1))
         fi
       elif [ -n "$binary" ] && which "$binary" &>/dev/null; then
-        MCP_PASS=$((MCP_PASS+1))
+        MCP_PASS=$((MCP_PASS + 1))
       else
         warn "MCP $mcp_name: $binary not found"
-        MCP_FAIL=$((MCP_FAIL+1))
+        MCP_FAIL=$((MCP_FAIL + 1))
       fi
     done
     log "MCP cold-start: $MCP_PASS ready, $MCP_FAIL missing"

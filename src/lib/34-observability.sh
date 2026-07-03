@@ -15,7 +15,7 @@ mkdir -p "$SERVICES_DIR"
 # ── Create prometheus.yml if missing ───────────────────────────────────────
 if [ ! -f "$PROMETHEUS_YML" ]; then
   log "Creating $PROMETHEUS_YML"
-  cat > "$PROMETHEUS_YML" << 'PROMCONF'
+  cat >"$PROMETHEUS_YML" <<'PROMCONF'
 global:
   scrape_interval: 15s
 

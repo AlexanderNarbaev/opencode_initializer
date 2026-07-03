@@ -46,7 +46,7 @@ assert "SCRIPT_VERSION is v2.0.0" 'grep -qE "SCRIPT_VERSION.*v2\.0\.0" "'"$C"'"'
 
 # ── OS validation ────────────────────────────────────────────────────────
 assert "OS validation exists"       'grep -q "/etc/os-release" "'"$C"'"'
-assert "Ubuntu/Debian check exists" 'grep -qE "ubuntu\|debian" "'"$C"'"'
+assert "Ubuntu/Debian check exists" 'grep -qE "Ubuntu/Debian" "'"$C"'"'
 
 # ── Architecture detection ───────────────────────────────────────────────
 assert "ARCH detection (uname -m)"  'grep -q "ARCH=\$(uname" "'"$C"'"'

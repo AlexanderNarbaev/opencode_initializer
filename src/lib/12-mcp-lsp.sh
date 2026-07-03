@@ -5,7 +5,7 @@ set -euo pipefail
 
 if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) && _gate "INTERACTIVE_DO_MCP"; then
   section "MCP servers & plugins"
-  set +e  # tolerate individual component failures
+  set +e # tolerate individual component failures
 
   _mcp() { _npm_install "$1" "$2"; }
 
@@ -83,57 +83,156 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
   command -v ollama &>/dev/null && ollama pull mxbai-embed-large 2>/dev/null || true
 
   # Plugins (actively maintained)
-  npm install -g opencode-codegraph@latest 2>/dev/null && log "Plugin: opencode-codegraph" || { warn "Plugin FAILED: opencode-codegraph"; true; }
-  npm install -g opencode-orchestrator@latest 2>/dev/null && log "Plugin: opencode-orchestrator" || { warn "Plugin FAILED: opencode-orchestrator"; true; }
-  npm install -g opencode-token-tracker@latest 2>/dev/null && log "Plugin: opencode-token-tracker" || { warn "Plugin FAILED: token-tracker"; true; }
-  npm install -g opencode-notify@latest 2>/dev/null && log "Plugin: opencode-notify" || { warn "Plugin FAILED: opencode-notify"; true; }
-  npm install -g opencode-pty@latest 2>/dev/null && log "Plugin: opencode-pty" || { warn "Plugin FAILED: opencode-pty"; true; }
-  npm install -g opencode-ignore@latest 2>/dev/null && log "Plugin: opencode-ignore" || { warn "Plugin FAILED: opencode-ignore"; true; }
-  npm install -g opencode-snip@latest 2>/dev/null && log "Plugin: opencode-snip" || { warn "Plugin FAILED: opencode-snip"; true; }
-  npm install -g opencode-snippets@latest 2>/dev/null && log "Plugin: opencode-snippets" || { warn "Plugin FAILED: opencode-snippets"; true; }
-  npm install -g envsitter-guard@latest 2>/dev/null && log "Plugin: envsitter-guard" || { warn "Plugin FAILED: envsitter-guard"; true; }
-  npm install -g opencode-command-inject@latest 2>/dev/null && log "Plugin: opencode-command-inject" || { warn "Plugin FAILED: opencode-command-inject"; true; }
-  npm install -g @tarquinen/opencode-dcp@latest 2>/dev/null && log "Plugin: opencode-dcp" || { warn "Plugin FAILED: dcp"; true; }
-  npm install -g opencode-auto-fallback@latest 2>/dev/null && log "Plugin: opencode-auto-fallback" || { warn "Plugin FAILED: auto-fallback"; true; }
-  npm install -g opencode-goal-mode@latest 2>/dev/null && log "Plugin: opencode-goal-mode" || { warn "Plugin FAILED: goal-mode"; true; }
-  npm install -g opencode-swarm@latest 2>/dev/null && log "Plugin: opencode-swarm" || { warn "Plugin FAILED: swarm"; true; }
-  npm install -g opencode-vibeguard@latest 2>/dev/null && log "Plugin: opencode-vibeguard" || { warn "Plugin FAILED: vibeguard"; true; }
+  npm install -g opencode-codegraph@latest 2>/dev/null && log "Plugin: opencode-codegraph" || {
+    warn "Plugin FAILED: opencode-codegraph"
+    true
+  }
+  npm install -g opencode-orchestrator@latest 2>/dev/null && log "Plugin: opencode-orchestrator" || {
+    warn "Plugin FAILED: opencode-orchestrator"
+    true
+  }
+  npm install -g opencode-token-tracker@latest 2>/dev/null && log "Plugin: opencode-token-tracker" || {
+    warn "Plugin FAILED: token-tracker"
+    true
+  }
+  npm install -g opencode-notify@latest 2>/dev/null && log "Plugin: opencode-notify" || {
+    warn "Plugin FAILED: opencode-notify"
+    true
+  }
+  npm install -g opencode-pty@latest 2>/dev/null && log "Plugin: opencode-pty" || {
+    warn "Plugin FAILED: opencode-pty"
+    true
+  }
+  npm install -g opencode-ignore@latest 2>/dev/null && log "Plugin: opencode-ignore" || {
+    warn "Plugin FAILED: opencode-ignore"
+    true
+  }
+  npm install -g opencode-snip@latest 2>/dev/null && log "Plugin: opencode-snip" || {
+    warn "Plugin FAILED: opencode-snip"
+    true
+  }
+  npm install -g opencode-snippets@latest 2>/dev/null && log "Plugin: opencode-snippets" || {
+    warn "Plugin FAILED: opencode-snippets"
+    true
+  }
+  npm install -g envsitter-guard@latest 2>/dev/null && log "Plugin: envsitter-guard" || {
+    warn "Plugin FAILED: envsitter-guard"
+    true
+  }
+  npm install -g opencode-command-inject@latest 2>/dev/null && log "Plugin: opencode-command-inject" || {
+    warn "Plugin FAILED: opencode-command-inject"
+    true
+  }
+  npm install -g @tarquinen/opencode-dcp@latest 2>/dev/null && log "Plugin: opencode-dcp" || {
+    warn "Plugin FAILED: dcp"
+    true
+  }
+  npm install -g opencode-auto-fallback@latest 2>/dev/null && log "Plugin: opencode-auto-fallback" || {
+    warn "Plugin FAILED: auto-fallback"
+    true
+  }
+  npm install -g opencode-goal-mode@latest 2>/dev/null && log "Plugin: opencode-goal-mode" || {
+    warn "Plugin FAILED: goal-mode"
+    true
+  }
+  npm install -g opencode-swarm@latest 2>/dev/null && log "Plugin: opencode-swarm" || {
+    warn "Plugin FAILED: swarm"
+    true
+  }
+  npm install -g opencode-vibeguard@latest 2>/dev/null && log "Plugin: opencode-vibeguard" || {
+    warn "Plugin FAILED: vibeguard"
+    true
+  }
 
   # Smart routing + AGENTS.md sync (optional dev tools)
-  npm install -g @blockrun/clawrouter@latest 2>/dev/null && log "Tool: clawrouter" || { warn "Tool FAILED: clawrouter"; true; }
-  npm install -g agents-md-sync@latest 2>/dev/null && log "Tool: agents-md-sync" || { warn "Tool FAILED: agents-md-sync"; true; }
+  npm install -g @blockrun/clawrouter@latest 2>/dev/null && log "Tool: clawrouter" || {
+    warn "Tool FAILED: clawrouter"
+    true
+  }
+  npm install -g agents-md-sync@latest 2>/dev/null && log "Tool: agents-md-sync" || {
+    warn "Tool FAILED: agents-md-sync"
+    true
+  }
 
   # Infrastructure plugins
-  npm install -g opencode-daytona@latest 2>/dev/null && log "Plugin: daytona" || { warn "Plugin FAILED: daytona"; true; }
-  npm install -g opencode-devcontainers@latest 2>/dev/null && log "Plugin: devcontainers" || { warn "Plugin FAILED: devcontainers"; true; }
-  npm install -g opencode-worktree@latest 2>/dev/null && log "Plugin: worktree" || { warn "Plugin FAILED: worktree"; true; }
-  npm install -g opencode-scheduler@latest 2>/dev/null && log "Plugin: scheduler" || { warn "Plugin FAILED: scheduler"; true; }
+  npm install -g opencode-daytona@latest 2>/dev/null && log "Plugin: daytona" || {
+    warn "Plugin FAILED: daytona"
+    true
+  }
+  npm install -g opencode-devcontainers@latest 2>/dev/null && log "Plugin: devcontainers" || {
+    warn "Plugin FAILED: devcontainers"
+    true
+  }
+  npm install -g opencode-worktree@latest 2>/dev/null && log "Plugin: worktree" || {
+    warn "Plugin FAILED: worktree"
+    true
+  }
+  npm install -g opencode-scheduler@latest 2>/dev/null && log "Plugin: scheduler" || {
+    warn "Plugin FAILED: scheduler"
+    true
+  }
 
   # AI-enhancement plugins
-  npm install -g opencode-background-agents@latest 2>/dev/null && log "Plugin: background-agents" || { warn "Plugin FAILED: background-agents"; true; }
-  npm install -g @zenobius/opencode-skillful@latest 2>/dev/null && log "Plugin: skillful" || { warn "Plugin FAILED: skillful"; true; }
-  npm install -g opencode-goal-plugin@latest 2>/dev/null && log "Plugin: goal-plugin" || { warn "Plugin FAILED: goal-plugin"; true; }
-  npm install -g opencode-conductor@latest 2>/dev/null && log "Plugin: conductor" || { warn "Plugin FAILED: conductor"; true; }
+  npm install -g opencode-background-agents@latest 2>/dev/null && log "Plugin: background-agents" || {
+    warn "Plugin FAILED: background-agents"
+    true
+  }
+  npm install -g @zenobius/opencode-skillful@latest 2>/dev/null && log "Plugin: skillful" || {
+    warn "Plugin FAILED: skillful"
+    true
+  }
+  npm install -g opencode-goal-plugin@latest 2>/dev/null && log "Plugin: goal-plugin" || {
+    warn "Plugin FAILED: goal-plugin"
+    true
+  }
+  npm install -g opencode-conductor@latest 2>/dev/null && log "Plugin: conductor" || {
+    warn "Plugin FAILED: conductor"
+    true
+  }
 
   # QoL plugins
-  npm install -g opencode-zellij-namer@latest 2>/dev/null && log "Plugin: zellij-namer" || { warn "Plugin FAILED: zellij-namer"; true; }
-  npm install -g @morphllm/opencode-morph-plugin@latest 2>/dev/null && log "Plugin: morph-plugin" || { warn "Plugin FAILED: morph-plugin"; true; }
+  npm install -g opencode-zellij-namer@latest 2>/dev/null && log "Plugin: zellij-namer" || {
+    warn "Plugin FAILED: zellij-namer"
+    true
+  }
+  npm install -g @morphllm/opencode-morph-plugin@latest 2>/dev/null && log "Plugin: morph-plugin" || {
+    warn "Plugin FAILED: morph-plugin"
+    true
+  }
 
   # Memory/context plugins
-  npm install -g opencode-supermemory@latest 2>/dev/null && log "Plugin: supermemory" || { warn "Plugin FAILED: supermemory"; true; }
-  npm install -g opencode-websearch-cited@latest 2>/dev/null && log "Plugin: websearch-cited" || { warn "Plugin FAILED: websearch-cited"; true; }
+  npm install -g opencode-supermemory@latest 2>/dev/null && log "Plugin: supermemory" || {
+    warn "Plugin FAILED: supermemory"
+    true
+  }
+  npm install -g opencode-websearch-cited@latest 2>/dev/null && log "Plugin: websearch-cited" || {
+    warn "Plugin FAILED: websearch-cited"
+    true
+  }
 
   # Utility
-  npm install -g @lyculs/opencode-firecrawl@latest 2>/dev/null && log "Plugin: firecrawl" || { warn "Plugin FAILED: firecrawl"; true; }
+  npm install -g @lyculs/opencode-firecrawl@latest 2>/dev/null && log "Plugin: firecrawl" || {
+    warn "Plugin FAILED: firecrawl"
+    true
+  }
 
   # Telemetry & observability
-  npm install -g @devtheops/opencode-plugin-otel@latest 2>/dev/null && log "Plugin: otel" || { warn "Plugin FAILED: otel"; true; }
+  npm install -g @devtheops/opencode-plugin-otel@latest 2>/dev/null && log "Plugin: otel" || {
+    warn "Plugin FAILED: otel"
+    true
+  }
 
   # Context7 official MCP (replaces community c7-mcp-server)
-  npm install -g @upstash/context7-mcp@latest 2>/dev/null && log "MCP: context7-official" || { warn "MCP FAILED: context7-official"; true; }
+  npm install -g @upstash/context7-mcp@latest 2>/dev/null && log "MCP: context7-official" || {
+    warn "MCP FAILED: context7-official"
+    true
+  }
 
   # Notion MCP (optional, requires API key)
-  npm install -g @notionhq/notion-mcp-server@latest 2>/dev/null && log "MCP: notion" || { warn "MCP FAILED: notion"; true; }
+  npm install -g @notionhq/notion-mcp-server@latest 2>/dev/null && log "MCP: notion" || {
+    warn "MCP FAILED: notion"
+    true
+  }
 
   # LSP servers (language intelligence — installed, detected later by Python gen)
   section "LSP servers"
@@ -169,25 +268,28 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
   command -v dotnet &>/dev/null && timeout 60 dotnet tool install -g csharp-ls 2>/dev/null || true
   command -v dotnet &>/dev/null && timeout 10 dotnet tool list -g 2>/dev/null || true
   log "LSP servers staged (installed if toolchains present)"
-  set -e  # restore strict mode
+  set -e # restore strict mode
 
   # ── Post-install verification ─────────────────────────────────────────────
   info "Verifying MCP servers..."
-  _mcp_ok=0; _mcp_miss=0; _lsp_ok=0; _lsp_miss=0
+  _mcp_ok=0
+  _mcp_miss=0
+  _lsp_ok=0
+  _lsp_miss=0
   for mcp in c7-mcp-server mcp-server-filesystem agentic-tools-mcp codegraph playwright-mcp agent-browser-mcp-server chrome-devtools-mcp mcp-server-github mcp-server-postgres mcp-server-sequential-thinking memorylayer-mcp; do
     if [ -x "$HOME/.bun/bin/$mcp" ] || which "$mcp" &>/dev/null; then
-      _mcp_ok=$((_mcp_ok+1))
+      _mcp_ok=$((_mcp_ok + 1))
     else
-      _mcp_miss=$((_mcp_miss+1))
+      _mcp_miss=$((_mcp_miss + 1))
       warn "MCP not found: $mcp"
     fi
   done
   info "Verifying LSP servers..."
   for lsp in gopls rust-analyzer typescript-language-server pyright-langserver yaml-language-server marksman taplo bash-language-server docker-langserver; do
     if command -v "$lsp" &>/dev/null; then
-      _lsp_ok=$((_lsp_ok+1))
+      _lsp_ok=$((_lsp_ok + 1))
     else
-      _lsp_miss=$((_lsp_miss+1))
+      _lsp_miss=$((_lsp_miss + 1))
       warn "LSP not found: $lsp"
     fi
   done
@@ -198,7 +300,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
   # Global mirror configs for pip, Go (only if not already configured)
   if [ ! -f "$HOME/.config/pip/pip.conf" ]; then
     mkdir -p "$HOME/.config/pip"
-    cat > "$HOME/.config/pip/pip.conf" 2>/dev/null <<EOF
+    cat >"$HOME/.config/pip/pip.conf" 2>/dev/null <<EOF
 [global]
 index-url = $PYPI_MIRROR
 trusted-host = $(echo "$PYPI_MIRROR" | sed 's|https://||;s|/.*||')

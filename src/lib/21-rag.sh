@@ -35,7 +35,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]) && _gate "INTERACTIVE_DO_RAG
     # Create RAG collection if it doesn't exist
     curl -s -X PUT "$QDRANT_URL/collections/rag_documents" \
       -H "Content-Type: application/json" \
-      -d '{"vectors":{"size":1024,"distance":"Cosine"}}' 2>/dev/null && \
+      -d '{"vectors":{"size":1024,"distance":"Cosine"}}' 2>/dev/null &&
       log "Qdrant: rag_documents collection created" || warn "Qdrant: collection creation failed"
   else
     warn "Qdrant: not running at $QDRANT_URL — start with: docker compose -f ~/.config/opencode/infra.yml up -d qdrant"
@@ -44,9 +44,9 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]) && _gate "INTERACTIVE_DO_RAG
   # ── Verification (R5: verified interconnection) ───────────────────────────
   info "Verifying RAG installation..."
   _rag_ok=0
-  [ -d "$RAG_DIR/.git" ] && _rag_ok=$((_rag_ok+1)) || warn "RAG: repo not cloned"
-  [ -f "$RAG_DIR/etl/requirements_etl.txt" ] && _rag_ok=$((_rag_ok+1)) || warn "RAG: ETL requirements missing"
-  [ -f "$RAG_DIR/proxy/requirements_proxy.txt" ] && _rag_ok=$((_rag_ok+1)) || warn "RAG: Proxy requirements missing"
+  [ -d "$RAG_DIR/.git" ] && _rag_ok=$((_rag_ok + 1)) || warn "RAG: repo not cloned"
+  [ -f "$RAG_DIR/etl/requirements_etl.txt" ] && _rag_ok=$((_rag_ok + 1)) || warn "RAG: ETL requirements missing"
+  [ -f "$RAG_DIR/proxy/requirements_proxy.txt" ] && _rag_ok=$((_rag_ok + 1)) || warn "RAG: Proxy requirements missing"
   if [ $_rag_ok -eq 3 ]; then
     log "RAG: verified ($_rag_ok/3 checks passed)"
   else
