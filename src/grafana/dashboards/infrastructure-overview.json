@@ -1,0 +1,52 @@
+{
+  "annotations": { "list": [] },
+  "title": "OpenCode Infrastructure Overview",
+  "uid": "opencode-infra",
+  "schemaVersion": 39,
+  "version": 1,
+  "panels": [
+    {
+      "id": 1,
+      "title": "Container Status",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "targets": [{ "expr": "count(up{job=\"prometheus\"})", "refId": "A" }],
+      "fieldConfig": { "defaults": { "title": "Prometheus" } }
+    },
+    {
+      "id": 2,
+      "title": "PostgreSQL Connections",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+      "targets": [{ "expr": "pg_stat_activity_count", "refId": "A" }]
+    },
+    {
+      "id": 3,
+      "title": "Redis Memory Usage",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
+      "targets": [{ "expr": "redis_memory_used_bytes", "refId": "A" }]
+    },
+    {
+      "id": 4,
+      "title": "Qdrant Collections",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
+      "targets": [{ "expr": "qdrant_collections_total", "refId": "A" }]
+    },
+    {
+      "id": 5,
+      "title": "Service Uptime",
+      "type": "table",
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 4 },
+      "targets": [{ "expr": "up", "format": "table", "refId": "A" }]
+    }
+  ],
+  "time": { "from": "now-1h", "to": "now" },
+  "refresh": "10s"
+}

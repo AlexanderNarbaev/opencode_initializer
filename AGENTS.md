@@ -83,6 +83,7 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 | `32-isolated.sh` | Isolated Circuit Mode — air-gapped LLM (Ollama/LiteLLM/vLLM/SGLang) |
 | `34-observability.sh` | Grafana + Prometheus observability stack |
 | `35-gui.sh` | Web management interface foundation |
+| `36-model-router.sh` | Model routing intelligence — task-based model selection, cost table, recommendations |
 | `version-check.sh` | Version check: Rust/Go/Node/Python/Bun/OpenCode/Ollama/Zig + npm packages |
 | `pre-session-check.sh` | Pre-session provider/model validation + MCP status |
 
@@ -159,6 +160,9 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 13. **Isolated Circuit Mode** (v2.0) — air-gapped LLM operation with local OpenAI-compatible backends
 14. **z.ai GLM-5.2 integration** (v2.0) — primary provider for RU/CN markets, OpenAI-compatible API
 15. **OpenRouter aggregator** (v2.0) — single API key for 100+ models
+16. **Model routing intelligence** (v2.0) — task-based model selection with 8 profiles (coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn)
+17. **Grafana dashboards** (v2.0) — auto-provisioned datasource + infrastructure overview dashboard
+18. **Config backup/restore** (v2.0) — `dev backup` for disaster recovery
 
 ## Testing & Verification
 ```bash
@@ -228,5 +232,7 @@ opencode_initializer/
 - `dev autoupdate` — run topgrade full system update
 - `dev self-update` — git pull + reinstall dev CLI + setup.sh
 - `dev isolated on|off|status` — toggle Isolated Circuit Mode
+- `dev models <task>` — model recommendation for task type (coding, reasoning, fast, etc.)
+- `dev backup create|list|restore` — config backup/restore
 
 **Config file:** `~/.config/opencode-setup/setup.conf` — persistent settings, sourced by both setup.sh and dev CLI.
