@@ -19,29 +19,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Cockpit TUI: `[ISOLATED]` indicator in header
 - **z.ai (GLM-5.2)** provider — critical for RU/CN markets, OpenAI-compatible API
 - **OpenRouter** provider — aggregator access to 100+ models via single API key
-- **Alibaba Qwen3** provider — native SDK in opencode
+- **Alibaba Qwen3.7** provider — native SDK in opencode
 - **DeepInfra** provider — fast inference, competitive pricing
+- **Model Routing Intelligence** (`36-model-router.sh`) — task-based model selection
+  - 8 task profiles: coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn
+  - Cost table with per-1M-token prices from models.dev
+  - `dev models <task>` CLI command for recommendations
+  - `dev models install <model>` for local model download via Ollama
+  - `dev models list-local` for installed local models
+- **Web GUI** — full management interface (port 4200)
+  - 9 sections: Overview, Providers, Model Router, MCP, LSP, Infrastructure, Isolated Circuit, Backup, Logs
+  - Real-time status of all providers, MCP/LSP servers, infrastructure services
+  - Toggle Isolated Circuit, create backups from browser
 - MemoryLayer AI memory: Docker backend + Ollama embed proxy (mxbai-embed-large, 1024-dim) + systemd auto-start
 - Embed proxy: `scripts/embed-proxy.py` — bridges Ollama embeddings to MemoryLayer API format
 - `opencode-embed-proxy.service`: systemd user service for Ollama embedding proxy
 - Observability stack: Prometheus (:9090) + Grafana (:3001) with auto-provisioning
+  - Infrastructure overview dashboard (container status, PostgreSQL, Redis, Qdrant, uptime)
+  - Agent performance dashboard (token usage, cost by provider, model success rate)
+- **Corporate proxy support** — HTTP_PROXY, HTTPS_PROXY, CURL_CA_BUNDLE in _curl()
+- **Config backup/restore** — `dev backup create|list|restore`
+- **Pre-session check** — all 24 providers, local backends, model recommendations, infra status
+- **MCP/LSP post-install verification** — reports installed vs missing counts
 - Go apt fallback in `08-go.sh`: if direct download fails, use ppa:longsleep/golang-backports
 - Unit tests: `test_infra.sh`, `test_cockpit.sh`, `test_isolated.sh`, `test_providers.sh`, `test_observability.sh`, `test_embed_proxy.sh` (105+ new assertions)
-- CI: Python syntax check, Go format check, opencode.json validity check
-- Critical audit + provider/LLM ecosystem analysis (`docs/research/`)
+- CI: Python syntax check, Go format check, opencode.json validity check, cross-distro matrix (Fedora, Debian, Ubuntu)
+- Critical audit + provider/LLM ecosystem analysis + requirements specification (`docs/research/`)
 
 ### Changed
-- Module count: 29 → 38
+- Module count: 29 → 39
 - Module numbering fixed: 22-mise→29-mise, 32-observability→34-observability, 33-gui→35-gui
 - `26-providers.sh`: 15→20 cloud + 4 local OpenAI-compatible providers (24 total)
 - `18-opencode-json.sh`: `_build_providers()` supports ISOLATED_CIRCUIT mode + z.ai/OpenRouter/Alibaba/DeepInfra
 - `00-core.sh`: ISOLATED_CIRCUIT auto-load from config, version v2.0.0
 - `setup.sh`: version v2.0.0, 373 lines
 - opencode.json: z.ai provider added with fallback chain
-- Model versions updated: Grok 3→4, Kimi K2.6→K2, Claude Sonnet→Opus
-- AGENTS.md: full rewrite with all 38 modules, 24 providers, v2.0.0
+- Model IDs verified against models.dev: Grok 4→4.3, Kimi K2→K2.7 Code, Claude→Opus 4.8, GPT-5→5.5, Gemini→3.5 Flash, Qwen3→3.7 Plus
+- `pre-session-check.sh`: expanded from 5 to 24 providers + local backends + model recommendations
+- `helpers.sh`: corporate proxy support (HTTP_PROXY, HTTPS_PROXY, CURL_CA_BUNDLE)
+- `12-mcp-lsp.sh`: post-install MCP/LSP verification
+- `34-observability.sh`: Grafana provisioning volumes mounted
+- AGENTS.md: full rewrite with all 39 modules, 24 providers, model routing, v2.0.0
 - Cockpit: 7-tab TUI (F1 System, F2 Plugins, F3 GPU/Models, F4 Sessions, F5 Tasks, F6 Logs, F7 Infra) + `[ISOLATED]` indicator
-- Cockpit: Web GUI foundation for remote management
+- Cockpit: Web GUI with 9 management sections
+- GUI: rewritten from stub to full management interface (server.js + index.html)
 
 ### Fixed
 - MemoryLayer: backend not running — deployed Docker container + Ollama embed proxy pipeline

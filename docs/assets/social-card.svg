@@ -23,7 +23,7 @@
   <rect x="200" y="215" width="98" height="30" rx="6" fill="#fff" opacity="0.15"/>
   <text x="216" y="236" font-family="JetBrains Mono,monospace" font-size="13" font-weight="600" fill="#c5cae9">MIT LICENSE</text>
   <line x1="80" y1="280" x2="1120" y2="280" stroke="#fff" stroke-opacity="0.1" stroke-width="2"/>
-  <text x="80" y="330" font-family="Inter,Segoe UI,sans-serif" font-size="18" font-weight="500" fill="#9fa8da">* 38 modules &#183; 24 LLM providers &#183; 21 MCP servers &#183; 15 plugins &#183; 13 LSPs &#183; 350+ assertions</text>
+  <text x="80" y="330" font-family="Inter,Segoe UI,sans-serif" font-size="18" font-weight="500" fill="#9fa8da">* 39 modules &#183; 24 LLM providers &#183; 24 MCP servers &#183; 15 plugins &#183; 13 LSPs &#183; model routing &#183; 350+ assertions</text>
   <text x="80" y="365" font-family="Inter,Segoe UI,sans-serif" font-size="18" font-weight="500" fill="#9fa8da">* 8 languages (Node, Python, Go, Rust, Java, .NET, Zig, Bun) &#183; GPU auto-detection &#183; multi-vendor NPU</text>
   <text x="80" y="400" font-family="Inter,Segoe UI,sans-serif" font-size="18" font-weight="500" fill="#9fa8da">* apt/dnf/pacman/apk/zypper/brew &#183; amd64/arm64 &#183; WSL2 &amp; Linux &#183; modular architecture</text>
   <g transform="translate(80,460)">

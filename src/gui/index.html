@@ -3,92 +3,195 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OpenCode — Cockpit</title>
+<title>OpenCode Manager</title>
 <style>
-:root {
-  --bg: #0d1117; --surface: #161b22; --border: #30363d;
-  --text: #c9d1d9; --muted: #8b949e; --green: #3fb950;
-  --red: #da3633; --yellow: #d29922; --blue: #58a6ff;
-  --accent: #1f6feb; --radius: 8px;
-}
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace;
-  background: var(--bg); color: var(--text); min-height: 100vh; padding: 24px;
-}
-header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 20px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
-header h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.5px; }
-header .version { color: var(--muted); font-size: 13px; }
-.actions { display: flex; gap: 10px; }
-button { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 8px 16px; border-radius: var(--radius); cursor: pointer; font-family: inherit; font-size: 13px; transition: all 0.15s; }
-button:hover { border-color: var(--blue); color: var(--blue); }
-button:active { background: var(--accent); color: #fff; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; position: relative; }
-.card h3 { font-size: 15px; margin-bottom: 12px; color: var(--blue); }
-.card .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
-.card .dot.green { background: var(--green); box-shadow: 0 0 6px var(--green); }
-.card .dot.red { background: var(--red); box-shadow: 0 0 6px var(--red); }
-.card .dot.gray { background: var(--muted); }
-.card .row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 13px; }
-.card .row .label { color: var(--muted); }
-.card .row .value { font-weight: 500; }
-.section-title { font-size: 16px; color: var(--muted); margin: 28px 0 12px; text-transform: uppercase; letter-spacing: 1px; }
-.plugin-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; background: var(--surface); }
-.plugin-item .name { font-size: 14px; font-weight: 500; }
-.plugin-item .tier { font-size: 11px; color: var(--muted); text-transform: uppercase; margin-left: 10px; }
-.toggle { position: relative; display: inline-block; width: 44px; height: 24px; }
-.toggle input { opacity: 0; width: 0; height: 0; }
-.toggle .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: var(--border); border-radius: 24px; transition: 0.2s; }
-.toggle .slider:before { content: ""; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px; background: var(--text); border-radius: 50%; transition: 0.2s; }
-.toggle input:checked + .slider { background: var(--green); }
-.toggle input:checked + .slider:before { transform: translateX(20px); }
-.spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.6s linear infinite; margin-right: 8px; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.error { color: var(--red); padding: 12px; border: 1px solid var(--red); border-radius: var(--radius); }
-.infra-badge { padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
-.infra-badge.running { background: rgba(63,185,80,0.15); color: var(--green); }
-.infra-badge.exited { background: rgba(210,153,34,0.15); color: var(--yellow); }
-.infra-badge.stopped { background: rgba(218,54,51,0.15); color: var(--red); }
-.timestamp { color: var(--muted); font-size: 11px; text-align: right; margin-top: 20px; }
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Inter,Segoe UI,sans-serif;background:#0d1117;color:#c9d1d9;display:flex;min-height:100vh}
+.sidebar{width:240px;background:#161b22;border-right:1px solid #30363d;padding:20px 0;flex-shrink:0}
+.sidebar h1{font-size:18px;padding:0 20px 20px;color:#58a6ff;border-bottom:1px solid #30363d}
+.nav-item{padding:12px 20px;cursor:pointer;color:#8b949e;transition:all .2s;font-size:14px;display:flex;align-items:center;gap:10px}
+.nav-item:hover{background:#21262d;color:#c9d1d9}
+.nav-item.active{background:#1f6feb;color:#fff;border-left:3px solid #58a6ff;padding-left:17px}
+.main{flex:1;padding:30px;overflow-y:auto}
+.section{display:none}
+.section.active{display:block}
+h2{font-size:22px;margin-bottom:20px;color:#58a6ff}
+.card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:20px;margin-bottom:16px}
+.card h3{font-size:16px;margin-bottom:12px;color:#f0f6fc}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
+.stat{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:16px}
+.stat .label{font-size:12px;color:#8b949e;text-transform:uppercase}
+.stat .value{font-size:24px;font-weight:700;color:#58a6ff;margin-top:4px}
+.stat .sub{font-size:12px;color:#8b949e;margin-top:2px}
+table{width:100%;border-collapse:collapse}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid #30363d;font-size:13px}
+th{color:#8b949e;font-weight:600;text-transform:uppercase;font-size:11px}
+.badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600}
+.badge-ok{background:#1a7f37;color:#fff}
+.badge-err{background:#da3633;color:#fff}
+.badge-warn{background:#d29922;color:#1a1a1a}
+.btn{padding:8px 16px;border:1px solid #30363d;background:#21262d;color:#c9d1d9;border-radius:6px;cursor:pointer;font-size:13px}
+.btn:hover{background:#30363d}
+.btn-primary{background:#1f6feb;border-color:#1f6feb;color:#fff}
+.btn-primary:hover{background:#388bfd}
+pre{background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:12px;overflow-x:auto;font-size:12px;max-height:400px}
+.task-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.task-card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:16px;cursor:pointer;transition:all .2s}
+.task-card:hover{border-color:#58a6ff}
+.task-card .name{font-size:15px;font-weight:600;color:#f0f6fc}
+.task-card .model{font-size:13px;color:#58a6ff;margin-top:4px}
+.task-card .desc{font-size:12px;color:#8b949e;margin-top:4px}
 </style>
 </head>
 <body>
-<header>
-  <div><h1>OpenCode Cockpit</h1><span class="version" id="version">loading</span></div>
-  <div class="actions"><button onclick="refreshAll()" id="refreshBtn"><span id="refreshSpinner" style="display:none" class="spinner"></span>Refresh</button></div>
-</header>
-<div class="section-title">Infrastructure Services</div>
-<div class="grid" id="infraGrid"><div class="card"><span class="spinner"></span> Loading</div></div>
-<div class="section-title">Systemd Services</div>
-<div class="grid" id="systemdGrid"><div class="card"><span class="spinner"></span> Loading</div></div>
-<div class="section-title">Docker Containers</div>
-<div class="grid" id="dockerGrid"><div class="card"><span class="spinner"></span> Loading</div></div>
-<div class="section-title">Sessions</div>
-<div class="grid" id="sessionsGrid"><div class="card"><span class="spinner"></span> Loading</div></div>
-<div class="section-title">GPU</div>
-<div class="grid" id="gpuGrid"><div class="card"><span class="spinner"></span> Loading</div></div>
-<div class="section-title">System Metrics</div>
-<div class="grid" id="metricsGrid"><div class="card"><span class="spinner"></span> Loading</div></div>
-<div class="section-title">Plugins</div>
-<div id="pluginsList"><div class="card"><span class="spinner"></span> Loading</div></div>
-<div class="timestamp" id="timestamp"></div>
-<div id="errorBox"></div>
+<div class="sidebar">
+<h1>OpenCode</h1>
+<div class="nav-item active" data-section="overview">Overview</div>
+<div class="nav-item" data-section="providers">Providers</div>
+<div class="nav-item" data-section="models">Model Router</div>
+<div class="nav-item" data-section="mcp">MCP Servers</div>
+<div class="nav-item" data-section="lsp">LSP Servers</div>
+<div class="nav-item" data-section="infra">Infrastructure</div>
+<div class="nav-item" data-section="isolated">Isolated Circuit</div>
+<div class="nav-item" data-section="backup">Backup</div>
+<div class="nav-item" data-section="logs">Logs</div>
+</div>
+<div class="main">
+
+<div class="section active" id="overview">
+<h2>Overview</h2>
+<div class="stat-grid" id="stats"></div>
+<div class="card"><h3>OpenCode Config</h3><pre id="config-summary"></pre></div>
+</div>
+
+<div class="section" id="providers">
+<h2>AI Providers</h2>
+<div class="card"><table id="providers-table"><thead><tr><th>Provider</th><th>Status</th><th>Models</th><th>Free</th></tr></thead><tbody></tbody></table></div>
+</div>
+
+<div class="section" id="models">
+<h2>Model Router — Task-Based Selection</h2>
+<div class="task-grid" id="task-profiles"></div>
+</div>
+
+<div class="section" id="mcp">
+<h2>MCP Servers</h2>
+<div class="card"><table id="mcp-table"><thead><tr><th>Server</th><th>Status</th><th>Command</th></tr></thead><tbody></tbody></table></div>
+</div>
+
+<div class="section" id="lsp">
+<h2>LSP Servers</h2>
+<div class="card"><table id="lsp-table"><thead><tr><th>Server</th><th>Status</th><th>Languages</th></tr></thead><tbody></tbody></table></div>
+</div>
+
+<div class="section" id="infra">
+<h2>Infrastructure Services</h2>
+<div class="card"><table id="infra-table"><thead><tr><th>Service</th><th>Status</th><th>Port</th></tr></thead><tbody></tbody></table></div>
+</div>
+
+<div class="section" id="isolated">
+<h2>Isolated Circuit Mode</h2>
+<div class="card"><h3>Status</h3><p id="isolated-status"></p></div>
+<div class="card"><h3>Local Backends</h3><table id="backends-table"><thead><tr><th>Backend</th><th>Port</th><th>Status</th></tr></thead><tbody></tbody></table></div>
+<div class="card"><button class="btn btn-primary" onclick="toggleIsolated()">Toggle Isolated Circuit</button></div>
+</div>
+
+<div class="section" id="backup">
+<h2>Backup & Restore</h2>
+<div class="card"><h3>Create Backup</h3><button class="btn btn-primary" onclick="createBackup()">Create Backup Now</button></div>
+<div class="card"><h3>Available Backups</h3><table id="backups-table"><thead><tr><th>File</th><th>Size</th><th>Date</th></tr></thead><tbody></tbody></table></div>
+</div>
+
+<div class="section" id="logs">
+<h2>System Logs</h2>
+<div class="card"><pre id="log-output">Loading...</pre></div>
+</div>
+
+</div>
 <script>
-var API='/api';
-async function fetchJSON(u,o){var r=await fetch(u,o);if(!r.ok)throw new Error(r.status+' '+r.statusText);return r.json()}
-function dot(r){if(r===true)return'<span class="dot green"></span>';if(r===false)return'<span class="dot red"></span>';return'<span class="dot gray"></span>'}
-function badge(s){var c=s==='running'||s==='active'?'running':s==='exited'?'exited':'stopped';return'<span class="infra-badge '+c+'">'+(s||'unknown')+'</span>'}
-function renderInfra(d){var g=document.getElementById('infraGrid');if(d.error){g.innerHTML='<div class="card"><span class="dot gray"></span> '+d.error+'</div>';return}var sv=d.services||[];if(sv.length===0){g.innerHTML='<div class="card"><span class="dot gray"></span> No infra services</div>';return}g.innerHTML=sv.map(function(s){return'<div class="card"><h3>'+dot(s.State==='running')+(s.Name||s.Service||s.raw)+'</h3><div class="row"><span class="label">State</span><span class="value">'+badge(s.State)+'</span></div>'+(s.Image?'<div class="row"><span class="label">Image</span><span class="value" style="font-size:11px;color:var(--muted)">'+s.Image+'</span></div>':'')+'</div>'}).join('')}
-function renderSystemd(d){var g=document.getElementById('systemdGrid');var e=Object.entries(d||{});if(e.length===0){g.innerHTML='<div class="card"><span class="dot gray"></span> No services tracked</div>';return}g.innerHTML=e.map(function(e){return'<div class="card"><h3>'+dot(e[1].running)+e[0]+'</h3><div class="row"><span class="label">State</span><span class="value">'+badge(e[1].state)+'</span></div></div>'}).join('')}
-function renderDocker(d){var g=document.getElementById('dockerGrid');var e=Object.entries(d||{});if(e.length===0){g.innerHTML='<div class="card"><span class="dot gray"></span> No containers running</div>';return}g.innerHTML=e.map(function(e){return'<div class="card"><h3>'+dot(e[1].running)+e[0]+'</h3><div class="row"><span class="label">State</span><span class="value">'+badge(e[1].state)+'</span></div>'+(e[1].image?'<div class="row"><span class="label">Image</span><span class="value" style="font-size:11px;color:var(--muted)">'+e[1].image+'</span></div>':'')+'</div>'}).join('')}
-function renderPlugins(d){var el=document.getElementById('pluginsList');if(d.error){el.innerHTML='<div class="card"><span class="dot gray"></span> '+d.error+'</div>';return}var p=d.plugins||{};var t=p.tiers||{};var h='';Object.entries(t).forEach(function(e){var ti=e[0],it=e[1];h+='<div class="section-title" style="font-size:12px;margin-top:16px">'+ti.toUpperCase()+'</div>';var l=Array.isArray(it)?it.map(function(n){return{name:n,enabled:true}}):Object.entries(it).map(function(e2){return{name:e2[0],enabled:e2[1].enabled!==false,tier:ti,depends:e2[1].depends||[]}});h+=l.map(function(p){return'<div class="plugin-item"><div><span class="name">'+p.name+'</span><span class="tier">'+ti+'</span>'+(p.depends&&p.depends.length?'<span style="font-size:10px;color:var(--muted)"> deps: '+p.depends.join(', ')+'</span>':'')+'</div><label class="toggle"><input type="checkbox" '+(p.enabled?'checked':'')+' disabled><span class="slider"></span></label></div>'}).join('')});if(!h)h='<div class="card"><span class="dot gray"></span> No plugins configured</div>';el.innerHTML=h}
-function renderSessions(d){var g=document.getElementById('sessionsGrid');if(d.error){g.innerHTML='<div class="card"><span class="dot gray"></span> '+d.error+'</div>';return}var sv=d.sessions||[];if(sv.length===0){g.innerHTML='<div class="card"><span class="dot gray"></span> No sessions found</div>';return}g.innerHTML=sv.map(function(s){return'<div class="card"><h3><span class="dot green"></span>'+s.name+'</h3><div class="row"><span class="label">Modified</span><span class="value">'+s.mtime+'</span></div><div class="row"><span class="label">Age</span><span class="value">'+s.age+'</span></div></div>'}).join('')}
-function renderGPU(d){var g=document.getElementById('gpuGrid');if(d.error){g.innerHTML='<div class="card"><span class="dot gray"></span> '+d.error+'</div>';return}var h='';if(d.nvidia)h+='<div class="card"><h3><span class="dot green"></span>NVIDIA GPU</h3><pre style="font-size:11px;color:var(--muted);white-space:pre-wrap;margin-top:8px">'+d.nvidia+'</pre></div>';if(d.ollama)h+='<div class="card"><h3><span class="dot green"></span>Ollama Models</h3><pre style="font-size:11px;color:var(--muted);white-space:pre-wrap;margin-top:8px">'+d.ollama+'</pre></div>';g.innerHTML=h||'<div class="card"><span class="dot gray"></span> No GPU/ollama data</div>'}
-function renderMetrics(d){var g=document.getElementById('metricsGrid');if(d.memory)g.innerHTML='<div class="card"><h3>Memory</h3><pre style="font-size:11px;color:var(--muted);white-space:pre-wrap;margin-top:8px">'+d.memory+'</pre></div>';if(d.disk)g.innerHTML+='<div class="card"><h3>Disk</h3><pre style="font-size:11px;color:var(--muted);white-space:pre-wrap;margin-top:8px">'+d.disk+'</pre></div>';if(d.uptime)g.innerHTML+='<div class="card"><h3>Uptime</h3><pre style="font-size:11px;color:var(--muted);white-space:pre-wrap;margin-top:8px">'+d.uptime+'</pre></div>';if(d.load)g.innerHTML+='<div class="card"><h3>Load Average</h3><pre style="font-size:11px;color:var(--muted);white-space:pre-wrap;margin-top:8px">'+d.load+'</pre></div>'}
-function setRefreshing(v){document.getElementById('refreshSpinner').style.display=v?'inline-block':'none';document.getElementById('refreshBtn').disabled=v}
-async function refreshAll(){setRefreshing(true);document.getElementById('errorBox').innerHTML='';try{var s=await fetchJSON(API+'/status');document.getElementById('version').textContent='v'+(s.version||'?');document.getElementById('timestamp').textContent='Last update: '+new Date(s.timestamp).toLocaleString();renderSystemd(s.systemd);renderDocker(s.docker);var inf=await fetchJSON(API+'/infra');renderInfra(inf);var ss=await fetchJSON(API+'/sessions');renderSessions(ss);var gp=await fetchJSON(API+'/gpu');renderGPU(gp);var mt=await fetchJSON(API+'/metrics');renderMetrics(mt);var pl=await fetchJSON(API+'/plugins');renderPlugins(pl)}catch(e){document.getElementById('errorBox').innerHTML='<div class="error">API error: '+e.message+' - is GUI server running on port 4200?</div>'}setRefreshing(false)}
-refreshAll();
+const API='/api';
+function nav(s){document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));event.target.classList.add('active');document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById(s).classList.add('active')}
+
+async function loadOverview(){
+  try{
+    const d=await fetch(API+'/status').then(r=>r.json());
+    let html='';
+    const stats=[
+      ['Providers',d.providers||0,''],
+      ['MCP Servers',d.mcp_ok||0,'/'+(d.mcp_ok+d.mcp_miss||0)],
+      ['LSP Servers',d.lsp_ok||0,'/'+(d.lsp_ok+d.lsp_miss||0)],
+      ['Plugins',d.plugins||0,''],
+      ['Infra Services',d.infra_ok||0,'/'+(d.infra_ok+d.infra_miss||0)],
+      ['Model Router',d.model_router?'ON':'OFF',''],
+    ];
+    document.getElementById('stats').innerHTML=stats.map(s=>`<div class="stat"><div class="label">${s[0]}</div><div class="value">${s[1]}<span style="font-size:14px;color:#8b949e">${s[2]}</span></div></div>`).join('');
+    if(d.config)document.getElementById('config-summary').textContent=JSON.stringify(d.config,null,2);
+  }catch(e){document.getElementById('stats').innerHTML='<div class="stat"><div class="label">Error</div><div class="value">--</div></div>'}
+}
+
+async function loadProviders(){
+  try{
+    const d=await fetch(API+'/providers').then(r=>r.json());
+    document.querySelector('#providers-table tbody').innerHTML=(d.providers||[]).map(p=>`<tr><td>${p.name}</td><td><span class="badge ${p.status?'badge-ok':'badge-err'}">${p.status?'OK':'OFF'}</span></td><td>${p.models||'-'}</td><td>${p.free?'Yes':'No'}</td></tr>`).join('');
+  }catch(e){}
+}
+
+async function loadModels(){
+  try{
+    const d=await fetch(API+'/models').then(r=>r.json());
+    document.getElementById('task-profiles').innerHTML=(d.profiles||[]).map(p=>`<div class="task-card"><div class="name">${p.task}</div><div class="model">${p.model}</div><div class="desc">${p.description}</div></div>`).join('');
+  }catch(e){}
+}
+
+async function loadMCP(){
+  try{
+    const d=await fetch(API+'/mcp').then(r=>r.json());
+    document.querySelector('#mcp-table tbody').innerHTML=(d.servers||[]).map(m=>`<tr><td>${m.name}</td><td><span class="badge ${m.installed?'badge-ok':'badge-err'}">${m.installed?'Installed':'Missing'}</span></td><td>${m.command||'-'}</td></tr>`).join('');
+  }catch(e){}
+}
+
+async function loadLSP(){
+  try{
+    const d=await fetch(API+'/lsp').then(r=>r.json());
+    document.querySelector('#lsp-table tbody').innerHTML=(d.servers||[]).map(l=>`<tr><td>${l.name}</td><td><span class="badge ${l.installed?'badge-ok':'badge-err'}">${l.installed?'Installed':'Missing'}</span></td><td>${l.languages||'-'}</td></tr>`).join('');
+  }catch(e){}
+}
+
+async function loadInfra(){
+  try{
+    const d=await fetch(API+'/infra').then(r=>r.json());
+    document.querySelector('#infra-table tbody').innerHTML=(d.services||[]).map(s=>`<tr><td>${s.name}</td><td><span class="badge ${s.running?'badge-ok':'badge-warn'}">${s.running?'Running':'Stopped'}</span></td><td>${s.port||'-'}</td></tr>`).join('');
+  }catch(e){}
+}
+
+async function loadIsolated(){
+  try{
+    const d=await fetch(API+'/isolated').then(r=>r.json());
+    document.getElementById('isolated-status').textContent=d.enabled?'ENABLED — Using local LLM backends only':'DISABLED — Cloud providers active';
+    document.querySelector('#backends-table tbody').innerHTML=(d.backends||[]).map(b=>`<tr><td>${b.name}</td><td>${b.port}</td><td><span class="badge ${b.running?'badge-ok':'badge-warn'}">${b.running?'Running':'Stopped'}</span></td></tr>`).join('');
+  }catch(e){}
+}
+
+async function loadBackups(){
+  try{
+    const d=await fetch(API+'/backups').then(r=>r.json());
+    document.querySelector('#backups-table tbody').innerHTML=(d.backups||[]).map(b=>`<tr><td>${b.file}</td><td>${b.size}</td><td>${b.date}</td></tr>`).join('')||'<tr><td colspan=3>No backups</td></tr>';
+  }catch(e){}
+}
+
+async function loadLogs(){
+  try{
+    const d=await fetch(API+'/logs').then(r=>r.json());
+    document.getElementById('log-output').textContent=(d.logs||[]).join('\n');
+  }catch(e){document.getElementById('log-output').textContent='Failed to load logs'}
+}
+
+async function toggleIsolated(){await fetch(API+'/isolated/toggle',{method:'POST'});loadIsolated()}
+async function createBackup(){await fetch(API+'/backup/create',{method:'POST'});loadBackups()}
+
+document.querySelectorAll('.nav-item').forEach(n=>n.addEventListener('click',function(){nav(this.dataset.section)}));
+loadOverview();loadProviders();loadModels();loadMCP();loadLSP();loadInfra();loadIsolated();loadBackups();loadLogs();
+setInterval(()=>{loadOverview()},10000);
 </script>
 </body>
 </html>

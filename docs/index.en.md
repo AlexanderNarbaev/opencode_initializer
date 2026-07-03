@@ -16,15 +16,17 @@
 
 | Metric | Value |
 |--------|-------|
-| Modules | 38 (+ 3 infrastructure) |
+| Modules | 39 (+ 3 infrastructure) |
 | Orchestrator | 373 lines of Bash |
 | CLI modes | 11 (full, health, interactive, ci, and more) |
 | Languages | 8 |
-| MCP servers | 21 |
+| MCP servers | 24 |
 | LSP servers | 13 |
 | OpenCode plugins | 15 |
 | AI providers | 24 (20 cloud + 4 local) |
+| Model Router | 8 task profiles (coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn) |
 | Infrastructure | 6 services (PostgreSQL, Qdrant, Redis, Prometheus, Grafana, MemoryLayer) |
+| Web GUI | 9 management sections (port 4200) |
 | Test suite | 350+ assertions |
 | Package managers | apt, dnf, pacman, apk, zypper, brew |
 | Architectures | amd64, arm64 |
@@ -53,14 +55,19 @@ A single script that turns a fresh Linux/WSL2 machine into a production-ready de
 | Infrastructure as Code | PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer via Docker Compose |
 | Cockpit TUI | 7-tab terminal UI — System, Plugins, GPU/Models, Sessions, Tasks, Logs, Infra |
 | Isolated Circuit Mode | Air-gapped LLM operation with Ollama, LiteLLM, vLLM, SGLang |
+| Model Routing Intelligence | 8 task profiles: coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn |
+| Web GUI | 9-section management interface: providers, models, MCP/LSP, infra, backup, logs |
 | z.ai GLM-5.2 | Primary provider for RU/CN markets, OpenAI-compatible, free tier |
 | OpenRouter | Aggregator access to 100+ models via single API key |
-| Alibaba Qwen3 | Native SDK, 235B flagship model |
+| Alibaba Qwen3.7 | Native SDK, latest Qwen model |
 | DeepInfra | Fast inference, competitive pricing |
 | MemoryLayer | AI memory system with Ollama embed proxy (mxbai-embed-large) |
-| Observability | Prometheus (:9090) + Grafana (:3001) with auto-provisioning |
+| Observability | Prometheus + Grafana with auto-provisioned dashboards |
+| Corporate Proxy | HTTP_PROXY, HTTPS_PROXY, CURL_CA_BUNDLE support |
+| Config Backup | `dev backup create\|list\|restore` for disaster recovery |
+| Model Download | `dev models install <model>` for local Ollama models |
 | 24 providers | 20 cloud + 4 local (was 16 in v1.1.0) |
-| 38 modules | Was 29 in v1.1.0 |
+| 39 modules | Was 29 in v1.1.0 |
 
 ## Quick Install
 

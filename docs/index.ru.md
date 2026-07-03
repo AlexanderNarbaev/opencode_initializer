@@ -16,15 +16,17 @@
 
 | Метрика | Значение |
 |---------|----------|
-| Модулей | 38 (+ 3 инфраструктурных) |
+| Модулей | 39 (+ 3 инфраструктурных) |
 | Оркестратор | 373 строки Bash |
 | Режимов CLI | 11 (full, health, interactive, ci и другие) |
 | Языков | 8 |
-| MCP-серверов | 21 |
+| MCP-серверов | 24 |
 | LSP-серверов | 13 |
 | Плагинов OpenCode | 15 |
 | AI-провайдеров | 24 (20 облачных + 4 локальных) |
+| Model Router | 8 профилей (coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn) |
 | Инфраструктура | 6 сервисов (PostgreSQL, Qdrant, Redis, Prometheus, Grafana, MemoryLayer) |
+| Web GUI | 9 разделов управления (порт 4200) |
 | Тестов | 350+ проверок |
 | Пакетных менеджеров | apt, dnf, pacman, apk, zypper, brew |
 | Архитектур | amd64, arm64 |
@@ -53,14 +55,19 @@
 | Infrastructure as Code | PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer через Docker Compose |
 | Cockpit TUI | 7-вкладочный терминальный UI — System, Plugins, GPU/Models, Sessions, Tasks, Logs, Infra |
 | Isolated Circuit Mode | Air-gapped LLM с Ollama, LiteLLM, vLLM, SGLang |
+| Model Routing Intelligence | 8 профилей: coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn |
+| Web GUI | 9-разделочный интерфейс управления: провайдеры, модели, MCP/LSP, инфраструктура, backup, логи |
 | z.ai GLM-5.2 | Основной провайдер для RU/CN рынков, OpenAI-совместимый, free tier |
 | OpenRouter | Агрегатор доступа к 100+ моделям через один API-ключ |
-| Alibaba Qwen3 | Нативный SDK, 235B флагманская модель |
+| Alibaba Qwen3.7 | Нативный SDK, последняя модель Qwen |
 | DeepInfra | Быстрый инференс, конкурентные цены |
 | MemoryLayer | AI-память с Ollama embed proxy (mxbai-embed-large) |
-| Observability | Prometheus (:9090) + Grafana (:3001) с авто-провиженингом |
+| Observability | Prometheus + Grafana с авто-провиженингом дашбордов |
+| Corporate Proxy | Поддержка HTTP_PROXY, HTTPS_PROXY, CURL_CA_BUNDLE |
+| Config Backup | `dev backup create\|list\|restore` для disaster recovery |
+| Model Download | `dev models install <model>` для локальных Ollama моделей |
 | 24 провайдера | 20 облачных + 4 локальных (было 16 в v1.1.0) |
-| 38 модулей | Было 29 в v1.1.0 |
+| 39 модулей | Было 29 в v1.1.0 |
 
 ## :fontawesome-solid-download: Быстрая установка
 

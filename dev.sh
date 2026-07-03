@@ -384,8 +384,45 @@ cmd_models() {
     echo "  isolated   — Air-gapped operation (local models)"
     echo "  ru_cn      — Optimized for Russian/Chinese language tasks"
     echo ""
-    echo "Usage: dev models <task-type>"
+    echo "Usage: dev models <task-type>           — Show recommended model"
+    echo "       dev models install <model-name>   — Download local model via Ollama"
+    echo "       dev models list-local             — List installed local models"
+    echo ""
     echo "Example: dev models coding"
+    echo "         dev models install qwen3:32b"
+    return 0
+  fi
+
+  if [ "$task" = "install" ]; then
+    local model="${3:-}"
+    if [ -z "$model" ]; then
+      echo "Recommended local models for Ollama:"
+      echo "  qwen3:32b       — 20GB, best coding, fits 24GB VRAM"
+      echo "  qwen3:14b       — 9GB, light coding, fits 12GB VRAM"
+      echo "  deepseek-v4:16b — 10GB, coding specialist"
+      echo "  llama3.3:70b    — 40GB, general purpose, needs 48GB+"
+      echo "  gemma3:27b      — 17GB, Google ecosystem"
+      echo ""
+      echo "Usage: dev models install <model-name>"
+      return 0
+    fi
+    section "Installing local model: $model"
+    if command -v ollama &>/dev/null; then
+      ollama pull "$model" && log "Model $model installed" || warn "Failed to install $model"
+    else
+      err "Ollama not installed. Run: dev install llm"
+      return 1
+    fi
+    return 0
+  fi
+
+  if [ "$task" = "list-local" ]; then
+    section "Installed Local Models"
+    if command -v ollama &>/dev/null; then
+      ollama list 2>/dev/null || echo "  No models installed"
+    else
+      echo "  Ollama not installed"
+    fi
     return 0
   fi
 

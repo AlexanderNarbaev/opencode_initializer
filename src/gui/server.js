@@ -1,243 +1,194 @@
-#!/usr/bin/env node
-'use strict';
-
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const { execSync, exec } = require('child_process');
 
 const PORT = process.env.GUI_PORT || 4200;
-const HOST = process.env.GUI_HOST || '127.0.0.1';
-const INFRA_FILE = path.join(process.env.HOME, '.config', 'opencode', 'infra.yml');
-const PLUGINS_FILE = path.join(process.env.HOME, '.config', 'opencode', 'plugins.json');
-const SESSIONS_DIR = path.join(process.env.HOME, '.config', 'opencode', 'sessions');
-const CACHE_TTL = 5000;
+const HOME = process.env.HOME || '/home/user';
+const HTML = path.join(__dirname, 'index.html');
 
-let cache = { status: null, infra: null, plugins: null };
-let lastFetch = 0;
+function run(cmd) {
+  try { return execSync(cmd, { timeout: 5000, encoding: 'utf-8' }).trim(); } catch { return null; }
+}
 
-function jsonResponse(res, code, data) {
-  res.writeHead(code, {
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
-    'Cache-Control': 'no-cache'
-  });
+function json(res, data) {
+  res.writeHead(200, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify(data));
 }
 
-function htmlResponse(res, code, html) {
-  res.writeHead(code, {
-    'Content-Type': 'text/html; charset=utf-8',
-    'Cache-Control': 'no-cache'
-  });
-  res.end(html);
+function readOpencodeConfig() {
+  try { return JSON.parse(fs.readFileSync(path.join(HOME, '.config/opencode/opencode.json'), 'utf-8')); }
+  catch { return null; }
 }
 
-function safeExec(command) {
-  try {
-    return execSync(command, { timeout: 10000, encoding: 'utf8' }).trim();
-  } catch {
-    return null;
-  }
+function readTaskProfiles() {
+  try { return JSON.parse(fs.readFileSync(path.join(HOME, '.config/opencode/model-router/task-profiles.json'), 'utf-8')); }
+  catch { return {}; }
 }
 
-function getDockerStatus() {
-  const containers = {};
-  const raw = safeExec('docker ps -a --format "{{.Names}}\t{{.State}}\t{{.Image}}" 2>/dev/null') || '';
-  raw.split('\n').filter(Boolean).forEach(line => {
-    const parts = line.split('\t');
-    if (parts.length >= 3) {
-      containers[parts[0]] = { running: parts[1] === 'running', state: parts[1], image: parts[2] };
-    }
-  });
-  return containers;
+function checkPort(port) {
+  try { execSync(`ss -tlnp | grep ':${port} '`, { stdio: 'pipe' }); return true; } catch { return false; }
 }
 
-function getSystemdServices() {
-  const services = {};
-  const names = ['open-webui', 'opencode-gui', 'chromadb', 'ollama'];
-  const raw = safeExec('systemctl --user list-units --type=service --no-pager --no-legend 2>/dev/null') || '';
-  names.forEach(name => {
-    const re = new RegExp(name + '\\S*', 'i');
-    const matched = raw.split('\n').filter(Boolean).find(line => re.test(line.split(/\s+/)[0] || ''));
-    if (matched) {
-      const [unit] = matched.trim().split(/\s+/);
-      const active = matched.includes(' active ');
-      services[unit] = { running: active, state: active ? 'active' : 'inactive' };
-    } else {
-      services[name] = { running: false, state: 'not found' };
-    }
-  });
-  return services;
-}
-
-function getCockpitVersion() {
-  try {
-    const pkg = require(path.join(process.env.HOME, 'opencode_initializer', 'package.json'));
-    return pkg.version || 'unknown';
-  } catch {
-    return safeExec('git -C ~/opencode_initializer describe --tags --always 2>/dev/null') || 'v1.1.0';
-  }
-}
-
-function getInfraServices() {
-  if (!fs.existsSync(INFRA_FILE)) return { error: 'infra.yml not found', services: [] };
-  const raw = safeExec('docker compose -f "' + INFRA_FILE + '" ps --format json 2>/dev/null');
-  if (!raw) return { services: [] };
-  return { services: raw.split('\n').filter(Boolean).map(line => {
-    try { return JSON.parse(line); } catch { return { raw: line }; }
-  })};
-}
-
-function getPlugins() {
-  if (!fs.existsSync(PLUGINS_FILE)) return { error: 'plugins.json not found', plugins: {} };
-  try {
-    return { plugins: JSON.parse(fs.readFileSync(PLUGINS_FILE, 'utf8')) };
-  } catch (e) {
-    return { error: e.message, plugins: {} };
-  }
-}
-
-function getSessions() {
-  if (!fs.existsSync(SESSIONS_DIR)) return { sessions: [] };
-  try {
-    const entries = fs.readdirSync(SESSIONS_DIR, { withFileTypes: true });
-    const now = Date.now();
-    return {
-      sessions: entries
-        .filter(e => e.isDirectory())
-        .map(e => {
-          const stat = fs.statSync(path.join(SESSIONS_DIR, e.name));
-          const ageMs = now - stat.mtimeMs;
-          const ageDays = Math.floor(ageMs / 86400000);
-          const ageHours = Math.floor((ageMs % 86400000) / 3600000);
-          const age = ageDays > 0 ? ageDays + 'd ' + ageHours + 'h' : ageHours + 'h';
-          return { name: e.name, mtime: stat.mtime.toISOString(), age };
-        })
-        .sort((a, b) => new Date(b.mtime) - new Date(a.mtime))
-    };
-  } catch (e) {
-    return { error: e.message, sessions: [] };
-  }
-}
-
-function getGPUInfo() {
-  const result = { nvidia: null, ollama: null, error: null };
-  result.nvidia = safeExec('nvidia-smi --query-gpu=name,memory.used,memory.total,utilization.gpu,temperature.gpu --format=csv,noheader 2>/dev/null');
-  result.ollama = safeExec('ollama list 2>/dev/null');
-  if (!result.nvidia && !result.ollama) result.error = 'No GPU tools available (nvidia-smi/ollama)';
-  return result;
-}
-
-function getMetrics() {
-  return {
-    memory: safeExec('free -h 2>/dev/null'),
-    disk: safeExec('df -h / /home 2>/dev/null'),
-    uptime: safeExec('uptime 2>/dev/null'),
-    load: safeExec('cat /proc/loadavg 2>/dev/null'),
-    timestamp: new Date().toISOString()
-  };
-}
-
-function handleStatus(req, res) {
-  if (Date.now() - lastFetch < CACHE_TTL && cache.status) {
-    return jsonResponse(res, 200, cache.status);
-  }
-  const data = {
-    docker: getDockerStatus(),
-    systemd: getSystemdServices(),
-    version: getCockpitVersion(),
-    timestamp: new Date().toISOString()
-  };
-  cache.status = data;
-  cache.infra = getInfraServices();
-  cache.plugins = getPlugins();
-  lastFetch = Date.now();
-  jsonResponse(res, 200, data);
-}
-
-function handleInfra(req, res) {
-  const data = getInfraServices();
-  jsonResponse(res, 200, data);
-}
-
-function handlePlugins(req, res) {
-  const data = getPlugins();
-  jsonResponse(res, 200, data);
-}
-
-function handleSessions(req, res) {
-  const data = getSessions();
-  jsonResponse(res, 200, data);
-}
-
-function handleGPU(req, res) {
-  const data = getGPUInfo();
-  jsonResponse(res, 200, data);
-}
-
-function handleMetrics(req, res) {
-  const data = getMetrics();
-  jsonResponse(res, 200, data);
-}
-
-function handleInfraAction(req, res, service, action) {
-  if (!fs.existsSync(INFRA_FILE)) {
-    return jsonResponse(res, 404, { error: 'infra.yml not found' });
-  }
-  if (!['start', 'stop', 'restart'].includes(action)) {
-    return jsonResponse(res, 400, { error: 'Invalid action: ' + action + '. Use start|stop|restart' });
-  }
-  try {
-    const output = execSync('docker compose -f "' + INFRA_FILE + '" ' + action + ' ' + service + ' 2>&1', {
-      timeout: 30000, encoding: 'utf8'
-    }).trim();
-    lastFetch = 0;
-    jsonResponse(res, 200, { service, action, result: 'ok', output });
-  } catch (e) {
-    jsonResponse(res, 500, { service, action, result: 'error', output: e.stderr || e.message });
-  }
-}
-
-function handleCORS(req, res) {
-  res.writeHead(204, {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type'
-  });
-  res.end();
-}
-
-function serveIndex(req, res) {
-  const indexPath = path.join(__dirname, 'index.html');
-  try {
-    htmlResponse(res, 200, fs.readFileSync(indexPath, 'utf8'));
-  } catch {
-    htmlResponse(res, 200, '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>OpenCode GUI</title></head><body><h1>OpenCode Management</h1></body></html>');
-  }
+function checkBin(name) {
+  try { execSync(`which ${name} 2>/dev/null || test -x ${HOME}/.bun/bin/${name}`, { stdio: 'pipe' }); return true; } catch { return false; }
 }
 
 const server = http.createServer((req, res) => {
-  const url = new URL(req.url, 'http://' + (req.headers.host || 'localhost'));
-  const method = req.method.toUpperCase();
-  if (method === 'OPTIONS') return handleCORS(req, res);
-  if (url.pathname === '/api/status' && method === 'GET') return handleStatus(req, res);
-  if (url.pathname === '/api/infra' && method === 'GET') return handleInfra(req, res);
-  if (url.pathname === '/api/plugins' && method === 'GET') return handlePlugins(req, res);
-  if (url.pathname === '/api/sessions' && method === 'GET') return handleSessions(req, res);
-  if (url.pathname === '/api/gpu' && method === 'GET') return handleGPU(req, res);
-  if (url.pathname === '/api/metrics' && method === 'GET') return handleMetrics(req, res);
-  if (method === 'POST') {
-    const match = url.pathname.match(/^\/api\/infra\/([^/]+)\/(start|stop|restart)$/);
-    if (match) return handleInfraAction(req, res, match[1], match[2]);
+  if (req.url === '/' || req.url === '/index.html') {
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.end(fs.readFileSync(HTML));
+    return;
   }
-  if (method === 'GET' && !url.pathname.startsWith('/api/')) return serveIndex(req, res);
-  jsonResponse(res, 404, { error: 'Not found' });
+
+  const api = req.url.replace('/api', '');
+
+  if (api === '/status') {
+    const cfg = readOpencodeConfig();
+    const mcpList = ['c7-mcp-server','mcp-server-filesystem','agentic-tools-mcp','codegraph','playwright-mcp','agent-browser-mcp-server','chrome-devtools-mcp','mcp-server-github','mcp-server-postgres','mcp-server-sequential-thinking','memorylayer-mcp'];
+    const lspList = ['gopls','rust-analyzer','typescript-language-server','pyright-langserver','yaml-language-server','marksman','taplo','bash-language-server','docker-langserver'];
+    let mcpOk=0,mcpMiss=0,lspOk=0,lspMiss=0;
+    mcpList.forEach(m=>{checkBin(m)?mcpOk++:mcpMiss++});
+    lspList.forEach(l=>{try{execSync(`which ${l}`,{stdio:'pipe'});lspOk++}catch{lspMiss++}});
+    const infraList = [['ChromaDB',8000],['MemoryLayer',0],['PostgreSQL',0],['Qdrant',0],['Redis',0],['Prometheus',9090],['Grafana',3001]];
+    let infraOk=0,infraMiss=0;
+    infraList.forEach(([n,p])=>{checkPort(p)?infraOk++:infraMiss++});
+    json(res, {
+      providers: cfg ? Object.keys(cfg.provider||{}).length : 0,
+      mcp_ok: mcpOk, mcp_miss: mcpMiss,
+      lsp_ok: lspOk, lsp_miss: lspMiss,
+      plugins: cfg ? (cfg.plugin||[]).length : 0,
+      infra_ok: infraOk, infra_miss: infraMiss,
+      model_router: cfg && cfg.experimental && cfg.experimental.model_router_dir ? true : false,
+      config: cfg ? { model: cfg.model, small_model: cfg.small_model, providers: Object.keys(cfg.provider||{}).length, mcps: Object.keys(cfg.mcp||{}).length, lsps: Object.keys(cfg.lsp||{}).length } : null,
+    });
+    return;
+  }
+
+  if (api === '/providers') {
+    const secrets = path.join(HOME, '.config/opencode/secrets.env');
+    let keys = {};
+    try { fs.readFileSync(secrets,'utf-8').split('\n').forEach(l=>{const m=l.match(/^(\w+)=(.+)/);if(m)keys[m[1]]=m[2]}); } catch {}
+    const providers = [
+      ['DeepSeek','DEEPSEEK_API_KEY','https://api.deepseek.com/v1/models',true],
+      ['z.ai GLM','ZAI_API_KEY','https://api.z.ai/api/paas/v4/models',true],
+      ['OpenRouter','OPENROUTER_API_KEY','https://openrouter.ai/api/v1/models',true],
+      ['OpenAI','OPENAI_API_KEY','https://api.openai.com/v1/models',false],
+      ['Anthropic','ANTHROPIC_API_KEY','https://api.anthropic.com/v1/models',false],
+      ['Google','GOOGLE_API_KEY','https://generativelanguage.googleapis.com/v1beta/models',true],
+      ['xAI','XAI_API_KEY','https://api.x.ai/v1/models',false],
+      ['Moonshot','MOONSHOT_API_KEY','https://api.moonshot.cn/v1/models',false],
+      ['Alibaba','ALIBABA_API_KEY','https://dashscope.aliyuncs.com/compatible-mode/v1/models',true],
+      ['Groq','GROQ_API_KEY','https://api.groq.com/openai/v1/models',true],
+      ['Together','TOGETHER_API_KEY','https://api.together.xyz/v1/models',true],
+      ['Mistral','MISTRAL_API_KEY','https://api.mistral.ai/v1/models',false],
+      ['Cohere','COHERE_API_KEY','https://api.cohere.com/v1/models',true],
+      ['DeepInfra','DEEPINFRA_API_KEY','https://api.deepinfra.com/v1/openai/models',true],
+      ['Perplexity','PERPLEXITY_API_KEY','https://api.perplexity.ai/models',false],
+      ['Ollama',null,null,true],
+      ['LiteLLM',null,null,true],
+      ['vLLM',null,null,true],
+      ['SGLang',null,null,true],
+    ];
+    const result = providers.map(([name,keyEnv,url,free])=>{
+      const hasKey = keyEnv ? !!keys[keyEnv] : true;
+      return { name, status: hasKey, models: hasKey?'?':0, free };
+    });
+    json(res, { providers: result });
+    return;
+  }
+
+  if (api === '/models') {
+    const profiles = readTaskProfiles();
+    const result = Object.entries(profiles).map(([task,p])=>({ task, model: p.model, description: p.description }));
+    json(res, { profiles: result });
+    return;
+  }
+
+  if (api === '/mcp') {
+    const cfg = readOpencodeConfig();
+    const mcps = cfg ? Object.entries(cfg.mcp||{}).map(([name,v])=>{
+      const cmd = v.command && v.command[0] ? v.command[0] : '';
+      const installed = checkBin(path.basename(cmd)) || fs.existsSync(cmd);
+      return { name, installed, command: cmd };
+    }) : [];
+    json(res, { servers: mcps });
+    return;
+  }
+
+  if (api === '/lsp') {
+    const cfg = readOpencodeConfig();
+    const lsps = cfg ? Object.entries(cfg.lsp||{}).map(([name,v])=>{
+      const cmd = v.command && v.command[0] ? v.command[0] : '';
+      let installed = false; try { execSync(`which ${cmd}`,{stdio:'pipe'}); installed=true; } catch {}
+      const exts = (v.extensions||[]).join(', ');
+      return { name, installed, languages: exts };
+    }) : [];
+    json(res, { servers: lsps });
+    return;
+  }
+
+  if (api === '/infra') {
+    const services = [
+      ['ChromaDB',8000],['MemoryLayer',0],['PostgreSQL',0],['Qdrant',0],['Redis',0],
+      ['Prometheus',9090],['Grafana',3001],['SearXNG',8888],['LiteLLM',4000],['Ollama',11434],
+    ];
+    const result = services.map(([name,port])=>({name,port,running:checkPort(port)}));
+    json(res, { services: result });
+    return;
+  }
+
+  if (api === '/isolated') {
+    const conf = path.join(HOME, '.config/opencode-setup/setup.conf');
+    let enabled = false;
+    try { fs.readFileSync(conf,'utf-8').split('\n').forEach(l=>{if(l.match(/^ISOLATED_CIRCUIT=true/))enabled=true}); } catch {}
+    const backends = [['Ollama',11434],['LiteLLM',4000],['vLLM',8000],['SGLang',30000]].map(([n,p])=>({name:n,port:p,running:checkPort(p)}));
+    json(res, { enabled, backends });
+    return;
+  }
+
+  if (api === '/isolated/toggle' && req.method === 'POST') {
+    const conf = path.join(HOME, '.config/opencode-setup/setup.conf');
+    try {
+      let content = fs.readFileSync(conf,'utf-8');
+      if (content.includes('ISOLATED_CIRCUIT=')) {
+        content = content.replace(/ISOLATED_CIRCUIT=.*/, enabled => enabled.includes('true') ? 'ISOLATED_CIRCUIT=false' : 'ISOLATED_CIRCUIT=true');
+      } else { content += '\nISOLATED_CIRCUIT=true'; }
+      fs.writeFileSync(conf, content);
+    } catch {}
+    json(res, { ok: true });
+    return;
+  }
+
+  if (api === '/backups') {
+    const dir = path.join(HOME, '.config/opencode-setup/backups');
+    let backups = [];
+    try { backups = fs.readdirSync(dir).filter(f=>f.endsWith('.tar.gz')).map(f=>{
+      const stat = fs.statSync(path.join(dir,f));
+      return { file: f, size: `${(stat.size/1024).toFixed(0)}KB`, date: stat.mtime.toISOString().split('T')[0] };
+    }); } catch {}
+    json(res, { backups });
+    return;
+  }
+
+  if (api === '/backup/create' && req.method === 'POST') {
+    run('dev backup create');
+    json(res, { ok: true });
+    return;
+  }
+
+  if (api === '/logs') {
+    const logFile = path.join(HOME, '.cache/opencode-setup/setup.log');
+    let logs = [];
+    try { logs = fs.readFileSync(logFile,'utf-8').split('\n').slice(-50); } catch {}
+    json(res, { logs });
+    return;
+  }
+
+  res.writeHead(404);
+  res.end('Not found');
 });
 
-server.listen(PORT, HOST, () => {
-  process.stderr.write('GUI server listening on http://' + HOST + ':' + PORT + '\n');
+server.listen(PORT, '127.0.0.1', () => {
+  console.log(`OpenCode Manager running at http://localhost:${PORT}`);
 });
-
-process.on('SIGTERM', () => server.close(() => process.exit(0)));
-process.on('SIGINT', () => server.close(() => process.exit(0)));

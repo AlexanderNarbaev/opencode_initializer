@@ -1,5 +1,5 @@
 site_name: OpenCode Initializer
-site_description: Universal Dev Machine Bootstrap v2.0.0 — one-command AI-enhanced development environment with 38 modules, 24 providers, 21 MCPs, 15 plugins, 13 LSPs, Infrastructure as Code
+site_description: Universal Dev Machine Bootstrap v2.0.0 — one-command AI-enhanced development environment with 39 modules, 24 providers, 24 MCPs, 15 plugins, 13 LSPs, model routing, Infrastructure as Code, Web GUI
 site_author: Alexander Narbaev
 site_url: https://alexandernarbaev.github.io/opencode_initializer/
 copyright: "&copy; 2025-2026 Alexander Narbaev. MIT License."

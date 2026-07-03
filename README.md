@@ -2,7 +2,7 @@
 
 <p align="center">
   <b>One-command AI-enhanced development environment setup for WSL2, Linux, and macOS.</b><br>
-  <sub>373-line orchestrator · 38 modules · 11 modes · 21 MCPs · 15 plugins · 13 LSPs · 24 providers</sub>
+  <sub>373-line orchestrator · 39 modules · 11 modes · 24 MCPs · 15 plugins · 13 LSPs · 24 providers · model routing · GUI</sub>
 </p>
 
 <p align="center">
@@ -32,13 +32,15 @@ One command installs everything: 8 languages, 38 infrastructure modules, 21 MCP 
 | Category | Count | Details |
 |----------|-------|---------|
 | Languages | 8 | Java 25, Node.js 24, Python 3.14, Go 1.26, Rust 1.96, .NET 10, Kotlin, Zig |
-| Modules | 38 | System, Docker, Chrome, ZSH, 7 languages, OpenCode, MCP/LSP, ChromaDB, LLM, RAG, LiteLLM, SearXNG, providers, dotfiles, Devbox, Infra, Cockpit, Isolated Circuit, Observability, GUI, and more |
-| MCP Servers | 21 | GitHub, GitLab, Filesystem, Playwright, Chrome DevTools, Postgres, SQLite, Memory, Excalidraw, Brave Search, Context7, Google Maps, and more |
+| Modules | 39 | System, Docker, Chrome, ZSH, 7 languages, OpenCode, MCP/LSP, ChromaDB, LLM, RAG, LiteLLM, SearXNG, providers, dotfiles, Devbox, Infra, Cockpit, Isolated Circuit, Observability, GUI, Model Router, and more |
+| MCP Servers | 24 | GitHub, GitLab, Filesystem, Playwright, Chrome DevTools, Postgres, SQLite, Memory, Excalidraw, Brave Search, Context7, Google Maps, and more |
 | LSP Servers | 13 | gopls, rust-analyzer, tsserver, pyright, omnisharp, yaml, marksman, taplo, lua, zls, bash, dockerfile, css/html/json |
 | Plugins | 15 | token-tracker, dcp, swarm, goal-mode, vibeguard, orchestrator, auto-fallback, notify, pty, snip, snippets, envsitter-guard, command-inject, ignore |
 | AI Providers | 24 | DeepSeek, OpenCode, **z.ai GLM-5.2**, **OpenRouter**, OpenAI, Anthropic Claude 4, Google Gemini, xAI Grok 4, Moonshot Kimi K2, MiniMax, MiMo, **Alibaba Qwen3**, **DeepInfra**, Groq, Together, Fireworks, Perplexity, Mistral, Cohere, Cerebras + 4 local (Ollama, LiteLLM, vLLM, SGLang) |
+| Model Router | 8 profiles | coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn |
 | CLI Modes | 11 | full, reinit, new, health, update, upgrade, interactive, ci, fix-config, fix-zshrc, dry-run |
 | Infrastructure | 6 | PostgreSQL, Qdrant, Redis, Prometheus, Grafana, MemoryLayer |
+| GUI | Web | Provider status, model router, MCP/LSP management, infra monitoring, backup |
 | Package Managers | 6 | apt, dnf, pacman, apk, zypper, brew |
 
 ### v2.0.0 — Infrastructure as Code + Isolated Circuit + z.ai GLM-5.2
@@ -177,6 +179,11 @@ dev update              # Update everything + migrations
 dev self-update         # Update the installer itself
 dev version-check       # Compare installed vs latest versions
 dev isolated status     # Check Isolated Circuit Mode
+dev models coding       # Get model recommendation for coding
+dev models install qwen3:32b  # Download local model
+dev models list-local   # List installed local models
+dev backup create       # Backup all configs
+dev backup list         # Show available backups
 dev install llm         # Add GPU/LLM support later
 dev config              # Edit setup configuration
 ```
@@ -187,15 +194,11 @@ dev config              # Edit setup configuration
 |------|-------------|
 | `-k, --api-key <key>` | OpenCode Go API key |
 | `--deepseek-key <key>` | DeepSeek API key |
+| `--isolated` | Enable Isolated Circuit Mode (local LLM only) |
 | `--zai-key <key>` | z.ai GLM API key |
 | `--openrouter-key <key>` | OpenRouter API key |
-| `--xai-key <key>` | xAI Grok API key |
-| `--mimo-key <key>` | Xiaomi MiMo API key |
-| `--moonshot-key <key>` | Moonshot Kimi API key |
-| `--minimax-key <key>` | MiniMax API key |
 | `--alibaba-key <key>` | Alibaba Qwen API key |
 | `--deepinfra-key <key>` | DeepInfra API key |
-| `--isolated` | Enable Isolated Circuit Mode (local LLM only) |
 | `--github-token <token>` | GitHub personal access token |
 | `--gitlab-token <token>` | GitLab personal access token |
 | `--google-maps-key <key>` | Google Maps API key |
