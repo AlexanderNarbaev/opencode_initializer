@@ -14,13 +14,29 @@ jobs:
           for f in setup.sh dev.sh src/lib/*.sh src/modes/*.sh scripts/*.sh migrations/*.sh; do
             bash -n "$f" || { echo "FAIL: $f"; exit 1; }
           done
-          echo "All syntax checks passed"
+          echo "All shell syntax checks passed"
+      - name: Python syntax check
+        run: |
+          for f in scripts/*.py; do
+            python3 -m py_compile "$f" || { echo "FAIL: $f"; exit 1; }
+          done
+          echo "All Python syntax checks passed"
+      - name: Go format check
+        run: |
+          if [ -d src/cockpit ]; then
+            gofmt -l src/cockpit/*.go | wc -l | grep -q '^0$' || {
+              echo "Go files need formatting:"
+              gofmt -l src/cockpit/*.go
+              exit 1
+            }
+            echo "All Go files are properly formatted"
+          fi
   unit-tests:
     runs-on: ubuntu-latest
     needs: syntax
     steps:
       - uses: actions/checkout@v4
-      - name: Run unit tests
+      - name: Run all tests
         run: |
           bash tests/run_tests.sh 2>&1 | tee test-output.log
           if grep -q "FAIL" test-output.log; then
@@ -28,3 +44,6 @@ jobs:
             grep "FAIL" test-output.log
             exit 1
           fi
+      - name: Verify opencode.json is valid JSON
+        run: |
+          python3 -c "import json; json.load(open('opencode.json')); print('opencode.json: valid')"

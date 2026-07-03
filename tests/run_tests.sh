@@ -57,6 +57,20 @@ for f in "$SCRIPT_DIR"/unit/*.sh "$SCRIPT_DIR"/integration/*.sh "$SCRIPT_DIR"/e2
   run_test "Syntax: tests/$(echo "$f" | sed "s|$SCRIPT_DIR/||")" "bash -n '$f'"
 done
 
+# Python syntax checks
+for f in "$PROJECT_DIR/scripts/"*.py; do
+  [ -f "$f" ] || continue
+  run_test "Syntax: $(basename "$f")" "python3 -m py_compile '$f'"
+done
+
+# Go syntax checks
+if command -v gofmt &>/dev/null; then
+  for f in "$PROJECT_DIR/src/cockpit/"*.go; do
+    [ -f "$f" ] || continue
+    run_test "Go fmt: $(basename "$f")" "gofmt -l '$f' | wc -l | grep -q '^0$'"
+  done
+fi
+
 # ── Unit Tests ────────────────────────────────────────────────────────────
 echo
 echo "=== Unit Tests ==="
