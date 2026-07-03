@@ -115,6 +115,14 @@ while [[ $# -gt 0 ]]; do case $1 in
     DEEPSEEK_KEY="$2"
     shift 2
     ;;
+  --zai-key)
+    ZAI_KEY="$2"
+    shift 2
+    ;;
+  --openrouter-key)
+    OPENROUTER_KEY="$2"
+    shift 2
+    ;;
   --xai-key)
     XAI_KEY="$2"
     shift 2
@@ -169,6 +177,14 @@ while [[ $# -gt 0 ]]; do case $1 in
     ;;
   --perplexity-key)
     PERPLEXITY_API_KEY="$2"
+    shift 2
+    ;;
+  --alibaba-key)
+    ALIBABA_KEY="$2"
+    shift 2
+    ;;
+  --deepinfra-key)
+    DEEPINFRA_KEY="$2"
     shift 2
     ;;
   --github-token)
@@ -274,6 +290,8 @@ Options:
   -p, --project-dir   Project directory (default: ~/projects)
   -k, --api-key       OpenCode Go API key
   --deepseek-key      DeepSeek API key
+  --zai-key           z.ai GLM API key
+  --openrouter-key    OpenRouter API key
   --xai-key           xAI Grok API key
   --mimo-key          Xiaomi MiMo API key
   --moonshot-key      Moonshot (Kimi K2.6) API key
@@ -288,6 +306,8 @@ Options:
   --fireworks-key     Fireworks AI API key
   --cerebras-key      Cerebras API key
   --perplexity-key    Perplexity API key
+  --alibaba-key       Alibaba Qwen API key
+  --deepinfra-key     DeepInfra API key
   --github-token      GitHub personal access token (for MCP, gh CLI, etc.)
   --gitlab-token      GitLab personal access token (for GitLab MCP)
   --gitverse-token    GitVerse personal access token (for GitVerse Pages)
