@@ -5,11 +5,11 @@ All notable changes to opencode_initializer will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.0-alpha] — 2026-07-03
+## [2.0.0] — 2026-07-03
 
 ### Added
 - `30-infra.sh`: Infrastructure provisioning — PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer via Docker Compose
-- `31-cockpit.sh`: Cockpit TUI server management daemon (build + systemd service)
+- `31-cockpit.sh`: Cockpit TUI server management daemon (7-tab TUI + web GUI)
 - `32-isolated.sh`: **Isolated Circuit Mode** — air-gapped / offline-first LLM operation
   - Flag: `--isolated` / `--no-isolated` CLI, `ISOLATED_CIRCUIT=true` config, env var
   - Local OpenAI-compatible backends: Ollama (:11434), LiteLLM (:4000), vLLM (:8000), SGLang (:30000)
@@ -17,26 +17,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Config persist: `~/.config/opencode-setup/setup.conf`
   - `dev isolated on|off|status` CLI command
   - Cockpit TUI: `[ISOLATED]` indicator in header
+- **z.ai (GLM-5.2)** provider — critical for RU/CN markets, OpenAI-compatible API
+- **OpenRouter** provider — aggregator access to 100+ models via single API key
+- **Alibaba Qwen3** provider — native SDK in opencode
+- **DeepInfra** provider — fast inference, competitive pricing
 - MemoryLayer AI memory: Docker backend + Ollama embed proxy (mxbai-embed-large, 1024-dim) + systemd auto-start
 - Embed proxy: `scripts/embed-proxy.py` — bridges Ollama embeddings to MemoryLayer API format
 - `opencode-embed-proxy.service`: systemd user service for Ollama embedding proxy
 - Observability stack: Prometheus (:9090) + Grafana (:3001) with auto-provisioning
 - Go apt fallback in `08-go.sh`: if direct download fails, use ppa:longsleep/golang-backports
-- Unit tests: `tests/unit/test_infra.sh`, `tests/unit/test_cockpit.sh`
+- Unit tests: `test_infra.sh`, `test_cockpit.sh`, `test_isolated.sh`, `test_providers.sh`, `test_observability.sh`, `test_embed_proxy.sh` (105+ new assertions)
+- CI: Python syntax check, Go format check, opencode.json validity check
+- Critical audit + provider/LLM ecosystem analysis (`docs/research/`)
 
 ### Changed
-- Module count: 29 → 36
-- `30-infra.sh`: expanded from 6→9 services (added prometheus, grafana, memorylayer)
-- `26-providers.sh`: 15 cloud + 4 local OpenAI-compatible providers
-- `18-opencode-json.sh`: `_build_providers()` supports ISOLATED_CIRCUIT mode
-- `00-core.sh`: ISOLATED_CIRCUIT auto-load from config
-- AGENTS.md: Phase 0-4 plan, new module entries, IaC design decision, v2.0.0-alpha header
+- Module count: 29 → 38
+- Module numbering fixed: 22-mise→29-mise, 32-observability→34-observability, 33-gui→35-gui
+- `26-providers.sh`: 15→20 cloud + 4 local OpenAI-compatible providers (24 total)
+- `18-opencode-json.sh`: `_build_providers()` supports ISOLATED_CIRCUIT mode + z.ai/OpenRouter/Alibaba/DeepInfra
+- `00-core.sh`: ISOLATED_CIRCUIT auto-load from config, version v2.0.0
+- `setup.sh`: version v2.0.0, 373 lines
+- opencode.json: z.ai provider added with fallback chain
+- Model versions updated: Grok 3→4, Kimi K2.6→K2, Claude Sonnet→Opus
+- AGENTS.md: full rewrite with all 38 modules, 24 providers, v2.0.0
 - Cockpit: 7-tab TUI (F1 System, F2 Plugins, F3 GPU/Models, F4 Sessions, F5 Tasks, F6 Logs, F7 Infra) + `[ISOLATED]` indicator
 - Cockpit: Web GUI foundation for remote management
 
 ### Fixed
 - MemoryLayer: backend not running — deployed Docker container + Ollama embed proxy pipeline
 - `test_infra.sh`: isolated from real config (uses temp dir), +4 new assertions
+- `test_core.sh`: version assertion updated for v2.0.0
+- `test_helpers.sh`: version assertion updated for v2.0.0
+- `test_modules.sh`: line count bounds adjusted for 373-line orchestrator
+- Duplicate module numbers resolved (22 and 32)
 
 ## [Unreleased]
 
@@ -112,6 +125,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Full open source documentation (README, CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, CHANGELOG)
 - GitVerse mirror
 
-[Unreleased]: https://github.com/AlexanderNarbaev/opencode_initializer/compare/v1.1.0...main
+[Unreleased]: https://github.com/AlexanderNarbaev/opencode_initializer/compare/v2.0.0...main
+[2.0.0]: https://github.com/AlexanderNarbaev/opencode_initializer/compare/v1.1.0...v2.0.0
 [1.1.0]: https://github.com/AlexanderNarbaev/opencode_initializer/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/AlexanderNarbaev/opencode_initializer/releases/tag/v1.0.0

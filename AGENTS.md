@@ -1,14 +1,18 @@
 # AGENTS.md — opencode_initializer
 
-## Status: v2.0.0-alpha — Phase 0 Complete
+## Status: v2.0.0 — All Phases Complete
 
 | Phase | Status | Description |
 |-------|--------|-------------|
 | 0 | Done | Foundation: 30-infra.sh, 31-cockpit.sh, tests, Go apt fallback |
+| 1 | Done | Docker Infrastructure Layer (postgres, qdrant, redis) |
+| 2 | Done | Plugin Framework v2 (always/conditional/on-demand) |
+| 3 | Done | Integration tests, CI/CD for new modules |
+| 4 | Done | Cockpit TUI + Observability + Isolated Circuit + Documentation |
 
 ## Identity
 Universal Dev Machine Bootstrap — однокомандная настройка AI-усиленной dev-машины для WSL2/Linux.
-Модульная архитектура: 351-строчный оркестратор + 33 модуля + автообновление через systemd-таймер.
+Модульная архитектура: 373-строчный оркестратор + 38 модулей + автообновление через systemd-таймер.
 
 ## Язык общения
 Всё общение строго на русском языке. Код и комментарии — на английском.
@@ -16,16 +20,16 @@ Universal Dev Machine Bootstrap — однокомандная настройк�
 ## Project Structure
 ```
 opencode_initializer/
-├── setup.sh          ← оркестратор (351 строк, source модули из src/lib/)
+├── setup.sh          ← оркестратор (373 строк, source модули из src/lib/)
 ├── src/
-│   ├── lib/          ← 33 модуля (00-core.sh … 28-devbox.sh + 22-webui-service.sh + helpers.sh + version-check.sh + pre-session-check.sh)
+│   ├── lib/          ← 38 модулей (00-core.sh … 35-gui.sh + helpers.sh + version-check.sh + pre-session-check.sh)
 │   └── modes/            ← 5 режимных скриптов (+ 6 встроенных режимов)
 ├── dev.sh            ← CLI
-├── scripts/          ← утилиты (ai-router)
-├── tests/            ← unit, integration, e2e
+├── scripts/          ← утилиты (ai-router, embed-proxy, oc-json, oc-rpc, oc-sdk, oc-tui)
+├── tests/            ← unit (11), integration (5), e2e (4) — 250+ assertions
 ├── migrations/       ← timestamped, idempotent
 ├── docs/             ← документация + plans + research
-├── .github/          ← CI + issue/PR шаблоны
+├── .github/          ← CI (test, shellcheck, docs) + issue/PR шаблоны
 ├── README.md
 └── AGENTS.md         ← этот файл
 ```
@@ -37,14 +41,14 @@ opencode_initializer/
 
 ## Architecture (setup.sh)
 
-### Orchestrator (351 lines)
+### Orchestrator (373 lines)
 Minimal entry point that sources modules from `src/lib/` and dispatches modes from `src/modes/`.
 
-### Module Layout (src/lib/ — 30 modules + 3 infra)
+### Module Layout (src/lib/ — 35 numbered + 3 infra)
 | Module | Responsibility |
 |--------|---------------|
 | `helpers.sh` | `_curl()`, `_retry()`, `_npm_install()`, `_sudo()` — shared infrastructure |
-| `00-core.sh` | Progress tracking, step skip/done, OS/PKG detection, mirrors, npm prefix, cache dirs |
+| `00-core.sh` | Progress tracking, step skip/done, OS/PKG detection, mirrors, npm prefix, cache dirs, ISOLATED_CIRCUIT |
 | `01-system.sh` | System packages (apt/dnf/pacman/apk/zypper/brew) |
 | `02-docker.sh` | Docker engine installation |
 | `03-chrome.sh` | Google Chrome + chromedriver (WSL2-aware) |
@@ -52,7 +56,7 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 | `05-java.sh` | Java 25 (Adoptium API → SDKMAN → apt) + Zig 0.15.1 |
 | `06-node.sh` | Node.js 24 (n → apt) |
 | `07-python.sh` | Python 3.14 + uv |
-| `08-go.sh` | Go 1.26 (direct download → apt) |
+| `08-go.sh` | Go 1.26 (direct download → apt fallback) |
 | `09-rust.sh` | Rust 1.96 (rustup → apt) |
 | `10-dotnet.sh` | .NET 10 (dotnet-install → apt) |
 | `11-opencode.sh` | OpenCode CLI 1.17 + Bun 1.3 |
@@ -62,23 +66,53 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 | `15-security.sh` | Trivy, Qodana |
 | `16-llm.sh` | Ollama, vLLM, SGLang, Open WebUI, WasmEdge (GPU-aware, multi-vendor) |
 | `17-project.sh` | Project structure (AGENTS.md, WAL, agents, docker-compose) |
-| `18-opencode-json.sh` | opencode.json generation (Python inline, bun bin paths) |
+| `18-opencode-json.sh` | opencode.json generation (Python inline, bun bin paths, 24 providers, ISOLATED_CIRCUIT) |
 | `19-finalize.sh` | Git config, PATH, .zshrc, auth reminder, verification (36 checks) |
 | `20-autoupdate.sh` | topgrade + systemd weekly timer + unattended-upgrades + abtop |
 | `21-rag.sh` | RAG System — Corporate Knowledge Assistant (ETL + proxy + Qdrant + Gemma) |
-| `22-mise.sh` | mise-en-place — universal tool version manager |
 | `22-webui-service.sh` | Open WebUI systemd user service (auto-start) |
 | `23-just.sh` | just — task runner with default justfile |
 | `24-websearch.sh` | SearXNG web search + sanitizer proxy (internal hosts/IP/PII) |
 | `25-litellm.sh` | LiteLLM — OpenAI-compatible local API gateway |
-| `26-providers.sh` | 15+ LLM provider registry with session switching |
+| `26-providers.sh` | 24 LLM provider registry (20 cloud + 4 local) with session switching |
 | `27-dotfiles.sh` | chezmoi dotfiles manager for team config sharing |
 | `28-devbox.sh` | Devbox — Nix-based isolated dev environments |
+| `29-mise.sh` | mise-en-place — universal tool version manager |
+| `30-infra.sh` | Infrastructure: PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer |
+| `31-cockpit.sh` | Cockpit TUI server management daemon (7-tab TUI + web GUI) |
+| `32-isolated.sh` | Isolated Circuit Mode — air-gapped LLM (Ollama/LiteLLM/vLLM/SGLang) |
+| `34-observability.sh` | Grafana + Prometheus observability stack |
+| `35-gui.sh` | Web management interface foundation |
 | `version-check.sh` | Version check: Rust/Go/Node/Python/Bun/OpenCode/Ollama/Zig + npm packages |
 | `pre-session-check.sh` | Pre-session provider/model validation + MCP status |
-| `30-infra.sh` | Infrastructure provisioning: PostgreSQL + Qdrant + Redis via Docker Compose |
-| `31-cockpit.sh` | Cockpit C++ server management daemon (build + systemd service) |
-| `32-isolated.sh` | Isolated Circuit Mode — local-only LLM providers (air-gapped) |
+
+### Provider Registry (26-providers.sh — 24 providers)
+| Provider | Model | Free Tier | SDK |
+|----------|-------|-----------|-----|
+| deepseek | DeepSeek V4 Pro / V4 Flash | yes | native |
+| opencode | OpenCode Go proxy | yes | native |
+| **zai** | **z.ai GLM-5.2 / GLM-4-Flash** | **yes** | **openai-compatible** |
+| **openrouter** | **OpenRouter (100+ models)** | **yes** | **native** |
+| xai | xAI Grok 4 / Grok 4 Mini | no | native |
+| mimo | Xiaomi MiMo V2 | yes | openai-compatible |
+| moonshot | Moonshot Kimi K2 | no | openai-compatible |
+| minimax | MiniMax M3 | no | openai-compatible |
+| openai | OpenAI GPT-5 / GPT-5 Mini | no | native |
+| anthropic | Anthropic Claude 4 Opus / Haiku 4 | no | native |
+| google | Google Gemini 2.5 Pro / Flash | yes | native |
+| mistral | Mistral Large 3 / Small | no | native |
+| groq | Groq Cloud (Llama 4 Maverick) | yes | native |
+| together | Together AI (Llama 4) | yes | native |
+| cohere | Cohere Command R+ | yes | native |
+| fireworks | Fireworks AI | no | openai-compatible |
+| cerebras | Cerebras (fast inference) | no | native |
+| perplexity | Perplexity (online search) | no | native |
+| **alibaba** | **Alibaba Qwen3 235B / 14B** | **yes** | **native** |
+| **deepinfra** | **DeepInfra (Llama 4)** | **yes** | **openai-compatible** |
+| ollama | Ollama (localhost:11434) | yes | local |
+| litellm | LiteLLM proxy (localhost:4000) | yes | local |
+| vllm | vLLM (localhost:8000) | yes | local |
+| sglang | SGLang (localhost:30000) | yes | local |
 
 ### Modes (src/modes/)
 | Mode | Description |
@@ -101,8 +135,9 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
   "model": "deepseek/deepseek-v4-pro",
   "small_model": "deepseek/deepseek-v4-flash",
   "provider": {
-    "deepseek": {},
-    "opencode": {}
+    "deepseek": { "fallback": ["zai", "opencode", "xai", "minimax"] },
+    "zai": { "options": { "baseURL": "https://api.z.ai/api/paas/v4" }, "fallback": ["deepseek", "opencode"] },
+    "opencode": { "fallback": ["deepseek", "zai", "minimax"] }
   }
 }
 ```
@@ -120,15 +155,17 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 9. **Bun binary paths for MCP** (v34.5) — `local_cmd()` generates absolute paths to `~/.bun/bin/` instead of `npx -y`, enabling instant cold start
 10. **Auto-update via systemd timer** (v34.5) — topgrade runs weekly (Sun 04:00), unattended-upgrades for daily security
 11. **Version check** (v34.5) — `dev version-check` compares installed versions against latest from GitHub/APIs
-
-12. **Infrastructure as Code** (v2.0) — PostgreSQL + Qdrant + Redis via Docker Compose, Cockpit MCP daemon
+12. **Infrastructure as Code** (v2.0) — PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer via Docker Compose
+13. **Isolated Circuit Mode** (v2.0) — air-gapped LLM operation with local OpenAI-compatible backends
+14. **z.ai GLM-5.2 integration** (v2.0) — primary provider for RU/CN markets, OpenAI-compatible API
+15. **OpenRouter aggregator** (v2.0) — single API key for 100+ models
 
 ## Testing & Verification
 ```bash
 bash -n setup.sh                          # syntax check (orchestrator)
 for f in src/lib/*.sh src/modes/*.sh; do bash -n "$f"; done  # modular syntax check
-bash tests/run_tests.sh                   # full test suite (15+ tests, 250+ assertions)
-bash setup.sh --health                    # diagnostics (60+ checks)
+bash tests/run_tests.sh                   # full test suite (20 tests, 350+ assertions)
+bash setup.sh --health                    # diagnostics (65+ checks)
 bash setup.sh --fix-config                # regenerate opencode.json
 bash setup.sh --fix-zshrc                 # repair shell config
 ```
@@ -148,38 +185,21 @@ bash setup.sh --fix-zshrc                 # repair shell config
 | v30 | Secrets security (chmod 600), WSL2 .wslconfig/wsl.conf, OS validation, timestamps, dry-run, opencode.json overhaul, Sentry+Grep MCP, ShellCheck CI
 | v31 | GPU/LLM runtimes (Ollama, vLLM, SGLang, Open WebUI), self-update, architecture detection (amd64+arm64), enhanced interactive mode
 | v32 | RU mirrors (GitHub/npm/pip/Docker/Go), cross-distro packages (apt/dnf/pacman/apk/zypper/brew), certificate handling, SDKMAN mirror
-| v33.5 | MCP fixes: type:local, LSP extensions, auth.json, mkdir permissions |
-| v33.6 | MCP overhaul: fix bun detection (pkg_installed), codegraph serve, agent-browser-mcp-server, remove broken MCPs (codesorb/mcp-replay/datafy), open-orchestra → plugin, drop grep/sentry from local install |
-| v33.7 | Fix codegraph MCP: add missing --mcp flag to serve command (broken since v33.6) |
-| v33.9 | Fix **critical**: remove `dcp`/`damageControl` top-level keys (schema rejected them — hard crash). Convert to plugin tuple format. Bump all version strings. Add missing packages to upgrade mode. Add missing CLI flags to help. Regenerate valid opencode.json. Install dev CLI. Clean stale packages (codesorb, mcp-replay, datafy). |
-| v33.10 | ZSH: version check (5.8+), chsh default shell, +14 plugins (fzf-tab, zsh-completions, npm, bun, etc.), git via ghproxy mirrors. Google Chrome: apt repo install + chromedriver, WSL2-aware --no-sandbox, chrome-open launcher in .zshrc and ~/.local/bin. GitHub MCP: --github-token CLI arg, enabled+env when token present. Providers: dynamic _build_providers() based on available API keys. Postgres MCP: conditional enabled. auth.json: all 6 tokens. Interactive: Chrome option. |
-| v33.11 | Version bumps (Node 24, Python 3.14, .NET 10, Go 1.26, Zig 0.16). Critical bug fixes (39), LSP fixes (3). Added gitlab + google-maps MCP servers. |
-| v34.0 | Modular architecture: 23 files, 257-line orchestrator. Bug fixes (39), LSP fixes (3), version bumps (Node 24, Python 3.14, .NET 10, Zig 0.16). New MCPs (gitlab, google-maps). |
-| v34.5 | Auto-update system (topgrade + systemd timer), version-check (8 tools), IDE config (Sublime Text + VS Code + mime), abtop 0.4.8, bun bin paths for MCP cold-start, npm prefix fix, 19-step progress tracking, bat symlink, Zig 0.15.1 fix (0.16 didn't exist), Rust 1.93→1.96. dev CLI: version-check, autoupdate, self-update commands. |
-| v35.0 | RU mirrors (goproxy.cn, npmmirror, yandex), CA certs improved, 8 new plugins (token-tracker, notify, pty, ignore, snip, snippets, envsitter-guard, command-inject, orchestrator), dead plugins removed, gopls via goproxy.cn, Ollama via snap, GOPROXY=goproxy.cn default, PATH +~/go/bin, tests: test_critical_path.sh (30+ checks). |
-| v35.1 | Pre-session provider/model check script. Version check expanded. 22→24 modules. |
-| v35.3 | Research-driven: +5 plugins (dcp, auto-fallback, goal-mode, swarm, vibeguard), +1 MCP (chrome-devtools), +5 LSP (bash, dockerfile, css, html, json), +3 CLI tools (btm, sd, typos). Fixed: ZSH crash (set -e leak), opencode.json validity (// comments), Gradle symlink, health 54→54 checks. New tests: test_mcp_registry.sh (52 checks), test_opencode_json_gen.sh (62 checks). README rewritten to international standard. CONTRIBUTING.md comprehensive guide. |
-| v1.0.0 | Initial public release. Clean open source launch with full documentation (README, CHANGELOG, CONTRIBUTING, CODE_OF_CONDUCT, SECURITY). 8 languages, 21 MCPs, 15 plugins, 13 LSPs, 193-test suite. |
-| v1.1.0 | Ecosystem expansion: hardware auto-detection (multi-vendor GPU/NPU), LiteLLM OpenAI-compatible API gateway, SearXNG web search + sanitizer proxy, CI/CD headless mode, multimodal (whisper.cpp + stable-diffusion.cpp + llava), 15+ LLM providers, TUI/JSON/RPC/SDK interaction modes, chezmoi dotfiles, Devbox integration, ONNX runtime. 24→29 modules, 26→29 steps, 65+ health checks. |
+| v33.5-v33.11 | MCP fixes, plugin overhaul, ZSH plugins, Chrome, version bumps, gitlab/google-maps MCPs |
+| v34.0 | Modular architecture: 23 files, 257-line orchestrator |
+| v34.5 | Auto-update system (topgrade + systemd timer), version-check, IDE config, bun bin paths |
+| v35.0-v35.3 | RU mirrors, plugins, MCP, LSP, CLI tools, tests, README rewrite |
+| v1.0.0 | Initial public release. 8 languages, 21 MCPs, 15 plugins, 13 LSPs, 193-test suite. |
+| v1.1.0 | Ecosystem expansion: hardware auto-detection, LiteLLM, SearXNG, CI/CD mode, multimodal, 15+ providers, chezmoi, Devbox, ONNX. 29 modules, 65+ health checks. |
+| v2.0.0 | Infrastructure as Code (PostgreSQL+Qdrant+Redis+Prometheus+Grafana+MemoryLayer), Cockpit TUI (7-tab), Isolated Circuit Mode, z.ai GLM-5.2 + OpenRouter + Alibaba + DeepInfra providers, MemoryLayer embed proxy, 38 modules, 24 providers, 350+ test assertions. |
 
-| v2.0.0-alpha | Phase 0: +2 modules (30-infra.sh, 31-cockpit.sh), Go apt fallback, new unit tests, CHANGELOG. |
-
-## Phase Plan (v2.0.0)
-| Phase | Scope |
-|-------|-------|
-| 0 | Done — Infra modules, Go apt fallback, tests, AGENTS.md |
-| 1 | Cockpit C++ implementation, MCP service registry |
-| 2 | Infra provisioning idempotency, health checks |
-| 3 | Integration tests, CI/CD for new modules |
-| 4 | Documentation, migration scripts, v2.0.0 stable release |
-
-## Modular Architecture (v1.0.0)
+## Modular Architecture (v2.0.0)
 
 ```
 opencode_initializer/
-├── setup.sh              ← оркестратор (351 строк)
+├── setup.sh              ← оркестратор (373 строк)
 ├── dev.sh                ← CLI
-├── opencode.json         ← конфиг OpenCode
+├── opencode.json         ← конфиг OpenCode (24 providers)
 ├── src/
 │   ├── lib/
 │   │   ├── helpers.sh    ← _curl, _retry, _npm_install
@@ -187,11 +207,11 @@ opencode_initializer/
 │   │   └── version-check.sh
 │   └── modes/
 │       └── health.sh ... ← режимные скрипты
-├── tests/                ← unit / integration / e2e
+├── tests/                ← unit (11) / integration (5) / e2e (4)
 ├── migrations/
-├── scripts/              ← утилиты
+├── scripts/              ← утилиты (embed-proxy, ai-router, oc-*)
 ├── docs/                 ← документация + plans + research
-├── .github/workflows/    ← CI
+├── .github/workflows/    ← CI (test, shellcheck, docs)
 ├── README.md
 ├── CONTRIBUTING.md
 └── AGENTS.md
@@ -207,5 +227,6 @@ opencode_initializer/
 - `dev version-check` — check installed vs latest versions
 - `dev autoupdate` — run topgrade full system update
 - `dev self-update` — git pull + reinstall dev CLI + setup.sh
+- `dev isolated on|off|status` — toggle Isolated Circuit Mode
 
 **Config file:** `~/.config/opencode-setup/setup.conf` — persistent settings, sourced by both setup.sh and dev CLI.

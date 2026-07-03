@@ -1,8 +1,8 @@
-# OpenCode Initializer v1.1.0
+# OpenCode Initializer v2.0.0
 
 <p align="center">
   <b>One-command AI-enhanced development environment setup for WSL2, Linux, and macOS.</b><br>
-  <sub>352-line orchestrator · 29 modules · 11 modes · 21 MCPs · 15 plugins · 13 LSPs · 16 providers</sub>
+  <sub>373-line orchestrator · 38 modules · 11 modes · 21 MCPs · 15 plugins · 13 LSPs · 24 providers</sub>
 </p>
 
 <p align="center">
@@ -23,7 +23,7 @@
 curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializer/main/setup.sh | bash -s -- --full
 ```
 
-One command installs everything: 8 languages, 29 infrastructure modules, 21 MCP servers, 15 OpenCode plugins, 13 LSP servers, 16 AI providers, hardware auto-detection, LiteLLM API gateway, and SearXNG web search.
+One command installs everything: 8 languages, 38 infrastructure modules, 21 MCP servers, 15 OpenCode plugins, 13 LSP servers, 24 AI providers, infrastructure as code (PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer), Cockpit TUI, Isolated Circuit Mode, hardware auto-detection, LiteLLM API gateway, and SearXNG web search.
 
 [Full Documentation](https://alexandernarbaev.github.io/opencode_initializer/)
 
@@ -32,29 +32,37 @@ One command installs everything: 8 languages, 29 infrastructure modules, 21 MCP 
 | Category | Count | Details |
 |----------|-------|---------|
 | Languages | 8 | Java 25, Node.js 24, Python 3.14, Go 1.26, Rust 1.96, .NET 10, Kotlin, Zig |
-| Modules | 29 | System, Docker, Chrome, ZSH, 7 languages, OpenCode, MCP/LSP, ChromaDB, LLM, RAG, LiteLLM, SearXNG, providers, dotfiles, Devbox, and more |
+| Modules | 38 | System, Docker, Chrome, ZSH, 7 languages, OpenCode, MCP/LSP, ChromaDB, LLM, RAG, LiteLLM, SearXNG, providers, dotfiles, Devbox, Infra, Cockpit, Isolated Circuit, Observability, GUI, and more |
 | MCP Servers | 21 | GitHub, GitLab, Filesystem, Playwright, Chrome DevTools, Postgres, SQLite, Memory, Excalidraw, Brave Search, Context7, Google Maps, and more |
 | LSP Servers | 13 | gopls, rust-analyzer, tsserver, pyright, omnisharp, yaml, marksman, taplo, lua, zls, bash, dockerfile, css/html/json |
 | Plugins | 15 | token-tracker, dcp, swarm, goal-mode, vibeguard, orchestrator, auto-fallback, notify, pty, snip, snippets, envsitter-guard, command-inject, ignore |
-| AI Providers | 16 | DeepSeek, OpenCode, OpenAI, Anthropic, Google, xAI, Moonshot, MiniMax, MiMo, Groq, Together, Fireworks, Perplexity, Mistral, Cohere, Replicate |
+| AI Providers | 24 | DeepSeek, OpenCode, **z.ai GLM-5.2**, **OpenRouter**, OpenAI, Anthropic Claude 4, Google Gemini, xAI Grok 4, Moonshot Kimi K2, MiniMax, MiMo, **Alibaba Qwen3**, **DeepInfra**, Groq, Together, Fireworks, Perplexity, Mistral, Cohere, Cerebras + 4 local (Ollama, LiteLLM, vLLM, SGLang) |
 | CLI Modes | 11 | full, reinit, new, health, update, upgrade, interactive, ci, fix-config, fix-zshrc, dry-run |
+| Infrastructure | 6 | PostgreSQL, Qdrant, Redis, Prometheus, Grafana, MemoryLayer |
 | Package Managers | 6 | apt, dnf, pacman, apk, zypper, brew |
 
-### v1.1.0 — Ecosystem Expansion
+### v2.0.0 — Infrastructure as Code + Isolated Circuit + z.ai GLM-5.2
 
-Hardware auto-detection (multi-vendor GPU/NPU), LiteLLM OpenAI-compatible API gateway, SearXNG self-hosted web search with sanitizer proxy, CI/CD headless mode, multimodal support (whisper.cpp, stable-diffusion.cpp, llava), 16 LLM providers with dynamic registration, chezmoi dotfiles manager, Devbox Nix-based environments, ONNX runtime.
+- **Infrastructure as Code**: PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer via Docker Compose
+- **Cockpit TUI**: 7-tab terminal UI for server management (System, Plugins, GPU/Models, Sessions, Tasks, Logs, Infra)
+- **Isolated Circuit Mode**: air-gapped LLM operation with local OpenAI-compatible backends (Ollama, LiteLLM, vLLM, SGLang)
+- **z.ai GLM-5.2**: primary provider for RU/CN markets, OpenAI-compatible API, free tier
+- **OpenRouter**: aggregator access to 100+ models via single API key
+- **Alibaba Qwen3**: native SDK in opencode, 235B flagship model
+- **MemoryLayer**: AI memory system with Ollama embed proxy (mxbai-embed-large, 1024-dim)
+- **Observability**: Prometheus (:9090) + Grafana (:3001) with auto-provisioning
 
 ## Architecture
 
 ```
 opencode_initializer/
-├── setup.sh                  # Orchestrator (352 lines)
-├── dev.sh                    # CLI: dev install|remove|update|health|list|config
-├── opencode.json             # Generated OpenCode multi-provider config
+├── setup.sh                  # Orchestrator (373 lines)
+├── dev.sh                    # CLI: dev install|remove|update|health|list|config|isolated
+├── opencode.json             # Generated OpenCode multi-provider config (24 providers)
 ├── src/
-│   ├── lib/                  # 29 functional modules + 3 infra
+│   ├── lib/                  # 35 numbered modules + 3 infra
 │   │   ├── helpers.sh        # _curl, _retry, _npm_install infrastructure
-│   │   ├── 00-core.sh        # OS/PKG/ARCH detection, mirrors, progress tracking
+│   │   ├── 00-core.sh        # OS/PKG/ARCH detection, mirrors, progress, ISOLATED_CIRCUIT
 │   │   ├── 01-system.sh      # System packages (cross-distro: apt/dnf/pacman/apk/zypper/brew)
 │   │   ├── 02-docker.sh      # Docker Engine
 │   │   ├── 03-chrome.sh      # Google Chrome + ChromeDriver (WSL2-aware)
@@ -62,7 +70,7 @@ opencode_initializer/
 │   │   ├── 05-java.sh        # Java 25 (Adoptium) + Zig
 │   │   ├── 06-node.sh        # Node.js 24 (n)
 │   │   ├── 07-python.sh      # Python 3.14 + uv
-│   │   ├── 08-go.sh          # Go 1.26
+│   │   ├── 08-go.sh          # Go 1.26 (direct download → apt fallback)
 │   │   ├── 09-rust.sh        # Rust 1.96 (rustup)
 │   │   ├── 10-dotnet.sh      # .NET 10
 │   │   ├── 11-opencode.sh    # OpenCode CLI 1.17 + Bun 1.3
@@ -72,18 +80,23 @@ opencode_initializer/
 │   │   ├── 15-security.sh    # Trivy, Qodana
 │   │   ├── 16-llm.sh         # Ollama, vLLM, SGLang, Open WebUI, WasmEdge (GPU-aware)
 │   │   ├── 17-project.sh     # Project structure (AGENTS.md, WAL, docker-compose)
-│   │   ├── 18-opencode-json.sh  # opencode.json generation (Python inline, bun bin paths)
+│   │   ├── 18-opencode-json.sh  # opencode.json generation (24 providers, ISOLATED_CIRCUIT)
 │   │   ├── 19-finalize.sh    # Git config, PATH, .zshrc, auth, verification (36 checks)
 │   │   ├── 20-autoupdate.sh  # topgrade + systemd weekly timer + unattended-upgrades + abtop
-│   │   ├── 21-rag.sh         # RAG System — Corporate Knowledge Assistant (ETL + proxy + Qdrant + Gemma)
-│   │   ├── 22-mise.sh        # mise-en-place universal tool version manager
+│   │   ├── 21-rag.sh         # RAG System — Corporate Knowledge Assistant
 │   │   ├── 22-webui-service.sh  # Open WebUI systemd user service
 │   │   ├── 23-just.sh        # just task runner with default justfile
 │   │   ├── 24-websearch.sh   # SearXNG web search + sanitizer proxy
 │   │   ├── 25-litellm.sh     # LiteLLM OpenAI-compatible local API gateway
-│   │   ├── 26-providers.sh   # 16 LLM provider registry with session switching
+│   │   ├── 26-providers.sh   # 24 LLM provider registry (20 cloud + 4 local)
 │   │   ├── 27-dotfiles.sh    # chezmoi dotfiles manager for team config sharing
 │   │   ├── 28-devbox.sh      # Devbox — Nix-based isolated dev environments
+│   │   ├── 29-mise.sh        # mise-en-place universal tool version manager
+│   │   ├── 30-infra.sh       # Infrastructure: PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer
+│   │   ├── 31-cockpit.sh     # Cockpit TUI server management daemon (7-tab)
+│   │   ├── 32-isolated.sh    # Isolated Circuit Mode — air-gapped LLM
+│   │   ├── 34-observability.sh  # Grafana + Prometheus observability stack
+│   │   ├── 35-gui.sh         # Web management interface foundation
 │   │   ├── version-check.sh  # Version comparison (8+ tools)
 │   │   └── pre-session-check.sh  # Pre-session provider/model validation
 │   └── modes/                # 5 mode scripts (+ 6 built-in)
@@ -92,9 +105,9 @@ opencode_initializer/
 │       ├── fix-zshrc.sh      # .zshrc repair
 │       ├── upgrade.sh        # Full system upgrade chain
 │       └── interactive.sh    # Component-by-component selection
-├── tests/                    # Unit, integration, and E2E test suite (193+ tests)
+├── tests/                    # Unit (11), integration (5), E2E (4) — 350+ assertions
 ├── migrations/               # Timestamped, idempotent migrations
-├── scripts/                  # Utility scripts (ai-router)
+├── scripts/                  # Utility scripts (embed-proxy, ai-router, oc-*)
 ├── docs/                     # MkDocs Material documentation site
 ├── .github/                  # CI workflows, issue/PR templates
 ├── CHANGELOG.md
@@ -108,7 +121,7 @@ opencode_initializer/
 
 | Mode | Flag | Description |
 |------|------|-------------|
-| Full | `--full` (default) | Complete bootstrap — 29 steps |
+| Full | `--full` (default) | Complete bootstrap — all modules |
 | Reinit | `--reinit` | Reinstall tools, preserve data |
 | New Project | `--new <dir>` | Initialize new project only |
 | CI/CD | `--ci` | Headless CI: OpenCode CLI + essential MCPs |
@@ -132,11 +145,20 @@ curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializ
 
 ```bash
 bash setup.sh --full \
-  -k "sk-..." \
   --deepseek-key "sk-..." \
+  --zai-key "..." \
+  --openrouter-key "sk-or-..." \
   --xai-key "xai-..." \
   --github-token "ghp_..." \
   --gitlab-token "glpat-..."
+```
+
+### Isolated Circuit Mode (Air-Gapped)
+
+```bash
+bash setup.sh --full --isolated          # Use local LLM backends only
+dev isolated on                           # Enable after install
+dev isolated status                       # Check current state
 ```
 
 ### Interactive
@@ -154,6 +176,7 @@ dev list                # List installed components
 dev update              # Update everything + migrations
 dev self-update         # Update the installer itself
 dev version-check       # Compare installed vs latest versions
+dev isolated status     # Check Isolated Circuit Mode
 dev install llm         # Add GPU/LLM support later
 dev config              # Edit setup configuration
 ```
@@ -164,10 +187,15 @@ dev config              # Edit setup configuration
 |------|-------------|
 | `-k, --api-key <key>` | OpenCode Go API key |
 | `--deepseek-key <key>` | DeepSeek API key |
+| `--zai-key <key>` | z.ai GLM API key |
+| `--openrouter-key <key>` | OpenRouter API key |
 | `--xai-key <key>` | xAI Grok API key |
 | `--mimo-key <key>` | Xiaomi MiMo API key |
-| `--moonshot-key <key>` | Moonshot API key |
+| `--moonshot-key <key>` | Moonshot Kimi API key |
 | `--minimax-key <key>` | MiniMax API key |
+| `--alibaba-key <key>` | Alibaba Qwen API key |
+| `--deepinfra-key <key>` | DeepInfra API key |
+| `--isolated` | Enable Isolated Circuit Mode (local LLM only) |
 | `--github-token <token>` | GitHub personal access token |
 | `--gitlab-token <token>` | GitLab personal access token |
 | `--google-maps-key <key>` | Google Maps API key |
@@ -185,6 +213,7 @@ dev config              # Edit setup configuration
 - **Bun binary paths**: Absolute paths to `~/.bun/bin/` — 0.5s cold start vs 5-15s with npx
 - **WSL2 optimization**: DNS fix, memory limits, mirrored networking, .wslconfig tuning
 - **Dry-run mode**: Preview all changes without executing them
+- **Isolated Circuit**: Air-gapped LLM operation with auto-detection of local backends
 
 ## Platform Support
 
