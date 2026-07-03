@@ -26,6 +26,10 @@ scrape_configs:
   - job_name: 'prometheus'
     static_configs:
       - targets: ['localhost:9090']
+  - job_name: 'opencode'
+    static_configs:
+      - targets: ['host.docker.internal:9464']
+    metrics_path: /metrics
 PROMCONF
   log "prometheus.yml created"
 else

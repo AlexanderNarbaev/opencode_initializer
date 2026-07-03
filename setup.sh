@@ -351,12 +351,24 @@ _run_step step_project    "Project structure"      "$SCRIPT_DIR/src/lib/17-proje
 _run_step step_json       "opencode.json"          "$SCRIPT_DIR/src/lib/18-opencode-json.sh"
 _run_step step_finalize   "Finalize + Verify"      "$SCRIPT_DIR/src/lib/19-finalize.sh"
 _run_step step_autoupdate "Auto-update system"     "$SCRIPT_DIR/src/lib/20-autoupdate.sh"
-_run_step step_rag        "RAG System (optional)"  "$SCRIPT_DIR/src/lib/21-rag.sh"
-_run_step step_webui      "Open WebUI service"    "$SCRIPT_DIR/src/lib/22-webui-service.sh"
-_run_step step_mise        "mise tool manager"     "$SCRIPT_DIR/src/lib/29-mise.sh"
-_run_step step_just        "just task runner"      "$SCRIPT_DIR/src/lib/23-just.sh"
-_run_step step_websearch   "Web Search Engine"    "$SCRIPT_DIR/src/lib/24-websearch.sh"
-_run_step step_litellm    "LiteLLM API Gateway"  "$SCRIPT_DIR/src/lib/25-litellm.sh"
+# ── Parallel: independent optional modules (R17: Performance) ────────────────
+if [ "${DRY_RUN:-false}" != "true" ] && [ "${PARALLEL_INSTALL:-true}" = "true" ]; then
+  info "Installing optional modules in parallel..."
+  _run_step step_rag        "RAG System (optional)"  "$SCRIPT_DIR/src/lib/21-rag.sh" &
+  _run_step step_webui      "Open WebUI service"    "$SCRIPT_DIR/src/lib/22-webui-service.sh" &
+  _run_step step_mise        "mise tool manager"     "$SCRIPT_DIR/src/lib/29-mise.sh" &
+  _run_step step_just        "just task runner"      "$SCRIPT_DIR/src/lib/23-just.sh" &
+  _run_step step_websearch   "Web Search Engine"    "$SCRIPT_DIR/src/lib/24-websearch.sh" &
+  _run_step step_litellm    "LiteLLM API Gateway"  "$SCRIPT_DIR/src/lib/25-litellm.sh" &
+  wait
+else
+  _run_step step_rag        "RAG System (optional)"  "$SCRIPT_DIR/src/lib/21-rag.sh"
+  _run_step step_webui      "Open WebUI service"    "$SCRIPT_DIR/src/lib/22-webui-service.sh"
+  _run_step step_mise        "mise tool manager"     "$SCRIPT_DIR/src/lib/29-mise.sh"
+  _run_step step_just        "just task runner"      "$SCRIPT_DIR/src/lib/23-just.sh"
+  _run_step step_websearch   "Web Search Engine"    "$SCRIPT_DIR/src/lib/24-websearch.sh"
+  _run_step step_litellm    "LiteLLM API Gateway"  "$SCRIPT_DIR/src/lib/25-litellm.sh"
+fi
 _run_step step_providers  "Multi-Provider Config" "$SCRIPT_DIR/src/lib/26-providers.sh"
 [ "${SKIP_DOTFILES:-false}" != "true" ] && _run_step step_dotfiles   "Dotfiles (chezmoi)"    "$SCRIPT_DIR/src/lib/27-dotfiles.sh"
 [ "${SKIP_DEVBOX:-false}" != "true" ]   && _run_step step_devbox     "Devbox (Nix)"          "$SCRIPT_DIR/src/lib/28-devbox.sh"

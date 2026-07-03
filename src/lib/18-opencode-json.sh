@@ -529,7 +529,7 @@ config = {
         },
         "plan": {
             "mode": "primary",
-            "model": "deepseek/deepseek-v4-flash",
+            "model": "zai/glm-5.2" if "zai" in providers else "deepseek/deepseek-v4-pro",
             "temperature": 0.1,
             "permission": {
                 "edit": "deny",
@@ -562,7 +562,7 @@ config = {
         },
         "code-reviewer": {
             "mode": "subagent",
-            "model": "deepseek/deepseek-v4-pro",
+            "model": "anthropic/claude-opus-4-8" if "anthropic" in providers else "deepseek/deepseek-v4-pro",
             "temperature": 0.1,
             "permission": {
                 "edit": "deny",

@@ -5,7 +5,7 @@
 set -euo pipefail
 
 # ── Version ──────────────────────────────────────────────────────────────────
-SCRIPT_VERSION="${SCRIPT_VERSION:-v2.0.0-alpha}"
+SCRIPT_VERSION="${SCRIPT_VERSION:-v2.0.0}"
 
 # ── OS validation ────────────────────────────────────────────────────────────
 if [ -f /etc/os-release ]; then
@@ -220,6 +220,20 @@ export N_PREFIX="$N_PREFIX"
 npm config set prefix "$NPM_GLOBAL" 2>/dev/null || true
 OPENCODE_VER="${OPENCODE_VER:-latest}"
 
+# ── Version pinning (R13: Reproducibility) ──────────────────────────────────
+# All tool versions are pinned here for reproducible installs.
+# Override via env vars or setup.conf if needed.
+NODE_VER="${NODE_VER:-24}"
+PYTHON_VER="${PYTHON_VER:-3.14}"
+GO_VER="${GO_VER:-1.26}"
+RUST_VER="${RUST_VER:-1.96}"
+JAVA_VER="${JAVA_VER:-25}"
+DOTNET_VER="${DOTNET_VER:-10}"
+ZIG_VER="${ZIG_VER:-0.15.1}"
+BUN_VER="${BUN_VER:-1.3}"
+OPENCODE_CLI_VER="${OPENCODE_CLI_VER:-1.17}"
+export NODE_VER PYTHON_VER GO_VER RUST_VER JAVA_VER DOTNET_VER ZIG_VER BUN_VER OPENCODE_CLI_VER
+
 # ── Isolated Circuit Mode ────────────────────────────────────────────────────
 # When enabled, all LLM providers use local OpenAI-compatible servers.
 # Set via: --isolated flag, ISOLATED_CIRCUIT=true in setup.conf, or env var.
@@ -231,6 +245,11 @@ ISOLATED_CIRCUIT="${ISOLATED_CIRCUIT:-}"
 [ -z "$ISOLATED_CIRCUIT" ] && ISOLATED_CIRCUIT="false"
 case "${ISOLATED_CIRCUIT,,}" in true|1|yes|on|enabled) ISOLATED_CIRCUIT="true";; *) ISOLATED_CIRCUIT="false";; esac
 export ISOLATED_CIRCUIT
+
+# ── i18n: Russian CLI output if LANG=ru* (R18: Accessibility) ───────────────
+CLI_LANG="${CLI_LANG:-${LANG:-}}"
+case "$CLI_LANG" in ru*) CLI_LANG="ru";; *) CLI_LANG="en";; esac
+export CLI_LANG
 
 OPencode_LOCAL_ENDPOINT="${OPencode_LOCAL_ENDPOINT:-http://localhost:4000/v1}"
 export OPencode_LOCAL_ENDPOINT

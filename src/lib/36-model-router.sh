@@ -194,6 +194,24 @@ print('opencode.json: model_router_dir added')
 " 2>/dev/null && log "opencode.json updated with model_router_dir" || warn "Failed to update opencode.json"
 fi
 
+# ── Team model preferences (R15: Team Collaboration) ────────────────────────
+# Allows teams to share model preferences via chezmoi/git
+cat > "$ROUTER_DIR/team-prefs.json" << 'TEAM'
+{
+  "_comment": "Team model preferences — share via chezmoi or git. Override task profiles for team-wide consistency.",
+  "_usage": "Edit this file to set team-wide model preferences. Each task profile can be overridden.",
+  "overrides": {},
+  "defaults": {
+    "preferred_provider": "deepseek",
+    "fallback_strategy": "cost_first",
+    "max_cost_per_1m_tokens": 10.0,
+    "require_free_tier": false
+  }
+}
+TEAM
+
+log "Team preferences written to $ROUTER_DIR/team-prefs.json"
+
 # ── Add dev CLI command ─────────────────────────────────────────────────────
 info "Model routing configured. Use: $ROUTER_DIR/recommend.sh <task-type>"
 info "Task types: coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn"
