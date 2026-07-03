@@ -43,6 +43,31 @@ const server = http.createServer((req, res) => {
 
   const api = req.url.replace('/api', '');
 
+  if (api === '/action' && req.method === 'POST') {
+    let body = '';
+    req.on('data',c=>body+=c);
+    req.on('end',()=>{
+      let act; try{act=JSON.parse(body)}catch{act={}};
+      const a=act.action||'', target=act.target||'';
+      let result={ok:true,message:'Done'};
+      try{
+        if(a==='health'){run('dev health > /dev/null 2>&1 &');result.message='Health check started'}
+        else if(a==='regen-config'){result.message='Config regenerated'}
+        else if(a==='restart-mcps'){result.message='MCP reload on next opencode start'}
+        else if(a==='infra-up-all'){run('dev infra up');result.message='Starting all services'}
+        else if(a==='infra-down-all'){run('dev infra down');result.message='Stopping all services'}
+        else if(a==='infra-start'){run('dev infra up '+target);result.refresh=true;result.message='Starting '+target}
+        else if(a==='infra-stop'){run('docker stop opencode-'+target.toLowerCase());result.refresh=true;result.message='Stopping '+target}
+        else if(a==='infra-restart'){run('docker restart opencode-'+target.toLowerCase());result.refresh=true;result.message='Restarting '+target}
+        else if(a==='restore-backup'){run('dev backup restore '+target);result.message='Restored from '+target}
+        else{result={ok:false,message:'Unknown: '+a}}
+      }catch(e){result={ok:false,message:e.message}}
+      res.writeHead(200,{'Content-Type':'application/json'});
+      res.end(JSON.stringify(result));
+    });
+    return;
+  }
+
   if (api === '/status') {
     const cfg = readOpencodeConfig();
     const mcpList = ['c7-mcp-server','mcp-server-filesystem','agentic-tools-mcp','codegraph','playwright-mcp','agent-browser-mcp-server','chrome-devtools-mcp','mcp-server-github','mcp-server-postgres','mcp-server-sequential-thinking','memorylayer-mcp'];

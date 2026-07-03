@@ -7,46 +7,56 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:Inter,Segoe UI,sans-serif;background:#0d1117;color:#c9d1d9;display:flex;min-height:100vh}
-.sidebar{width:240px;background:#161b22;border-right:1px solid #30363d;padding:20px 0;flex-shrink:0}
-.sidebar h1{font-size:18px;padding:0 20px 20px;color:#58a6ff;border-bottom:1px solid #30363d}
-.nav-item{padding:12px 20px;cursor:pointer;color:#8b949e;transition:all .2s;font-size:14px;display:flex;align-items:center;gap:10px}
+.sidebar{width:220px;background:#161b22;border-right:1px solid #30363d;padding:16px 0;flex-shrink:0}
+.sidebar h1{font-size:17px;padding:0 16px 16px;color:#58a6ff;border-bottom:1px solid #30363d}
+.sidebar h1 small{font-size:10px;color:#8b949e;display:block;margin-top:2px}
+.nav-item{padding:10px 16px;cursor:pointer;color:#8b949e;font-size:13px;display:flex;align-items:center;gap:8px;transition:all .15s;border-left:2px solid transparent}
 .nav-item:hover{background:#21262d;color:#c9d1d9}
-.nav-item.active{background:#1f6feb;color:#fff;border-left:3px solid #58a6ff;padding-left:17px}
-.main{flex:1;padding:30px;overflow-y:auto}
+.nav-item.active{background:#1f6feb;color:#fff;border-left-color:#58a6ff}
+.main{flex:1;padding:24px;overflow-y:auto;max-height:100vh}
 .section{display:none}
 .section.active{display:block}
-h2{font-size:22px;margin-bottom:20px;color:#58a6ff}
-.card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:20px;margin-bottom:16px}
-.card h3{font-size:16px;margin-bottom:12px;color:#f0f6fc}
-.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
-.stat{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:16px}
-.stat .label{font-size:12px;color:#8b949e;text-transform:uppercase}
-.stat .value{font-size:24px;font-weight:700;color:#58a6ff;margin-top:4px}
-.stat .sub{font-size:12px;color:#8b949e;margin-top:2px}
+h2{font-size:20px;margin-bottom:16px;color:#58a6ff}
+.card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:16px;margin-bottom:14px}
+.card h3{font-size:15px;margin-bottom:10px;color:#f0f6fc}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.stat{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:14px;text-align:center}
+.stat .value{font-size:26px;font-weight:700;color:#58a6ff}
+.stat .label{font-size:11px;color:#8b949e;text-transform:uppercase;margin-top:2px}
 table{width:100%;border-collapse:collapse}
-th,td{padding:10px 12px;text-align:left;border-bottom:1px solid #30363d;font-size:13px}
-th{color:#8b949e;font-weight:600;text-transform:uppercase;font-size:11px}
-.badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid #30363d;font-size:12px}
+th{color:#8b949e;font-weight:600;text-transform:uppercase;font-size:10px}
+.badge{display:inline-block;padding:2px 6px;border-radius:10px;font-size:10px;font-weight:600}
 .badge-ok{background:#1a7f37;color:#fff}
 .badge-err{background:#da3633;color:#fff}
 .badge-warn{background:#d29922;color:#1a1a1a}
-.btn{padding:8px 16px;border:1px solid #30363d;background:#21262d;color:#c9d1d9;border-radius:6px;cursor:pointer;font-size:13px}
+.badge-info{background:#1f6feb;color:#fff}
+.btn{padding:6px 12px;border:1px solid #30363d;background:#21262d;color:#c9d1d9;border-radius:6px;cursor:pointer;font-size:12px;margin:2px;transition:all .15s}
 .btn:hover{background:#30363d}
 .btn-primary{background:#1f6feb;border-color:#1f6feb;color:#fff}
 .btn-primary:hover{background:#388bfd}
-pre{background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:12px;overflow-x:auto;font-size:12px;max-height:400px}
-.task-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-.task-card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:16px;cursor:pointer;transition:all .2s}
+.btn-danger{background:#da3633;border-color:#da3633;color:#fff}
+.btn-danger:hover{background:#f85149}
+.btn-sm{padding:4px 8px;font-size:10px}
+pre{background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:10px;overflow-x:auto;font-size:11px;max-height:350px}
+.task-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.task-card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:14px;cursor:pointer;transition:all .15s}
 .task-card:hover{border-color:#58a6ff}
-.task-card .name{font-size:15px;font-weight:600;color:#f0f6fc}
-.task-card .model{font-size:13px;color:#58a6ff;margin-top:4px}
-.task-card .desc{font-size:12px;color:#8b949e;margin-top:4px}
+.task-card .name{font-size:14px;font-weight:600;color:#f0f6fc}
+.task-card .model{font-size:12px;color:#58a6ff;margin-top:4px}
+.task-card .desc{font-size:11px;color:#8b949e;margin-top:2px}
+.task-card .cost{font-size:10px;color:#2da44e;margin-top:2px}
+.action-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.toast{position:fixed;bottom:20px;right:20px;background:#1a7f37;color:#fff;padding:10px 16px;border-radius:6px;font-size:13px;z-index:9999;display:none}
+.settings-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #21262d}
+.settings-row:last-child{border-bottom:none}
+.settings-row label{flex:1;font-size:13px}
 </style>
 </head>
 <body>
 <div class="sidebar">
-<h1>OpenCode</h1>
-<div class="nav-item active" data-section="overview">Overview</div>
+<h1>OpenCode<small>v2.0.0</small></h1>
+<div class="nav-item active" data-section="overview">Dashboard</div>
 <div class="nav-item" data-section="providers">Providers</div>
 <div class="nav-item" data-section="models">Model Router</div>
 <div class="nav-item" data-section="mcp">MCP Servers</div>
@@ -59,115 +69,195 @@ pre{background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:12px;o
 <div class="main">
 
 <div class="section active" id="overview">
-<h2>Overview</h2>
+<h2>Dashboard</h2>
+<div class="action-bar">
+  <button class="btn btn-primary" onclick="refreshAll()">🔄 Refresh</button>
+  <button class="btn" onclick="action('health')">🏥 Run Health Check</button>
+  <button class="btn" onclick="action('regen-config')">⚙️ Regen Config</button>
+</div>
 <div class="stat-grid" id="stats"></div>
-<div class="card"><h3>OpenCode Config</h3><pre id="config-summary"></pre></div>
+<div class="card"><h3>OpenCode Config</h3><pre id="config-summary">Loading...</pre></div>
 </div>
 
 <div class="section" id="providers">
 <h2>AI Providers</h2>
-<div class="card"><table id="providers-table"><thead><tr><th>Provider</th><th>Status</th><th>Models</th><th>Free</th></tr></thead><tbody></tbody></table></div>
+<div class="action-bar">
+  <button class="btn btn-primary" onclick="loadProviders()">🔄 Refresh</button>
+  <button class="btn" onclick="action('check-providers')">📡 Test All</button>
+</div>
+<div class="card"><table id="providers-table"><thead><tr><th>Provider</th><th>Status</th><th>Models</th><th>Free</th><th>Actions</th></tr></thead><tbody></tbody></table></div>
 </div>
 
 <div class="section" id="models">
 <h2>Model Router — Task-Based Selection</h2>
+<div class="action-bar">
+  <button class="btn btn-primary" onclick="loadModels()">🔄 Refresh</button>
+  <button class="btn btn-sm" onclick="action('apply-profile')" style="margin-left:auto">Apply to Config</button>
+</div>
 <div class="task-grid" id="task-profiles"></div>
 </div>
 
 <div class="section" id="mcp">
 <h2>MCP Servers</h2>
-<div class="card"><table id="mcp-table"><thead><tr><th>Server</th><th>Status</th><th>Command</th></tr></thead><tbody></tbody></table></div>
+<div class="action-bar">
+  <button class="btn btn-primary" onclick="loadMCP()">🔄 Refresh</button>
+  <button class="btn" onclick="action('restart-mcps')">🔁 Restart All</button>
+</div>
+<div class="card"><table id="mcp-table"><thead><tr><th>Server</th><th>Status</th><th>Path</th></tr></thead><tbody></tbody></table></div>
 </div>
 
 <div class="section" id="lsp">
 <h2>LSP Servers</h2>
+<div class="action-bar">
+  <button class="btn btn-primary" onclick="loadLSP()">🔄 Refresh</button>
+</div>
 <div class="card"><table id="lsp-table"><thead><tr><th>Server</th><th>Status</th><th>Languages</th></tr></thead><tbody></tbody></table></div>
 </div>
 
 <div class="section" id="infra">
 <h2>Infrastructure Services</h2>
-<div class="card"><table id="infra-table"><thead><tr><th>Service</th><th>Status</th><th>Port</th></tr></thead><tbody></tbody></table></div>
+<div class="action-bar">
+  <button class="btn btn-primary" onclick="loadInfra()">🔄 Refresh</button>
+  <button class="btn btn-success" onclick="action('infra-up-all')" style="background:#1a7f37;border-color:#1a7f37;color:#fff">▶ Start All</button>
+  <button class="btn btn-danger" onclick="action('infra-down-all')">⏹ Stop All</button>
+</div>
+<div class="card"><table id="infra-table"><thead><tr><th>Service</th><th>Port</th><th>Status</th><th>Actions</th></tr></thead><tbody></tbody></table></div>
 </div>
 
 <div class="section" id="isolated">
 <h2>Isolated Circuit Mode</h2>
 <div class="card"><h3>Status</h3><p id="isolated-status"></p></div>
 <div class="card"><h3>Local Backends</h3><table id="backends-table"><thead><tr><th>Backend</th><th>Port</th><th>Status</th></tr></thead><tbody></tbody></table></div>
-<div class="card"><button class="btn btn-primary" onclick="toggleIsolated()">Toggle Isolated Circuit</button></div>
+<div class="card" style="display:flex;gap:8px">
+  <button class="btn btn-primary" onclick="toggleIsolated()">Toggle Isolated Circuit</button>
+  <button class="btn" onclick="loadIsolated()">🔄 Refresh</button>
+</div>
 </div>
 
 <div class="section" id="backup">
 <h2>Backup & Restore</h2>
-<div class="card"><h3>Create Backup</h3><button class="btn btn-primary" onclick="createBackup()">Create Backup Now</button></div>
-<div class="card"><h3>Available Backups</h3><table id="backups-table"><thead><tr><th>File</th><th>Size</th><th>Date</th></tr></thead><tbody></tbody></table></div>
+<div class="action-bar">
+  <button class="btn btn-primary" onclick="createBackup()">📦 Create Backup</button>
+  <button class="btn" onclick="loadBackups()">🔄 Refresh</button>
+</div>
+<div class="card"><table id="backups-table"><thead><tr><th>File</th><th>Size</th><th>Date</th><th>Actions</th></tr></thead><tbody></tbody></table></div>
 </div>
 
 <div class="section" id="logs">
 <h2>System Logs</h2>
+<div class="action-bar">
+  <button class="btn btn-primary" onclick="loadLogs()">🔄 Refresh</button>
+  <button class="btn" onclick="action('clear-logs')">🗑 Clear Logs</button>
+</div>
 <div class="card"><pre id="log-output">Loading...</pre></div>
 </div>
 
 </div>
+<div class="toast" id="toast"></div>
 <script>
 const API='/api';
-function nav(s){document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));event.target.classList.add('active');document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById(s).classList.add('active')}
+let lastAction='';
+
+function toast(msg,c='#1a7f37'){const t=document.getElementById('toast');t.textContent=msg;t.style.background=c;t.style.display='block';setTimeout(()=>t.style.display='none',3000)}
+function nav(s){document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));event.target.classList.add('active');document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById(s).classList.add('active');window['load'+s.charAt(0).toUpperCase()+s.slice(1)]&&window['load'+s.charAt(0).toUpperCase()+s.slice(1)]()}
+
+async function action(act){
+  try{
+    const r=await fetch(API+'/action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:act})});
+    const d=await r.json();
+    toast(d.message||'Done',d.ok?'#1a7f37':'#da3633');
+    if(d.refresh) refreshAll();
+  }catch(e){toast('Failed: '+e.message,'#da3633')}
+}
+
+async function refreshAll(){
+  loadOverview();loadProviders();loadModels();loadMCP();loadLSP();loadInfra();loadIsolated();
+  toast('All refreshed','#1f6feb');
+}
 
 async function loadOverview(){
   try{
     const d=await fetch(API+'/status').then(r=>r.json());
-    let html='';
-    const stats=[
-      ['Providers',d.providers||0,''],
-      ['MCP Servers',d.mcp_ok||0,'/'+(d.mcp_ok+d.mcp_miss||0)],
-      ['LSP Servers',d.lsp_ok||0,'/'+(d.lsp_ok+d.lsp_miss||0)],
+    const s=[
+      ['Providers',d.providers||0,`/24`],
+      ['MCP Ready',d.mcp_ok||0,`/${(d.mcp_ok||0)+(d.mcp_miss||0)}`],
+      ['LSP Ready',d.lsp_ok||0,`/${(d.lsp_ok||0)+(d.lsp_miss||0)}`],
       ['Plugins',d.plugins||0,''],
-      ['Infra Services',d.infra_ok||0,'/'+(d.infra_ok+d.infra_miss||0)],
-      ['Model Router',d.model_router?'ON':'OFF',''],
+      ['Infra Up',d.infra_ok||0,`/${(d.infra_ok||0)+(d.infra_miss||0)}`],
+      ['Router',d.model_router?'ON':'OFF',''],
     ];
-    document.getElementById('stats').innerHTML=stats.map(s=>`<div class="stat"><div class="label">${s[0]}</div><div class="value">${s[1]}<span style="font-size:14px;color:#8b949e">${s[2]}</span></div></div>`).join('');
+    document.getElementById('stats').innerHTML=s.map(([l,v,u])=>`<div class="stat"><div class="value">${v}<span style="font-size:13px;color:#8b949e">${u}</span></div><div class="label">${l}</div></div>`).join('');
     if(d.config)document.getElementById('config-summary').textContent=JSON.stringify(d.config,null,2);
-  }catch(e){document.getElementById('stats').innerHTML='<div class="stat"><div class="label">Error</div><div class="value">--</div></div>'}
+  }catch(e){}
 }
 
 async function loadProviders(){
   try{
     const d=await fetch(API+'/providers').then(r=>r.json());
-    document.querySelector('#providers-table tbody').innerHTML=(d.providers||[]).map(p=>`<tr><td>${p.name}</td><td><span class="badge ${p.status?'badge-ok':'badge-err'}">${p.status?'OK':'OFF'}</span></td><td>${p.models||'-'}</td><td>${p.free?'Yes':'No'}</td></tr>`).join('');
+    document.querySelector('#providers-table tbody').innerHTML=(d.providers||[]).map(p=>`<tr>
+      <td>${p.name}</td>
+      <td><span class="badge ${p.status?'badge-ok':'badge-err'}">${p.status?'Active':'No key'}</span></td>
+      <td>${p.models||'-'}</td>
+      <td>${p.free?'<span class="badge badge-ok">Free</span>':'<span class="badge badge-warn">Paid</span>'}</td>
+      <td><button class="btn btn-sm" onclick="action('test-provider','${p.name}')">Test</button></td>
+    </tr>`).join('');
   }catch(e){}
 }
 
 async function loadModels(){
   try{
     const d=await fetch(API+'/models').then(r=>r.json());
-    document.getElementById('task-profiles').innerHTML=(d.profiles||[]).map(p=>`<div class="task-card"><div class="name">${p.task}</div><div class="model">${p.model}</div><div class="desc">${p.description}</div></div>`).join('');
+    document.getElementById('task-profiles').innerHTML=(d.profiles||[]).map(p=>`<div class="task-card">
+      <div class="name">${p.task}</div>
+      <div class="model">${p.model}</div>
+      <div class="desc">${p.description}</div>
+    </div>`).join('');
   }catch(e){}
 }
 
 async function loadMCP(){
   try{
     const d=await fetch(API+'/mcp').then(r=>r.json());
-    document.querySelector('#mcp-table tbody').innerHTML=(d.servers||[]).map(m=>`<tr><td>${m.name}</td><td><span class="badge ${m.installed?'badge-ok':'badge-err'}">${m.installed?'Installed':'Missing'}</span></td><td>${m.command||'-'}</td></tr>`).join('');
+    document.querySelector('#mcp-table tbody').innerHTML=(d.servers||[]).map(m=>`<tr>
+      <td>${m.name}</td>
+      <td><span class="badge ${m.installed?'badge-ok':'badge-err'}">${m.installed?'Ready':'Missing'}</span></td>
+      <td style="font-size:10px;max-width:300px;overflow:hidden;text-overflow:ellipsis">${m.command||'-'}</td>
+    </tr>`).join('');
   }catch(e){}
 }
 
 async function loadLSP(){
   try{
     const d=await fetch(API+'/lsp').then(r=>r.json());
-    document.querySelector('#lsp-table tbody').innerHTML=(d.servers||[]).map(l=>`<tr><td>${l.name}</td><td><span class="badge ${l.installed?'badge-ok':'badge-err'}">${l.installed?'Installed':'Missing'}</span></td><td>${l.languages||'-'}</td></tr>`).join('');
+    document.querySelector('#lsp-table tbody').innerHTML=(d.servers||[]).map(l=>`<tr>
+      <td>${l.name}</td>
+      <td><span class="badge ${l.installed?'badge-ok':'badge-err'}">${l.installed?'Ready':'Missing'}</span></td>
+      <td>${l.languages||'-'}</td>
+    </tr>`).join('');
   }catch(e){}
 }
 
 async function loadInfra(){
   try{
     const d=await fetch(API+'/infra').then(r=>r.json());
-    document.querySelector('#infra-table tbody').innerHTML=(d.services||[]).map(s=>`<tr><td>${s.name}</td><td><span class="badge ${s.running?'badge-ok':'badge-warn'}">${s.running?'Running':'Stopped'}</span></td><td>${s.port||'-'}</td></tr>`).join('');
+    document.querySelector('#infra-table tbody').innerHTML=(d.services||[]).map(s=>`<tr>
+      <td>${s.name}</td>
+      <td>${s.port||'-'}</td>
+      <td><span class="badge ${s.running?'badge-ok':'badge-warn'}">${s.running?'Running':'Stopped'}</span></td>
+      <td>
+        ${s.running
+          ?`<button class="btn btn-sm btn-danger" onclick="action('infra-stop','${s.name}')">Stop</button>`
+          :`<button class="btn btn-sm btn-primary" onclick="action('infra-start','${s.name}')">Start</button>`}
+        <button class="btn btn-sm" onclick="action('infra-restart','${s.name}')">Restart</button>
+      </td>
+    </tr>`).join('');
   }catch(e){}
 }
 
 async function loadIsolated(){
   try{
     const d=await fetch(API+'/isolated').then(r=>r.json());
-    document.getElementById('isolated-status').textContent=d.enabled?'ENABLED — Using local LLM backends only':'DISABLED — Cloud providers active';
+    document.getElementById('isolated-status').innerHTML=`Mode: <b>${d.enabled?'ENABLED — Local LLM only':'DISABLED — Cloud active'}</b>`;
     document.querySelector('#backends-table tbody').innerHTML=(d.backends||[]).map(b=>`<tr><td>${b.name}</td><td>${b.port}</td><td><span class="badge ${b.running?'badge-ok':'badge-warn'}">${b.running?'Running':'Stopped'}</span></td></tr>`).join('');
   }catch(e){}
 }
@@ -175,7 +265,7 @@ async function loadIsolated(){
 async function loadBackups(){
   try{
     const d=await fetch(API+'/backups').then(r=>r.json());
-    document.querySelector('#backups-table tbody').innerHTML=(d.backups||[]).map(b=>`<tr><td>${b.file}</td><td>${b.size}</td><td>${b.date}</td></tr>`).join('')||'<tr><td colspan=3>No backups</td></tr>';
+    document.querySelector('#backups-table tbody').innerHTML=(d.backups||[]).map(b=>`<tr><td>${b.file}</td><td>${b.size}</td><td>${b.date}</td><td><button class="btn btn-sm btn-primary" onclick="action('restore-backup','${b.file}')">Restore</button></td></tr>`).join('')||'<tr><td colspan=4>No backups</td></tr>';
   }catch(e){}
 }
 
@@ -186,12 +276,12 @@ async function loadLogs(){
   }catch(e){document.getElementById('log-output').textContent='Failed to load logs'}
 }
 
-async function toggleIsolated(){await fetch(API+'/isolated/toggle',{method:'POST'});loadIsolated()}
-async function createBackup(){await fetch(API+'/backup/create',{method:'POST'});loadBackups()}
+async function toggleIsolated(){await fetch(API+'/isolated/toggle',{method:'POST'});loadIsolated();toast('Isolated Circuit toggled')}
+async function createBackup(){await fetch(API+'/backup/create',{method:'POST'});loadBackups();toast('Backup created')}
 
 document.querySelectorAll('.nav-item').forEach(n=>n.addEventListener('click',function(){nav(this.dataset.section)}));
 loadOverview();loadProviders();loadModels();loadMCP();loadLSP();loadInfra();loadIsolated();loadBackups();loadLogs();
-setInterval(()=>{loadOverview()},10000);
+setInterval(loadOverview,15000);
 </script>
 </body>
 </html>
