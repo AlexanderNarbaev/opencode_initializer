@@ -1,4 +1,4 @@
-# OpenCode Initializer v1.1.0
+# OpenCode Initializer v2.0.0
 
 [![GitHub stars](https://img.shields.io/github/stars/AlexanderNarbaev/opencode_initializer?style=social)](https://github.com/AlexanderNarbaev/opencode_initializer)
 [![License](https://img.shields.io/github/license/AlexanderNarbaev/opencode_initializer)](https://github.com/AlexanderNarbaev/opencode_initializer/blob/main/LICENSE)
@@ -16,15 +16,16 @@
 
 | Метрика | Значение |
 |---------|----------|
-| Модулей | 29 (+ 3 инфраструктурных) |
-| Оркестратор | 352 строки Bash |
+| Модулей | 38 (+ 3 инфраструктурных) |
+| Оркестратор | 373 строки Bash |
 | Режимов CLI | 11 (full, health, interactive, ci и другие) |
 | Языков | 8 |
 | MCP-серверов | 21 |
 | LSP-серверов | 13 |
 | Плагинов OpenCode | 15 |
-| AI-провайдеров | 16 (динамическая регистрация) |
-| Тестов | 193+ тестов, 300+ проверок |
+| AI-провайдеров | 24 (20 облачных + 4 локальных) |
+| Инфраструктура | 6 сервисов (PostgreSQL, Qdrant, Redis, Prometheus, Grafana, MemoryLayer) |
+| Тестов | 350+ проверок |
 | Пакетных менеджеров | apt, dnf, pacman, apk, zypper, brew |
 | Архитектур | amd64, arm64 |
 
@@ -36,25 +37,30 @@
 - :fontawesome-solid-robot: **21 MCP-сервер** — GitHub, GitLab, Filesystem, Playwright, Chrome DevTools, SQLite, Postgres, Memory, Excalidraw, Brave Search, Context7, Google Maps и другие
 - :fontawesome-solid-puzzle-piece: **15 плагинов OpenCode** — token-tracker, dcp, swarm, goal-mode, vibeguard, orchestrator, auto-fallback, notify, pty, snip, snippets, envsitter-guard, command-inject, ignore
 - :fontawesome-solid-gears: **13 LSP-серверов** — gopls, rust-analyzer, tsserver, pyright, omnisharp, yaml, marksman, taplo, lua, zls, bash, dockerfile, css/html/json
-- :fontawesome-solid-box: **Инфраструктура** — Docker, ChromaDB, LiteLLM API-шлюз, SearXNG веб-поиск, Muninn память
+- :fontawesome-solid-box: **Infrastructure as Code** — PostgreSQL, Qdrant, Redis, Prometheus, Grafana, MemoryLayer через Docker Compose
+- :fontawesome-solid-display: **Cockpit TUI** — 7-вкладочный терминальный UI для управления сервером
+- :fontawesome-solid-shield-halved: **Isolated Circuit Mode** — air-gapped LLM с локальными бэкендами
+- :fontawesome-solid-cloud: **24 AI-провайдера** — DeepSeek, z.ai GLM-5.2, OpenRouter, OpenAI, Anthropic, Google, xAI, Moonshot, Alibaba Qwen3 и другие
 - :fontawesome-solid-microchip: **GPU/LLM** — Ollama, vLLM, SGLang, Open WebUI, WasmEdge (автоопределение GPU)
 - :fontawesome-solid-terminal: **ZSH** — Oh My Zsh + Powerlevel10k с 14 плагинами
 - :fontawesome-solid-globe: **Chrome** — Google Chrome + ChromeDriver (оптимизирован для WSL2)
 - :fontawesome-solid-clock-rotate-left: **Автообновление** — systemd weekly timer + topgrade
 
-## :fontawesome-solid-star: Новое в v1.1.0
+## :fontawesome-solid-star: Новое в v2.0.0
 
 | Возможность | Описание |
 |-------------|----------|
-| Автоопределение железа | NVIDIA, AMD, Intel GPU, NPU, Apple Silicon — без настройки |
-| LiteLLM API-шлюз | Локальный OpenAI-совместимый эндпоинт — любое приложение может использовать ваши LLM |
-| SearXNG веб-поиск | Self-hosted поиск с уважением к приватности + sanitizer proxy |
-| 16 LLM-провайдеров | Динамическая регистрация с переключением между сессиями |
-| CI/CD headless режим | Лёгкая установка для GitHub Actions пайплайнов |
-| Мультимодальность | whisper.cpp, stable-diffusion.cpp, llava |
-| chezmoi dotfiles | Шеринг конфигов внутри команды |
-| Devbox | Изолированные Nix-окружения для разработки |
-| ONNX runtime | Кроссплатформенное ML-инференс |
+| Infrastructure as Code | PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer через Docker Compose |
+| Cockpit TUI | 7-вкладочный терминальный UI — System, Plugins, GPU/Models, Sessions, Tasks, Logs, Infra |
+| Isolated Circuit Mode | Air-gapped LLM с Ollama, LiteLLM, vLLM, SGLang |
+| z.ai GLM-5.2 | Основной провайдер для RU/CN рынков, OpenAI-совместимый, free tier |
+| OpenRouter | Агрегатор доступа к 100+ моделям через один API-ключ |
+| Alibaba Qwen3 | Нативный SDK, 235B флагманская модель |
+| DeepInfra | Быстрый инференс, конкурентные цены |
+| MemoryLayer | AI-память с Ollama embed proxy (mxbai-embed-large) |
+| Observability | Prometheus (:9090) + Grafana (:3001) с авто-провиженингом |
+| 24 провайдера | 20 облачных + 4 локальных (было 16 в v1.1.0) |
+| 38 модулей | Было 29 в v1.1.0 |
 
 ## :fontawesome-solid-download: Быстрая установка
 
@@ -77,9 +83,19 @@ cd ~/opencode_initializer && bash setup.sh
 ```bash
 bash setup.sh --full \
   --deepseek-key "sk-..." \
+  --zai-key "..." \
+  --openrouter-key "sk-or-..." \
   --github-token "ghp_..." \
   --gitlab-token "glpat-..." \
   --google-maps-key "..."
+```
+
+### Isolated Circuit Mode (Air-Gapped)
+
+```bash
+bash setup.sh --full --isolated    # Только локальные LLM-бэкенды
+dev isolated on                     # Включить после установки
+dev isolated status                 # Проверить текущее состояние
 ```
 
 ## :fontawesome-solid-list-check: Что устанавливается
@@ -90,6 +106,7 @@ bash setup.sh --full \
 | **Оболочка** | Zsh 5.8+, Oh My Zsh, Powerlevel10k, 14 плагинов |
 | **Браузер** | Google Chrome, ChromeDriver (оптимизирован для WSL2) |
 | **Контейнеры** | Docker Engine |
+| **Инфраструктура** | PostgreSQL, Qdrant, Redis, Prometheus, Grafana, MemoryLayer |
 | **AI/ML** | Ollama, vLLM, SGLang, Open WebUI, ChromaDB, WasmEdge, ONNX |
 | **API-шлюз** | LiteLLM — OpenAI-совместимый эндпоинт для всех провайдеров |
 | **Веб-поиск** | SearXNG self-hosted поиск + sanitizer proxy |
@@ -100,6 +117,7 @@ bash setup.sh --full \
 | **Утилиты** | bat, btm, fd, ripgrep, sd, typos, topgrade, just, mise |
 | **Dotfiles** | chezmoi для командного шеринга конфигов |
 | **Dev-окружения** | Devbox — изолированные Nix-окружения |
+| **Cockpit** | 7-вкладочный TUI для управления сервером |
 
 ## :fontawesome-solid-globe: Поддерживаемые платформы
 
@@ -118,7 +136,7 @@ bash setup.sh --full \
 
 | Режим | Флаг | Применение |
 |-------|------|-----------|
-| Полный | `--full` | Полная установка (по умолчанию, 29 шагов) |
+| Полный | `--full` | Полная установка (по умолчанию) |
 | Переустановка | `--reinit` | Переустановить инструменты, сохранить данные |
 | Новый проект | `--new <dir>` | Только инициализация проекта |
 | CI/CD | `--ci` | Headless установка для пайплайнов |

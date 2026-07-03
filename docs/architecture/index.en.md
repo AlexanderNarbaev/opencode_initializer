@@ -1,6 +1,6 @@
 # Architecture
 
-OpenCode Initializer follows a modular architecture: a lightweight **orchestrator** (`setup.sh`, 352 lines) that sources 29 **modules** and dispatches 11 **modes**.
+OpenCode Initializer follows a modular architecture: a lightweight **orchestrator** (`setup.sh`, 373 lines) that sources 38 **modules** and dispatches 11 **modes**.
 
 ## C4 Level 1: System Context
 
@@ -9,7 +9,7 @@ C4Context
     title opencode_initializer — System Context
 
     Person(dev, "Developer", "Wants a ready-to-use AI-enhanced dev environment")
-    System(oci, "OpenCode Initializer", "Bootstraps complete dev machine with 8 languages, 29 modules, 21 MCPs, 15 plugins, infrastructure")
+    System(oci, "OpenCode Initializer", "Bootstraps complete dev machine with 8 languages, 38 modules, 21 MCPs, 15 plugins, 24 providers, infrastructure")
 
     System_Ext(gh, "GitHub", "Source code, releases, CI/CD")
     System_Ext(ghp, "GitHub Packages", "npm packages, Docker images")
@@ -34,11 +34,11 @@ C4Container
     title opencode_initializer — Containers
 
     Container_Boundary(oci, "OpenCode Initializer") {
-        Container(setup, "setup.sh", "Bash", "Orchestrator — dispatches 11 modes, loads 29 modules, tracks progress")
-        Container(dev_cli, "dev CLI", "Bash", "Post-install management: install, remove, update, health, config")
-        Container(lib, "src/lib/ (29 modules)", "Bash", "Core modules: system, languages, tools, MCP, LSP, LLM, providers, search")
+        Container(setup, "setup.sh", "Bash", "Orchestrator — dispatches 11 modes, loads 38 modules, tracks progress")
+        Container(dev_cli, "dev CLI", "Bash", "Post-install management: install, remove, update, health, config, isolated")
+        Container(lib, "src/lib/ (38 modules)", "Bash", "Core modules: system, languages, tools, MCP, LSP, LLM, providers, infra, cockpit, isolated")
         Container(modes, "src/modes/ (5 scripts)", "Bash", "Runtime modes: ci, health, fix-zshrc, upgrade, interactive")
-        Container(tests, "tests/", "Bash + Bats", "Unit, integration, E2E test suite (193+ tests)")
+        Container(tests, "tests/", "Bash + Bats", "Unit, integration, E2E test suite (350+ assertions)")
         Container(docs_site, "Docs Site", "MkDocs Material", "Documentation site (this page)")
     }
 
@@ -57,7 +57,7 @@ C4Container
 
 ```mermaid
 C4Container
-    title src/lib/ — 29 Module Layout
+    title src/lib/ — 38 Module Layout
 
     Container_Boundary(modules, "src/lib/") {
         Container(helpers, "helpers.sh", "Bash", "_curl, _retry, _npm_install — shared infrastructure")
@@ -88,14 +88,20 @@ C4Container
         Container(update, "20-autoupdate.sh", "Bash", "topgrade + systemd timer")
         Container(rag, "21-rag.sh", "Bash", "RAG system (optional)")
 
-        Container(mise, "22-mise.sh", "Bash", "mise-en-place tool version manager")
+        Container(mise, "29-mise.sh", "Bash", "mise-en-place tool version manager")
         Container(webui, "22-webui-service.sh", "Bash", "Open WebUI systemd user service")
         Container(just, "23-just.sh", "Bash", "just task runner")
         Container(websearch, "24-websearch.sh", "Bash", "SearXNG web search + sanitizer")
         Container(litellm, "25-litellm.sh", "Bash", "LiteLLM OpenAI-compatible API gateway")
-        Container(providers, "26-providers.sh", "Bash", "16 LLM provider registry")
+        Container(providers, "26-providers.sh", "Bash", "24 LLM provider registry")
         Container(dotfiles, "27-dotfiles.sh", "Bash", "chezmoi dotfiles manager")
         Container(devbox, "28-devbox.sh", "Bash", "Devbox Nix-based environments")
+
+        Container(infra, "30-infra.sh", "Bash", "Infrastructure: PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer")
+        Container(cockpit, "31-cockpit.sh", "Bash", "Cockpit TUI server management daemon")
+        Container(isolated, "32-isolated.sh", "Bash", "Isolated Circuit Mode — air-gapped LLM")
+        Container(observ, "34-observability.sh", "Bash", "Grafana + Prometheus observability stack")
+        Container(gui, "35-gui.sh", "Bash", "Web management interface")
 
         Container(vcheck, "version-check.sh", "Bash", "Version comparison (8+ tools)")
         Container(precheck, "pre-session-check.sh", "Bash", "Pre-session validation")
@@ -114,7 +120,7 @@ C4Container
 
 ```mermaid
 flowchart TD
-    A["setup.sh (352 lines)"] --> B["Detect SCRIPT_DIR"]
+    A["setup.sh (373 lines)"] --> B["Detect SCRIPT_DIR"]
     B --> C["Source helpers.sh"]
     C --> D["Source 00-core.sh"]
     D --> E{"Parse CLI args"}
@@ -128,7 +134,7 @@ flowchart TD
     E -->|"--ci"| CI["CI/CD headless mode"]
     E -->|"default (full)"| M["Full bootstrap"]
 
-    M --> N["Source 01-system.sh .. 28-devbox.sh sequentially"]
+    M -->     N["Source 01-system.sh .. 35-gui.sh sequentially"]
     N --> O["Source 18-opencode-json.sh"]
     O --> P["Source 19-finalize.sh"]
     P --> Q["Verification: 36 checks"]
@@ -232,8 +238,10 @@ graph LR
 | **Bun binary paths for MCP** | Absolute paths to `~/.bun/bin/` instead of `npx -y`, instant cold start |
 | **Auto-update via systemd** | topgrade runs weekly (Sun 04:00), unattended-upgrades for daily security |
 | **Hardware auto-detection** | NVIDIA/AMD/Intel GPU, NPU, Apple Silicon — zero-config LLM runtime setup |
-| **Multi-provider** | 16 LLM providers with dynamic registration and session switching |
-| **LiteLLM gateway** | OpenAI-compatible endpoint for all providers — any app can use your LLMs |
+| **Multi-provider** | 24 LLM providers (20 cloud + 4 local) with dynamic registration and session switching |
+| **Infrastructure as Code** | PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer via Docker Compose |
+| **Isolated Circuit Mode** | Air-gapped LLM operation with local OpenAI-compatible backends |
+| **Cockpit TUI** | 7-tab terminal UI for server management |
 
 ---
 

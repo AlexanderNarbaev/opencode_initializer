@@ -117,12 +117,12 @@ mkdocs gh-deploy
 
 ```
 opencode_initializer/
-├── setup.sh              # Orchestrator (352 lines)
+├── setup.sh              # Orchestrator (373 lines)
 ├── dev.sh                # CLI tool
 ├── opencode.json         # AI config
 ├── mkdocs.yml            # Docs config
 ├── src/
-│   ├── lib/              # 29 modules
+│   ├── lib/              # 38 modules
 │   └── modes/            # 5 mode scripts
 ├── tests/                # Test suites
 ├── docs/                 # Documentation (this site)

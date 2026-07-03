@@ -1,4 +1,4 @@
-# OpenCode Initializer v1.1.0
+# OpenCode Initializer v2.0.0
 
 [![GitHub stars](https://img.shields.io/github/stars/AlexanderNarbaev/opencode_initializer?style=social)](https://github.com/AlexanderNarbaev/opencode_initializer)
 [![License](https://img.shields.io/github/license/AlexanderNarbaev/opencode_initializer)](https://github.com/AlexanderNarbaev/opencode_initializer/blob/main/LICENSE)
@@ -16,15 +16,16 @@
 
 | Metric | Value |
 |--------|-------|
-| Modules | 29 (+ 3 infrastructure) |
-| Orchestrator | 352 lines of Bash |
+| Modules | 38 (+ 3 infrastructure) |
+| Orchestrator | 373 lines of Bash |
 | CLI modes | 11 (full, health, interactive, ci, and more) |
 | Languages | 8 |
 | MCP servers | 21 |
 | LSP servers | 13 |
 | OpenCode plugins | 15 |
-| AI providers | 16 (dynamic registration) |
-| Test suite | 193+ tests, 300+ assertions |
+| AI providers | 24 (20 cloud + 4 local) |
+| Infrastructure | 6 services (PostgreSQL, Qdrant, Redis, Prometheus, Grafana, MemoryLayer) |
+| Test suite | 350+ assertions |
 | Package managers | apt, dnf, pacman, apk, zypper, brew |
 | Architectures | amd64, arm64 |
 
@@ -36,25 +37,30 @@ A single script that turns a fresh Linux/WSL2 machine into a production-ready de
 - **21 MCP servers** — GitHub, GitLab, Filesystem, Playwright, Chrome DevTools, SQLite, Postgres, Memory, Excalidraw, Brave Search, Context7, Google Maps, and more
 - **15 OpenCode plugins** — token-tracker, dcp, swarm, goal-mode, vibeguard, orchestrator, auto-fallback, notify, pty, snip, snippets, envsitter-guard, command-inject, ignore
 - **13 LSP servers** — gopls, rust-analyzer, tsserver, pyright, omnisharp, yaml, marksman, taplo, lua, zls, bash, dockerfile, css/html/json
-- **Infrastructure** — Docker, ChromaDB, LiteLLM API gateway, SearXNG web search, Muninn memory
+- **Infrastructure as Code** — PostgreSQL, Qdrant, Redis, Prometheus, Grafana, MemoryLayer via Docker Compose
+- **Cockpit TUI** — 7-tab terminal UI for server management
+- **Isolated Circuit Mode** — air-gapped LLM operation with local backends
+- **24 AI providers** — DeepSeek, z.ai GLM-5.2, OpenRouter, OpenAI, Anthropic, Google, xAI, Moonshot, Alibaba Qwen3, and more
 - **GPU/LLM** — Ollama, vLLM, SGLang, Open WebUI, WasmEdge (multi-vendor GPU auto-detection)
 - **ZSH** — Oh My Zsh + Powerlevel10k with 14 plugins
 - **Chrome** — Google Chrome + ChromeDriver (WSL2-optimized)
 - **Auto-update** — systemd weekly timer + topgrade
 
-## What's New in v1.1.0
+## What's New in v2.0.0
 
 | Feature | Description |
 |---------|-------------|
-| Hardware auto-detection | NVIDIA, AMD, Intel GPU, NPU, Apple Silicon — zero-config |
-| LiteLLM API gateway | OpenAI-compatible local API — any app can use your LLMs |
-| SearXNG web search | Self-hosted, privacy-respecting search + sanitizer proxy |
-| 16 LLM providers | Dynamic registration with session switching |
-| CI/CD headless mode | Lightweight setup for GitHub Actions pipelines |
-| Multimodal support | whisper.cpp, stable-diffusion.cpp, llava |
-| chezmoi dotfiles | Team-wide config sharing |
-| Devbox | Nix-based isolated development environments |
-| ONNX runtime | Cross-platform ML inference |
+| Infrastructure as Code | PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer via Docker Compose |
+| Cockpit TUI | 7-tab terminal UI — System, Plugins, GPU/Models, Sessions, Tasks, Logs, Infra |
+| Isolated Circuit Mode | Air-gapped LLM operation with Ollama, LiteLLM, vLLM, SGLang |
+| z.ai GLM-5.2 | Primary provider for RU/CN markets, OpenAI-compatible, free tier |
+| OpenRouter | Aggregator access to 100+ models via single API key |
+| Alibaba Qwen3 | Native SDK, 235B flagship model |
+| DeepInfra | Fast inference, competitive pricing |
+| MemoryLayer | AI memory system with Ollama embed proxy (mxbai-embed-large) |
+| Observability | Prometheus (:9090) + Grafana (:3001) with auto-provisioning |
+| 24 providers | 20 cloud + 4 local (was 16 in v1.1.0) |
+| 38 modules | Was 29 in v1.1.0 |
 
 ## Quick Install
 
@@ -77,9 +83,19 @@ cd ~/opencode_initializer && bash setup.sh
 ```bash
 bash setup.sh --full \
   --deepseek-key "sk-..." \
+  --zai-key "..." \
+  --openrouter-key "sk-or-..." \
   --github-token "ghp_..." \
   --gitlab-token "glpat-..." \
   --google-maps-key "..."
+```
+
+### Isolated Circuit Mode (Air-Gapped)
+
+```bash
+bash setup.sh --full --isolated    # Use local LLM backends only
+dev isolated on                     # Enable after install
+dev isolated status                 # Check current state
 ```
 
 ## What Gets Installed
@@ -90,6 +106,7 @@ bash setup.sh --full \
 | **Shell** | Zsh 5.8+, Oh My Zsh, Powerlevel10k, 14 plugins |
 | **Browser** | Google Chrome, ChromeDriver (WSL2-aware) |
 | **Containers** | Docker Engine |
+| **Infrastructure** | PostgreSQL, Qdrant, Redis, Prometheus, Grafana, MemoryLayer |
 | **AI/ML** | Ollama, vLLM, SGLang, Open WebUI, ChromaDB, WasmEdge, ONNX |
 | **API Gateway** | LiteLLM — OpenAI-compatible endpoint for all providers |
 | **Web Search** | SearXNG self-hosted search + sanitizer proxy |
@@ -100,6 +117,7 @@ bash setup.sh --full \
 | **Utilities** | bat, btm, fd, ripgrep, sd, typos, topgrade, just, mise |
 | **Dotfiles** | chezmoi for team config sharing |
 | **Dev Environments** | Devbox — Nix-based isolated envs |
+| **Cockpit** | 7-tab TUI for server management |
 
 ## Supported Platforms
 
@@ -118,7 +136,7 @@ bash setup.sh --full \
 
 | Mode | Flag | Use Case |
 |------|------|----------|
-| Full | `--full` | Complete bootstrap (default, 29 steps) |
+| Full | `--full` | Complete bootstrap (default) |
 | Reinit | `--reinit` | Reinstall tools, keep data |
 | New Project | `--new <dir>` | Project initialization only |
 | CI/CD | `--ci` | Headless pipeline setup |

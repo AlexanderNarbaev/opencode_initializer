@@ -100,7 +100,7 @@ All keys are stored securely in `~/.config/opencode/secrets.env` with `chmod 600
 
 ## Team Dotfiles with chezmoi
 
-v1.1.0 introduces chezmoi for sharing team configuration:
+v2.0.0 introduces chezmoi for sharing team configuration:
 
 ```bash
 # After setup, create a team dotfiles repo
@@ -233,7 +233,7 @@ bash setup.sh --fix-config --deepseek-key "sk-..."
 | **LSP Servers** | 13 — gopls, rust-analyzer, tsserver, pyright, omnisharp, yaml, marksman, bash, dockerfile, css/html/json, and more |
 | **Plugins** | 15 — token-tracker, dcp, swarm, auto-fallback, goal-mode, vibeguard, orchestrator, and more |
 | **Infrastructure** | Docker, ChromaDB, LiteLLM, SearXNG, Muninn, Ollama, vLLM, SGLang, Open WebUI |
-| **API Gateway** | LiteLLM — OpenAI-compatible endpoint for all 16 providers |
+| **API Gateway** | LiteLLM — OpenAI-compatible endpoint for all 24 providers |
 | **Web Search** | SearXNG self-hosted + sanitizer proxy (internal hosts/IP/PII) |
 | **Shell** | ZSH + Oh My Zsh + Powerlevel10k + 14 plugins |
 | **CLI** | `dev` tool — install, remove, update, health, list, config, version-check |
