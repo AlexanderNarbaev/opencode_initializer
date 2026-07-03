@@ -52,6 +52,23 @@ type model struct {
 	infraSelected     int
 	infraMsg          string
 	infraMsgTime      time.Time
+
+	pluginRows   []pluginRowData
+	pluginSel    int
+	pluginMsg    string
+	pluginMsgTime time.Time
+
+	showWAL     bool
+	walContent  string
+	walScroll   int
+	configMsg   string
+	configMsgTime time.Time
+}
+
+type pluginRowData struct {
+	name    string
+	tier    string
+	enabled bool
 }
 
 func (m model) Init() tea.Cmd {
@@ -65,12 +82,51 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
+		if m.showWAL {
+			switch msg.String() {
+			case "q", "esc":
+				m.showWAL = false
+				return m, nil
+			case "up":
+				if m.walScroll > 0 {
+					m.walScroll--
+				}
+				return m, nil
+			case "down":
+				if m.walScroll < len(strings.Split(m.walContent, "\n"))-1 {
+					m.walScroll++
+				}
+				return m, nil
+			}
+			return m, nil
+		}
 		switch msg.String() {
 		case "q", "ctrl+c", "esc":
 			return m, tea.Quit
 		case "r":
 			m.loading = true
 			return m, tick()
+		case "w":
+			m.showWAL = true
+			m.walContent = m.fetchWAL()
+			m.walScroll = 0
+			return m, nil
+		case "c":
+			configPath := filepath.Join(homeDir, ".config", "opencode-setup", "setup.conf")
+			editor := os.Getenv("EDITOR")
+			if editor == "" {
+				editor = "nano"
+			}
+			go func() {
+				cmd := exec.Command(editor, configPath)
+				cmd.Stdin = os.Stdin
+				cmd.Stdout = os.Stdout
+				cmd.Stderr = os.Stderr
+				cmd.Run()
+			}()
+			m.configMsg = fmt.Sprintf("[%s] opened config in %s", time.Now().Format("15:04:05"), editor)
+			m.configMsgTime = time.Now()
+			return m, nil
 		case "tab":
 			m.activeTab = (m.activeTab + 1) % len(m.tabs)
 			return m, nil
@@ -100,6 +156,15 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 
 		case "up", "down":
+			if m.activeTab == 1 && len(m.pluginRows) > 0 {
+				if msg.String() == "up" && m.pluginSel > 0 {
+					m.pluginSel--
+				}
+				if msg.String() == "down" && m.pluginSel < len(m.pluginRows)-1 {
+					m.pluginSel++
+				}
+				return m, nil
+			}
 			if m.activeTab == 5 {
 				if msg.String() == "up" && m.logsScroll > 0 {
 					m.logsScroll--
@@ -119,6 +184,15 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			}
 
+		case "e", "d":
+			if m.activeTab == 1 && len(m.pluginRows) > 0 && m.pluginSel < len(m.pluginRows) {
+				enable := msg.String() == "e"
+				m.togglePlugin(m.pluginRows[m.pluginSel].name, enable)
+				m.pluginMsg = fmt.Sprintf("[%s] plugin toggled", time.Now().Format("15:04:05"))
+				m.pluginMsgTime = time.Now()
+				return m, tick()
+			}
+
 		case "s", "k", "x":
 			if m.activeTab == 6 && len(m.infraServiceNames) > 0 && m.infraSelected < len(m.infraServiceNames) {
 				svc := m.infraServiceNames[m.infraSelected]
@@ -129,7 +203,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					action = "start"
 				case "k":
 					action = "stop"
-				case "r":
+				case "x":
 					action = "restart"
 				}
 				go func() {
@@ -180,6 +254,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.tables[6].SetRows(msg.infra)
 		m.logsLines = msg.logs
 		m.infraServiceNames = msg.infraNames
+		m.pluginRows = msg.pluginRows
 		if m.logsScroll >= len(m.logsLines) {
 			m.logsScroll = len(m.logsLines) - 1
 		}
@@ -205,6 +280,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() string {
+	if m.showWAL {
+		return m.walView()
+	}
 	title := styleTitle.Render("opencode-cockpit v2.0.0")
 	status := ""
 	if m.loading {
@@ -231,16 +309,33 @@ func (m model) View() string {
 		content = m.logsView()
 	} else if m.activeTab == 6 {
 		content = m.infraView()
+	} else if m.activeTab == 1 {
+		content = m.pluginsView()
 	} else {
 		content = m.tables[m.activeTab].View()
 	}
 
-	help := "\n 1:Srv 2:Plugins 3:GPU 4:Sessions 5:Tasks 6:Logs 7:Infra  Tab/Shift+Tab  r:refresh  q:quit\n"
+	var actionBar string
+	if m.configMsg != "" && time.Since(m.configMsgTime) < 5*time.Second {
+		actionBar += styleYellow.Render(" " + m.configMsg) + " "
+	}
+	if m.pluginMsg != "" && time.Since(m.pluginMsgTime) < 5*time.Second {
+		actionBar += styleGreen.Render(" " + m.pluginMsg) + " "
+	}
+	globalActions := styleGray.Render(" r:refresh  w:WAL  c:config ")
+	help := "\n" + globalActions
 	if m.activeTab == 6 {
-		help = "\n 1-7:tabs  ↑↓:select  s:start  k:stop  r:restart  enter:toggle  r:refresh  q:quit\n"
+		help += styleGray.Render(" ↑↓:select  s:start  k:stop  x:restart  enter:toggle")
 	}
 	if m.activeTab == 5 {
-		help = "\n 1-7:tabs  ↑↓:scroll  r:refresh  q:quit\n"
+		help += styleGray.Render(" ↑↓:scroll")
+	}
+	if m.activeTab == 1 {
+		help += styleGray.Render(" ↑↓:select  e:enable  d:disable")
+	}
+	help += "  q:quit\n"
+	if actionBar != "" {
+		help = "\n " + actionBar + "\n" + help
 	}
 
 	return header + tabBar + content + help
@@ -348,6 +443,7 @@ func (m model) infraView() string {
 type tickResult struct {
 	services   []table.Row
 	plugins    []table.Row
+	pluginRows []pluginRowData
 	gpu        []table.Row
 	sessions   []table.Row
 	tasks      []table.Row
@@ -358,9 +454,11 @@ type tickResult struct {
 
 func tick() tea.Cmd {
 	return func() tea.Msg {
+		pluginRows := fetchPluginRows()
 		return tickResult{
 			services:   fetchServices(),
 			plugins:    fetchPlugins(),
+			pluginRows: pluginRows,
 			gpu:        fetchGPU(),
 			sessions:   fetchSessions(),
 			tasks:      fetchTasks(),
@@ -442,6 +540,38 @@ type pluginConditional struct {
 	Enabled    bool     `json:"enabled"`
 	Depends    []string `json:"depends"`
 	AutoEnable bool     `json:"auto_enable"`
+}
+
+func fetchPluginRows() []pluginRowData {
+	var rows []pluginRowData
+
+	pluginPath := filepath.Join(configDir, "plugins.json")
+	data, err := os.ReadFile(pluginPath)
+	if err != nil {
+		return rows
+	}
+
+	var reg pluginRegistry
+	if err := json.Unmarshal(data, &reg); err != nil {
+		return rows
+	}
+
+	for _, name := range reg.Tiers.Always {
+		rows = append(rows, pluginRowData{name: name, tier: "always", enabled: true})
+	}
+
+	for name, cfg := range reg.Tiers.Conditional {
+		depsMet, _ := checkPluginDeps(cfg.Depends)
+		depsOK := len(depsMet) == len(cfg.Depends)
+		enabled := (cfg.Enabled || cfg.AutoEnable) && depsOK
+		rows = append(rows, pluginRowData{name: name, tier: "conditional", enabled: enabled})
+	}
+
+	for _, name := range reg.Tiers.OnDemand {
+		rows = append(rows, pluginRowData{name: name, tier: "on-demand", enabled: true})
+	}
+
+	return rows
 }
 
 func fetchPlugins() []table.Row {
@@ -1127,6 +1257,127 @@ func fetchInfra() []table.Row {
 	}
 
 	return rows
+}
+
+func (m *model) fetchWAL() string {
+	walPath := filepath.Join(homeDir, ".cache", "opencode-setup", "wal.md")
+	data, err := os.ReadFile(walPath)
+	if err != nil {
+		return "WAL file not found: " + walPath
+	}
+	return string(data)
+}
+
+func (m model) walView() string {
+	var sb strings.Builder
+	sb.WriteString(styleTitle.Render("  WAL — Write-Ahead Log"))
+	sb.WriteString(styleGray.Render("  q/esc:back  ↑↓:scroll\n\n"))
+
+	if m.walContent == "" {
+		sb.WriteString(styleGray.Render("  No WAL content available.\n"))
+		return sb.String()
+	}
+
+	lines := strings.Split(m.walContent, "\n")
+	visibleHeight := m.height - 5
+	if visibleHeight < 5 {
+		visibleHeight = 5
+	}
+
+	start := m.walScroll
+	end := start + visibleHeight
+	if end > len(lines) {
+		end = len(lines)
+		start = end - visibleHeight
+		if start < 0 {
+			start = 0
+		}
+	}
+
+	for i := start; i < end; i++ {
+		prefix := "  "
+		if i == m.walScroll {
+			prefix = styleCyan.Render("> ")
+		}
+		sb.WriteString(prefix + colorizeLogLine(lines[i]) + "\n")
+	}
+
+	scrollPct := 0
+	if len(lines) > 1 {
+		scrollPct = (m.walScroll * 100) / (len(lines) - 1)
+	}
+	sb.WriteString(styleGray.Render(fmt.Sprintf("\n  ── %d%% scrolled  q/esc:back ──\n", scrollPct)))
+
+	return sb.String()
+}
+
+func (m model) pluginsView() string {
+	if len(m.pluginRows) == 0 {
+		return m.tables[1].View()
+	}
+
+	rows := make([]table.Row, len(m.pluginRows))
+	for i, pr := range m.pluginRows {
+		statusStr := styleGray.Render("disabled")
+		if pr.enabled {
+			statusStr = styleGreen.Render("enabled")
+		}
+		prefix := ""
+		if i == m.pluginSel {
+			prefix = styleCyan.Render("\u25b6 ")
+		}
+		rows[i] = table.Row{prefix + pr.name, pr.tier, statusStr}
+	}
+
+	m.tables[1].SetRows(rows)
+	return m.tables[1].View()
+}
+
+func (m *model) togglePlugin(name string, enable bool) {
+	pluginPath := filepath.Join(configDir, "plugins.json")
+	data, err := os.ReadFile(pluginPath)
+	if err != nil {
+		return
+	}
+
+	var reg pluginRegistry
+	if err := json.Unmarshal(data, &reg); err != nil {
+		return
+	}
+
+	for i, n := range reg.Tiers.Always {
+		if n == name {
+			if enable {
+				_ = i
+			}
+			break
+		}
+	}
+
+	if cfg, ok := reg.Tiers.Conditional[name]; ok {
+		cfg.Enabled = enable
+		if enable {
+			cfg.AutoEnable = false
+		}
+		reg.Tiers.Conditional[name] = cfg
+		updated, _ := json.MarshalIndent(reg, "", "  ")
+		os.WriteFile(pluginPath, updated, 0644)
+		return
+	}
+
+	for i, n := range reg.Tiers.OnDemand {
+		if n == name {
+			if !enable {
+				reg.Tiers.OnDemand = append(reg.Tiers.OnDemand[:i], reg.Tiers.OnDemand[i+1:]...)
+			}
+			updated, _ := json.MarshalIndent(reg, "", "  ")
+			os.WriteFile(pluginPath, updated, 0644)
+			return
+		}
+	}
+
+	updated, _ := json.MarshalIndent(reg, "", "  ")
+	os.WriteFile(pluginPath, updated, 0644)
 }
 
 func newTable(cols []table.Column) table.Model {

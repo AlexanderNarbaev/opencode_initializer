@@ -155,6 +155,44 @@ PROGRESS="$DL_CACHE/progress"
 _step_skip() { grep -qxF "$1" "$PROGRESS" 2>/dev/null && { log "Skip: ${2:-$1} (completed earlier)"; return 0; }; return 1; }
 _step_done() { [ "${DRY_RUN:-false}" = "true" ] && return 0; echo "$1" >> "$PROGRESS"; }
 
+# ── WAL (Write-Ahead Log) checkpoint system ──────────────────────────────────
+WAL_FILE="${HOME}/.cache/opencode-setup/wal.md"
+WAL_MODULE_COUNT=0
+_WAL_TOTAL="${WAL_TOTAL:-39}"
+
+_wal_checkpoint() {
+  local step_name="${1:-}"
+  local module_key="${2:-}"
+  [ "${DRY_RUN:-false}" = "true" ] && return 0
+  WAL_MODULE_COUNT=$((WAL_MODULE_COUNT + 1))
+  if [ -f "$WAL_FILE" ]; then
+    local now
+    now=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    sed -i "s|_Updated:.*|_Updated: ${now}|" "$WAL_FILE" 2>/dev/null || true
+    sed -i "s|DONE: [0-9]\+/${_WAL_TOTAL}|DONE: ${WAL_MODULE_COUNT}/${_WAL_TOTAL}|" "$WAL_FILE" 2>/dev/null || true
+    if [ -n "$step_name" ]; then
+      sed -i "/^## Next Step/,/^$/{s|^- .*|- ${step_name}|}" "$WAL_FILE" 2>/dev/null || true
+    fi
+    # Mirror legacy progress for resume compatibility
+    echo "$module_key" >> "$PROGRESS" 2>/dev/null || true
+  fi
+}
+
+_wal_decide() {
+  local decision="$1" rationale="${2:-}"
+  [ "${DRY_RUN:-false}" = "true" ] && return 0
+  if [ -f "$WAL_FILE" ]; then
+    local entry
+    if [ -n "$rationale" ]; then
+      entry="- ${decision} — ${rationale}"
+    else
+      entry="- ${decision}"
+    fi
+    sed -i "/^## Recent Decisions/a ${entry}" "$WAL_FILE" 2>/dev/null || true
+  fi
+  log "Decision: $decision"
+}
+
 # ── Progress spinner for long operations ────────────────────────────────────
 _spin() {
   local pid=$1 msg="${2:-Working}" i=0
@@ -190,6 +228,7 @@ declare -A MCP_PACKAGES=(
   [excalidraw]="excalidraw-architect-mcp"
   [notion]="@notionhq/notion-mcp-server"
   [websearch]="mcp-searxng"
+  [open-orchestra]="open-orchestra"
 )
 # NOTE: git, fetch, time MCPs are Python packages — installed via uvx/pip (not npm)
 #       mcp-server-git, mcp-server-fetch, mcp-server-time on npm are security canaries!

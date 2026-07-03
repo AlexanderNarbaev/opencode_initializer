@@ -13,6 +13,11 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
     _mcp "${MCP_PACKAGES[$name]}" "$name" || true
   done
 
+  # Open-Orchestra — multi-agent orchestrator (bun cold-start preferred)
+  command -v bun &>/dev/null && bun install -g open-orchestra@latest 2>/dev/null && log "Tool: open-orchestra (bun)" || {
+    _npm_install "open-orchestra" "open-orchestra" || true
+  }
+
   # Python MCP servers (uvx/pipx — NOT npm canaries!)
   # Git MCP (Python, via uvx or pipx)
   if command -v uvx &>/dev/null; then

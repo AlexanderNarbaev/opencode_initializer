@@ -231,5 +231,7 @@ echo "  Health:    bash ~/setup.sh --health"
 echo "  Fix zsh:   bash ~/setup.sh --fix-zshrc"
 echo "  Fix MCP:   bash ~/setup.sh --fix-config"
 echo "  Start:     cd $PROJECT_DIR && opencode"
-echo "  dev CLI:   dev health | dev install <pkg> | dev update"
+  echo "  dev CLI:   dev health | dev install <pkg> | dev update"
+_wal_decide "Bootstrap complete (${SCRIPT_VERSION})" "All ${WAL_MODULE_COUNT:-39} modules installed"
+_wal_checkpoint "Bootstrap complete" step_finalize
 _step_done step_finalize

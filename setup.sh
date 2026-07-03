@@ -494,7 +494,7 @@ echo -e "${GREEN}     Log:  $LOG_FILE${NC}"
 echo -e "${GREEN}============================================================${NC}"
 
 # ── Execute steps ───────────────────────────────────────────────────────────
-TOTAL_STEPS=32
+TOTAL_STEPS=33
 CURRENT_STEP=0
 
 _run_step() {
@@ -507,6 +507,7 @@ _run_step() {
     return 0
   fi
   source "$module"
+  _wal_checkpoint "$step_name" "$step_key"
   log "$step_name — done"
 }
 
@@ -544,6 +545,7 @@ _run_step step_security "Trivy + Qodana" "$SCRIPT_DIR/src/lib/15-security.sh"
 _run_step step_llm "Ollama + vLLM" "$SCRIPT_DIR/src/lib/16-llm.sh"
 _run_step step_project "Project structure" "$SCRIPT_DIR/src/lib/17-project.sh"
 _run_step step_json "opencode.json" "$SCRIPT_DIR/src/lib/18-opencode-json.sh"
+_run_step step_wal "WAL Checkpoint" "$SCRIPT_DIR/src/lib/37-wal.sh"
 _run_step step_finalize "Finalize + Verify" "$SCRIPT_DIR/src/lib/19-finalize.sh"
 _run_step step_autoupdate "Auto-update system" "$SCRIPT_DIR/src/lib/20-autoupdate.sh"
 # ── Parallel: independent optional modules (R17: Performance) ────────────────

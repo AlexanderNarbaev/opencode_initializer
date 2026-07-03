@@ -504,6 +504,7 @@ config = {
             "mode": "primary",
             "model": "deepseek/deepseek-v4-pro",
             "temperature": 0.2,
+            "system": "Follow CO-STAR output contract. Prefer atomic edits over full-file rewrites. #S1 for simple fixes, escalate to #S2 when touching >3 files or edit fails twice. Verify after every write. [CTX: build]",
             "permission": {
                 "edit": "allow",
                 "bash": {
@@ -537,6 +538,7 @@ config = {
             "mode": "primary",
             "model": "zai/glm-5.2" if "zai" in providers else "deepseek/deepseek-v4-pro",
             "temperature": 0.1,
+            "system": "Use System 2 (slow, methodical) reasoning for all outputs. Analyze dependencies before proposing architectures. Verify every claim against source ladder (official docs first). Never skip the WAL — journal every architectural decision with rationale. [CTX: plan]",
             "permission": {
                 "edit": "deny",
                 "bash": "deny",
@@ -633,6 +635,34 @@ config = {
             "model": "deepseek/deepseek-v4-flash",
             "temperature": 0.1,
             "permission": {"edit": "allow", "write": "allow", "read": "allow", "grep": "allow", "glob": "allow", "webfetch": "allow"}
+        },
+        "orchestrator": {
+            "mode": "subagent",
+            "model": "zai/glm-5.2" if "zai" in providers else "deepseek/deepseek-v4-pro",
+            "temperature": 0.2,
+            "description": "Multi-agent orchestrator — decomposes tasks and dispatches to parallel workers",
+            "permission": {
+                "task": {
+                    "build": "allow",
+                    "plan": "allow",
+                    "general": "allow",
+                    "explore": "allow",
+                    "code-reviewer": "allow",
+                    "researcher": "allow",
+                    "scout": "allow",
+                    "reviewer": "allow",
+                    "security-auditor": "allow",
+                    "test-engineer": "allow",
+                    "critic": "allow",
+                    "sme": "allow",
+                    "docs": "allow"
+                },
+                "edit": "allow",
+                "read": "allow",
+                "grep": "allow",
+                "glob": "allow",
+                "webfetch": "allow"
+            }
         },
     },
     "context_budget": {

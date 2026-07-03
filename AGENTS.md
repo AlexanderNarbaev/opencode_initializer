@@ -236,3 +236,49 @@ opencode_initializer/
 - `dev backup create|list|restore` — config backup/restore
 
 **Config file:** `~/.config/opencode-setup/setup.conf` — persistent settings, sourced by both setup.sh and dev CLI.
+
+## Agent System Prompt
+
+The primary agent operates as a **Universal AI Coprocessor** (see `.opencode/skills/coprocessor/SKILL.md`).
+
+### Core Protocols
+
+| Protocol | Description |
+|----------|-------------|
+| **Dual-Process Reasoning** | System 1 (fast: edits, grep, fixes) / System 2 (slow: analysis, planning, multi-file refactors). Escalate after 2 failures or >3 files touched. |
+| **Memory Hierarchy** | WAL (session journal) → Specs (persistent designs) → Artifacts (ground truth). Artifacts override stale specs. |
+| **Shared State = IPC** | Files are the communication protocol. Read before action, verify after write. `.opencode/state/` for inter-agent coordination. |
+| **Keyboard Correction** | Auto-detect RU↔EN layout mismatch. Silent for unambiguous, confirm for ambiguous. Log to WAL with `[KB]`. |
+| **CO-STAR Output** | Context → Objective → Steps → Thinking → Answer → References. Skip for trivial outputs. |
+| **Memory Anchor** | Every response starts with `[CTX: domain]`. Enables context resumption after compaction. |
+| **Source Ladder** | Official docs > authoritative secondary > encyclopedias > model knowledge. Flag tier: `[L1]`–`[L4]`. |
+
+### Hard Gates
+- Never emit secrets. Redact with `***`.
+- Never delete code you don't understand. `#S2` analyze first.
+- Never skip WAL. Journal every consequential decision.
+- Never speculate. Flag `[speculative]` when confidence < 80%.
+
+## WAL Protocol
+
+### Location
+`~/.cache/opencode/wal.jsonl` — append-only session journal in JSONL format.
+
+### When to Checkpoint
+Write a WAL entry on every:
+- Tool call error or unexpected output
+- Model or provider switch
+- Architectural decision (file creation/deletion, API change, dependency change)
+- Context compaction event
+- Every 10 interaction turns (as safety net)
+
+### Entry Format
+```jsonl
+{"ts":"ISO8601","domain":"setup|health|fix|refactor|audit|explore|review|docs|debug","decision":"what was decided","rationale":"why","impact":["file1","file2"],"confidence":0.85,"mode":"S1|S2"}
+```
+
+### Session Start Ritual
+1. Read last 20 lines of WAL for context resume
+2. Read `AGENTS.md` and active `.opencode/skills/`
+3. Emit `[CTX: domain]` anchor
+4. Begin work
