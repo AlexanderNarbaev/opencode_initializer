@@ -77,6 +77,7 @@ OpenCode Initializer does all of this automatically in a single command.
 **Where OpenCode Initializer adds value:**
 - MCP and LSP servers are auto-configured (21+13 servers)
 - OpenCode plugins pre-installed and configured (15 plugins)
+- 24 LLM providers (20 cloud + 4 local) with dynamic registration
 - Hardware-aware: GPU auto-detection, optimal backend selection
 - No container overhead: native performance
 - System-level tools: Chrome, ZSH with plugins, system services

@@ -14,7 +14,7 @@ bash setup.sh [MODE] [OPTIONS]
 
 | Mode | Flag | Description |
 |------|------|-------------|
-| **Full** | *(default)* | Complete bootstrap — all 8 languages, 21 MCP, 15 plugins, 13 LSP |
+| **Full** | *(default)* | Complete bootstrap — all 8 languages, 21 MCP, 15 plugins, 13 LSP, 24 providers, 6 infra services |
 | **Health** | `--health` | Diagnostics — 65+ checks across 7 sections |
 | **Interactive** | `--interactive` | Component-by-component selection |
 | **Reinit** | `--reinit` | Reinstall tools, keep data |
@@ -248,6 +248,12 @@ During setup, you'll see:
 | .NET | `10-dotnet.sh` | .NET 10 |
 | OpenCode | `11-opencode.sh` | OpenCode CLI + Bun |
 | MCP/LSP | `12-mcp-lsp.sh` | 21 MCP + 15 plugins + 13 LSP + Muninn |
+| Providers | `26-providers.sh` | 24 LLM providers (20 cloud + 4 local) |
+| Infrastructure | `30-infra.sh` | PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer |
+| Cockpit | `31-cockpit.sh` | 7-tab TUI server management daemon |
+| Isolated | `32-isolated.sh` | Air-gapped LLM mode (Ollama/LiteLLM/vLLM/SGLang) |
+| Observability | `34-observability.sh` | Grafana + Prometheus stack |
+| GUI | `35-gui.sh` | Web management interface |
 | ChromaDB | `13-chromadb.sh` | ChromaDB + systemd service |
 | Shokunin | `14-shokunin.sh` | Shokunin + Superpowers + Caveman skills |
 | Security | `15-security.sh` | Trivy, Qodana |

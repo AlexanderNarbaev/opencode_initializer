@@ -93,13 +93,13 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 | opencode | OpenCode Go proxy | yes | native |
 | **zai** | **z.ai GLM-5.2 / GLM-4-Flash** | **yes** | **openai-compatible** |
 | **openrouter** | **OpenRouter (100+ models)** | **yes** | **native** |
-| xai | xAI Grok 4 / Grok 4 Mini | no | native |
-| mimo | Xiaomi MiMo V2 | yes | openai-compatible |
-| moonshot | Moonshot Kimi K2 | no | openai-compatible |
+| xai | xAI Grok 4.3 / Grok 4.20 | no | native |
+| mimo | Xiaomi MiMo V2.5 | yes | openai-compatible |
+| moonshot | Moonshot Kimi K2.7 Code | no | openai-compatible |
 | minimax | MiniMax M3 | no | openai-compatible |
-| openai | OpenAI GPT-5 / GPT-5 Mini | no | native |
-| anthropic | Anthropic Claude 4 Opus / Haiku 4 | no | native |
-| google | Google Gemini 2.5 Pro / Flash | yes | native |
+| openai | OpenAI GPT-5.5 / GPT-5.4 Mini | no | native |
+| anthropic | Anthropic Claude Opus 4.8 / Sonnet 4.6 | no | native |
+| google | Google Gemini 3.5 Flash | yes | native |
 | mistral | Mistral Large 3 / Small | no | native |
 | groq | Groq Cloud (Llama 4 Maverick) | yes | native |
 | together | Together AI (Llama 4) | yes | native |
@@ -107,7 +107,7 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 | fireworks | Fireworks AI | no | openai-compatible |
 | cerebras | Cerebras (fast inference) | no | native |
 | perplexity | Perplexity (online search) | no | native |
-| **alibaba** | **Alibaba Qwen3 235B / 14B** | **yes** | **native** |
+| **alibaba** | **Alibaba Qwen3.7 Plus** | **yes** | **native** |
 | **deepinfra** | **DeepInfra (Llama 4)** | **yes** | **openai-compatible** |
 | ollama | Ollama (localhost:11434) | yes | local |
 | litellm | LiteLLM proxy (localhost:4000) | yes | local |
