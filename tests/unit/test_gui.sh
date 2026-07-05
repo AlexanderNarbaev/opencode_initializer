@@ -53,7 +53,7 @@ assert "index.html has toggleIsolated" "grep -q 'toggleIsolated' '$I'"
 assert "index.html has createBackup" "grep -q 'createBackup' '$I'"
 
 # ── Node.js syntax ───────────────────────────────────────────────────────────
-output=$(node --check "$S" 2>&1) && assert "server.js passes node --check" "true" || assert "server.js passes node --check" "false"
+node --check "$S" 2>/dev/null && assert "server.js passes node --check" "true" || assert "server.js passes node --check" "false"
 
 echo "test_gui: $TESTS_PASS passed, $TESTS_FAIL failed"
 

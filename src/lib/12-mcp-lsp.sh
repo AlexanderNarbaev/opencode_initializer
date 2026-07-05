@@ -281,12 +281,17 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
   _mcp_miss=0
   _lsp_ok=0
   _lsp_miss=0
-  for mcp in c7-mcp-server mcp-server-filesystem agentic-tools-mcp codegraph playwright-mcp agent-browser-mcp-server chrome-devtools-mcp mcp-server-github mcp-server-postgres mcp-server-sequential-thinking memorylayer-mcp; do
-    if [ -x "$HOME/.bun/bin/$mcp" ] || which "$mcp" &>/dev/null; then
+  for mcp_name in "${!MCP_PACKAGES[@]}"; do
+    mcp_bin="${MCP_PACKAGES[$mcp_name]}"
+    if [ -x "$HOME/.bun/bin/$mcp_bin" ] || which "$mcp_bin" &>/dev/null || which "$mcp_name" &>/dev/null; then
       _mcp_ok=$((_mcp_ok + 1))
+      # Quick version/help check for healthy installs
+      if [ -x "$HOME/.bun/bin/$mcp_bin" ]; then
+        "$HOME/.bun/bin/$mcp_bin" --version &>/dev/null || "$HOME/.bun/bin/$mcp_bin" --help &>/dev/null || true
+      fi
     else
       _mcp_miss=$((_mcp_miss + 1))
-      warn "MCP not found: $mcp"
+      warn "MCP not found: $mcp_name"
     fi
   done
   info "Verifying LSP servers..."
