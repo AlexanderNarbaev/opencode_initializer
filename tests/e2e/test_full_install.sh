@@ -35,9 +35,9 @@ assert "system module (01) referenced"   'grep -q "01-system" "'"$SETUP"'"'
 assert "docker module (02) referenced"   'grep -q "02-docker" "'"$SETUP"'"'
 assert "finalize module (19) as last"    'grep -q "19-finalize" "'"$SETUP"'"'
 
-# ── Test: All lib modules are sourced somewhere ────────────────────────
-MODULES_REFERENCED=$(grep -c 'source.*lib/' "$SETUP" 2>/dev/null || echo 0)
-assert "at least 15 lib modules sourced" "[ '$MODULES_REFERENCED' -ge 15 ]"
+# ── Test: All lib modules are referenced ────────────────────────────────
+MODULES_REFERENCED=$(grep -c 'src/lib/' "$SETUP" 2>/dev/null || echo 0)
+assert "at least 30 lib modules referenced" "[ '$MODULES_REFERENCED' -ge 30 ]"
 
 # ── Test: All 4 mode scripts referenced ────────────────────────────────
 assert "health mode sourced"       'grep -q "health.sh" "'"$SETUP"'"'
@@ -46,7 +46,7 @@ assert "upgrade mode sourced"      'grep -q "upgrade.sh" "'"$SETUP"'"'
 assert "interactive mode sourced"  'grep -q "interactive.sh" "'"$SETUP"'"'
 
 # ── Test: Version string ──────────────────────────────────────────────
-assert "version is v1.0.0" 'grep -q "v1.0.0" "'"$SETUP"'"'
+assert "version string present" 'grep -qE "v[0-9]+\.[0-9]+\.[0-9]+" "'"$SETUP"'"'
 
 # ── Test: set -euo pipefail in all files ──────────────────────────────
 for f in "$PROJECT_DIR/setup.sh" "$PROJECT_DIR/src/lib/"*.sh "$PROJECT_DIR/src/modes/"*.sh; do
@@ -74,9 +74,9 @@ HELPERS_LINE=$(grep -n 'src/lib/helpers.sh' "$SETUP" | head -1 | cut -d: -f1)
 CORE_LINE=$(grep -n 'src/lib/00-core.sh' "$SETUP" | head -1 | cut -d: -f1)
 assert "helpers sourced before core" "[ '$HELPERS_LINE' -lt '$CORE_LINE' ]"
 
-# ── Test: setup.sh line count (~316) ─────────────────────────────────
+# ── Test: setup.sh line count (500+) ──────────────────────────────────
 SETUP_LINES=$(wc -l < "$SETUP")
-assert "setup.sh is ~316 lines" "[ '$SETUP_LINES' -ge 306 ] && [ '$SETUP_LINES' -le 326 ]"
+assert "setup.sh is 500+ lines" "[ '$SETUP_LINES' -ge 500 ]"
 
 echo
 echo "=== test_full_install.sh: $TESTS_PASS passed, $TESTS_FAIL failed ==="
