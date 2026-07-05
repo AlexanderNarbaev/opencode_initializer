@@ -165,16 +165,19 @@ MINIO
 PROMETHEUS
       ;;
     grafana)
-      cat >> "$INFRA_CONFIG" << 'GRAFANA'
+      cat >> "$INFRA_CONFIG" << GRAFANA
   grafana:
     image: grafana/grafana:latest
     container_name: opencode-grafana
     ports: ["127.0.0.1:3001:3000"]
     environment:
       GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: \${GRAFANA_PASSWORD:-admin}
+      GF_INSTALL_PLUGINS: grafana-piechart-panel
     volumes:
       - opencode_grafana_data:/var/lib/grafana
+      - ${SCRIPT_DIR}/src/grafana/provisioning:/etc/grafana/provisioning
+      - ${SCRIPT_DIR}/src/grafana/dashboards:/etc/grafana/dashboards
     restart: unless-stopped
 GRAFANA
       ;;

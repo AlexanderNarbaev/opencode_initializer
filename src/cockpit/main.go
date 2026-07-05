@@ -1260,12 +1260,38 @@ func fetchInfra() []table.Row {
 }
 
 func (m *model) fetchWAL() string {
-	walPath := filepath.Join(homeDir, ".cache", "opencode-setup", "wal.md")
-	data, err := os.ReadFile(walPath)
-	if err != nil {
-		return "WAL file not found: " + walPath
+	walMdPath := filepath.Join(homeDir, ".cache", "opencode-setup", "wal.md")
+	walJsonlPath := filepath.Join(homeDir, ".cache", "opencode", "wal.jsonl")
+
+	var sb strings.Builder
+	sb.WriteString("=== Setup WAL (wal.md) ===\n")
+	if data, err := os.ReadFile(walMdPath); err == nil {
+		sb.Write(data)
+		sb.WriteString("\n")
+	} else {
+		sb.WriteString("Setup WAL not found: ")
+		sb.WriteString(walMdPath)
+		sb.WriteString("\n")
 	}
-	return string(data)
+
+	sb.WriteString("\n=== Agent WAL (wal.jsonl) ===\n")
+	if data, err := os.ReadFile(walJsonlPath); err == nil {
+		tailLines := strings.Split(strings.TrimSpace(string(data)), "\n")
+		start := 0
+		if len(tailLines) > 40 {
+			start = len(tailLines) - 40
+		}
+		for _, line := range tailLines[start:] {
+			sb.WriteString(line)
+			sb.WriteString("\n")
+		}
+	} else {
+		sb.WriteString("Agent WAL not found: ")
+		sb.WriteString(walJsonlPath)
+		sb.WriteString("\n")
+	}
+
+	return sb.String()
 }
 
 func (m model) walView() string {

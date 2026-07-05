@@ -678,44 +678,11 @@ config = {
             }
         },
     },
-    "context_budget": {
-        "enabled": True,
-        "warn_at_percent": 70,
-        "compact_at_percent": 85,
-        "critical_at_percent": 92,
-        "target_after_compact": 60
-    },
-    "muninn": {
-        "enabled": True,
-        "auto_save": True,
-        "save_on_compact": True,
-        "save_on_session_end": True,
-        "max_memories": 500,
-        "prune_stale_days": 30
-    },
-    "token_tracking": {
-        "enabled": True,
-        "track_input": True,
-        "track_output": True,
-        "cost_table": "auto",
-        "warn_at_daily_cost": 10.0
-    },
-    "codegraph": {
-        "auto_index": True,
-        "watch": True
-    },
     "tui": {
         "show_token_count": True,
         "show_cost": True,
         "show_tool_usage": True
-    },
-    "limits": {
-        "max_tokens_per_request": 80000,
-        "max_tool_calls_per_turn": 20,
-        "max_parallel_tools": 5,
-        "max_agent_depth": 5,
-        "request_timeout_ms": 600000
-    },
+    }
 }
 
 os.makedirs(os.path.dirname(config_path), exist_ok=True)

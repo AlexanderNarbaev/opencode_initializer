@@ -70,12 +70,12 @@ const server = http.createServer((req, res) => {
 
   if (api === '/status') {
     const cfg = readOpencodeConfig();
-    const mcpList = ['c7-mcp-server','mcp-server-filesystem','agentic-tools-mcp','codegraph','playwright-mcp','agent-browser-mcp-server','chrome-devtools-mcp','mcp-server-github','mcp-server-postgres','mcp-server-sequential-thinking','memorylayer-mcp'];
-    const lspList = ['gopls','rust-analyzer','typescript-language-server','pyright-langserver','yaml-language-server','marksman','taplo','bash-language-server','docker-langserver'];
+    const mcpList = cfg && cfg.mcp ? Object.keys(cfg.mcp).filter(k => cfg.mcp[k].enabled !== false) : [];
+    const lspList = cfg && cfg.lsp ? Object.keys(cfg.lsp) : [];
     let mcpOk=0,mcpMiss=0,lspOk=0,lspMiss=0;
     mcpList.forEach(m=>{checkBin(m)?mcpOk++:mcpMiss++});
     lspList.forEach(l=>{try{execSync(`which ${l}`,{stdio:'pipe'});lspOk++}catch{lspMiss++}});
-    const infraList = [['ChromaDB',8000],['MemoryLayer',0],['PostgreSQL',0],['Qdrant',0],['Redis',0],['Prometheus',9090],['Grafana',3001]];
+    const infraList = [['ChromaDB',8000],['PostgreSQL',5432],['Qdrant',6333],['Redis',6379],['MemoryLayer',8080],['Prometheus',9090],['Grafana',3001]];
     let infraOk=0,infraMiss=0;
     infraList.forEach(([n,p])=>{checkPort(p)?infraOk++:infraMiss++});
     json(res, {
@@ -176,9 +176,15 @@ const server = http.createServer((req, res) => {
     const conf = path.join(HOME, '.config/opencode-setup/setup.conf');
     try {
       let content = fs.readFileSync(conf,'utf-8');
-      if (content.includes('ISOLATED_CIRCUIT=')) {
-        content = content.replace(/ISOLATED_CIRCUIT=.*/, enabled => enabled.includes('true') ? 'ISOLATED_CIRCUIT=false' : 'ISOLATED_CIRCUIT=true');
-      } else { content += '\nISOLATED_CIRCUIT=true'; }
+      if (content.match(/ISOLATED_CIRCUIT\s*=\s*true/)) {
+        content = content.replace(/ISOLATED_CIRCUIT\s*=\s*true/, 'ISOLATED_CIRCUIT=false');
+      } else if (content.match(/ISOLATED_CIRCUIT\s*=\s*false/)) {
+        content = content.replace(/ISOLATED_CIRCUIT\s*=\s*false/, 'ISOLATED_CIRCUIT=true');
+      } else if (content.includes('ISOLATED_CIRCUIT=')) {
+        content = content.replace(/ISOLATED_CIRCUIT=.*/, 'ISOLATED_CIRCUIT=true');
+      } else {
+        content += '\nISOLATED_CIRCUIT=true';
+      }
       fs.writeFileSync(conf, content);
     } catch {}
     json(res, { ok: true });
