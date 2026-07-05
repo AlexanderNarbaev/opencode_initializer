@@ -5,13 +5,18 @@ function setupZoom() {
   const overlay = document.createElement("div")
   overlay.className = "diagram-overlay"
   overlay.innerHTML = '<div class="diagram-overlay-content"></div>'
-  overlay.addEventListener("click", () => overlay.classList.remove("active"))
+  const close = () => overlay.classList.remove("active")
+  overlay.addEventListener("click", close)
+  // ESC key to close
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && overlay.classList.contains("active")) close()
+  })
   document.body.appendChild(overlay)
 
   function attachZoom() {
     document.querySelectorAll(".mermaid").forEach(el => {
       if (el.dataset.zoom) return; el.dataset.zoom = "1"
-      el.style.cursor = "zoom-in"; el.title = "Click to enlarge"
+      el.style.cursor = "zoom-in"; el.title = "Click to enlarge (ESC to close)"
       el.addEventListener("click", (e) => {
         e.stopPropagation()
         const content = overlay.querySelector(".diagram-overlay-content")
@@ -26,7 +31,7 @@ function setupZoom() {
     })
     document.querySelectorAll("article img:not(.twemoji):not(.md-logo)").forEach(img => {
       if (img.dataset.zoom) return; img.dataset.zoom = "1"
-      img.style.cursor = "zoom-in"; img.title = "Click to enlarge"
+      img.style.cursor = "zoom-in"; img.title = "Click to enlarge (ESC to close)"
       img.addEventListener("click", (e) => {
         e.stopPropagation()
         const content = overlay.querySelector(".diagram-overlay-content")

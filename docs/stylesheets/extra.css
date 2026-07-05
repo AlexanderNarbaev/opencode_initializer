@@ -307,7 +307,7 @@
 
 /* ── Diagram & image zoom overlay ──────────────────────────── */
 .diagram-overlay {
-  display: none;
+  display: flex;
   position: fixed;
   top: 0; left: 0;
   width: 100vw; height: 100vh;
@@ -316,9 +316,13 @@
   cursor: zoom-out;
   align-items: center;
   justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
 }
 .diagram-overlay.active {
-  display: flex;
+  opacity: 1;
+  visibility: visible;
 }
 .diagram-overlay-content {
   max-width: 95vw;
