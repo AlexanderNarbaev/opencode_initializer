@@ -1,11 +1,39 @@
 #!/usr/bin/env bash
 # lib/34-observability.sh — Grafana + Prometheus observability stack
 # Requires: Docker, MODE, infra.yml
+# Config: ~/.config/opencode-setup/setup.conf
+#   EXTERNAL_OBSERVABILITY=true  — skip local setup, use external stack
+#   EXTERNAL_GRAFANA_URL=...     — external Grafana URL
+#   EXTERNAL_PROMETHEUS_URL=...  — external Prometheus URL
 set -euo pipefail
 
 _step_skip step_observability && return 0
 
 section "Observability Stack (Prometheus + Grafana)"
+
+# ── Check for external observability config ─────────────────────────────────
+CONFIG_FILE="$HOME/.config/opencode-setup/setup.conf"
+EXTERNAL_OBSERVABILITY=false
+EXTERNAL_GRAFANA_URL=""
+EXTERNAL_PROMETHEUS_URL=""
+
+if [ -f "$CONFIG_FILE" ]; then
+  source "$CONFIG_FILE" 2>/dev/null || true
+fi
+
+if [ "${EXTERNAL_OBSERVABILITY:-false}" = "true" ]; then
+  if [ -n "${EXTERNAL_GRAFANA_URL:-}" ]; then
+    info "EXTERNAL_OBSERVABILITY=true — using external Grafana at $EXTERNAL_GRAFANA_URL"
+  else
+    info "EXTERNAL_OBSERVABILITY=true — skipping local observability setup"
+  fi
+  if [ -n "${EXTERNAL_PROMETHEUS_URL:-}" ]; then
+    info "External Prometheus at $EXTERNAL_PROMETHEUS_URL"
+  fi
+  log "Local Prometheus/Grafana NOT installed (external stack configured)"
+  _step_done step_observability
+  return 0
+fi
 
 INFRA_CONFIG="$HOME/.config/opencode/infra.yml"
 SERVICES_DIR="$HOME/.config/opencode"

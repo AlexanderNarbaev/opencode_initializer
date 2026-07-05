@@ -1,0 +1,32 @@
+{
+  "name": "opencode-initializer",
+  "version": "2.0.1",
+  "description": "Universal Dev Machine Bootstrap — one-command AI-enhanced dev machine setup",
+  "scripts": {
+    "build:gui": "bun build src/gui/server.js --compile --outfile dist/opencode-gui",
+    "build": "bun build src/gui/server.js --compile --outfile dist/opencode-gui",
+    "check": "node --check src/gui/server.js"
+  },
+  "dependencies": {
+    "@opencode-ai/plugin": "1.17.8"
+  },
+  "bin": {
+    "opencode-gui": "./dist/opencode-gui"
+  },
+  "files": [
+    "dist/"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AlexanderNarbaev/opencode_initializer"
+  },
+  "keywords": [
+    "opencode",
+    "dev-machine",
+    "bootstrap",
+    "ai",
+    "llm",
+    "setup"
+  ],
+  "license": "MIT"
+}

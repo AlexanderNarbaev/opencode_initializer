@@ -154,6 +154,19 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "7", "F7":
 			m.activeTab = 6
 			return m, nil
+		case "8", "F8":
+			m.activeTab = 7
+			return m, nil
+
+		case "o":
+			if m.activeTab == 7 {
+				go func() {
+					exec.Command("xdg-open", "http://localhost:3001").Start()
+				}()
+				m.configMsg = "Opening Grafana in browser..."
+				m.configMsgTime = time.Now()
+			}
+			return m, nil
 
 		case "up", "down":
 			if m.activeTab == 1 && len(m.pluginRows) > 0 {
@@ -252,6 +265,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.tables[3].SetRows(msg.sessions)
 		m.tables[4].SetRows(msg.tasks)
 		m.tables[6].SetRows(msg.infra)
+		m.tables[7].SetRows(msg.grafana)
 		m.logsLines = msg.logs
 		m.infraServiceNames = msg.infraNames
 		m.pluginRows = msg.pluginRows
@@ -332,6 +346,9 @@ func (m model) View() string {
 	}
 	if m.activeTab == 1 {
 		help += styleGray.Render(" ↑↓:select  e:enable  d:disable")
+	}
+	if m.activeTab == 7 {
+		help += styleGray.Render(" o:open Grafana")
 	}
 	help += "  q:quit\n"
 	if actionBar != "" {
@@ -450,6 +467,7 @@ type tickResult struct {
 	logs       []string
 	infra      []table.Row
 	infraNames []string
+	grafana    []table.Row
 }
 
 func tick() tea.Cmd {
@@ -465,6 +483,7 @@ func tick() tea.Cmd {
 			logs:       fetchLogs(),
 			infra:      fetchInfra(),
 			infraNames: fetchInfraNames(),
+			grafana:    fetchGrafanaStatus(),
 		}
 	}
 }
@@ -1211,6 +1230,15 @@ func fetchInfraNames() []string {
 	return names
 }
 
+func fetchGrafanaStatus() []table.Row {
+	var rows []table.Row
+	rows = append(rows, table.Row{"Grafana", "", "http://localhost:3001", "Press 'o' to open"})
+	rows = append(rows, table.Row{"Dashboard: Infrastructure", "opencode-infra", "http://localhost:3001/d/opencode-infra", "Press 'o'"})
+	rows = append(rows, table.Row{"Dashboard: Agent Perf", "opencode-tokens", "http://localhost:3001/d/opencode-tokens", "Press 'o'"})
+	rows = append(rows, table.Row{"Prometheus", "", "http://localhost:9090", "Press 'o'"})
+	return rows
+}
+
 func fetchInfra() []table.Row {
 	var rows []table.Row
 
@@ -1424,7 +1452,7 @@ func newTable(cols []table.Column) table.Model {
 }
 
 func main() {
-	tabs := []string{"Services", "Plugins", "GPU", "Sessions", "Tasks", "Logs", "Infra"}
+	tabs := []string{"Services", "Plugins", "GPU", "Sessions", "Tasks", "Logs", "Infra", "Grafana"}
 
 	svcCols := []table.Column{
 		{Title: "Name", Width: 35},
@@ -1462,6 +1490,12 @@ func main() {
 		{Title: "Status", Width: 35},
 		{Title: "Ports", Width: 35},
 	}
+	grafanaCols := []table.Column{
+		{Title: "Name", Width: 30},
+		{Title: "UID", Width: 20},
+		{Title: "URL", Width: 40},
+		{Title: "Action", Width: 20},
+	}
 
 	tables := []table.Model{
 		newTable(svcCols),
@@ -1471,6 +1505,7 @@ func main() {
 		newTable(taskCols),
 		newTable(logsCols),
 		newTable(infraCols),
+		newTable(grafanaCols),
 	}
 
 	m := model{

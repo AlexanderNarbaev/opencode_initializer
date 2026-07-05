@@ -17,8 +17,50 @@ function json(res, data) {
 }
 
 function readOpencodeConfig() {
-  try { return JSON.parse(fs.readFileSync(path.join(HOME, '.config/opencode/opencode.json'), 'utf-8')); }
-  catch { return null; }
+  try {
+    let raw = fs.readFileSync(path.join(HOME, '.config/opencode/opencode.json'), 'utf-8');
+    // Strip // comments (but not URLs containing //)
+    raw = raw.replace(/(?<!:)\/\/.*$/gm, '');
+    // Strip /* */ comments
+    raw = raw.replace(/\/\*[\s\S]*?\*\//g, '');
+    return JSON.parse(raw);
+  } catch { return null; }
+}
+
+function writeOpencodeConfig(cfg) {
+  const p = path.join(HOME, '.config/opencode/opencode.json');
+  const bak = path.join(HOME, '.config/opencode/opencode.json.bak');
+  try { fs.copyFileSync(p, bak); } catch {}
+  fs.writeFileSync(p, JSON.stringify(cfg, null, 2));
+}
+
+function ollamaModels() {
+  try { const out = execSync('ollama list', { timeout: 5000, encoding: 'utf-8' }).trim();
+    return out.split('\n').slice(1).map(l=>{const m=l.match(/^(\S+)\s+\S+\s+([\d.]+\s*\w+)/); return m?{name:m[1],size:m[2]}:null}).filter(Boolean);
+  } catch { return []; }
+}
+
+function memoryLayerStatus() {
+  let ml = { running: false, version: '', embedProxy: false };
+  try { const r = execSync('curl -s http://localhost:61001/', { timeout: 3000, encoding: 'utf-8' });
+    const d = JSON.parse(r); ml.running = true; ml.version = d.version || '';
+  } catch {}
+  ml.embedProxy = checkPort(61051);
+  ml.qdrant = checkPort(6333);
+  ml.redis = checkPort(6379);
+  return ml;
+}
+
+function readSetupConfig() {
+  const conf = path.join(HOME, '.config/opencode-setup/setup.conf');
+  let cfg = {};
+  try {
+    fs.readFileSync(conf, 'utf-8').split('\n').forEach(l => {
+      const m = l.match(/^(\w+)\s*=\s*"?([^"#\n\r]+)"?/);
+      if (m) cfg[m[1]] = m[2].trim();
+    });
+  } catch {}
+  return cfg;
 }
 
 function readTaskProfiles() {
@@ -60,6 +102,10 @@ const server = http.createServer((req, res) => {
         else if(a==='infra-stop'){run('docker stop opencode-'+target.toLowerCase());result.refresh=true;result.message='Stopping '+target}
         else if(a==='infra-restart'){run('docker restart opencode-'+target.toLowerCase());result.refresh=true;result.message='Restarting '+target}
         else if(a==='restore-backup'){run('dev backup restore '+target);result.message='Restored from '+target}
+        else if(a==='pull-model'){run('ollama pull '+target+' > /dev/null 2>&1 &');result.message='Pulling model '+target+' (background)';result.refresh=true}
+        else if(a==='remove-model'){run('ollama rm '+target);result.message='Removed model '+target;result.refresh=true}
+        else if(a==='switch-model'){const cfg=readOpencodeConfig();if(cfg){cfg.model=target;writeOpencodeConfig(cfg);result.message='Switched to '+target;result.refresh=true}else{result={ok:false,message:'Config not found'}}}
+        else if(a==='toggle-external-obs'){const conf=path.join(HOME,'.config/opencode-setup/setup.conf');let content='';try{content=fs.readFileSync(conf,'utf-8')}catch{}if(content.includes('EXTERNAL_OBSERVABILITY=true')){content=content.replace('EXTERNAL_OBSERVABILITY=true','EXTERNAL_OBSERVABILITY=false');result.message='External observability DISABLED'}else if(content.includes('EXTERNAL_OBSERVABILITY=false')){content=content.replace('EXTERNAL_OBSERVABILITY=false','EXTERNAL_OBSERVABILITY=true');result.message='External observability ENABLED'}else{content+='\nEXTERNAL_OBSERVABILITY=true\n';result.message='External observability ENABLED'}try{fs.writeFileSync(conf,content)}catch{}}
         else{result={ok:false,message:'Unknown: '+a}}
       }catch(e){result={ok:false,message:e.message}}
       res.writeHead(200,{'Content-Type':'application/json'});
@@ -75,7 +121,7 @@ const server = http.createServer((req, res) => {
     let mcpOk=0,mcpMiss=0,lspOk=0,lspMiss=0;
     mcpList.forEach(m=>{checkBin(m)?mcpOk++:mcpMiss++});
     lspList.forEach(l=>{try{execSync(`which ${l}`,{stdio:'pipe'});lspOk++}catch{lspMiss++}});
-    const infraList = [['ChromaDB',8000],['PostgreSQL',5432],['Qdrant',6333],['Redis',6379],['MemoryLayer',8080],['Prometheus',9090],['Grafana',3001]];
+    const infraList = [['ChromaDB',8000],['PostgreSQL',5432],['Qdrant',6333],['Redis',6379],['MemoryLayer',61001],['Prometheus',9090],['Grafana',3001]];
     let infraOk=0,infraMiss=0;
     infraList.forEach(([n,p])=>{checkPort(p)?infraOk++:infraMiss++});
     json(res, {
@@ -155,7 +201,7 @@ const server = http.createServer((req, res) => {
 
   if (api === '/infra') {
     const services = [
-      ['ChromaDB',8000],['MemoryLayer',0],['PostgreSQL',0],['Qdrant',0],['Redis',0],
+      ['ChromaDB',8000],['MemoryLayer',61001],['PostgreSQL',5432],['Qdrant',6333],['Redis',6379],
       ['Prometheus',9090],['Grafana',3001],['SearXNG',8888],['LiteLLM',4000],['Ollama',11434],
     ];
     const result = services.map(([name,port])=>({name,port,running:checkPort(port)}));
@@ -213,6 +259,63 @@ const server = http.createServer((req, res) => {
     let logs = [];
     try { logs = fs.readFileSync(logFile,'utf-8').split('\n').slice(-50); } catch {}
     json(res, { logs });
+    return;
+  }
+
+  // --- Model Management: POST /config-model (MUST be before GET) ---
+  if (api === '/config-model' && req.method === 'POST') {
+    let body = '';
+    req.on('data',c=>body+=c);
+    req.on('end',()=>{
+      let act; try{act=JSON.parse(body)}catch{act={}};
+      const cfg = readOpencodeConfig();
+      if (!cfg) { json(res, { ok: false, message: 'Cannot read config' }); return; }
+      if (act.model) cfg.model = act.model;
+      if (act.small_model) cfg.small_model = act.small_model;
+      try { writeOpencodeConfig(cfg); json(res, { ok: true, model: cfg.model, small_model: cfg.small_model }); }
+      catch(e) { json(res, { ok: false, message: e.message }); }
+    });
+    return;
+  }
+
+  if (api === '/config-model') {
+    const cfg = readOpencodeConfig();
+    const models = ollamaModels();
+    const providers = cfg ? Object.keys(cfg.provider||{}) : [];
+    json(res, {
+      model: cfg ? cfg.model : null,
+      small_model: cfg ? cfg.small_model : null,
+      local_models: models,
+      providers: providers
+    });
+    return;
+  }
+
+  if (api === '/ollama-models') {
+    const models = ollamaModels();
+    json(res, { models });
+    return;
+  }
+
+  if (api === '/memory-layer') {
+    json(res, memoryLayerStatus());
+    return;
+  }
+
+  if (api === '/grafana-config') {
+    const cfg = readSetupConfig();
+    const external = cfg.EXTERNAL_OBSERVABILITY === 'true';
+    const localRunning = checkPort(3001);
+    const url = external ? (cfg.EXTERNAL_GRAFANA_URL || 'http://localhost:3001') : 'http://localhost:3001';
+    json(res, {
+      external,
+      url,
+      localRunning,
+      dashboards: [
+        { uid: 'opencode-infra', name: 'Infrastructure Overview' },
+        { uid: 'opencode-tokens', name: 'Agent Performance' }
+      ]
+    });
     return;
   }
 

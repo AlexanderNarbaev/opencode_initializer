@@ -37,6 +37,7 @@ th{color:#8b949e;font-weight:600;text-transform:uppercase;font-size:10px}
 .btn-primary:hover{background:#388bfd}
 .btn-danger{background:#da3633;border-color:#da3633;color:#fff}
 .btn-danger:hover{background:#f85149}
+.btn-success{background:#1a7f37;border-color:#1a7f37;color:#fff}
 .btn-sm{padding:4px 8px;font-size:10px}
 pre{background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:10px;overflow-x:auto;font-size:11px;max-height:350px}
 .task-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
@@ -47,21 +48,30 @@ pre{background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:10px;o
 .task-card .desc{font-size:11px;color:#8b949e;margin-top:2px}
 .task-card .cost{font-size:10px;color:#2da44e;margin-top:2px}
 .action-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.alert{border-radius:6px;padding:10px 14px;margin-bottom:12px;font-size:13px}
+.alert-info{background:#0d2c4a;border:1px solid #1f6feb;color:#58a6ff}
+.alert-ok{background:#0d2c1a;border:1px solid #1a7f37;color:#3fb950}
+.alert-warn{background:#3d2c0a;border:1px solid #d29922;color:#e3b341}
 .toast{position:fixed;bottom:20px;right:20px;background:#1a7f37;color:#fff;padding:10px 16px;border-radius:6px;font-size:13px;z-index:9999;display:none}
 .settings-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #21262d}
 .settings-row:last-child{border-bottom:none}
 .settings-row label{flex:1;font-size:13px}
+.model-select{background:#0d1117;border:1px solid #30363d;color:#c9d1d9;padding:4px 8px;border-radius:4px;font-size:12px;min-width:200px}
+.model-select option{background:#161b22}
 </style>
 </head>
 <body>
 <div class="sidebar">
 <h1>OpenCode<small>v2.0.0</small></h1>
 <div class="nav-item active" data-section="overview">Dashboard</div>
+<div class="nav-item" data-section="model-manager">Model Manager</div>
 <div class="nav-item" data-section="providers">Providers</div>
 <div class="nav-item" data-section="models">Model Router</div>
 <div class="nav-item" data-section="mcp">MCP Servers</div>
 <div class="nav-item" data-section="lsp">LSP Servers</div>
 <div class="nav-item" data-section="infra">Infrastructure</div>
+<div class="nav-item" data-section="metrics">Metrics</div>
+<div class="nav-item" data-section="memory">Memory</div>
 <div class="nav-item" data-section="isolated">Isolated Circuit</div>
 <div class="nav-item" data-section="backup">Backup</div>
 <div class="nav-item" data-section="logs">Logs</div>
@@ -75,8 +85,46 @@ pre{background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:10px;o
   <button class="btn" onclick="action('health')">🏥 Run Health Check</button>
   <button class="btn" onclick="action('regen-config')">⚙️ Regen Config</button>
 </div>
+<div class="card">
+  <h3>Active Model</h3>
+  <div style="padding:8px 0" id="active-model-display">
+    <span style="font-size:15px;font-weight:600;color:#58a6ff">Loading...</span>
+    <span style="font-size:11px;color:#8b949e;margin-left:8px" id="small-model-display"></span>
+  </div>
+  <div style="display:flex;gap:8px;margin-top:8px">
+    <select class="model-select" id="model-switcher" onchange="switchActiveModel()">
+      <option value="">-- Switch Model --</option>
+    </select>
+    <button class="btn btn-sm" onclick="loadActiveModel()">🔄</button>
+  </div>
+</div>
 <div class="stat-grid" id="stats"></div>
 <div class="card"><h3>OpenCode Config</h3><pre id="config-summary">Loading...</pre></div>
+</div>
+
+<div class="section" id="model-manager">
+<h2>Model Manager</h2>
+<div class="action-bar">
+  <button class="btn btn-primary" onclick="loadActiveModel()">🔄 Refresh</button>
+</div>
+<div class="card">
+  <h3>Active Model Configuration</h3>
+  <div class="alert alert-info" id="mm-active-model">Loading...</div>
+  <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+    <span style="font-size:12px;color:#8b949e">Switch to:</span>
+    <select class="model-select" id="mm-switcher" onchange="switchModelMM()">
+      <option value="">-- Select model --</option>
+    </select>
+  </div>
+</div>
+<div class="card">
+  <h3>Local Ollama Models</h3>
+  <div style="display:flex;gap:8px;margin-bottom:10px">
+    <input type="text" id="pull-model-name" placeholder="e.g. llama3:8b" class="model-select" style="flex:1">
+    <button class="btn btn-success" onclick="pullModel()">⬇ Pull Model</button>
+  </div>
+  <table><thead><tr><th>Model</th><th>Size</th><th>Actions</th></tr></thead><tbody id="ollama-models-table"></tbody></table>
+</div>
 </div>
 
 <div class="section" id="providers">
@@ -118,10 +166,31 @@ pre{background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:10px;o
 <h2>Infrastructure Services</h2>
 <div class="action-bar">
   <button class="btn btn-primary" onclick="loadInfra()">🔄 Refresh</button>
-  <button class="btn btn-success" onclick="action('infra-up-all')" style="background:#1a7f37;border-color:#1a7f37;color:#fff">▶ Start All</button>
+  <button class="btn btn-success" onclick="action('infra-up-all')">▶ Start All</button>
   <button class="btn btn-danger" onclick="action('infra-down-all')">⏹ Stop All</button>
 </div>
 <div class="card"><table id="infra-table"><thead><tr><th>Service</th><th>Port</th><th>Status</th><th>Actions</th></tr></thead><tbody></tbody></table></div>
+</div>
+
+<div class="section" id="metrics">
+<h2>Metrics — Grafana Dashboards</h2>
+<div class="action-bar">
+  <button class="btn btn-primary" onclick="loadMetrics()">🔄 Refresh</button>
+  <button class="btn" onclick="toggleExternalObs()">🔀 Toggle External Obs</button>
+  <button class="btn btn-success" onclick="window.open(document.getElementById('grafana-frame').src, '_blank')">🔗 Open in Browser</button>
+</div>
+<div class="card" id="metrics-card"></div>
+<div class="card" id="grafana-card" style="padding:0;overflow:hidden">
+  <iframe id="grafana-frame" src="about:blank" style="width:100%;height:700px;border:none;border-radius:0 0 8px 8px" allow="fullscreen"></iframe>
+</div>
+</div>
+
+<div class="section" id="memory">
+<h2>MemoryLayer — Full Memory Stack</h2>
+<div class="action-bar">
+  <button class="btn btn-primary" onclick="loadMemory()">🔄 Refresh</button>
+</div>
+<div class="card" id="memory-card"><p>Loading...</p></div>
 </div>
 
 <div class="section" id="isolated">
@@ -161,9 +230,9 @@ let lastAction='';
 function toast(msg,c='#1a7f37'){const t=document.getElementById('toast');t.textContent=msg;t.style.background=c;t.style.display='block';setTimeout(()=>t.style.display='none',3000)}
 function nav(s){document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));event.target.classList.add('active');document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById(s).classList.add('active');window['load'+s.charAt(0).toUpperCase()+s.slice(1)]&&window['load'+s.charAt(0).toUpperCase()+s.slice(1)]()}
 
-async function action(act){
+async function action(act,target){
   try{
-    const r=await fetch(API+'/action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:act})});
+    const r=await fetch(API+'/action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:act,target:target||''})});
     const d=await r.json();
     toast(d.message||'Done',d.ok?'#1a7f37':'#da3633');
     if(d.refresh) refreshAll();
@@ -171,7 +240,7 @@ async function action(act){
 }
 
 async function refreshAll(){
-  loadOverview();loadProviders();loadModels();loadMCP();loadLSP();loadInfra();loadIsolated();
+  loadOverview();loadActiveModel();loadOllamaModels();loadProviders();loadModels();loadMCP();loadLSP();loadInfra();loadMetrics();loadMemory();loadIsolated();
   toast('All refreshed','#1f6feb');
 }
 
@@ -179,16 +248,79 @@ async function loadOverview(){
   try{
     const d=await fetch(API+'/status').then(r=>r.json());
     const s=[
-      ['Providers',d.providers||0,`/24`],
-      ['MCP Ready',d.mcp_ok||0,`/${(d.mcp_ok||0)+(d.mcp_miss||0)}`],
-      ['LSP Ready',d.lsp_ok||0,`/${(d.lsp_ok||0)+(d.lsp_miss||0)}`],
+      ['Providers',d.providers||0,'/24'],
+      ['MCP Ready',d.mcp_ok||0,'/'+((d.mcp_ok||0)+(d.mcp_miss||0))],
+      ['LSP Ready',d.lsp_ok||0,'/'+((d.lsp_ok||0)+(d.lsp_miss||0))],
       ['Plugins',d.plugins||0,''],
-      ['Infra Up',d.infra_ok||0,`/${(d.infra_ok||0)+(d.infra_miss||0)}`],
+      ['Infra Up',d.infra_ok||0,'/'+((d.infra_ok||0)+(d.infra_miss||0))],
       ['Router',d.model_router?'ON':'OFF',''],
     ];
     document.getElementById('stats').innerHTML=s.map(([l,v,u])=>`<div class="stat"><div class="value">${v}<span style="font-size:13px;color:#8b949e">${u}</span></div><div class="label">${l}</div></div>`).join('');
     if(d.config)document.getElementById('config-summary').textContent=JSON.stringify(d.config,null,2);
   }catch(e){}
+}
+
+async function loadActiveModel(){
+  try{
+    const d=await fetch(API+'/config-model').then(r=>r.json());
+    document.getElementById('active-model-display').innerHTML=`<span style="font-size:15px;font-weight:600;color:#58a6ff">${d.model||'N/A'}</span>`;
+    document.getElementById('small-model-display').textContent=d.small_model?'(small: '+d.small_model+')':'';
+    
+    // Populate Dashboard switcher
+    const ds=document.getElementById('model-switcher');
+    ds.innerHTML='<option value="">-- Switch Model --</option>';
+    (d.providers||[]).forEach(p=>ds.innerHTML+=`<option value="${p}">${p}</option>`);
+    if(d.local_models&&d.local_models.length){
+      ds.innerHTML+='<optgroup label="Local (Ollama)">';
+      d.local_models.forEach(m=>ds.innerHTML+=`<option value="ollama/${m.name}">🐑 ${m.name}</option>`);
+      ds.innerHTML+='</optgroup>';
+    }
+    
+    // Populate Model Manager
+    document.getElementById('mm-active-model').innerHTML=`Active: <b>${d.model||'N/A'}</b>${d.small_model?' · Small: <b>'+d.small_model+'</b>':''}`;
+    const ms=document.getElementById('mm-switcher');
+    ms.innerHTML='<option value="">-- Select model --</option>';
+    (d.providers||[]).forEach(p=>{
+      const opts=d.local_models&&d.local_models.some(m=>m.name.includes(p))?'':'';
+      ms.innerHTML+=`<option value="${p}">${p}</option>`;
+    });
+    if(d.local_models&&d.local_models.length){
+      ms.innerHTML+='<optgroup label="Local (Ollama)">';
+      d.local_models.forEach(m=>ms.innerHTML+=`<option value="ollama/${m.name}">🐑 ${m.name} (${m.size})</option>`);
+      ms.innerHTML+='</optgroup>';
+    }
+  }catch(e){}
+}
+
+async function loadOllamaModels(){
+  try{
+    const d=await fetch(API+'/ollama-models').then(r=>r.json());
+    document.getElementById('ollama-models-table').innerHTML=(d.models||[]).map(m=>`<tr>
+      <td>🐑 <b>${m.name}</b></td>
+      <td>${m.size}</td>
+      <td>
+        <button class="btn btn-sm btn-primary" onclick="action('switch-model','ollama/${m.name}')">Set Active</button>
+        <button class="btn btn-sm btn-danger" onclick="if(confirm('Remove ${m.name}?'))action('remove-model','${m.name}')">Remove</button>
+      </td>
+    </tr>`).join('')||'<tr><td colspan=3 style="color:#8b949e">No local models installed. Pull one above.</td></tr>';
+  }catch(e){}
+}
+
+function switchActiveModel(){
+  const v=document.getElementById('model-switcher').value;
+  if(v)action('switch-model',v);
+}
+
+function switchModelMM(){
+  const v=document.getElementById('mm-switcher').value;
+  if(v)action('switch-model',v);
+}
+
+function pullModel(){
+  const n=document.getElementById('pull-model-name').value.trim();
+  if(!n){toast('Enter model name','#d29922');return}
+  action('pull-model',n);
+  document.getElementById('pull-model-name').value='';
 }
 
 async function loadProviders(){
@@ -199,7 +331,7 @@ async function loadProviders(){
       <td><span class="badge ${p.status?'badge-ok':'badge-err'}">${p.status?'Active':'No key'}</span></td>
       <td>${p.models||'-'}</td>
       <td>${p.free?'<span class="badge badge-ok">Free</span>':'<span class="badge badge-warn">Paid</span>'}</td>
-      <td><button class="btn btn-sm" onclick="action('test-provider','${p.name}')">Test</button></td>
+      <td><button class="btn btn-sm" onclick="action('switch-model','${p.name.toLowerCase().replace(/[^a-z0-9-]/g,'')}')">Set Active</button></td>
     </tr>`).join('');
   }catch(e){}
 }
@@ -207,7 +339,7 @@ async function loadProviders(){
 async function loadModels(){
   try{
     const d=await fetch(API+'/models').then(r=>r.json());
-    document.getElementById('task-profiles').innerHTML=(d.profiles||[]).map(p=>`<div class="task-card">
+    document.getElementById('task-profiles').innerHTML=(d.profiles||[]).map(p=>`<div class="task-card" onclick="action('switch-model','${p.model}')">
       <div class="name">${p.task}</div>
       <div class="model">${p.model}</div>
       <div class="desc">${p.description}</div>
@@ -254,6 +386,52 @@ async function loadInfra(){
   }catch(e){}
 }
 
+async function loadMetrics(){
+  try{
+    const d=await fetch(API+'/grafana-config').then(r=>r.json());
+    const statusIcon = d.localRunning ? '✅' : '⚠️';
+    const statusText = d.external ? 'External' : (d.localRunning ? 'Local' : 'Not running');
+    const statusClass = d.localRunning ? 'badge-ok' : (d.external ? 'badge-info' : 'badge-warn');
+    
+    document.getElementById('metrics-card').innerHTML=`
+      <h3>Grafana Status</h3>
+      <p>${statusIcon} <span class="badge ${statusClass}">${statusText}</span> — <a href="${d.url}" target="_blank" style="color:#58a6ff">${d.url}</a></p>
+      <p style="font-size:11px;color:#8b949e;margin-top:4px">Credentials: admin / admin</p>
+      <h3 style="margin-top:12px">Dashboards</h3>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+        ${(d.dashboards||[]).map(db=>`
+          <a href="${d.url}/d/${db.uid}" target="_blank" style="text-decoration:none">
+            <div style="background:#161b22;border:1px solid #30363d;border-radius:6px;padding:10px 14px;cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='#58a6ff'" onmouseout="this.style.borderColor='#30363d'">
+              <div style="font-size:13px;color:#f0f6fc">${db.name}</div>
+              <div style="font-size:10px;color:#8b949e">${db.uid}</div>
+            </div>
+          </a>
+        `).join('')}
+      </div>`;
+    
+    document.getElementById('grafana-frame').src = d.url + '?kiosk=tv&from=now-1h&to=now';
+  }catch(e){document.getElementById('metrics-card').innerHTML='<p>Failed to load Grafana config</p>'}
+}
+
+async function loadMemory(){
+  try{
+    const d=await fetch(API+'/memory-layer').then(r=>r.json());
+    document.getElementById('memory-card').innerHTML=`
+      <h3>MemoryLayer Server</h3>
+      <p>Status: <span class="badge ${d.running?'badge-ok':'badge-err'}">${d.running?'Running ('+d.version+')':'Stopped'}</span></p>
+      <h3>Embed Proxy (Ollama → MemoryLayer)</h3>
+      <p>Status: <span class="badge ${d.embedProxy?'badge-ok':'badge-err'}">${d.embedProxy?'Running (port 61051)':'Stopped'}</span></p>
+      <h3>Storage Services</h3>
+      <table><thead><tr><th>Service</th><th>Status</th></tr></thead><tbody>
+        <tr><td>Qdrant (Vector DB)</td><td><span class="badge ${d.qdrant?'badge-ok':'badge-err'}">${d.qdrant?'Running':'Stopped'}</span></td></tr>
+        <tr><td>Redis (Cache/Queue)</td><td><span class="badge ${d.redis?'badge-ok':'badge-err'}">${d.redis?'Running':'Stopped'}</span></td></tr>
+      </tbody></table>
+      <div class="alert alert-${d.running&&d.embedProxy?'ok':'warn'}" style="margin-top:12px">
+        ${d.running&&d.embedProxy?'✅ Full memory stack operational':'⚠️ Some components missing — check services'}
+      </div>`;
+  }catch(e){document.getElementById('memory-card').innerHTML='<p>Failed to load</p>'}
+}
+
 async function loadIsolated(){
   try{
     const d=await fetch(API+'/isolated').then(r=>r.json());
@@ -277,10 +455,12 @@ async function loadLogs(){
 }
 
 async function toggleIsolated(){await fetch(API+'/isolated/toggle',{method:'POST'});loadIsolated();toast('Isolated Circuit toggled')}
+async function toggleExternalObs(){await action('toggle-external-obs');loadMetrics();toast('External observability toggled')}
 async function createBackup(){await fetch(API+'/backup/create',{method:'POST'});loadBackups();toast('Backup created')}
 
 document.querySelectorAll('.nav-item').forEach(n=>n.addEventListener('click',function(){nav(this.dataset.section)}));
-loadOverview();loadProviders();loadModels();loadMCP();loadLSP();loadInfra();loadIsolated();loadBackups();loadLogs();
+// Initial load
+loadOverview();loadActiveModel();loadOllamaModels();loadProviders();loadModels();loadMCP();loadLSP();loadInfra();loadMetrics();loadMemory();loadIsolated();loadBackups();loadLogs();
 setInterval(loadOverview,15000);
 </script>
 </body>

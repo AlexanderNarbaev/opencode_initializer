@@ -1,0 +1,60 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/gui/**'
+      - 'package.json'
+      - '.github/workflows/build.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/gui/**'
+      - 'package.json'
+
+jobs:
+  build-gui:
+    name: Build GUI Binary
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Cache Bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile || bun install
+
+      - name: Syntax check
+        run: node --check src/gui/server.js
+
+      - name: Build standalone binary
+        run: bun build src/gui/server.js --compile --outfile dist/opencode-gui
+
+      - name: Verify binary exists
+        run: |
+          ls -la dist/opencode-gui
+          file dist/opencode-gui
+          echo "Binary size: $(du -h dist/opencode-gui | cut -f1)"
+
+      - name: Quick smoke test (check it starts)
+        run: |
+          timeout 3 ./dist/opencode-gui 2>&1 || true
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: opencode-gui-linux-amd64
+          path: dist/opencode-gui
+          retention-days: 7

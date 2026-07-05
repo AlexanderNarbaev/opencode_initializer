@@ -8,7 +8,7 @@
   "lastContextSessionState": null,
   "lastContextAccessMode": null,
   "lastContextOwnerUserKey": null,
-  "activeScenario": "degraded_fallback",
+  "activeScenario": "default",
   "recentUsedContextItems": [],
   "lastCommitFingerprint": null,
   "lastCommitStatus": null
