@@ -290,5 +290,96 @@ CLI_LANG="${CLI_LANG:-${LANG:-}}"
 case "$CLI_LANG" in ru*) CLI_LANG="ru";; *) CLI_LANG="en";; esac
 export CLI_LANG
 
+
+# ── Port resolution — detect free ports, apply shifts, avoid collisions ─────
+_port_is_free() {
+  local port="$1"
+  if command -v ss &>/dev/null; then
+    ! ss -tlnp 2>/dev/null | grep -q ":${port} "
+  elif command -v netstat &>/dev/null; then
+    ! netstat -tlnp 2>/dev/null | grep -q ":${port} "
+  else
+    (echo >/dev/tcp/127.0.0.1/"$port") 2>/dev/null && return 1 || return 0
+  fi
+}
+
+_find_free_port() {
+  local base="$1" max="${2:-50}"
+  local port="$base"
+  while (( port < base + max )); do
+    if _port_is_free "$port"; then echo "$port"; return 0; fi
+    ((port++))
+  done
+  echo "$base"
+  warn "Port range $base-$((base + max - 1)) exhausted — falling back to $base"
+  return 1
+}
+
+_resolve_service_port() {
+  local svc="$1" default="$2"
+  local port=""
+  local env_name="${svc^^}_PORT"
+  port="${!env_name:-}"
+  if [ -z "$port" ] || [ "$port" = "0" ]; then
+    # shellcheck disable=SC1090
+    [ -f "$SETUP_CONF" ] && . "$SETUP_CONF" 2>/dev/null && port="${!env_name:-}"
+  fi
+  if [ -z "$port" ] || [ "$port" = "0" ]; then
+    port="$(_find_free_port "$default")"
+    _set_config "${svc^^}_PORT" "$port"
+  fi
+  echo "$port"
+}
+
+_service_mode() {
+  local svc="$1"
+  local mode_var="${svc^^}_MODE"
+  local mode="${!mode_var:-}"
+  if [ -z "$mode" ] && [ -f "$SETUP_CONF" ]; then
+    # shellcheck disable=SC1090
+    . "$SETUP_CONF" 2>/dev/null
+    mode="${!mode_var:-}"
+  fi
+  mode="${mode:-local}"
+  case "${mode,,}" in
+    local|external|disabled) echo "${mode,,}" ;;
+    *) echo "local" ;;
+  esac
+}
+
+_set_config() {
+  local key="$1" value="$2"
+  mkdir -p "$(dirname "$SETUP_CONF")"
+  if [ -f "$SETUP_CONF" ] && grep -q "^${key}=" "$SETUP_CONF" 2>/dev/null; then
+    sed -i "s|^${key}=.*|${key}=${value}|" "$SETUP_CONF"
+  else
+    echo "${key}=${value}" >> "$SETUP_CONF"
+  fi
+}
+
+SETUP_CONF="${SETUP_CONF:-$HOME/.config/opencode-setup/setup.conf}"
+export SETUP_CONF
+
+DEPLOYMENT_PROFILE="${DEPLOYMENT_PROFILE:-}"
+# shellcheck disable=SC1090
+[ -z "$DEPLOYMENT_PROFILE" ] && [ -f "$SETUP_CONF" ] &&   . "$SETUP_CONF" 2>/dev/null && DEPLOYMENT_PROFILE="${DEPLOYMENT_PROFILE:-}"
+DEPLOYMENT_PROFILE="${DEPLOYMENT_PROFILE:-personal}"
+case "${DEPLOYMENT_PROFILE,,}" in
+  personal|corporate|airgapped|hybrid) ;;
+  *) DEPLOYMENT_PROFILE="personal" ;;
+esac
+export DEPLOYMENT_PROFILE
+
+declare -A SERVICE_PORTS=(
+  [postgres]=5432     [qdrant]=6333        [redis]=6379
+  [prometheus]=9090   [grafana]=3001       [node_exporter]=9100
+  [metrics_exporter]=9464  [gui]=4200      [ollama]=11434
+  [litellm]=4000      [vllm]=8000          [sglang]=30000
+  [chromadb]=8000     [memorylayer]=61001  [kafka]=9092
+  [neo4j]=7474        [minio]=9000         [searxng]=8888
+  [open_webui]=3300
+)
+export SERVICE_PORTS
+
 OPencode_LOCAL_ENDPOINT="${OPencode_LOCAL_ENDPOINT:-http://localhost:4000/v1}"
 export OPencode_LOCAL_ENDPOINT

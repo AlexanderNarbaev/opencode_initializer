@@ -53,15 +53,15 @@ type model struct {
 	infraMsg          string
 	infraMsgTime      time.Time
 
-	pluginRows   []pluginRowData
-	pluginSel    int
-	pluginMsg    string
+	pluginRows    []pluginRowData
+	pluginSel     int
+	pluginMsg     string
 	pluginMsgTime time.Time
 
-	showWAL     bool
-	walContent  string
-	walScroll   int
-	configMsg   string
+	showWAL       bool
+	walContent    string
+	walScroll     int
+	configMsg     string
 	configMsgTime time.Time
 }
 
@@ -160,8 +160,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "o":
 			if m.activeTab == 7 {
+				grafanaPort := readSetupConfigValue("GRAFANA_PORT")
+				if grafanaPort == "" {
+					grafanaPort = "3001"
+				}
 				go func() {
-					exec.Command("xdg-open", "http://localhost:3001").Start()
+					exec.Command("xdg-open", "http://localhost:"+grafanaPort).Start()
 				}()
 				m.configMsg = "Opening Grafana in browser..."
 				m.configMsgTime = time.Now()
@@ -331,10 +335,10 @@ func (m model) View() string {
 
 	var actionBar string
 	if m.configMsg != "" && time.Since(m.configMsgTime) < 5*time.Second {
-		actionBar += styleYellow.Render(" " + m.configMsg) + " "
+		actionBar += styleYellow.Render(" "+m.configMsg) + " "
 	}
 	if m.pluginMsg != "" && time.Since(m.pluginMsgTime) < 5*time.Second {
-		actionBar += styleGreen.Render(" " + m.pluginMsg) + " "
+		actionBar += styleGreen.Render(" "+m.pluginMsg) + " "
 	}
 	globalActions := styleGray.Render(" r:refresh  w:WAL  c:config ")
 	help := "\n" + globalActions
@@ -1230,12 +1234,38 @@ func fetchInfraNames() []string {
 	return names
 }
 
+func readSetupConfigValue(key string) string {
+	configFile := filepath.Join(homeDir, ".config", "opencode-setup", "setup.conf")
+	data, err := os.ReadFile(configFile)
+	if err != nil {
+		return ""
+	}
+	for _, line := range strings.Split(string(data), "\n") {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, key+"=") {
+			val := strings.TrimPrefix(line, key+"=")
+			return val
+		}
+	}
+	return ""
+}
+
 func fetchGrafanaStatus() []table.Row {
 	var rows []table.Row
-	rows = append(rows, table.Row{"Grafana", "", "http://localhost:3001", "Press 'o' to open"})
-	rows = append(rows, table.Row{"Dashboard: Infrastructure", "opencode-infra", "http://localhost:3001/d/opencode-infra", "Press 'o'"})
-	rows = append(rows, table.Row{"Dashboard: Agent Perf", "opencode-tokens", "http://localhost:3001/d/opencode-tokens", "Press 'o'"})
-	rows = append(rows, table.Row{"Prometheus", "", "http://localhost:9090", "Press 'o'"})
+	grafanaPort := readSetupConfigValue("GRAFANA_PORT")
+	if grafanaPort == "" {
+		grafanaPort = "3001"
+	}
+	promPort := readSetupConfigValue("PROMETHEUS_PORT")
+	if promPort == "" {
+		promPort = "9090"
+	}
+
+	grafanaURL := "http://localhost:" + grafanaPort
+	rows = append(rows, table.Row{"Grafana", "", grafanaURL, "Press 'o' to open"})
+	rows = append(rows, table.Row{"Dashboard: Infrastructure", "opencode-infra", grafanaURL + "/d/opencode-infra", "Press 'o'"})
+	rows = append(rows, table.Row{"Dashboard: Agent Perf", "opencode-tokens", grafanaURL + "/d/opencode-tokens", "Press 'o'"})
+	rows = append(rows, table.Row{"Prometheus", "", "http://localhost:" + promPort, "Press 'o'"})
 	return rows
 }
 

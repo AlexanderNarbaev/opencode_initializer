@@ -347,6 +347,12 @@ esac done
 if [ "$MODE" = "health" ]; then source "$SCRIPT_DIR/src/modes/health.sh"; fi
 if [ "$MODE" = "ci" ]; then source "$SCRIPT_DIR/src/modes/ci.sh"; fi
 if [ "$MODE" = "fix-zshrc" ]; then source "$SCRIPT_DIR/src/modes/fix-zshrc.sh"; fi
+if [ "$MODE" = "fix-config" ]; then
+  source "$SCRIPT_DIR/src/lib/18-opencode-json.sh"
+  section "Done — opencode.json regenerated"
+  info "Restart OpenCode to apply changes."
+  exit 0
+fi
 if [ "$MODE" = "upgrade" ]; then source "$SCRIPT_DIR/src/modes/upgrade.sh"; fi
 if [ "$MODE" = "interactive" ]; then source "$SCRIPT_DIR/src/modes/interactive.sh"; fi
 

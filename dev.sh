@@ -27,6 +27,7 @@ usage() {
   echo "  dev infra up|down|status Manage infra services"
   echo "  dev observability up|down|status  Manage Prometheus + Grafana"
   echo "  dev gui start|stop|status  Manage GUI web interface (port 4200)"
+  echo "  dev metrics start|stop|status  Manage OpenCode metrics exporter (port 9464)"
   echo "  dev plugins list      List plugins by tier and status"
   echo "  dev isolated on|off|status  Toggle isolated circuit mode"
   echo "  dev models <task>     Show model recommendation for task"
@@ -298,7 +299,39 @@ cmd_observability() {
         echo "  No infra config. Run: setup.sh --with-all-infra"
       fi
       ;;
-    *) err "Unknown: dev observability $action. Use: up|down|status" ;;
+    reload)
+      section "Reloading Prometheus configuration..."
+      PROM_YML="$HOME/.config/opencode/prometheus.yml"
+      mkdir -p "$(dirname "$PROM_YML")"
+      NODE_PORT="${NODE_EXPORTER_PORT:-9100}"
+      METRICS_PORT="${METRICS_EXPORTER_PORT:-9464}"
+      # Resolve docker host IP for Linux (host.docker.internal only works on Mac/Win)
+      DOCKER_HOST=$(ip -4 addr show docker0 2>/dev/null | grep -oP 'inet \K[\d.]+' || echo "host.docker.internal")
+      cat > "$PROM_YML" << PROMCONF
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'node'
+    static_configs:
+      - targets: ['DOCKER_HOST:NODE_PORT']
+
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'opencode'
+    static_configs:
+      - targets: ['DOCKER_HOST:METRICS_PORT']
+    metrics_path: /metrics
+PROMCONF
+      sed -i "s|DOCKER_HOST|$DOCKER_HOST|g" "$PROM_YML"
+      sed -i "s|NODE_PORT|$NODE_PORT|g" "$PROM_YML"
+      sed -i "s|METRICS_PORT|$METRICS_PORT|g" "$PROM_YML"
+      log "prometheus.yml regenerated (host=$DOCKER_HOST node:$NODE_PORT opencode:$METRICS_PORT)"
+      docker restart opencode-prometheus 2>/dev/null && log "Prometheus restarted" || warn "Failed to restart prometheus"
+      ;;
+    *) err "Unknown: dev observability $action. Use: up|down|status|reload" ;;
   esac
 }
 
@@ -317,6 +350,30 @@ cmd_gui() {
       systemctl --user status opencode-gui.service 2>/dev/null || warn "GUI service not installed. Run: setup.sh --full"
       ;;
     *) err "Unknown: dev gui $action. Use: start|stop|status" ;;
+  esac
+}
+
+cmd_metrics() {
+  local action="${2:-status}"
+  case "$action" in
+    start)
+      section "Starting OpenCode Metrics Exporter"
+      systemctl --user start opencode-metrics.service 2>/dev/null && log "Metrics exporter started on port ${METRICS_EXPORTER_PORT:-9464}" || err "Failed to start metrics exporter"
+      ;;
+    stop)
+      section "Stopping OpenCode Metrics Exporter"
+      systemctl --user stop opencode-metrics.service 2>/dev/null && log "Metrics exporter stopped" || warn "Metrics exporter not running"
+      ;;
+    status | "")
+      section "Metrics Exporter Status"
+      if systemctl --user is-active opencode-metrics.service &>/dev/null; then
+        log "Metrics exporter is running"
+        curl -s http://localhost:${METRICS_EXPORTER_PORT:-9464}/metrics 2>/dev/null | head -20 || warn "Metrics endpoint not reachable"
+      else
+        warn "Metrics exporter not running. Start with: dev metrics start"
+      fi
+      ;;
+    *) err "Unknown: dev metrics $action. Use: start|stop|status" ;;
   esac
 }
 
@@ -520,6 +577,7 @@ case "${1:-}" in
   plugins) cmd_plugins "${@}" ;;
   observability) cmd_observability "${@}" ;;
   gui) cmd_gui "${@}" ;;
+  metrics) cmd_metrics "${@}" ;;
   isolated) cmd_isolated "${@}" ;;
   models) cmd_models "${@}" ;;
   backup) cmd_backup "${@}" ;;

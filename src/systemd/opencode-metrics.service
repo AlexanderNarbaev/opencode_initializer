@@ -1,0 +1,18 @@
+[Unit]
+Description=OpenCode Metrics Exporter (Prometheus)
+After=network.target opencode-infra.service
+Wants=network.target opencode-infra.service
+
+[Service]
+Type=simple
+Environment=PATH=/home/alexandr-narbaev/.local/bin:/home/alexandr-narbaev/.n/bin:/home/alexandr-narbaev/.bun/bin:/usr/local/bin:/usr/bin:/bin
+Environment=METRICS_EXPORTER_PORT=9464
+Environment=DEPLOYMENT_PROFILE=personal
+ExecStart=python3 /home/alexandr-narbaev/Projects/opencode_initializer/scripts/oc-metrics.py
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target

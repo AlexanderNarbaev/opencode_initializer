@@ -5,6 +5,8 @@
 #   EXTERNAL_OBSERVABILITY=true  — skip local setup, use external stack
 #   EXTERNAL_GRAFANA_URL=...     — external Grafana URL
 #   EXTERNAL_PROMETHEUS_URL=...  — external Prometheus URL
+#   OTEL_EXPORTER_ENABLED=true   — OpenTelemetry collector
+#   OTEL_EXPORTER_ENDPOINT=...   — OTel endpoint (grpc/http)
 set -euo pipefail
 
 _step_skip step_observability && return 0
@@ -18,6 +20,7 @@ EXTERNAL_GRAFANA_URL=""
 EXTERNAL_PROMETHEUS_URL=""
 
 if [ -f "$CONFIG_FILE" ]; then
+  # shellcheck disable=SC1090
   source "$CONFIG_FILE" 2>/dev/null || true
 fi
 
@@ -35,34 +38,46 @@ if [ "${EXTERNAL_OBSERVABILITY:-false}" = "true" ]; then
   return 0
 fi
 
+# ── Check for corporate OTel collector ────────────────────────────────────
+OTEL_EXPORTER_ENABLED="${OTEL_EXPORTER_ENABLED:-false}"
+OTEL_EXPORTER_ENDPOINT="${OTEL_EXPORTER_ENDPOINT:-}"
+if [ "${OTEL_EXPORTER_ENABLED:-false}" = "true" ] && [ -n "${OTEL_EXPORTER_ENDPOINT:-}" ]; then
+  info "OTel exporter configured → ${OTEL_EXPORTER_ENDPOINT}"
+  _set_config "OTEL_EXPORTER_ENABLED" "true"
+  _set_config "OTEL_EXPORTER_ENDPOINT" "$OTEL_EXPORTER_ENDPOINT"
+fi
+
 INFRA_CONFIG="$HOME/.config/opencode/infra.yml"
 SERVICES_DIR="$HOME/.config/opencode"
 PROMETHEUS_YML="$SERVICES_DIR/prometheus.yml"
 mkdir -p "$SERVICES_DIR"
 
-# ── Create prometheus.yml if missing ───────────────────────────────────────
-if [ ! -f "$PROMETHEUS_YML" ]; then
-  log "Creating $PROMETHEUS_YML"
-  cat >"$PROMETHEUS_YML" <<'PROMCONF'
+NODE_PORT="${NODE_EXPORTER_PORT:-9100}"
+METRICS_PORT="${METRICS_EXPORTER_PORT:-9464}"
+# Resolve docker host IP for Linux (host.docker.internal only works on Mac/Win)
+DOCKER_HOST=$(ip -4 addr show docker0 2>/dev/null | grep -oP 'inet \K[\d.]+' || echo "host.docker.internal")
+
+# ── Create/update prometheus.yml ──────────────────────────────────────────
+log "Generating $PROMETHEUS_YML"
+cat >"$PROMETHEUS_YML" <<PROMCONF
 global:
   scrape_interval: 15s
 
 scrape_configs:
   - job_name: 'node'
     static_configs:
-      - targets: ['host.docker.internal:9100']
+      - targets: ['${DOCKER_HOST}:${NODE_PORT}']
+
   - job_name: 'prometheus'
     static_configs:
       - targets: ['localhost:9090']
+
   - job_name: 'opencode'
     static_configs:
-      - targets: ['host.docker.internal:9464']
+      - targets: ['${DOCKER_HOST}:${METRICS_PORT}']
     metrics_path: /metrics
 PROMCONF
-  log "prometheus.yml created"
-else
-  log "prometheus.yml already exists"
-fi
+  log "prometheus.yml written"
 
 # ── Add prometheus + grafana to infra.yml if missing ───────────────────────
 if [ -f "$INFRA_CONFIG" ]; then
@@ -78,7 +93,7 @@ if [ -f "$INFRA_CONFIG" ]; then
   prometheus:\
     image: prom/prometheus:latest\
     container_name: opencode-prometheus\
-    ports: ["127.0.0.1:9090:9090"]\
+    ports: ["127.0.0.1:${PROMETHEUS_PORT:-9090}:9090"]\
     volumes:\
       - ./prometheus.yml:/etc/prometheus/prometheus.yml\
       - opencode_prometheus_data:/prometheus\
@@ -92,7 +107,7 @@ if [ -f "$INFRA_CONFIG" ]; then
   grafana:\
     image: grafana/grafana:latest\
     container_name: opencode-grafana\
-    ports: ["127.0.0.1:3001:3000"]\
+    ports: ["127.0.0.1:${GRAFANA_PORT:-3001}:3000"]\
     environment:\
       GF_SECURITY_ADMIN_USER: admin\
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}\

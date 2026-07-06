@@ -4,7 +4,7 @@
 
 | Phase | Status | Description |
 |-------|--------|-------------|
-| 0 | Done | Foundation: 30-infra.sh, 31-cockpit.sh, tests, Go apt fallback |
+| 0 | Done | Foundation: 30-infra.sh, 31-cockpit.sh, 33-services.sh, tests, Go apt fallback |
 | 1 | Done | Docker Infrastructure Layer (postgres, qdrant, redis) |
 | 2 | Done | Plugin Framework v2 (always/conditional/on-demand) |
 | 3 | Done | Integration tests, CI/CD for new modules |
@@ -12,7 +12,7 @@
 
 ## Identity
 Universal Dev Machine Bootstrap — однокомандная настройка AI-усиленной dev-машины для WSL2/Linux.
-Модульная архитектура: 500+ строк оркестратор + 39 модулей + автообновление через systemd-таймер.
+Модульная архитектура: 583 строки оркестратор + 40 модулей + автообновление через systemd-таймер.
 
 ## Язык общения
 Всё общение строго на русском языке. Код и комментарии — на английском.
@@ -22,11 +22,11 @@ Universal Dev Machine Bootstrap — однокомандная настройк�
 opencode_initializer/
 ├── setup.sh          ← оркестратор (500+ строк, source модули из src/lib/)
 ├── src/
-│   ├── lib/          ← 39 модулей (00-core.sh … 36-model-router.sh + helpers.sh + version-check.sh + pre-session-check.sh)
+│   ├── lib/          ← 40 модулей (00-core.sh … 37-wal.sh + helpers.sh + version-check.sh + pre-session-check.sh)
 │   └── modes/            ← 5 режимных скриптов (+ 6 встроенных режимов)
-├── dev.sh            ← CLI
-├── scripts/          ← утилиты (ai-router, embed-proxy, oc-json, oc-rpc, oc-sdk, oc-tui)
-├── tests/            ← unit (11), integration (5), e2e (4) — 250+ assertions
+├── dev.sh            ← CLI (dev install|metrics|observability|infra|...)
+├── scripts/          ← утилиты (ai-router, embed-proxy, oc-json, oc-rpc, oc-sdk, oc-tui, oc-metrics)
+├── tests/            ← unit (12), integration (5), e2e (4) — 398+ assertions
 ├── migrations/       ← timestamped, idempotent
 ├── docs/             ← документация + plans + research
 ├── .github/          ← CI (test, shellcheck, docs) + issue/PR шаблоны
@@ -44,7 +44,7 @@ opencode_initializer/
 ### Orchestrator (500+ lines)
 Minimal entry point that sources modules from `src/lib/` and dispatches modes from `src/modes/`.
 
-### Module Layout (src/lib/ — 35 numbered + 3 infra)
+### Module Layout (src/lib/ — 38 numbered + 2 infra + 3 system)
 | Module | Responsibility |
 |--------|---------------|
 | `helpers.sh` | `_curl()`, `_retry()`, `_npm_install()`, `_sudo()` — shared infrastructure |
@@ -79,11 +79,13 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 | `28-devbox.sh` | Devbox — Nix-based isolated dev environments |
 | `29-mise.sh` | mise-en-place — universal tool version manager |
 | `30-infra.sh` | Infrastructure: PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer |
-| `31-cockpit.sh` | Cockpit TUI server management daemon (7-tab TUI + web GUI) |
+| `31-cockpit.sh` | Cockpit TUI server management daemon (8-tab TUI) |
 | `32-isolated.sh` | Isolated Circuit Mode — air-gapped LLM (Ollama/LiteLLM/vLLM/SGLang) |
-| `34-observability.sh` | Grafana + Prometheus observability stack |
-| `35-gui.sh` | Web management interface foundation |
+| `33-services.sh` | Unified Service Layer — port resolution, service modes (local/external/disabled), deployment profiles |
+| `34-observability.sh` | Grafana + Prometheus + Node Exporter observability stack + OTel support |
+| `35-gui.sh` | Web GUI — management interface on port 4200 |
 | `36-model-router.sh` | Model routing intelligence — task-based model selection, cost table, recommendations |
+| `37-wal.sh` | Write-Ahead Log — setup checkpoint + agent session journal (JSONL) |
 | `version-check.sh` | Version check: Rust/Go/Node/Python/Bun/OpenCode/Ollama/Zig + npm packages |
 | `pre-session-check.sh` | Pre-session provider/model validation + MCP status |
 

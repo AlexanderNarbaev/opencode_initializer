@@ -22,6 +22,7 @@ declare -A INFRA_SERVICE_MAP=(
   [prometheus]="Prometheus monitoring (port 9090)"
   [grafana]="Grafana dashboards (port 3001)"
   [memorylayer]="MemoryLayer AI memory server (port 61001)"
+  [node_exporter]="Node Exporter system metrics (port 9100)"
 )
 
 # ── Determine which services to enable ────────────────────────────────────
@@ -49,8 +50,8 @@ fi
 
 # ── Auto-enable core services if no selection ─────────────────────────────
 if [ -z "$ENABLED_SERVICES" ] && ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]); then
-  ENABLED_SERVICES="postgres qdrant redis prometheus grafana memorylayer"
-  info "Default infra services: postgres, qdrant, redis, prometheus, grafana, memorylayer"
+  ENABLED_SERVICES="postgres qdrant redis prometheus grafana node_exporter memorylayer"
+  info "Default infra services: postgres, qdrant, redis, prometheus, grafana, node_exporter, memorylayer"
 fi
 
 [ -z "$ENABLED_SERVICES" ] && log "No infra services selected — skipping" && return 0
@@ -77,7 +78,7 @@ for svc in $ENABLED_SERVICES; do
       POSTGRES_DB: opencode
       POSTGRES_USER: opencode
       POSTGRES_PASSWORD: ${PG_PASSWORD:-opencode_dev}
-    ports: ["127.0.0.1:5432:5432"]
+    ports: ["127.0.0.1:${POSTGRES_PORT:-5432}:5432"]
     volumes: [opencode_pgdata:/var/lib/postgresql/data]
     restart: unless-stopped
 POSTGRES
@@ -87,7 +88,7 @@ POSTGRES
   qdrant:
     image: qdrant/qdrant:latest
     container_name: opencode-qdrant
-    ports: ["127.0.0.1:6333:6333", "127.0.0.1:6334:6334"]
+    ports: ["127.0.0.1:${QDRANT_PORT:-6333}:6333", "127.0.0.1:6334:6334"]
     volumes: [opencode_qdrant_data:/qdrant/storage]
     restart: unless-stopped
 QDRANT
@@ -97,7 +98,7 @@ QDRANT
   redis:
     image: redis:7-alpine
     container_name: opencode-redis
-    ports: ["127.0.0.1:6379:6379"]
+    ports: ["127.0.0.1:${REDIS_PORT:-6379}:6379"]
     volumes: [opencode_redis_data:/data]
     command: redis-server --save 60 1 --loglevel warning
     restart: unless-stopped
@@ -156,7 +157,7 @@ MINIO
   prometheus:
     image: prom/prometheus:latest
     container_name: opencode-prometheus
-    ports: ["127.0.0.1:9090:9090"]
+    ports: ["127.0.0.1:${PROMETHEUS_PORT:-9090}:9090"]
     volumes:
       - $HOME/.config/opencode/prometheus.yml:/etc/prometheus/prometheus.yml
       - opencode_prometheus_data:/prometheus
@@ -169,7 +170,7 @@ PROMETHEUS
   grafana:
     image: grafana/grafana:latest
     container_name: opencode-grafana
-    ports: ["127.0.0.1:3001:3000"]
+    ports: ["127.0.0.1:${GRAFANA_PORT:-3001}:3000"]
     environment:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: \${GRAFANA_PASSWORD:-admin}
@@ -180,6 +181,20 @@ PROMETHEUS
       - ${SCRIPT_DIR}/src/grafana/dashboards:/etc/grafana/dashboards
     restart: unless-stopped
 GRAFANA
+      ;;
+    node_exporter)
+      cat >> "$INFRA_CONFIG" << 'NODE_EXPORTER'
+  node_exporter:
+    image: prom/node-exporter:latest
+    container_name: opencode-node-exporter
+    network_mode: host
+    pid: host
+    command:
+      - '--path.rootfs=/host'
+    volumes:
+      - '/:/host:ro,rslave'
+    restart: unless-stopped
+NODE_EXPORTER
       ;;
     memorylayer)
       cat >> "$INFRA_CONFIG" << 'MEMORYLAYER'
@@ -233,7 +248,37 @@ if [ $RUNNING_COUNT -gt 0 ]; then
 fi
 if [ $STOPPED_COUNT -eq 0 ]; then
   log "All infra services already running — nothing to start"
-  _step_done step_infra
+# ── Metrics exporter systemd service ──────────────────────────────────────
+if [ -f "$SCRIPT_DIR/scripts/oc-metrics.py" ]; then
+  mkdir -p ~/.config/systemd/user
+  METRICS_PORT="${METRICS_EXPORTER_PORT:-9464}"
+  cat > ~/.config/systemd/user/opencode-metrics.service << SVC
+[Unit]
+Description=OpenCode Metrics Exporter (Prometheus)
+After=network.target opencode-infra.service
+Wants=network.target opencode-infra.service
+
+[Service]
+Type=simple
+Environment=PATH=$HOME/.local/bin:$HOME/.n/bin:$HOME/.bun/bin:/usr/local/bin:/usr/bin:/bin
+Environment=METRICS_EXPORTER_PORT=$METRICS_PORT
+Environment=DEPLOYMENT_PROFILE=${DEPLOYMENT_PROFILE:-personal}
+ExecStart=python3 $SCRIPT_DIR/scripts/oc-metrics.py
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target
+SVC
+  systemctl --user daemon-reload 2>/dev/null || true
+  systemctl --user enable opencode-metrics.service 2>/dev/null || true
+  systemctl --user start opencode-metrics.service 2>/dev/null || true
+  log "Metrics exporter installed on port $METRICS_PORT"
+fi
+
+_step_done step_infra
   return 0
 fi
 

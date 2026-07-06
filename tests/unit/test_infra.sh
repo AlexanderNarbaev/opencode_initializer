@@ -18,6 +18,9 @@ export MODE="full"
 export INFRA_SERVICES="postgres qdrant redis prometheus grafana memorylayer"
 export PROGRESS="$TMP_DIR/progress"
 export HOME="$TMP_DIR"
+export DL_CACHE="$TMP_DIR/cache"
+export SCRIPT_DIR="$PROJECT_DIR"
+mkdir -p "$HOME/.config/opencode" "$HOME/.local/bin" "$DL_CACHE"
 
 # Mock core functions needed by 30-infra.sh
 _step_skip() { return 1; }

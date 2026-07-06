@@ -3,7 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const { execSync, exec } = require('child_process');
 
-const PORT = process.env.GUI_PORT || 4200;
+const rawPort = process.env.GUI_PORT || process.env.METRICS_EXPORTER_PORT || '4200';
+const PORT = parseInt(rawPort) || 4200;
 const HOME = process.env.HOME || '/home/user';
 const HTML = path.join(__dirname, 'index.html');
 
@@ -121,7 +122,8 @@ const server = http.createServer((req, res) => {
     let mcpOk=0,mcpMiss=0,lspOk=0,lspMiss=0;
     mcpList.forEach(m=>{checkBin(m)?mcpOk++:mcpMiss++});
     lspList.forEach(l=>{try{execSync(`which ${l}`,{stdio:'pipe'});lspOk++}catch{lspMiss++}});
-    const infraList = [['ChromaDB',8000],['PostgreSQL',5432],['Qdrant',6333],['Redis',6379],['MemoryLayer',61001],['Prometheus',9090],['Grafana',3001]];
+    const grafanaPort = parseInt(cfg.GRAFANA_PORT) || 3001;
+    const infraList = [['ChromaDB',8000],['PostgreSQL',5432],['Qdrant',6333],['Redis',6379],['MemoryLayer',61001],['Prometheus',9090],['Grafana',grafanaPort]];
     let infraOk=0,infraMiss=0;
     infraList.forEach(([n,p])=>{checkPort(p)?infraOk++:infraMiss++});
     json(res, {
@@ -200,9 +202,18 @@ const server = http.createServer((req, res) => {
   }
 
   if (api === '/infra') {
+    const cfg = readSetupConfig();
     const services = [
-      ['ChromaDB',8000],['MemoryLayer',61001],['PostgreSQL',5432],['Qdrant',6333],['Redis',6379],
-      ['Prometheus',9090],['Grafana',3001],['SearXNG',8888],['LiteLLM',4000],['Ollama',11434],
+      ['ChromaDB', parseInt(cfg.CHROMADB_PORT) || 8000],
+      ['MemoryLayer', parseInt(cfg.MEMORYLAYER_PORT) || 61001],
+      ['PostgreSQL', parseInt(cfg.POSTGRES_PORT) || 5432],
+      ['Qdrant', parseInt(cfg.QDRANT_PORT) || 6333],
+      ['Redis', parseInt(cfg.REDIS_PORT) || 6379],
+      ['Prometheus', parseInt(cfg.PROMETHEUS_PORT) || 9090],
+      ['Grafana', parseInt(cfg.GRAFANA_PORT) || 3001],
+      ['SearXNG', parseInt(cfg.SEARXNG_PORT) || 8888],
+      ['LiteLLM', parseInt(cfg.LITELLM_PORT) || 4000],
+      ['Ollama', parseInt(cfg.OLLAMA_PORT) || 11434],
     ];
     const result = services.map(([name,port])=>({name,port,running:checkPort(port)}));
     json(res, { services: result });
@@ -305,8 +316,10 @@ const server = http.createServer((req, res) => {
   if (api === '/grafana-config') {
     const cfg = readSetupConfig();
     const external = cfg.EXTERNAL_OBSERVABILITY === 'true';
-    const localRunning = checkPort(3001);
-    const url = external ? (cfg.EXTERNAL_GRAFANA_URL || 'http://localhost:3001') : 'http://localhost:3001';
+    const grafanaPort = cfg.GRAFANA_PORT || '3001';
+    const promPort = cfg.PROMETHEUS_PORT || '9090';
+    const localRunning = checkPort(parseInt(grafanaPort));
+    const url = external ? (cfg.EXTERNAL_GRAFANA_URL || `http://localhost:${grafanaPort}`) : `http://localhost:${grafanaPort}`;
     json(res, {
       external,
       url,
