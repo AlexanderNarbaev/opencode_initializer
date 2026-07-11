@@ -6,9 +6,14 @@
 #   dev health               — full diagnostic
 #   dev list                 — list installed components
 
-set -euo pipefail
-SCRIPTS_DIR="$(cd "$(dirname "$0")" && pwd)"
-
+# ── Resolve script directory (supports symlinks and copies) ───
+if [ -f "$(cd "$(dirname "$0")" 2>/dev/null && pwd)/src/lib/helpers.sh" ]; then
+  SCRIPTS_DIR="$(cd "$(dirname "$0")" && pwd)"
+elif [ -f "$HOME/opencode_initializer/src/lib/helpers.sh" ]; then
+  SCRIPTS_DIR="$HOME/opencode_initializer"
+else
+  SCRIPTS_DIR="$(dirname "$(readlink -f "$0" 2>/dev/null || echo "$0")")"
+fi
 source "$SCRIPTS_DIR/src/lib/helpers.sh"
 CONFIG_FILE="${HOME}/.config/opencode-setup/setup.conf"
 [ -f "$CONFIG_FILE" ] && source "$CONFIG_FILE"

@@ -248,6 +248,14 @@ if [ $RUNNING_COUNT -gt 0 ]; then
 fi
 if [ $STOPPED_COUNT -eq 0 ]; then
   log "All infra services already running — nothing to start"
+else
+  # ── Start services ────────────────────────────────────────────────────────
+  info "Starting $STOPPED_COUNT infra service(s)..."
+  docker compose -f "$INFRA_CONFIG" up -d --wait 2>/dev/null && \
+    log "Infra services started" || \
+    warn "Some services failed to start — check: docker compose -f $INFRA_CONFIG ps"
+fi
+
 # ── Metrics exporter systemd service ──────────────────────────────────────
 if [ -f "$SCRIPT_DIR/scripts/oc-metrics.py" ]; then
   mkdir -p ~/.config/systemd/user
@@ -260,7 +268,7 @@ Wants=network.target opencode-infra.service
 
 [Service]
 Type=simple
-Environment=PATH=$HOME/.local/bin:$HOME/.n/bin:$HOME/.bun/bin:/usr/local/bin:/usr/bin:/bin
+Environment=PATH=%h/.local/bin:%h/.n/bin:%h/.bun/bin:/usr/local/bin:/usr/bin:/bin
 Environment=METRICS_EXPORTER_PORT=$METRICS_PORT
 Environment=DEPLOYMENT_PROFILE=${DEPLOYMENT_PROFILE:-personal}
 ExecStart=python3 $SCRIPT_DIR/scripts/oc-metrics.py
@@ -277,15 +285,5 @@ SVC
   systemctl --user start opencode-metrics.service 2>/dev/null || true
   log "Metrics exporter installed on port $METRICS_PORT"
 fi
-
-_step_done step_infra
-  return 0
-fi
-
-# ── Start services ────────────────────────────────────────────────────────
-info "Starting $STOPPED_COUNT infra service(s)..."
-docker compose -f "$INFRA_CONFIG" up -d --wait 2>/dev/null && \
-  log "Infra services started" || \
-  warn "Some services failed to start — check: docker compose -f $INFRA_CONFIG ps"
 
 _step_done step_infra
