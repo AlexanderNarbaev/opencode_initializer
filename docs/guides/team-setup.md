@@ -228,7 +228,7 @@ bash setup.sh --fix-config --deepseek-key "sk-..."
 
 | Category | Components |
 |----------|-----------|
-| **Languages** | Java 25, Node.js 24, Python 3.14 + uv, Go 1.26, Rust 1.96, .NET 10, Kotlin, Zig |
+| **Languages** | Java 25, Node.js 24, Python 3.14 + uv, Go 1.26, Rust 1.97.1, .NET 10, Kotlin, Zig |
 | **MCP Servers** | 21 — context7, filesystem, github, gitlab, playwright, chrome-devtools, postgres, sqlite, memory, excalidraw, brave-search, google-maps, and more |
 | **LSP Servers** | 13 — gopls, rust-analyzer, tsserver, pyright, omnisharp, yaml, marksman, bash, dockerfile, css/html/json, and more |
 | **Plugins** | 15 — token-tracker, dcp, swarm, auto-fallback, goal-mode, vibeguard, orchestrator, and more |

@@ -72,7 +72,7 @@ C4Container
         Container(node, "06-node.sh", "Bash", "Node.js 24 (n)")
         Container(python, "07-python.sh", "Bash", "Python 3.14 + uv")
         Container(go, "08-go.sh", "Bash", "Go 1.26")
-        Container(rust, "09-rust.sh", "Bash", "Rust 1.96 (rustup)")
+        Container(rust, "09-rust.sh", "Bash", "Rust 1.97.1 (rustup)")
         Container(dotnet, "10-dotnet.sh", "Bash", ".NET 10")
 
         Container(opencode, "11-opencode.sh", "Bash", "OpenCode CLI + Bun")

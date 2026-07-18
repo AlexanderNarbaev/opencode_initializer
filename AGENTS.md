@@ -54,13 +54,13 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 | `02-docker.sh` | Docker engine installation |
 | `03-chrome.sh` | Google Chrome + chromedriver (WSL2-aware) |
 | `04-zsh.sh` | Zsh + Oh My Zsh + P10k + 14 plugins |
-| `05-java.sh` | Java 25 (Adoptium API → SDKMAN → apt) + Zig 0.15.1 |
+| `05-java.sh` | Java 25 (Adoptium API → SDKMAN → apt) + Zig 0.15.2 |
 | `06-node.sh` | Node.js 24 (n → apt) |
 | `07-python.sh` | Python 3.14 + uv |
 | `08-go.sh` | Go 1.26 (direct download → apt fallback) |
-| `09-rust.sh` | Rust 1.96 (rustup → apt) |
+| `09-rust.sh` | Rust 1.97.1 (rustup → apt) |
 | `10-dotnet.sh` | .NET 10 (dotnet-install → apt) |
-| `11-opencode.sh` | OpenCode CLI 1.17 + Bun 1.3 |
+| `11-opencode.sh` | OpenCode CLI 1.17 + Bun 1.3.14 |
 | `12-mcp-lsp.sh` | 24 MCP servers + 15 plugins + 13 LSP + Muninn |
 | `13-chromadb.sh` | ChromaDB systemd service |
 | `14-shokunin.sh` | Shokunin + Superpowers + Caveman |

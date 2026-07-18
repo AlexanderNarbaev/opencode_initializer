@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
+# NOTE: Standalone script — intentionally uses raw curl (not _curl()) for portability.
+# Does not source helpers.sh to avoid dependency on full setup environment.
 RED="[0;31m"; GREEN="[0;32m"; YELLOW="[1;33m"; NC="[0m"
 check() {
   local name="$1" url="$2" model="$3" key="$4"

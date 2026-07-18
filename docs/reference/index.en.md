@@ -242,7 +242,7 @@ During setup, you'll see:
 | Node | `06-node.sh` | Node.js 24 (n) |
 | Python | `07-python.sh` | Python 3.14 + uv |
 | Go | `08-go.sh` | Go 1.26 |
-| Rust | `09-rust.sh` | Rust 1.96 (rustup) |
+| Rust | `09-rust.sh` | Rust 1.97.1 (rustup) |
 | .NET | `10-dotnet.sh` | .NET 10 |
 | OpenCode | `11-opencode.sh` | OpenCode CLI + Bun |
 | MCP/LSP | `12-mcp-lsp.sh` | 24 MCP + 18 plugins + 12 LSP + Muninn |

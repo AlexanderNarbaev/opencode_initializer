@@ -35,7 +35,7 @@
 
 A single script that turns a fresh Linux/WSL2 machine into a production-ready development environment:
 
-- **8 programming languages** — Java 25, Node.js 24, Python 3.14, Go 1.26, Rust 1.96, .NET 10, Kotlin, Zig
+- **8 programming languages** — Java 25, Node.js 24, Python 3.14, Go 1.26, Rust 1.97.1, .NET 10, Kotlin, Zig
 - **24 MCP servers** — GitHub, GitLab, Filesystem, Playwright, Chrome DevTools, SQLite, Postgres, Memory, Excalidraw, Brave Search, Context7, Google Maps, and more
 - **15 OpenCode plugins** — codegraph, dcp, auto-fallback, goal-mode, swarm, vibeguard, devcontainers, worktree, scheduler, background-agents, goal-plugin, conductor, zellij-namer, morph-plugin, supermemory
 - **13 LSP servers** — gopls, rust-analyzer, tsserver, pyright, omnisharp, yaml, marksman, taplo, lua, zls, bash, dockerfile, css/html/json
@@ -111,7 +111,7 @@ dev isolated status                 # Check current state
 
 | Category | Tools |
 |----------|-------|
-| **Languages** | Java 25, Node.js 24, Python 3.14 + uv, Go 1.26, Rust 1.96, .NET 10, Kotlin, Zig |
+| **Languages** | Java 25, Node.js 24, Python 3.14 + uv, Go 1.26, Rust 1.97.1, .NET 10, Kotlin, Zig |
 | **Shell** | Zsh 5.8+, Oh My Zsh, Powerlevel10k, 14 plugins |
 | **Browser** | Google Chrome, ChromeDriver (WSL2-aware) |
 | **Containers** | Docker Engine |
