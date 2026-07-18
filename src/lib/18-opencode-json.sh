@@ -189,6 +189,8 @@ def _build_providers():
                 providers[provider]["base_url"] = "https://api.fireworks.ai/inference/v1"
             elif provider == "moonshot":
                 providers[provider]["base_url"] = "https://api.moonshot.cn/v1"
+            elif provider == "minimax":
+                providers[provider]["base_url"] = "https://api.minimax.io/v1"
             if provider not in ("deepseek", "zai"):
                 providers[provider]["fallback"] = ["deepseek"]
             elif provider == "deepseek":
