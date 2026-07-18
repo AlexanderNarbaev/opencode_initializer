@@ -7,7 +7,7 @@ check() {
   if [ -z "$key" ]; then echo -e "${YELLOW}SKIP${NC}"; return; fi
   local resp status
   resp=$(curl -s -w "
-%{http_code}" --connect-timeout 8 --max-time 12 -X POST "$url" \
+%{http_code}" --connect-timeout 8 --max-time 10 --connect-timeout 5 -X POST "$url" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer ${key}" \
     -d "{\"model\":\"${model}\",\"messages\":[{\"role\":\"user\",\"content\":\"hi\"}],\"max_tokens\":3}" 2>&1)
