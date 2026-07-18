@@ -39,12 +39,12 @@ for opt in api-key deepseek-key xai-key mimo-key moonshot-key minimax-key github
 done
 
 # ── Short aliases exist ────────────────────────────────────────────────
-assert "short -p|--project-dir" 'grep -q "\-p|" "'"$SETUP"'"'
-assert "short -k|--api-key"     'grep -q "\-k|" "'"$SETUP"'"'
-assert "short -n|--git-name"    'grep -q "\-n|" "'"$SETUP"'"'
-assert "short -e|--git-email"   'grep -q "\-e|" "'"$SETUP"'"'
-assert "short -s|--sudo-pass"   'grep -q "\-s|" "'"$SETUP"'"'
-assert "short -h|--help"        'grep -q "\-h|" "'"$SETUP"'"'
+assert "short -p|--project-dir" 'grep -q "\-p |" "'"$SETUP"'"'
+assert "short -k|--api-key"     'grep -q "\-k |" "'"$SETUP"'"'
+assert "short -n|--git-name"    'grep -q "\-n |" "'"$SETUP"'"'
+assert "short -e|--git-email"   'grep -q "\-e |" "'"$SETUP"'"'
+assert "short -s|--sudo-pass"   'grep -q "\-s |" "'"$SETUP"'"'
+assert "short -h|--help"        'grep -q "\-h |" "'"$SETUP"'"'
 
 # ── Help heredoc contains mode descriptions ────────────────────────────
 assert "help describes --full"           'grep -q "Complete bootstrap" "'"$SETUP"'"'
