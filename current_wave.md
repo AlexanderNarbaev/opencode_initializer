@@ -1,6 +1,6 @@
 # Current Wave Status
 
-> Last updated: 2026-07-18T14:50:00Z
+> Last updated: 2026-07-18T15:10:00Z
 
 ## Status: ▶️ ACTIVE
 
@@ -16,6 +16,9 @@
 ## Completed in this wave
 - [x] Integration tests: 50/50 PASS (fixed short flags grep patterns)
 - [x] IDE plugins module: 38-ide-plugins.sh
+- [x] Research: air-gapped AI architecture (Veai, DevoxxGenie, CPU-only LLMs)
+- [x] Research: open-source IDE plugins ecosystem (Cline, Tabby, Aider, Llama Coder)
+- [x] Research: local LLM dev workflow (FIM, RAG, MCP, Ollama models)
 - [x] Moonshot base_url fixed: api.moonshot.cn → api.moonshot.ai
 - [x] MiniMax base_url fixed: api.minimax.chat → api.minimax.io
 - [x] DeepSeek v3 → v4 migration
@@ -27,4 +30,7 @@
 - [x] ADR: Multi-Agent Framework v3.0
 - [x] Integration tests: 50/50 PASS (fixed short flags patterns)
 - [x] IDE plugins module: 38-ide-plugins.sh
+- [x] Research: air-gapped AI architecture (Veai, DevoxxGenie, CPU-only LLMs)
+- [x] Research: open-source IDE plugins ecosystem (Cline, Tabby, Aider, Llama Coder)
+- [x] Research: local LLM dev workflow (FIM, RAG, MCP, Ollama models)
 
