@@ -42,7 +42,7 @@ A single script that turns a fresh Linux/WSL2 machine into a production-ready de
 - **Infrastructure as Code** — PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer via Docker Compose
 - **Cockpit TUI** — 7-tab terminal UI for server management
 - **Isolated Circuit Mode** — air-gapped LLM operation with local backends
-- **24 AI providers** — DeepSeek, z.ai GLM-5.2, OpenRouter, OpenAI, Anthropic, Google, xAI, Moonshot, Alibaba Qwen3, and more
+- **24 AI providers** — DeepSeek, z.ai GLM-5.2, OpenRouter, OpenAI, Anthropic, Google, xAI, Moonshot (Kimi K3), MiniMax M3, Alibaba Qwen3, and more
 - **GPU/LLM** — Ollama, vLLM, SGLang, Open WebUI, WasmEdge (multi-vendor GPU auto-detection)
 - **ZSH** — Oh My Zsh + Powerlevel10k with 14 plugins
 - **Chrome** — Google Chrome + ChromeDriver (WSL2-optimized)
@@ -67,6 +67,8 @@ A single script that turns a fresh Linux/WSL2 machine into a production-ready de
 | Config Backup | `dev backup create\|list\|restore` for disaster recovery |
 | Model Download | `dev models install <model>` for local Ollama models |
 | 24 providers | 20 cloud + 4 local (was 16 in v1.1.0) |
+| Provider Check | \`bash scripts/provider-check.sh\` to verify provider connectivity |
+| .env.example | Template with all 20 API key variables |
 | 41 modules | Was 29 in v1.1.0 |
 
 ## Quick Install

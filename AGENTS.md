@@ -25,7 +25,8 @@ opencode_initializer/
 │   ├── lib/          ← 41 модуль (00-core.sh … 37-wal.sh + helpers.sh + version-check.sh + pre-session-check.sh)
 │   └── modes/            ← 5 режимных скриптов (+ 6 встроенных режимов)
 ├── dev.sh            ← CLI (dev install|metrics|observability|infra|...)
-├── scripts/          ← утилиты (ai-router, embed-proxy, oc-json, oc-rpc, oc-sdk, oc-tui, oc-metrics)
+├── .env.example      ← шаблон переменных окружения (API ключи)
+├── scripts/          ← утилиты (provider-check, ai-router, embed-proxy, oc-json, oc-rpc, oc-sdk, oc-tui, oc-metrics)
 ├── tests/            ← unit (12), integration (5), e2e (4) — 398+ assertions
 ├── migrations/       ← timestamped, idempotent
 ├── docs/             ← документация + plans + research
@@ -206,6 +207,7 @@ opencode_initializer/
 ├── setup.sh              ← оркестратор (589 строк)
 ├── dev.sh                ← CLI
 ├── opencode.json         ← конфиг OpenCode (24 providers)
+├── .env.example          ← шаблон переменных окружения (API ключи)
 ├── src/
 │   ├── lib/
 │   │   ├── helpers.sh    ← _curl, _retry, _npm_install
@@ -215,7 +217,7 @@ opencode_initializer/
 │       └── health.sh ... ← режимные скрипты
 ├── tests/                ← unit (12) / integration (5) / e2e (4)
 ├── migrations/
-├── scripts/              ← утилиты (embed-proxy, ai-router, oc-*)
+├── scripts/              ← утилиты (provider-check, embed-proxy, ai-router, oc-*)
 ├── docs/                 ← документация + plans + research
 ├── .github/workflows/    ← CI (test, shellcheck, docs)
 ├── README.md
