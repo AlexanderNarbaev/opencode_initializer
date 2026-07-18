@@ -1,4 +1,6 @@
 # AGENTS.md — opencode_initializer
+> **Operating Model:** Multi-Agent Continuous Development Framework v3.0 ([ADR](./docs/architecture/adr/2026-07-18-multi-agent-framework-v3.md))
+> **Current Wave:** [current_wave.md](./current_wave.md) | **Checkpoint:** [session_checkpoint.json](./session_checkpoint.json)
 
 ## Status: v2.0.0 — All Phases Complete
 
