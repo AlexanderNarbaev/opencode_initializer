@@ -12,7 +12,7 @@
 
 ## Identity
 Universal Dev Machine Bootstrap — однокомандная настройка AI-усиленной dev-машины для WSL2/Linux.
-Модульная архитектура: 583 строки оркестратор + 40 модулей + автообновление через systemd-таймер.
+Модульная архитектура: 589 строк оркестратор + 41 модуль + автообновление через systemd-таймер.
 
 ## Язык общения
 Всё общение строго на русском языке. Код и комментарии — на английском.
@@ -20,9 +20,9 @@ Universal Dev Machine Bootstrap — однокомандная настройк�
 ## Project Structure
 ```
 opencode_initializer/
-├── setup.sh          ← оркестратор (500+ строк, source модули из src/lib/)
+├── setup.sh          ← оркестратор (589 строк, source модули из src/lib/)
 ├── src/
-│   ├── lib/          ← 40 модулей (00-core.sh … 37-wal.sh + helpers.sh + version-check.sh + pre-session-check.sh)
+│   ├── lib/          ← 41 модуль (00-core.sh … 37-wal.sh + helpers.sh + version-check.sh + pre-session-check.sh)
 │   └── modes/            ← 5 режимных скриптов (+ 6 встроенных режимов)
 ├── dev.sh            ← CLI (dev install|metrics|observability|infra|...)
 ├── scripts/          ← утилиты (ai-router, embed-proxy, oc-json, oc-rpc, oc-sdk, oc-tui, oc-metrics)
@@ -41,10 +41,10 @@ opencode_initializer/
 
 ## Architecture (setup.sh)
 
-### Orchestrator (500+ lines)
+### Orchestrator (589 lines)
 Minimal entry point that sources modules from `src/lib/` and dispatches modes from `src/modes/`.
 
-### Module Layout (src/lib/ — 38 numbered + 2 infra + 3 system)
+### Module Layout (src/lib/ — 38 numbered + 3 helpers)
 | Module | Responsibility |
 |--------|---------------|
 | `helpers.sh` | `_curl()`, `_retry()`, `_npm_install()`, `_sudo()` — shared infrastructure |
@@ -60,7 +60,7 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 | `09-rust.sh` | Rust 1.96 (rustup → apt) |
 | `10-dotnet.sh` | .NET 10 (dotnet-install → apt) |
 | `11-opencode.sh` | OpenCode CLI 1.17 + Bun 1.3 |
-| `12-mcp-lsp.sh` | 21 MCP servers + 15 plugins + 13 LSP + Muninn |
+| `12-mcp-lsp.sh` | 24 MCP servers + 15 plugins + 13 LSP + Muninn |
 | `13-chromadb.sh` | ChromaDB systemd service |
 | `14-shokunin.sh` | Shokunin + Superpowers + Caveman |
 | `15-security.sh` | Trivy, Qodana |
@@ -79,7 +79,7 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 | `28-devbox.sh` | Devbox — Nix-based isolated dev environments |
 | `29-mise.sh` | mise-en-place — universal tool version manager |
 | `30-infra.sh` | Infrastructure: PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer |
-| `31-cockpit.sh` | Cockpit TUI server management daemon (8-tab TUI) |
+| `31-cockpit.sh` | Cockpit TUI server management daemon (7-tab TUI) |
 | `32-isolated.sh` | Isolated Circuit Mode — air-gapped LLM (Ollama/LiteLLM/vLLM/SGLang) |
 | `33-services.sh` | Unified Service Layer — port resolution, service modes (local/external/disabled), deployment profiles |
 | `34-observability.sh` | Grafana + Prometheus + Node Exporter observability stack + OTel support |
@@ -197,13 +197,13 @@ bash setup.sh --fix-zshrc                 # repair shell config
 | v35.0-v35.3 | RU mirrors, plugins, MCP, LSP, CLI tools, tests, README rewrite |
 | v1.0.0 | Initial public release. 8 languages, 21 MCPs, 15 plugins, 13 LSPs, 193-test suite. |
 | v1.1.0 | Ecosystem expansion: hardware auto-detection, LiteLLM, SearXNG, CI/CD mode, multimodal, 15+ providers, chezmoi, Devbox, ONNX. 29 modules, 65+ health checks. |
-| v2.0.0 | Infrastructure as Code (PostgreSQL+Qdrant+Redis+Prometheus+Grafana+MemoryLayer), Cockpit TUI (7-tab), Isolated Circuit Mode, z.ai GLM-5.2 + OpenRouter + Alibaba + DeepInfra providers, MemoryLayer embed proxy, 38 modules, 24 providers, 350+ test assertions. |
+| v2.0.0 | Infrastructure as Code (PostgreSQL+Qdrant+Redis+Prometheus+Grafana+MemoryLayer), Cockpit TUI (7-tab), Isolated Circuit Mode, z.ai GLM-5.2 + OpenRouter + Alibaba + DeepInfra providers, MemoryLayer embed proxy, 41 module, 24 providers, 350+ test assertions. |
 
 ## Modular Architecture (v2.0.0)
 
 ```
 opencode_initializer/
-├── setup.sh              ← оркестратор (500+ строк)
+├── setup.sh              ← оркестратор (589 строк)
 ├── dev.sh                ← CLI
 ├── opencode.json         ← конфиг OpenCode (24 providers)
 ├── src/
@@ -213,7 +213,7 @@ opencode_initializer/
 │   │   └── version-check.sh
 │   └── modes/
 │       └── health.sh ... ← режимные скрипты
-├── tests/                ← unit (11) / integration (5) / e2e (4)
+├── tests/                ← unit (12) / integration (5) / e2e (4)
 ├── migrations/
 ├── scripts/              ← утилиты (embed-proxy, ai-router, oc-*)
 ├── docs/                 ← документация + plans + research

@@ -16,16 +16,16 @@
 
 | Metric | Value |
 |--------|-------|
-| Modules | 39 (+ 3 infrastructure) |
-| Orchestrator | 561 lines of Bash |
+| Modules | 41 |
+| Orchestrator | 589 lines of Bash |
 | CLI modes | 11 (full, health, interactive, ci, and more) |
 | Languages | 8 |
 | MCP servers | 24 |
-| LSP servers | 12 |
-| OpenCode plugins | 18 |
+| LSP servers | 13 |
+| OpenCode plugins | 15 |
 | AI providers | 24 (20 cloud + 4 local) |
 | Model Router | 8 task profiles (coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn) |
-| Infrastructure | 6 services (PostgreSQL, Qdrant, Redis, Prometheus, Grafana, MemoryLayer) |
+| Infrastructure | 7 services (PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer) |
 | Web GUI | 9 management sections (port 4200) |
 | Test suite | 350+ assertions |
 | Package managers | apt, dnf, pacman, apk, zypper, brew |
@@ -37,9 +37,9 @@ A single script that turns a fresh Linux/WSL2 machine into a production-ready de
 
 - **8 programming languages** — Java 25, Node.js 24, Python 3.14, Go 1.26, Rust 1.96, .NET 10, Kotlin, Zig
 - **24 MCP servers** — GitHub, GitLab, Filesystem, Playwright, Chrome DevTools, SQLite, Postgres, Memory, Excalidraw, Brave Search, Context7, Google Maps, and more
-- **18 OpenCode plugins** — codegraph, dcp, auto-fallback, goal-mode, swarm, vibeguard, devcontainers, worktree, scheduler, background-agents, goal-plugin, conductor, zellij-namer, morph-plugin, supermemory, websearch-cited, firecrawl, plugin-otel
-- **12 LSP servers** — gopls, rust-analyzer, tsserver, pyright, omnisharp, yaml, marksman, taplo, lua, zls, bash, dockerfile
-- **Infrastructure as Code** — PostgreSQL, Qdrant, Redis, Prometheus, Grafana, MemoryLayer via Docker Compose
+- **15 OpenCode plugins** — codegraph, dcp, auto-fallback, goal-mode, swarm, vibeguard, devcontainers, worktree, scheduler, background-agents, goal-plugin, conductor, zellij-namer, morph-plugin, supermemory
+- **13 LSP servers** — gopls, rust-analyzer, tsserver, pyright, omnisharp, yaml, marksman, taplo, lua, zls, bash, dockerfile, css/html/json
+- **Infrastructure as Code** — PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer via Docker Compose
 - **Cockpit TUI** — 7-tab terminal UI for server management
 - **Isolated Circuit Mode** — air-gapped LLM operation with local backends
 - **24 AI providers** — DeepSeek, z.ai GLM-5.2, OpenRouter, OpenAI, Anthropic, Google, xAI, Moonshot, Alibaba Qwen3, and more
@@ -52,7 +52,7 @@ A single script that turns a fresh Linux/WSL2 machine into a production-ready de
 
 | Feature | Description |
 |---------|-------------|
-| Infrastructure as Code | PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer via Docker Compose |
+| Infrastructure as Code | PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer via Docker Compose |
 | Cockpit TUI | 7-tab terminal UI — System, Plugins, GPU/Models, Sessions, Tasks, Logs, Infra |
 | Isolated Circuit Mode | Air-gapped LLM operation with Ollama, LiteLLM, vLLM, SGLang |
 | Model Routing Intelligence | 8 task profiles: coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn |
@@ -67,7 +67,7 @@ A single script that turns a fresh Linux/WSL2 machine into a production-ready de
 | Config Backup | `dev backup create\|list\|restore` for disaster recovery |
 | Model Download | `dev models install <model>` for local Ollama models |
 | 24 providers | 20 cloud + 4 local (was 16 in v1.1.0) |
-| 39 modules | Was 29 in v1.1.0 |
+| 41 modules | Was 29 in v1.1.0 |
 
 ## Quick Install
 
@@ -113,13 +113,13 @@ dev isolated status                 # Check current state
 | **Shell** | Zsh 5.8+, Oh My Zsh, Powerlevel10k, 14 plugins |
 | **Browser** | Google Chrome, ChromeDriver (WSL2-aware) |
 | **Containers** | Docker Engine |
-| **Infrastructure** | PostgreSQL, Qdrant, Redis, Prometheus, Grafana, MemoryLayer |
+| **Infrastructure** | PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer |
 | **AI/ML** | Ollama, vLLM, SGLang, Open WebUI, ChromaDB, WasmEdge, ONNX |
 | **API Gateway** | LiteLLM — OpenAI-compatible endpoint for all providers |
 | **Web Search** | SearXNG self-hosted search + sanitizer proxy |
 | **MCP Servers** | 24 servers for AI-assisted development |
-| **LSP Servers** | 12 language servers |
-| **Plugins** | 18 OpenCode productivity plugins |
+| **LSP Servers** | 13 language servers |
+| **Plugins** | 15 OpenCode productivity plugins |
 | **Security** | Trivy, Qodana |
 | **Utilities** | bat, btm, fd, ripgrep, sd, typos, topgrade, just, mise |
 | **Dotfiles** | chezmoi for team config sharing |

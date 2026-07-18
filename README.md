@@ -2,7 +2,7 @@
 
 <p align="center">
   <b>One-command AI-enhanced development environment setup for WSL2, Linux, and macOS.</b><br>
-  <sub>583-line orchestrator · 40 modules · 11 modes · 24 MCPs · 15 plugins · 13 LSPs · 24 providers · model routing · GUI · metrics</sub>
+  <sub>589-line orchestrator · 41 modules · 11 modes · 24 MCPs · 15 plugins · 13 LSPs · 24 providers · model routing · GUI · metrics</sub>
 </p>
 
 <p align="center">
@@ -23,7 +23,7 @@
 curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializer/main/setup.sh | bash -s -- --full
 ```
 
-One command installs everything: 8 languages, 40 infrastructure modules, 24 MCP servers, 15 OpenCode plugins, 13 LSP servers, 24 AI providers, infrastructure as code (PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer), Cockpit TUI (8 tabs), Web GUI, Isolated Circuit Mode, hardware auto-detection, LiteLLM API gateway, and SearXNG web search.
+One command installs everything: 8 languages, 41 infrastructure modules, 24 MCP servers, 15 OpenCode plugins, 13 LSP servers, 24 AI providers, infrastructure as code (PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer), Cockpit TUI (7 tabs), Web GUI, Isolated Circuit Mode, hardware auto-detection, LiteLLM API gateway, and SearXNG web search.
 
 [Full Documentation](https://alexandernarbaev.github.io/opencode_initializer/)
 
@@ -32,7 +32,7 @@ One command installs everything: 8 languages, 40 infrastructure modules, 24 MCP 
 | Category | Count | Details |
 |----------|-------|---------|
 | Languages | 8 | Java 25, Node.js 24, Python 3.14, Go 1.26, Rust 1.96, .NET 10, Kotlin, Zig |
-| Modules | 40 | System, Docker, Chrome, ZSH, 7 languages, OpenCode, MCP/LSP, ChromaDB, LLM, RAG, LiteLLM, SearXNG, providers, dotfiles, Devbox, Infra, Cockpit, Isolated Circuit, Services, Observability, GUI, Model Router, WAL, and more |
+| Modules | 41 | System, Docker, Chrome, ZSH, 7 languages, OpenCode, MCP/LSP, ChromaDB, LLM, RAG, LiteLLM, SearXNG, providers, dotfiles, Devbox, Infra, Cockpit, Isolated Circuit, Services, Observability, GUI, Model Router, WAL, and more |
 | MCP Servers | 24 | GitHub, GitLab, Filesystem, Playwright, Chrome DevTools, Postgres, SQLite, Memory, Excalidraw, Brave Search, Context7, Google Maps, and more |
 | LSP Servers | 13 | gopls, rust-analyzer, tsserver, pyright, omnisharp, yaml, marksman, taplo, lua, zls, bash, dockerfile, css/html/json |
 | Plugins | 15 | token-tracker, dcp, swarm, goal-mode, vibeguard, orchestrator, auto-fallback, notify, pty, snip, snippets, envsitter-guard, command-inject, ignore |
@@ -47,7 +47,7 @@ One command installs everything: 8 languages, 40 infrastructure modules, 24 MCP 
 ### v2.0.0 — Infrastructure as Code + Isolated Circuit + Observability
 
 - **Infrastructure as Code**: PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer via Docker Compose
-- **Cockpit TUI**: 8-tab terminal UI (Services, Plugins, GPU/Models, Sessions, Tasks, Logs, Infra, Grafana)
+- **Cockpit TUI**: 7-tab terminal UI (Services, Plugins, GPU/Models, Sessions, Tasks, Logs, Infra)
 - **Web GUI**: Full management dashboard on port 4200 with Metrics iframe, model switching, infrastructure control
 - **Isolated Circuit Mode**: Air-gapped LLM operation with local OpenAI-compatible backends (Ollama, LiteLLM, vLLM, SGLang)
 - **z.ai GLM-5.2**: Primary provider for RU/CN markets, OpenAI-compatible API, free tier
@@ -65,17 +65,17 @@ One command installs everything: 8 languages, 40 infrastructure modules, 24 MCP 
 
 ```
 opencode_initializer/
-├── setup.sh                  # Orchestrator (583 lines)
+├── setup.sh                  # Orchestrator (589 lines)
 ├── dev.sh                    # CLI: dev install|remove|update|health|metrics|observability|isolated|...
 ├── opencode.json             # Generated OpenCode multi-provider config (24 providers)
 ├── src/
-│   ├── lib/                  # 40 modules (35 numbered + 5 infra)
+│   ├── lib/                  # 41 modules (38 numbered + 3 helpers)
 │   │   ├── helpers.sh        # _curl, _retry, _npm_install infrastructure
 │   │   ├── 00-core.sh        # OS/PKG/ARCH detection, mirrors, progress, ISOLATED_CIRCUIT, port resolution
 │   │   ├── 01-system.sh      # System packages (cross-distro: apt/dnf/pacman/apk/zypper/brew)
 │   │   ├── ...               # 02-29: Languages, tools, infrastructure
 │   │   ├── 30-infra.sh       # Infrastructure: PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer
-│   │   ├── 31-cockpit.sh     # Cockpit TUI server management daemon (8-tab)
+│   │   ├── 31-cockpit.sh     # Cockpit TUI server management daemon (7-tab)
 │   │   ├── 32-isolated.sh    # Isolated Circuit Mode — air-gapped LLM
 │   │   ├── 33-services.sh    # Unified Service Layer — port resolution, service modes, deployment profiles
 │   │   ├── 34-observability.sh  # Prometheus + Grafana observability stack + OTel
@@ -167,6 +167,10 @@ dev list                # List installed components
 dev update              # Update everything + migrations
 dev self-update         # Update the installer itself
 dev version-check       # Compare installed vs latest versions
+dev config              # Edit setup config file
+dev autoupdate          # Run topgrade full system update
+dev remove java         # Remove a component
+dev plugins list        # Show installed plugins
 
 # Observability
 dev observability status    # Prometheus + Grafana status

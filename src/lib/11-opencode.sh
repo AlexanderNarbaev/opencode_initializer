@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# lib/11-opencode.sh — OpenCode CLI + Bun + auth.json (STEP 8)
+# lib/11-opencode.sh — OpenCode CLI 1.17 + Bun 1.3.14 + auth.json (STEP 8)
 # Requires: MODE, OPENCODE_VER, DEEPSEEK_KEY, API_KEY, XAI_KEY, etc.
 set -euo pipefail
 

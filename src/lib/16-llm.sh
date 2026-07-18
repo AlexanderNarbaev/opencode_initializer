@@ -174,7 +174,7 @@ SVC
 
   # LlamaEdge — lightweight WasmEdge-based runner (CPU-friendly)
   if ! command -v wasmedge &>/dev/null; then
-    curl -sSf https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh 2>/dev/null | bash -s -- -v 0.15.1 2>/dev/null && log "WasmEdge installed" || warn "WasmEdge skipped"
+    curl -sSf https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh 2>/dev/null | bash -s -- -v 0.15.2 2>/dev/null && log "WasmEdge installed" || warn "WasmEdge skipped"
   fi
 
   # ── Multimodal: Speech Recognition (whisper.cpp) ─────────────────────────

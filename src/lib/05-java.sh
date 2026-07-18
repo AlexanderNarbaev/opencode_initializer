@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# lib/05-java.sh — Java 25 via Adoptium + Gradle + Maven + jbang + Zig (STEP 4)
+# lib/05-java.sh — Java 25 LTS via Adoptium + Gradle + Maven + jbang + Zig (STEP 4)
 set -euo pipefail
 
 if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) && _gate "INTERACTIVE_DO_JAVA"; then
-  section "Java 25 + Gradle + Maven + jbang"
+  section "Java 25 LTS + Gradle + Maven + jbang"
 
   if ! command -v java &>/dev/null; then
     JAVA_MAJOR=25
@@ -52,7 +52,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
       sudo snap install zig --classic 2>/dev/null && log "Zig from snap"
     fi
     if ! command -v zig &>/dev/null; then
-      ZIG_VER="0.14.0"; ZIG_TARGET=""
+      ZIG_VER="0.15.2"; ZIG_TARGET=""
       [ "$ARCH" = "aarch64" ] && ZIG_TARGET="aarch64" || ZIG_TARGET="x86_64"
       ZIG_URL="$ZIG_MIRROR/$ZIG_VER/zig-linux-${ZIG_TARGET}-$ZIG_VER.tar.xz"
       ZIG_DIR="/usr/local/lib/zig-$ZIG_VER"
@@ -74,7 +74,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
   fi
 
   if ! command -v java &>/dev/null; then
-    sudo apt-get install -y -qq openjdk-25-jdk gradle maven 2>/dev/null && log "Java/Gradle/Maven from apt" || warn "Java unavailable"
+    sudo apt-get install -y -qq openjdk-25-jdk gradle maven 2>/dev/null && log "Java/Gradle/Maven from apt (JDK 25 LTS)" || warn "Java unavailable"
   fi
   _step_done step_java
 fi

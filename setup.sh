@@ -294,7 +294,7 @@ Options:
   --openrouter-key    OpenRouter API key
   --xai-key           xAI Grok API key
   --mimo-key          Xiaomi MiMo API key
-  --moonshot-key      Moonshot (Kimi K2.6) API key
+  --moonshot-key      Moonshot (Kimi K3 / K2.7) API key
   --minimax-key       MiniMax M3 API key
   --openai-key        OpenAI API key
   --anthropic-key     Anthropic Claude API key
@@ -500,7 +500,7 @@ echo -e "${GREEN}     Log:  $LOG_FILE${NC}"
 echo -e "${GREEN}============================================================${NC}"
 
 # ── Execute steps ───────────────────────────────────────────────────────────
-TOTAL_STEPS=33
+TOTAL_STEPS=34
 CURRENT_STEP=0
 
 _run_step() {
@@ -522,12 +522,12 @@ _run_step step_docker "Docker Engine" "$SCRIPT_DIR/src/lib/02-docker.sh"
 [ "${INFRA_SERVICES:-}" != "" ] && _run_step step_infra "Infrastructure Services" "$SCRIPT_DIR/src/lib/30-infra.sh"
 _run_step step_chrome "Google Chrome" "$SCRIPT_DIR/src/lib/03-chrome.sh"
 _run_step step_zsh "ZSH + Oh My Zsh" "$SCRIPT_DIR/src/lib/04-zsh.sh"
-_run_step step_java "Java 25" "$SCRIPT_DIR/src/lib/05-java.sh"
+_run_step step_java "Java 25 LTS" "$SCRIPT_DIR/src/lib/05-java.sh"
 _run_step step_node "Node.js 24" "$SCRIPT_DIR/src/lib/06-node.sh"
-_run_step step_python "Python 3.14 + uv" "$SCRIPT_DIR/src/lib/07-python.sh"
-_run_step step_go "Go 1.26" "$SCRIPT_DIR/src/lib/08-go.sh"
-_run_step step_rust "Rust 1.96" "$SCRIPT_DIR/src/lib/09-rust.sh"
-_run_step step_dotnet ".NET 10" "$SCRIPT_DIR/src/lib/10-dotnet.sh"
+_run_step step_python "Python 3.14.6 + uv" "$SCRIPT_DIR/src/lib/07-python.sh"
+_run_step step_go "Go 1.26.5" "$SCRIPT_DIR/src/lib/08-go.sh"
+_run_step step_rust "Rust 1.97.1" "$SCRIPT_DIR/src/lib/09-rust.sh"
+_run_step step_dotnet ".NET 10.0.302" "$SCRIPT_DIR/src/lib/10-dotnet.sh"
 
 # ── Clean old configs ────────────────────────────────────────────────────────
 if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then

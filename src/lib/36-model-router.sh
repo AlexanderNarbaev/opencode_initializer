@@ -39,10 +39,10 @@ cat >"$ROUTER_DIR/task-profiles.json" <<'PROFILES'
   },
   "agentic": {
     "description": "Tool use, multi-step workflows, autonomous agents",
-    "model": "moonshotai/kimi-k2.7-code",
-    "small_model": "moonshotai/kimi-k2.6",
+    "model": "moonshotai/kimi-k3",
+    "small_model": "moonshotai/kimi-k2.7-code",
     "fallback": ["zai/glm-5.2", "deepseek/deepseek-v4-pro", "anthropic/claude-opus-4-8"],
-    "rationale": "Kimi K2.7 Code: best agentic tool use, 256K context, open weights"
+    "rationale": "Kimi K3: flagship model, 1M context, best agentic tool use, open weights"
   },
   "budget": {
     "description": "Cost-sensitive tasks, bulk operations",
@@ -69,7 +69,7 @@ cat >"$ROUTER_DIR/task-profiles.json" <<'PROFILES'
     "description": "Optimized for Russian/Chinese language tasks",
     "model": "zai/glm-5.2",
     "small_model": "zai/glm-5-turbo",
-    "fallback": ["deepseek/deepseek-v4-pro", "moonshotai/kimi-k2.7-code", "alibaba/qwen3.7-plus"],
+    "fallback": ["deepseek/deepseek-v4-pro", "moonshotai/kimi-k3", "alibaba/qwen3.7-plus"],
     "rationale": "GLM-5.2: best RU/CN language support, free tier, open weights"
   }
 }
@@ -92,6 +92,7 @@ cat >"$ROUTER_DIR/cost-table.json" <<'COSTS'
   "google/gemini-3.5-flash": {"input": 1.50, "output": 9.00, "context": 1048576, "free": false},
   "google/gemini-3.1-flash-lite": {"input": 0.25, "output": 1.50, "context": 1048576, "free": false},
   "xai/grok-4.3": {"input": 0.00, "output": 0.00, "context": 1000000, "free": true},
+  "moonshotai/kimi-k3": {"input": 0.00, "output": 0.00, "context": 1000000, "free": true},
   "moonshotai/kimi-k2.7-code": {"input": 0.00, "output": 0.00, "context": 262144, "free": true},
   "moonshotai/kimi-k2.6": {"input": 0.00, "output": 0.00, "context": 262144, "free": true},
   "alibaba/qwen3.7-plus": {"input": 0.00, "output": 0.00, "context": 1000000, "free": true},

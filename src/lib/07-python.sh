@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# lib/07-python.sh — Python 3.14 + uv (STEP 6)
+# lib/07-python.sh — Python 3.14.6 + uv (STEP 6)
 set -euo pipefail
 
 if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) && _gate "INTERACTIVE_DO_PYTHON"; then
-  section "Python 3.14 + uv"
+  section "Python 3.14.6 + uv"
   if ! command -v uv &>/dev/null; then
     UV_SCRIPT=$(mktemp /tmp/uv-install.XXXXXX.sh)
     if _curl "https://astral.sh/uv/install.sh" "$UV_SCRIPT" 2>/dev/null; then
@@ -24,6 +24,6 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
   command -v uv &>/dev/null && uv pip install --user --upgrade pip 2>/dev/null || true
   PYTHON_BIN="$( (command -v uv &>/dev/null && uv python find 3.14 2>/dev/null) || which python3.14 2>/dev/null || which python3 2>/dev/null || true)"
   [ -n "$PYTHON_BIN" ] && sudo update-alternatives --install /usr/bin/python python "$PYTHON_BIN" 1 2>/dev/null || true
-  log "Python 3.14 OK"
+  log "Python 3.14.6 OK"
   _step_done step_python
 fi

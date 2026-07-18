@@ -160,7 +160,7 @@ def _build_providers():
         "xai": ("xai/grok-4.3", "xai/grok-4.20-0309-non-reasoning"),
         "minimax": ("minimax/MiniMax-M3", "minimax/MiniMax-M3"),
         "mimo": ("mimo/mimo-v2.5", "mimo/mimo-v2.5"),
-        "moonshot": ("moonshotai/kimi-k2.7-code", "moonshotai/kimi-k2.6"),
+        "moonshot": ("moonshotai/kimi-k3", "moonshotai/kimi-k2.7-code"),
         "perplexity": ("perplexity/sonar-pro", "perplexity/sonar"),
         "alibaba": ("alibaba/qwen3.7-plus", "alibaba/qwen3.6-flash"),
         "deepinfra": ("deepinfra/meta-llama/Llama-4-Maverick", "deepinfra/meta-llama/Llama-4-Scout"),
@@ -187,6 +187,8 @@ def _build_providers():
                 providers[provider]["base_url"] = "https://api.deepinfra.com/v1/openai"
             elif provider == "fireworks":
                 providers[provider]["base_url"] = "https://api.fireworks.ai/inference/v1"
+            elif provider == "moonshot":
+                providers[provider]["base_url"] = "https://api.moonshot.cn/v1"
             if provider not in ("deepseek", "zai"):
                 providers[provider]["fallback"] = ["deepseek"]
             elif provider == "deepseek":

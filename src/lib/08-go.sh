@@ -5,7 +5,7 @@ set -euo pipefail
 if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) && _gate "INTERACTIVE_DO_GO"; then
   section "Go"
   if ! command -v go &>/dev/null; then
-    GO_LATEST=$(curl -s --connect-timeout 10 --retry 3 --retry-delay 2 https://go.dev/VERSION?m=text 2>/dev/null | head -1 | tr -d 'go \n' || echo "1.26.4")
+    GO_LATEST=$(curl -s --connect-timeout 10 --retry 3 --retry-delay 2 https://go.dev/VERSION?m=text 2>/dev/null | head -1 | tr -d 'go \n' || echo "1.26.5")
     info "Latest Go: ${GO_LATEST}"
     GO_ARCH="${GO_ARCH:-linux-amd64}"
     GO_TAR="/tmp/go${GO_LATEST}.${GO_ARCH}.tar.gz"
@@ -22,7 +22,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
     GO_CURRENT=$(go version 2>/dev/null | grep -oP 'go\K[0-9]+\.[0-9]+' | head -1 || echo "0")
     GO_MINOR=$(echo "$GO_CURRENT" | cut -d. -f2)
     if [ "$GO_MINOR" -lt 26 ] 2>/dev/null; then
-      GO_LATEST=$(curl -s --connect-timeout 10 --retry 3 --retry-delay 2 https://go.dev/VERSION?m=text 2>/dev/null | head -1 | tr -d 'go \n' || echo "1.26.4")
+      GO_LATEST=$(curl -s --connect-timeout 10 --retry 3 --retry-delay 2 https://go.dev/VERSION?m=text 2>/dev/null | head -1 | tr -d 'go \n' || echo "1.26.5")
       info "Go ${GO_CURRENT} is outdated, upgrading to ${GO_LATEST}..."
       GO_ARCH="${GO_ARCH:-linux-amd64}"
       GO_TAR="/tmp/go${GO_LATEST}.${GO_ARCH}.tar.gz"
