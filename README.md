@@ -89,7 +89,7 @@ opencode_initializer/
 │   ├── grafana/               # Grafana provisioning (datasources + dashboards)
 │   ├── systemd/               # Systemd user units (opencode-metrics.service)
 │   └── modes/                 # 5 mode scripts (+ 6 built-in)
-├── scripts/                   # Utilities
+├── scripts/                   # Utilities (provider-check, embed-proxy, ai-router, oc-*)
 │   ├── oc-metrics.py          # OpenCode Prometheus metrics exporter (:9464)
 │   ├── oc-sdk.py              # Python SDK
 │   ├── embed-proxy.py         # Ollama → MemoryLayer embedding bridge
@@ -168,6 +168,7 @@ dev update              # Update everything + migrations
 dev self-update         # Update the installer itself
 dev version-check       # Compare installed vs latest versions
 dev config              # Edit setup config file
+dev provider-check      # Check AI provider connectivity
 dev autoupdate          # Run topgrade full system update
 dev remove java         # Remove a component
 dev plugins list        # Show installed plugins
