@@ -20,8 +20,8 @@ cat >"$ROUTER_DIR/task-profiles.json" <<'PROFILES'
     "description": "Primary coding, implementation, refactoring",
     "model": "deepseek/deepseek-v4-pro",
     "small_model": "deepseek/deepseek-v4-flash",
-    "fallback": ["zai/glm-5.2", "anthropic/claude-opus-4-8", "openai/gpt-5.5"],
-    "rationale": "DeepSeek V4 Pro: best price/performance for coding, 1M context, free tier"
+    "fallback": ["zai/glm-5.2", "anthropic/claude-opus-4-8", "moonshotai/kimi-k2.7-code-highspeed"],
+    "rationale": "DeepSeek V4 Pro: best price/performance for coding, 1M context, free tier. Moonshot highspeed for fast code iterations"
   },
   "reasoning": {
     "description": "Complex reasoning, architecture, planning",

@@ -50,6 +50,7 @@
 1. **opencode_initializer**: Завершить миграцию на DeepSeek V4 до 24.07.2026 (уже выполнено ✅)
 2. **opencode_initializer**: CI/CD green на GitHub + GitVerse
 3. **Все проекты**: Переход Moonshot Kimi K2.6 → K3 (уже выполнен ✅)
+4. **Moonshot**: api.moonshot.ai (platform.kimi.ai) — ключи обновлены на актуальный endpoint
 
 ### P1 — Высокий приоритет
 1. **opora**: Стабилизация core-модулей (каталог, верификация, AI-кооперация)
