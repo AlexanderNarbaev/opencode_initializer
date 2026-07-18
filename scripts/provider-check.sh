@@ -22,7 +22,7 @@ check() {
 echo "=== Provider Health Check ==="
 check "DeepSeek"  "https://api.deepseek.com/v1/chat/completions" "deepseek-chat" "${DEEPSEEK_API_KEY:-}"
 check "z.ai"      "https://api.z.ai/api/paas/v4/chat/completions" "glm-5.2" "${ZAI_API_KEY:-}"
-check "Moonshot"  "https://api.moonshot.cn/v1/chat/completions" "kimi-k2.7-code" "${MOONSHOT_API_KEY:-}"
+check "Moonshot"  "https://api.moonshot.ai/v1/chat/completions" "kimi-k2.7-code" "${MOONSHOT_API_KEY:-}"
 check "MiniMax"   "https://api.minimax.io/v1/chat/completions" "MiniMax-M3" "${MINIMAX_API_KEY:-}"
 check "xAI"       "https://api.x.ai/v1/chat/completions" "grok-4.3" "${XAI_API_KEY:-}"
 check "OpenAI"    "https://api.openai.com/v1/chat/completions" "gpt-5.5" "${OPENAI_API_KEY:-}"

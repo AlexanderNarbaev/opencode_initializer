@@ -294,7 +294,7 @@ Options:
   --openrouter-key    OpenRouter API key
   --xai-key           xAI Grok API key
   --mimo-key          Xiaomi MiMo API key
-  --moonshot-key      Moonshot (Kimi K3 / K2.7) API key
+  --moonshot-key      Moonshot Kimi API key (platform.kimi.ai)
   --minimax-key       MiniMax M3 API key
   --openai-key        OpenAI API key
   --anthropic-key     Anthropic Claude API key
