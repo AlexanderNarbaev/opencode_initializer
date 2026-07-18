@@ -1,1 +1,1 @@
-{"last_commit":"c561205","timestamp":"2026-07-18T14:25:00Z","branch":"main","wave":"v2.0.x-provider-sync","status":"active","resume_instructions":"git pull && cat current_wave.md"}
+{"last_commit":"264227b","timestamp":"2026-07-18T14:38:00Z","branch":"main","wave":"v2.0.x-provider-sync","status":"active","completed":["provider-tests-66","integration-tests-50","provider-check-test-9","framework-adr","docs-version-sync-11"]}
