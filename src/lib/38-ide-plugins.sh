@@ -89,14 +89,27 @@ else
   vscode_count=0
 fi
 
+# ── Russian Ecosystem: GigaIDE/GigaCode + Veai ──────────────────────
+gigaide_found=false
+for giga_dir in "$HOME"/gigacode-* "$HOME"/gigaide-* "/opt/gigacode" "/opt/gigaide"; do
+  [ -d "$giga_dir" ] 2>/dev/null && gigaide_found=true && info "GigaIDE: $giga_dir"
+done
+$gigaide_found && info "GigaIDE (Sber): IntelliJ-based — install DevoxxGenie + Cline via Install from disk"
+
+[ -d "$HOME/.local/share/JetBrains" ] &&   info "Veai (Russian AI): install from marketplace — on-prem LLM, Memory Bank, Model Routing"
+
 # ── Local model recommendations ─────────────────────────────────────────
 if command -v ollama &>/dev/null; then
-  info "Local Ollama models for IDE plugins:"
-  info "  FIM completion:  ollama pull codellama:code    (7B, <PRE>/<SUF>/<MID>)"
-  info "  Code specialist: ollama pull qwen3:8b           (8B, excellent coding)"
-  info "  General purpose: ollama pull llama3.2            (3B, fast chat)"
-  info "  Embeddings:      ollama pull nomic-embed-text    (local RAG)"
+  info "=== Local models for IDE plugins ==="
+  info "  FIM:     codellama:code (7B, fill-in-middle)"
+  info "  Coding:  qwen3:8b / qwen3:32b (CPU-optimized)"
+  info "  Fast:    llama3.2 (3B, quick chat)"
+  info "  RU LLM:  GigaChat-20B (GGUF, llama.cpp/LM Studio)"
+  info "  Embed:   nomic-embed-text (local RAG)"
 fi
+
+# ── Air-gapped deployment ────────────────────────────────────────────────
+[ "${ISOLATED_CIRCUIT:-false}" = "true" ] &&   info "Air-gapped: pre-download models, transfer via USB, CPU: Qwen3-Coder-30B"
 
 # ── Summary ─────────────────────────────────────────────────────────────
 if [ $jetbrains_count -gt 0 ] || [ $vscode_count -gt 0 ]; then
