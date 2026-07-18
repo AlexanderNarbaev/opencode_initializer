@@ -14,6 +14,7 @@
 - **Fragile zones:** src/lib/18-opencode-json.sh (provider config), src/lib/36-model-router.sh (routing profiles)
 
 ## Completed in this wave
+- [x] Integration tests: 50/50 PASS (fixed short flags grep patterns)
 - [x] Moonshot base_url fixed: api.moonshot.cn → api.moonshot.ai
 - [x] MiniMax base_url fixed: api.minimax.chat → api.minimax.io
 - [x] DeepSeek v3 → v4 migration
@@ -23,4 +24,5 @@
 - [x] .env.example template
 - [x] Documentation version sync (11 files)
 - [x] ADR: Multi-Agent Framework v3.0
+- [x] Integration tests: 50/50 PASS (fixed short flags patterns)
 
