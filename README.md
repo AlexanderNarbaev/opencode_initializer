@@ -3,7 +3,7 @@
 > **Operating Model:** Multi-Agent Framework v3.0 | **Wave:** [current_wave.md](./current_wave.md) | **Checkpoint:** [session_checkpoint.json](./session_checkpoint.json)
 <p align="center">
   <b>One-command AI-enhanced development environment setup for WSL2, Linux, and macOS.</b><br>
-  <sub>589-line orchestrator · 41 modules · 11 modes · 24 MCPs · 15 plugins · 13 LSPs · 24 providers · model routing · GUI · metrics</sub>
+  <sub>589-line orchestrator · 42 modules · 11 modes · 24 MCPs · 15 plugins · 13 LSPs · 24 providers · model routing · GUI · metrics</sub>
 </p>
 
 <p align="center">
@@ -70,7 +70,7 @@ opencode_initializer/
 ├── dev.sh                    # CLI: dev install|remove|update|health|metrics|observability|isolated|...
 ├── opencode.json             # Generated OpenCode multi-provider config (24 providers)
 ├── src/
-│   ├── lib/                  # 41 modules (38 numbered + 3 helpers)
+│   ├── lib/                  # 42 modules (39 numbered + 3 helpers)
 │   │   ├── helpers.sh        # _curl, _retry, _npm_install infrastructure
 │   │   ├── 00-core.sh        # OS/PKG/ARCH detection, mirrors, progress, ISOLATED_CIRCUIT, port resolution
 │   │   ├── 01-system.sh      # System packages (cross-distro: apt/dnf/pacman/apk/zypper/brew)

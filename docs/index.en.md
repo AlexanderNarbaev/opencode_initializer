@@ -69,7 +69,7 @@ A single script that turns a fresh Linux/WSL2 machine into a production-ready de
 | 24 providers | 20 cloud + 4 local (was 16 in v1.1.0) |
 | Provider Check | \`bash scripts/provider-check.sh\` to verify provider connectivity |
 | .env.example | Template with all 20 API key variables |
-| 41 modules | Was 29 in v1.1.0 |
+| 42 modules | Was 29 in v1.1.0 |
 
 ## Quick Install
 
