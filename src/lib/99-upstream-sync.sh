@@ -37,9 +37,12 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
     bash "$SCRIPT_DIR/src/lib/40-best-practices.sh" 2>&1 | tail -5 || true
   fi
 
-  # ── 5. Auto-start kimi proxy (systemd service + .zshrc fallback) ───────
-  if [ -f "$SCRIPT_DIR/scripts/kimi-proxy-autostart.sh" ]; then
-    info "Configuring kimi-proxy autostart..."
+  # ── 5. Kimi proxy (DEPRECATED: not needed since auth.json update) ───────
+  # Kept available for offline setups but not auto-started.
+  # Direct Moonshot API via @ai-sdk/openai-compatible works fine when
+  # MOONSHOT_API_KEY env var is set and auth.json has been cleaned.
+  if [ "${KIMI_PROXY_ENABLED:-false}" = "true" ] && [ -f "$SCRIPT_DIR/scripts/kimi-proxy-autostart.sh" ]; then
+    info "Configuring kimi-proxy autostart (opt-in via KIMI_PROXY_ENABLED=true)..."
     bash "$SCRIPT_DIR/scripts/kimi-proxy-autostart.sh" 2>&1 | tail -3 || true
   fi
 
