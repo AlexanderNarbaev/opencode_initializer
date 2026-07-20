@@ -37,5 +37,11 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
     bash "$SCRIPT_DIR/src/lib/40-best-practices.sh" 2>&1 | tail -5 || true
   fi
 
+  # ── 5. Auto-start kimi proxy (systemd service + .zshrc fallback) ───────
+  if [ -f "$SCRIPT_DIR/scripts/kimi-proxy-autostart.sh" ]; then
+    info "Configuring kimi-proxy autostart..."
+    bash "$SCRIPT_DIR/scripts/kimi-proxy-autostart.sh" 2>&1 | tail -3 || true
+  fi
+
   _step_done step_upstream_sync
 fi
