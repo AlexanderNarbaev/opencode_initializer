@@ -401,8 +401,11 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header("Content-Type", "text/event-stream; charset=utf-8")
             self.send_header("Cache-Control", "no-cache")
             self.send_header("X-Accel-Buffering", "no")
-            self.send_header("Transfer-Encoding", "chunked")
             self.send_header("Connection", "close")
+            # Note: do NOT set Transfer-Encoding: chunked. We're writing pre-formatted
+            # SSE events (data: ...\n\n) with explicit flushes; HTTP/1.1 chunked encoding
+            # conflicts with this and clients (including opencode) get "Invalid
+            # character in chunk size". We just close the connection when done.
             self.end_headers()
             self.wfile.flush()
         except (BrokenPipeError, ConnectionResetError):
