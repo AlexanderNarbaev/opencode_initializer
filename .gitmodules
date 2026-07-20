@@ -1,0 +1,29 @@
+[submodule "upstream/opencode"]
+	path = upstream/opencode
+	url = https://github.com/opencode-ai/opencode.git
+	branch = dev
+
+[submodule "upstream/mcp-servers"]
+	path = upstream/mcp-servers
+	url = https://github.com/modelcontextprotocol/servers.git
+	branch = main
+
+[submodule "upstream/searxng"]
+	path = upstream/searxng
+	url = https://github.com/searxng/searxng.git
+	branch = master
+
+[submodule "upstream/rag-system"]
+	path = upstream/rag-system
+	url = https://github.com/AlexanderNarbaev/rag-system.git
+	branch = main
+
+[submodule "upstream/superpowers"]
+	path = upstream/superpowers
+	url = https://github.com/obra/superpowers.git
+	branch = main
+
+[submodule "upstream/skill-conductor"]
+	path = upstream/skill-conductor
+	url = https://github.com/smixs/skill-conductor.git
+	branch = main

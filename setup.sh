@@ -500,7 +500,7 @@ echo -e "${GREEN}     Log:  $LOG_FILE${NC}"
 echo -e "${GREEN}============================================================${NC}"
 
 # ── Execute steps ───────────────────────────────────────────────────────────
-TOTAL_STEPS=37
+TOTAL_STEPS=38
 CURRENT_STEP=0
 
 _run_step() {
@@ -581,6 +581,7 @@ _run_step step_providers "Multi-Provider Config" "$SCRIPT_DIR/src/lib/26-provide
 [ "${OBSERVABILITY_ENABLED:-false}" = "true" ] && _run_step step_observability "Observability Stack" "$SCRIPT_DIR/src/lib/34-observability.sh"
 _run_step step_model_router "Model Routing Intelligence" "$SCRIPT_DIR/src/lib/36-model-router.sh"
 [ "${BEST_PRACTICES_ENABLED:-true}" != "false" ] && _run_step step_best_practices "Best Practices Skills (smixs)" "$SCRIPT_DIR/src/lib/40-best-practices.sh"
+_run_step step_upstream_sync "Upstream Sync (submodules + pins)" "$SCRIPT_DIR/src/lib/99-upstream-sync.sh"
 
 echo ""
 echo -e "  ${GREEN}╔══════════════════════════════════════╗${NC}"
