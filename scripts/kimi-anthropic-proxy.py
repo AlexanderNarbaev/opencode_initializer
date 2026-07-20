@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """
-Kimi/Moonshot Anthropic-compatible proxy for opencode (v4.0 - NON-streaming only).
+Kimi/Moonshot proxy for opencode (v5.0 - reasoning-content stripper).
 
-Why non-streaming: opencode's ai-sdk has buffering issues with our streaming.
-Non-streaming is slower but bulletproof. The reasoning model still returns
-in 3-15 seconds for simple prompts.
+Why: opencode 1.18.3 has a bug where it hangs when streaming responses that
+include the non-standard 'reasoning_content' field. Moonshot models always
+return this field. This proxy translates OpenAI <-> Anthropic AND strips
+reasoning_content from the response, sending only 'content' to opencode.
 
-Maps OpenAI /v1/chat/completions (with stream:true) → Anthropic /v1/messages
-and returns the full response as a single OpenAI chunk.
+Use case: makes moonshotai/kimi-k3 work with your own Moonshot API key in
+opencode TUI (instead of using opencode-go's default routing).
 """
 import json
 import os
@@ -17,11 +18,11 @@ import time
 import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-import requests
-from requests.adapters import HTTPAdapter
+import httpx
 
 MOONSHOT_API_KEY = os.environ.get("MOONSHOT_API_KEY", "")
 ANTHROPIC_BASE = os.environ.get("ANTHROPIC_BASE", "https://api.moonshot.ai/anthropic")
+print(f"[kimi-proxy v5] key length: {len(MOONSHOT_API_KEY)}, starts with: {MOONSHOT_API_KEY[:8] if MOONSHOT_API_KEY else 'NONE'}", file=sys.stderr)
 PORT = int(os.environ.get("KIMI_PROXY_PORT", "9876"))
 REQUEST_TIMEOUT = int(os.environ.get("KIMI_PROXY_TIMEOUT", "120"))
 
@@ -45,7 +46,6 @@ def translate_openai_to_anthropic(body):
         "temperature": temperature,
     }
 
-    # Critical: constrain thinking budget so model leaves tokens for content
     thinking_budget = max(256, min(8192, max_tokens // 4))
     anth["thinking"] = {"type": "enabled", "budget_tokens": thinking_budget}
 
@@ -70,25 +70,63 @@ def translate_openai_to_anthropic(body):
     return anth
 
 
+def strip_reasoning(d):
+    """Remove reasoning_content from a delta object. OpenAI-compatible."""
+    if isinstance(d, dict) and "reasoning_content" in d:
+        d = dict(d)
+        d.pop("reasoning_content", None)
+    return d
+
+
+def anthropic_chunk_to_openai(evt, msg_id, model):
+    t = evt.get("type")
+    if t == "message_start":
+        return {"id": msg_id, "object": "chat.completion.chunk", "created": int(time.time()),
+                "model": model, "choices": [{"index": 0, "delta": {"role": "assistant"}, "finish_reason": None}]}
+    if t == "content_block_start":
+        block = evt.get("content_block", {})
+        if block.get("type") == "tool_use":
+            return {"id": msg_id, "object": "chat.completion.chunk", "created": int(time.time()),
+                    "model": model, "choices": [{"index": 0, "delta": {"tool_calls": [{
+                        "index": 0, "id": block.get("id", f"call_{uuid.uuid4().hex[:8]}"),
+                        "type": "function", "function": {"name": block.get("name", ""), "arguments": ""}
+                    }]}, "finish_reason": None}]}
+    if t == "content_block_delta":
+        d = evt.get("delta", {})
+        if d.get("type") == "text_delta":
+            return {"id": msg_id, "object": "chat.completion.chunk", "created": int(time.time()),
+                    "model": model, "choices": [{"index": 0, "delta": {"content": d.get("text", "")}, "finish_reason": None}]}
+        if d.get("type") == "input_json_delta":
+            return {"id": msg_id, "object": "chat.completion.chunk", "created": int(time.time()),
+                    "model": model, "choices": [{"index": 0, "delta": {"tool_calls": [{
+                        "index": 0, "function": {"arguments": d.get("partial_json", "")}
+                    }]}, "finish_reason": None}]}
+        # STRIP reasoning_delta — this is what breaks opencode
+        if d.get("type") == "thinking_delta":
+            return None  # completely skip reasoning chunks
+    if t == "message_delta":
+        sr = evt.get("delta", {}).get("stop_reason")
+        return {"id": msg_id, "object": "chat.completion.chunk", "created": int(time.time()),
+                "model": model, "choices": [{"index": 0, "delta": {}, "finish_reason": sr}]}
+    return None
+
+
 def anthropic_response_to_openai(resp, model):
     msg_id = resp.get("id", f"chatcmpl-{uuid.uuid4().hex[:24]}")
     text = ""
-    reasoning = ""
+    # SKIP reasoning - only return text content
     tool_calls = []
     for b in resp.get("content", []):
         btype = b.get("type")
         if btype == "text":
             text += b.get("text", "")
-        elif btype == "thinking":
-            reasoning += b.get("thinking", "")
+        # SKIP thinking blocks
         elif btype == "tool_use":
             tool_calls.append({"id": b.get("id", f"call_{uuid.uuid4().hex[:8]}"), "type": "function",
                                "function": {"name": b.get("name", ""), "arguments": json.dumps(b.get("input", {}))}})
     sr = resp.get("stop_reason", "end_turn")
     finish = {"end_turn": "stop", "max_tokens": "length", "tool_use": "tool_calls"}.get(sr, "stop")
     msg = {"role": "assistant", "content": text}
-    if reasoning:
-        msg["reasoning_content"] = reasoning
     if tool_calls:
         msg["tool_calls"] = tool_calls
     usage = resp.get("usage", {})
@@ -99,23 +137,22 @@ def anthropic_response_to_openai(resp, model):
                       "total_tokens": usage.get("input_tokens", 0) + usage.get("output_tokens", 0)}}
 
 
-# Per-thread session to avoid sharing connections
 SESSIONS = threading.local()
 
 
-def get_session():
-    s = getattr(SESSIONS, "s", None)
-    if s is None:
-        s = requests.Session()
-        # Use a custom adapter that doesn't pool connections (per-request fresh)
-        s.mount("https://", HTTPAdapter(pool_connections=1, pool_maxsize=1))
-        SESSIONS.s = s
-    return s
+def get_client():
+    c = getattr(SESSIONS, "c", None)
+    if c is None:
+        # timeout: total request timeout. read/write timeouts are None for SSE streaming
+        timeout = httpx.Timeout(connect=10.0, read=None, write=10.0, pool=10.0)
+        c = httpx.Client(timeout=timeout)
+        SESSIONS.c = c
+    return c
 
 
 class Handler(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
-    server_version = "kimi-anthropic-proxy/4.0"
+    server_version = "kimi-anthropic-proxy/5.0"
 
     def log_message(self, format, *args):
         sys.stderr.write("[kimi-proxy] " + (format % args) + "\n")
@@ -156,80 +193,119 @@ class Handler(BaseHTTPRequestHandler):
             self._write_response(400, {"error": f"bad json: {e}"})
             return
 
-        # We accept stream=true but ALWAYS do non-streaming internally.
-        # opencode will see a single chunk and render it.
-        # This is the most reliable path.
-        stream = body.get("stream", False)
-
         anth_body = translate_openai_to_anthropic(body)
         model = anth_body["model"]
+        stream = bool(body.get("stream", False))
 
-        sess = get_session()
+        sess = get_client()
         start = time.time()
+        sys.stderr.write(f"[kimi-proxy] key to upstream: {MOONSHOT_API_KEY[:10]}... (len={len(MOONSHOT_API_KEY)})\n")
+
+        if not stream:
+            try:
+                client = get_client()
+                r = client.post(ANTHROPIC_BASE + "/v1/messages",
+                               json=anth_body,
+                               headers={"x-api-key": MOONSHOT_API_KEY, "anthropic-version": "2023-06-01"})
+                elapsed = time.time() - start
+                if r.status_code != 200:
+                    sys.stderr.write(f"[kimi-proxy] upstream {r.status_code} in {elapsed:.1f}s\n")
+                    self._write_response(r.status_code, {"error": r.text[:500]})
+                    return
+                data = r.json()
+                sys.stderr.write(f"[kimi-proxy] non-stream OK in {elapsed:.1f}s\n")
+                self._write_response(200, anthropic_response_to_openai(data, model))
+            except Exception as e:
+                sys.stderr.write(f"[kimi-proxy] ERR: {type(e).__name__}: {e}\n")
+                self._write_response(500, {"error": str(e)[:200]})
+            return
+
+        # Streaming — chunked transfer encoding + strip reasoning
         try:
-            r = sess.post(ANTHROPIC_BASE + "/v1/messages",
-                           json=anth_body,
-                           headers={"x-api-key": MOONSHOT_API_KEY, "anthropic-version": "2023-06-01"},
-                           timeout=REQUEST_TIMEOUT)
-            elapsed = time.time() - start
+            self.send_response(200)
+            self.send_header("Content-Type", "text/event-stream; charset=utf-8")
+            self.send_header("Cache-Control", "no-cache")
+            self.send_header("X-Accel-Buffering", "no")
+            self.send_header("Transfer-Encoding", "chunked")
+            self.send_header("Connection", "close")
+            self.end_headers()
+        except (BrokenPipeError, ConnectionResetError):
+            return
 
-            if r.status_code != 200:
-                sys.stderr.write(f"[kimi-proxy] upstream {r.status_code} in {elapsed:.1f}s\n")
-                self._write_response(r.status_code, {"error": r.text[:500]})
-                return
-
-            data = r.json()
-            result = anthropic_response_to_openai(data, model)
-
-            # If opencode requested streaming, wrap the single response in a stream format
-            # that has one initial chunk + [DONE]
-            if stream:
-                # Send as HTTP/1.1 chunked transfer-encoded SSE stream
-                # (AI SDK / fetch implementations require Transfer-Encoding for streaming)
-                self.protocol_version = "HTTP/1.1"
-                self.send_response(200)
-                self.send_header("Content-Type", "text/event-stream; charset=utf-8")
-                self.send_header("Cache-Control", "no-cache")
-                self.send_header("Transfer-Encoding", "chunked")
-                self.send_header("Connection", "close")
-                self.end_headers()
-
-                def write_chunk(data):
-                    """Write one HTTP/1.1 chunked encoding chunk."""
-                    if isinstance(data, str):
-                        data = data.encode("utf-8")
-                    self.wfile.write(f"{len(data):x}\r\n".encode())
-                    self.wfile.write(data)
-                    self.wfile.write(b"\r\n")
-                    self.wfile.flush()
-
-                # First chunk: role
-                first = {"id": result["id"], "object": "chat.completion.chunk",
-                         "created": result["created"], "model": result["model"],
-                         "choices": [{"index": 0, "delta": {"role": "assistant"}, "finish_reason": None}]}
-                write_chunk(f"data: {json.dumps(first, ensure_ascii=False)}\n\n")
-                # Second chunk: content + finish_reason
-                chunk = {"id": result["id"], "object": "chat.completion.chunk",
-                         "created": result["created"], "model": result["model"],
-                         "choices": [{"index": 0, "delta": {
-                             "content": result["choices"][0]["message"]["content"],
-                             "reasoning_content": result["choices"][0]["message"].get("reasoning_content", "")
-                         }, "finish_reason": result["choices"][0]["finish_reason"]}]}
-                write_chunk(f"data: {json.dumps(chunk, ensure_ascii=False)}\n\n")
-                write_chunk("data: [DONE]\n\n")
-                # Final empty chunk to signal end of stream
-                self.wfile.write(b"0\r\n\r\n")
+        def write_chunk(data):
+            if isinstance(data, str):
+                data = data.encode("utf-8")
+            try:
+                self.wfile.write(f"{len(data):x}\r\n".encode())
+                self.wfile.write(data)
+                self.wfile.write(b"\r\n")
                 self.wfile.flush()
-                sys.stderr.write(f"[kimi-proxy] stream OK in {elapsed:.1f}s (chunked)\n")
-            else:
-                sys.stderr.write(f"[kimi-proxy] OK in {elapsed:.1f}s\n")
-                self._write_response(200, result)
-        except requests.exceptions.Timeout as e:
-            sys.stderr.write(f"[kimi-proxy] TIMEOUT after {time.time()-start:.1f}s: {e}\n")
-            self._write_response(504, {"error": "upstream timeout", "details": str(e)[:200]})
+                return True
+            except (BrokenPipeError, ConnectionResetError, OSError):
+                return False
+
+        msg_id = f"chatcmpl-{uuid.uuid4().hex[:24]}"
+        last_write = time.time()
+        pending = b""
+        event_count = 0
+        client_alive = True
+        try:
+            client = get_client()
+            with client.stream("POST", ANTHROPIC_BASE + "/v1/messages",
+                               json=anth_body,
+                               headers={"x-api-key": MOONSHOT_API_KEY, "anthropic-version": "2023-06-01", "Accept": "text/event-stream"},
+                               timeout=REQUEST_TIMEOUT) as r:
+                if r.status_code != 200:
+                    err = r.read().decode(errors="replace")
+                    if write_chunk(f"data: {json.dumps({'error': err})}\n\n".encode()):
+                        write_chunk(b"data: [DONE]\n\n")
+                    return
+
+                for raw_chunk in r.iter_bytes(chunk_size=4096):
+                    if not raw_chunk:
+                        break
+                    if time.time() - last_write >= 5:
+                        if not write_chunk(b": keep-alive\n\n"):
+                            client_alive = False
+                            break
+                        last_write = time.time()
+
+                    pending += raw_chunk
+                    while b"\n" in pending:
+                        line_bytes, _, pending = pending.partition(b"\n")
+                        line = line_bytes.decode(errors="replace").rstrip("\r")
+                        if not line:
+                            continue
+                        if not line.startswith("data: "):
+                            continue
+                        data = line[6:]
+                        if data == "[DONE]":
+                            break
+                        try:
+                            evt = json.loads(data)
+                        except Exception:
+                            continue
+                        out = anthropic_chunk_to_openai(evt, msg_id, model)
+                        if out is None:
+                            continue  # reasoning chunks dropped here
+                        event_count += 1
+                        chunk_data = f"data: {json.dumps(out, ensure_ascii=False)}\n\n".encode()
+                        if not write_chunk(chunk_data):
+                            client_alive = False
+                            break
+                        last_write = time.time()
+                    if not client_alive:
+                        break
         except Exception as e:
-            sys.stderr.write(f"[kimi-proxy] ERR: {type(e).__name__}: {e}\n")
-            self._write_response(500, {"error": str(e)[:200]})
+            sys.stderr.write(f"[kimi-proxy] stream err: {type(e).__name__}: {e}\n")
+
+        try:
+            write_chunk(b"data: [DONE]\n\n")
+            self.wfile.write(b"0\r\n\r\n")
+            self.wfile.flush()
+        except Exception:
+            pass
+        sys.stderr.write(f"[kimi-proxy] stream end: events={event_count} (reasoning stripped) client_alive={client_alive}\n")
 
 
 class ThreadedServer(ThreadingHTTPServer):
@@ -242,9 +318,9 @@ def main():
         print("ERROR: MOONSHOT_API_KEY env var required", file=sys.stderr)
         sys.exit(1)
     server = ThreadedServer(("127.0.0.1", PORT), Handler)
-    print(f"[kimi-proxy] Listening on http://127.0.0.1:{PORT} (v4.0 NON-streaming-to-Anthropic)", file=sys.stderr)
-    print(f"[kimi-proxy] Forwarding to {ANTHROPIC_BASE}", file=sys.stderr)
-    print(f"[kimi-proxy] Timeout={REQUEST_TIMEOUT}s", file=sys.stderr)
+    print(f"[kimi-proxy v5] Listening on http://127.0.0.1:{PORT} (strip reasoning_content)", file=sys.stderr)
+    print(f"[kimi-proxy v5] Forwarding to {ANTHROPIC_BASE}", file=sys.stderr)
+    print(f"[kimi-proxy v5] Timeout={REQUEST_TIMEOUT}s", file=sys.stderr)
     try:
         server.serve_forever()
     except KeyboardInterrupt:

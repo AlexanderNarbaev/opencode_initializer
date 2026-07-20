@@ -41,17 +41,50 @@
       ]
     },
     "moonshotai": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Moonshot Kimi (via LiteLLM proxy)",
       "options": {
-        "timeout": 600000,
-        "chunkTimeout": 60000,
-        "setCacheKey": true,
-        "baseURL": "https://api.moonshot.ai/v1",
-        "apiKey": "{env:MOONSHOT_API_KEY}"
+        "baseURL": "http://127.0.0.1:9876/v1",
+        "apiKey": "sk-1234"
       },
-      "fallback": [
-        "deepseek",
-        "opencode-go"
-      ]
+      "models": {
+        "kimi-k3": {
+          "name": "Kimi K3 (via LiteLLM)",
+          "temperature": false,
+          "reasoning": true,
+          "tool_call": false,
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 65536
+          }
+        },
+        "kimi-k2.7-code": {
+          "name": "Kimi K2.7 Code",
+          "temperature": false,
+          "reasoning": true,
+          "tool_call": false,
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "limit": {
+            "context": 262144,
+            "output": 65536
+          }
+        }
+      }
     },
     "minimax": {
       "options": {
@@ -77,6 +110,70 @@
         "deepseek",
         "opencode-go"
       ]
+    },
+    "litellm": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "LiteLLM Proxy (Kimi)",
+      "options": {
+        "baseURL": "http://127.0.0.1:9876/v1",
+        "apiKey": "sk-1234"
+      },
+      "models": {
+        "kimi-k3": {
+          "name": "Kimi K3 (via LiteLLM)",
+          "temperature": true,
+          "reasoning": true,
+          "tool_call": false,
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 65536
+          }
+        },
+        "kimi-k2.7-code": {
+          "name": "Kimi K2.7 Code (via LiteLLM)",
+          "temperature": true,
+          "reasoning": true,
+          "tool_call": false,
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "limit": {
+            "context": 262144,
+            "output": 65536
+          }
+        },
+        "kimi-k2.7-code-highspeed": {
+          "name": "Kimi K2.7 Code Highspeed (via LiteLLM)",
+          "temperature": true,
+          "reasoning": true,
+          "tool_call": false,
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "limit": {
+            "context": 262144,
+            "output": 65536
+          }
+        }
+      }
     }
   },
   "tool_output": {
@@ -443,8 +540,8 @@
   "agent": {
     "build": {
       "mode": "primary",
-      "model": "deepseek/deepseek-v4-pro",
-      "temperature": 0.2
+      "model": "moonshotai/kimi-k3",
+      "temperature": 1.0
     },
     "plan": {
       "mode": "primary",

@@ -1,0 +1,43 @@
+model_list:
+  - model_name: kimi-k3
+    litellm_params:
+      model: moonshot/kimi-k3
+      api_key: os.environ/MOONSHOT_API_KEY
+      api_base: https://api.moonshot.ai/v1
+      stream_timeout: 120
+      max_tokens: 8192
+      temperature: 1.0
+      drop_params: ["temperature"]
+
+  - model_name: kimi-k2.7-code
+    litellm_params:
+      model: moonshot/kimi-k2.7-code
+      api_key: os.environ/MOONSHOT_API_KEY
+      api_base: https://api.moonshot.ai/v1
+      stream_timeout: 120
+      max_tokens: 8192
+      temperature: 1.0
+      drop_params: ["temperature"]
+
+  - model_name: kimi-k2.7-code-highspeed
+    litellm_params:
+      model: moonshot/kimi-k2.7-code-highspeed
+      api_key: os.environ/MOONSHOT_API_KEY
+      api_base: https://api.moonshot.ai/v1
+      stream_timeout: 120
+      max_tokens: 8192
+      temperature: 1.0
+      drop_params: ["temperature"]
+
+litellm_settings:
+  drop_params: true
+  set_verbose: false
+  telemetry: false
+  num_retries: 2
+  # Force non-streaming at the proxy level — upstream returns full response
+  # which LiteLLM then converts to a single streaming chunk for the client
+  # This avoids opencode's broken streaming parser for some providers
+
+general_settings:
+  telemetry: false
+  disable_spend_logs: true
