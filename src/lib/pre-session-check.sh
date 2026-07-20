@@ -47,9 +47,9 @@ _pre_session() {
   _check_provider "Anthropic" "https://api.anthropic.com/v1/models" "${ANTHROPIC_API_KEY:-}" && available=$((available + 1)) || true
   _check_provider "Google" "https://generativelanguage.googleapis.com/v1beta/models?key=${GOOGLE_API_KEY:-}" "${GOOGLE_API_KEY:-}" && available=$((available + 1)) || true
   _check_provider "xAI Grok" "https://api.x.ai/v1/models" "${XAI_API_KEY:-}" && available=$((available + 1)) || true
-  _check_provider "Moonshot" "https://api.moonshot.cn/v1/models" "${MOONSHOT_API_KEY:-}" && available=$((available + 1)) || true
+  _check_provider "Moonshot" "https://api.moonshot.ai/v1/models" "${MOONSHOT_API_KEY:-}" && available=$((available + 1)) || true
   _check_provider "Alibaba" "https://dashscope.aliyuncs.com/compatible-mode/v1/models" "${ALIBABA_API_KEY:-}" && available=$((available + 1)) || true
-  _check_provider "MiniMax" "https://api.minimax.chat/v1/text/chatcompletion_v2" "${MINIMAX_API_KEY:-}" && available=$((available + 1)) || true
+  _check_provider "MiniMax" "https://api.minimax.io/v1/models" "${MINIMAX_API_KEY:-}" && available=$((available + 1)) || true
   _check_provider "Mistral" "https://api.mistral.ai/v1/models" "${MISTRAL_API_KEY:-}" && available=$((available + 1)) || true
   _check_provider "Groq" "https://api.groq.com/openai/v1/models" "${GROQ_API_KEY:-}" && available=$((available + 1)) || true
   _check_provider "Together" "https://api.together.xyz/v1/models" "${TOGETHER_API_KEY:-}" && available=$((available + 1)) || true

@@ -49,7 +49,7 @@ if xk:
 if mk:
     auth['mimo'] = {'type': 'api', 'key': mk}
 if msk:
-    auth['moonshot'] = {'type': 'api', 'key': msk}
+    auth['moonshotai'] = {'type': 'api', 'key': msk}
 if mmk:
     auth['minimax'] = {'type': 'api', 'key': mmk}
 if ghk:
@@ -96,4 +96,16 @@ if dk or ak or xk or mk or msk or mmk or ghk or glk or gmk:
     done
     log "Interaction mode wrappers installed (~/.local/bin/oc-*)"
   fi
+
+  # AI SDK provider modules for custom OpenCode providers (moonshotai, minimax, mimo)
+  section "AI SDK Provider Modules"
+  _npm_install zod || true
+  _npm_install @ai-sdk/openai-compatible || true
+  # Set NODE_PATH so OpenCode can resolve custom provider npm packages
+  NPM_GLOBAL="$(npm root -g 2>/dev/null || echo '')"
+  if [ -n "$NPM_GLOBAL" ]; then
+    export NODE_PATH="$NPM_GLOBAL:$NODE_PATH"
+    log "NODE_PATH set to $NPM_GLOBAL"
+  fi
+  _step_done step_ai_sdk
 fi

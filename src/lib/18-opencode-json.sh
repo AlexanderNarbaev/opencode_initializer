@@ -70,7 +70,7 @@ PROVIDER_ENV_VARS = {
     "openrouter": "OPENROUTER_API_KEY",
     "xai": "XAI_API_KEY",
     "mimo": "MIMO_API_KEY",
-    "moonshot": "MOONSHOT_API_KEY",
+    "moonshotai": "MOONSHOT_API_KEY",
     "minimax": "MINIMAX_API_KEY",
     "openai": "OPENAI_API_KEY",
     "anthropic": "ANTHROPIC_API_KEY",
@@ -131,7 +131,7 @@ def _build_providers():
         "openrouter": os.environ.get("OPENROUTER_API_KEY") or secrets.get("OPENROUTER_API_KEY", ""),
         "xai": os.environ.get("XAI_API_KEY") or secrets.get("XAI_API_KEY", ""),
         "mimo": os.environ.get("MIMO_API_KEY") or secrets.get("MIMO_API_KEY", ""),
-        "moonshot": os.environ.get("MOONSHOT_API_KEY") or secrets.get("MOONSHOT_API_KEY", ""),
+        "moonshotai": os.environ.get("MOONSHOT_API_KEY") or secrets.get("MOONSHOT_API_KEY", ""),
         "minimax": os.environ.get("MINIMAX_API_KEY") or secrets.get("MINIMAX_API_KEY", ""),
         "openai": os.environ.get("OPENAI_API_KEY") or secrets.get("OPENAI_API_KEY", ""),
         "anthropic": os.environ.get("ANTHROPIC_API_KEY") or secrets.get("ANTHROPIC_API_KEY", ""),
@@ -160,7 +160,7 @@ def _build_providers():
         "xai": ("xai/grok-4.3", "xai/grok-4.20-0309-non-reasoning"),
         "minimax": ("minimax/MiniMax-M3", "minimax/MiniMax-M3"),
         "mimo": ("mimo/mimo-v2.5", "mimo/mimo-v2.5"),
-        "moonshot": ("moonshotai/kimi-k3", "moonshotai/kimi-k2.7-code"),
+        "moonshotai": ("moonshotai/kimi-k3", "moonshotai/kimi-k2.7-code"),
         "perplexity": ("perplexity/sonar-pro", "perplexity/sonar"),
         "alibaba": ("alibaba/qwen3.7-plus", "alibaba/qwen3.6-flash"),
         "deepinfra": ("deepinfra/meta-llama/Llama-4-Maverick", "deepinfra/meta-llama/Llama-4-Scout"),
@@ -187,7 +187,7 @@ def _build_providers():
                 providers[provider]["base_url"] = "https://api.deepinfra.com/v1/openai"
             elif provider == "fireworks":
                 providers[provider]["base_url"] = "https://api.fireworks.ai/inference/v1"
-            elif provider == "moonshot":
+            elif provider == "moonshotai":
                 providers[provider]["base_url"] = "https://api.moonshot.ai/v1"
             elif provider == "minimax":
                 providers[provider]["base_url"] = "https://api.minimax.io/v1"

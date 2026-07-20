@@ -22,8 +22,8 @@ cmd_status() {
     case $p in
       deepseek) url="https://api.deepseek.com/v1/models"; key="${DEEPSEEK_API_KEY:-}" ;;
       xai) url="https://api.x.ai/v1/models"; key="${XAI_KEY:-}" ;;
-      minimax) url="https://api.minimax.chat/v1/text/chatcompletion_v2"; key="${MINIMAX_KEY:-}" ;;
-      moonshot) url="https://api.moonshot.cn/v1/models"; key="${MOONSHOT_KEY:-}" ;;
+      minimax) url="https://api.minimax.io/v1/models"; key="${MINIMAX_KEY:-}" ;;
+      moonshot) url="https://api.moonshot.ai/v1/models"; key="${MOONSHOT_KEY:-}" ;;
       *) continue ;;
     esac
     [ -z "$key" ] && { echo -e "  ${RED}✗${NC} $p — no key"; continue; }

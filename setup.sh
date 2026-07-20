@@ -500,7 +500,7 @@ echo -e "${GREEN}     Log:  $LOG_FILE${NC}"
 echo -e "${GREEN}============================================================${NC}"
 
 # ── Execute steps ───────────────────────────────────────────────────────────
-TOTAL_STEPS=35
+TOTAL_STEPS=37
 CURRENT_STEP=0
 
 _run_step() {
@@ -544,6 +544,7 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then
 fi
 
 _run_step step_opencode "OpenCode CLI" "$SCRIPT_DIR/src/lib/11-opencode.sh"
+[ "${KIMI_PROXY_ENABLED:-true}" != "false" ] && _run_step step_kimi_proxy "Kimi Anthropic-Proxy" "$SCRIPT_DIR/src/lib/39-kimi-proxy.sh"
 _run_step step_mcp "MCP + LSP + Plugins" "$SCRIPT_DIR/src/lib/12-mcp-lsp.sh"
 _run_step step_chromadb "ChromaDB + Muninn" "$SCRIPT_DIR/src/lib/13-chromadb.sh"
 _run_step step_shokunin "Shokunin + Superpowers" "$SCRIPT_DIR/src/lib/14-shokunin.sh"
@@ -579,6 +580,7 @@ _run_step step_providers "Multi-Provider Config" "$SCRIPT_DIR/src/lib/26-provide
 [ "${SKIP_GUI:-false}" != "true" ] && _run_step step_gui "Web GUI Interface" "$SCRIPT_DIR/src/lib/35-gui.sh"
 [ "${OBSERVABILITY_ENABLED:-false}" = "true" ] && _run_step step_observability "Observability Stack" "$SCRIPT_DIR/src/lib/34-observability.sh"
 _run_step step_model_router "Model Routing Intelligence" "$SCRIPT_DIR/src/lib/36-model-router.sh"
+[ "${BEST_PRACTICES_ENABLED:-true}" != "false" ] && _run_step step_best_practices "Best Practices Skills (smixs)" "$SCRIPT_DIR/src/lib/40-best-practices.sh"
 
 echo ""
 echo -e "  ${GREEN}╔══════════════════════════════════════╗${NC}"
