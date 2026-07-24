@@ -47,3 +47,5 @@ sqlite_mcp_server.db
 /ai-router.json
 docs/changelog/index.md
 .opencode/state/
+# Test/local node_modules
+node_modules/

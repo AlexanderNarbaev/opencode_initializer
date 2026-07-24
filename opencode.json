@@ -1,8 +1,8 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "deepseek/deepseek-v4-pro",
-  "small_model": "deepseek/deepseek-v4-flash",
-  "default_agent": "build",
+  "model": "opencode-go/kimi-k3",
+  "small_model": "opencode-go/kimi-k2.7-code-highspeed",
+  "default_agent": "general",
   "autoupdate": true,
   "compaction": {
     "auto": true,
@@ -44,13 +44,10 @@
       "name": "Moonshot Kimi",
       "options": {
         "baseURL": "https://api.moonshot.ai/v1",
-        "apiKey": "{env:MOONSHOT_API_KEY}",
-        "timeout": 600000,
-        "chunkTimeout": 60000
+        "apiKey": "{env:MOONSHOT_API_KEY}"
       },
       "fallback": [
-        "deepseek",
-        "opencode"
+        "deepseek"
       ]
     },
     "minimax": {
@@ -507,8 +504,8 @@
   "agent": {
     "build": {
       "mode": "primary",
-      "model": "moonshotai/kimi-k3",
-      "temperature": 1.0
+      "model": "moonshotai/kimi-k2.7-code",
+      "temperature": 0.6
     },
     "plan": {
       "mode": "primary",
