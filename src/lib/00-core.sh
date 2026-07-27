@@ -236,7 +236,7 @@ declare -A MCP_PACKAGES=(
 # ── Interactive gate helper ─────────────────────────────────────────────────
 _gate() {
   local flag_var="$1"
-  if [ "$MODE" = "full" ] && [ -n "${INTERACTIVE_DO_SYSTEM:-}" ]; then
+  if [ "${MODE:-}" = "full" ] && [ -n "${INTERACTIVE_DO_SYSTEM:-}" ]; then
     local flag_val="${!flag_var}"
     [ "$flag_val" = "y" ] && return 0 || return 1
   fi

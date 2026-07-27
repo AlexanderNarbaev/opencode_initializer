@@ -62,7 +62,7 @@ cat >"$ROUTER_DIR/task-profiles.json" <<'PROFILES'
     "description": "Air-gapped operation (Isolated Circuit Mode)",
     "model": "ollama/qwen3:32b",
     "small_model": "ollama/qwen3:14b",
-    "fallback": ["litellm/ollama/qwen3:32b", "vllm/qwen3:32b", "sglang/qwen3:32b"],
+    "fallback": ["litellm/qwen3:32b", "ollama/qwen3:14b", "ollama/qwen3:1.8b"],
     "rationale": "Qwen3 32B: best local coding model, fits in 20GB VRAM"
   },
   "ru_cn": {

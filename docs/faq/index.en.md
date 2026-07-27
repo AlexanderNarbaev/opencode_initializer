@@ -70,6 +70,35 @@ curl -fsSL https://bun.sh/install | bash
 
 ## AI / LLM
 
+### Q: Kimi/Moonshot models timeout or return empty responses
+**A:** Kimi API has an undocumented ~20KB request body limit. The `kimi-proxy` (v14.2+) automatically compresses large payloads. Requirements:
+
+1. **VPN is required** — without VPN, even small payloads may timeout during upload
+2. **Proxy must be running** — `systemctl --user status kimi-proxy`
+3. **Configuration** — the proxy trims tools (10 max), messages (15 max), and descriptions (80 chars) to fit the limit
+
+Environment variables for tuning:
+```bash
+KIMI_PROXY_MAX_TOOLS=10        # Max tools per request (sticky tools first)
+KIMI_PROXY_MAX_MSGS=15         # Last N messages kept
+KIMI_PROXY_MAX_MSG_CONTENT=400 # Max chars per message content
+KIMI_PROXY_MAX_TOOL_DESC=80    # Max chars per tool description
+KIMI_PROXY_MAX_BODY_KB=20      # Target payload size limit
+KIMI_PROXY_TIMEOUT=600         # Upstream timeout in seconds
+```
+
+### Q: How do I use Kimi K3 in OpenCode?
+**A:** Two options:
+
+1. **Via proxy** (recommended, handles 20KB limit automatically):
+   - Model: `moonshotai/kimi-k3`
+   - Proxy runs on `http://127.0.0.1:9876/v1`
+
+2. **Native** (via `opencode auth login` → Moonshot AI):
+   - Model: `kimi-k3`
+   - Direct connection to `https://api.moonshot.ai/v1`
+   - May hit the 20KB limit with large tool inventories
+
 ### Q: Ollama models take forever to download
 **A:** Models are large (4-27 GB). Download only what you need:
 ```bash

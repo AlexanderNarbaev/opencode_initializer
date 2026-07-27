@@ -1,8 +1,8 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "opencode-go/kimi-k3",
-  "small_model": "opencode-go/kimi-k2.7-code-highspeed",
-  "default_agent": "general",
+  "model": "deepseek/deepseek-v4-pro",
+  "small_model": "deepseek/deepseek-v4-flash",
+  "default_agent": "build",
   "autoupdate": true,
   "compaction": {
     "auto": true,
@@ -38,16 +38,6 @@
         "moonshotai",
         "minimax",
         "mimo"
-      ]
-    },
-    "moonshotai": {
-      "name": "Moonshot Kimi",
-      "options": {
-        "baseURL": "https://api.moonshot.ai/v1",
-        "apiKey": "{env:MOONSHOT_API_KEY}"
-      },
-      "fallback": [
-        "deepseek"
       ]
     },
     "minimax": {
@@ -87,7 +77,7 @@
           "name": "Kimi K3 (via LiteLLM)",
           "temperature": true,
           "reasoning": true,
-          "tool_call": false,
+          "tool_call": true,
           "modalities": {
             "input": [
               "text"
@@ -105,7 +95,7 @@
           "name": "Kimi K2.7 Code (via LiteLLM)",
           "temperature": true,
           "reasoning": true,
-          "tool_call": false,
+          "tool_call": true,
           "modalities": {
             "input": [
               "text"
@@ -123,7 +113,7 @@
           "name": "Kimi K2.7 Code Highspeed (via LiteLLM)",
           "temperature": true,
           "reasoning": true,
-          "tool_call": false,
+          "tool_call": true,
           "modalities": {
             "input": [
               "text"
@@ -138,6 +128,75 @@
           }
         }
       }
+    },
+    "moonshotai": {
+      "name": "Moonshot Kimi (via local proxy)",
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://127.0.0.1:9876/v1",
+        "apiKey": "not-needed-proxy-injects-key"
+      },
+      "models": {
+        "kimi-k3": {
+          "name": "Kimi K3",
+          "temperature": true,
+          "reasoning": true,
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "limit": {
+            "context": 1000000,
+            "output": 65536
+          }
+        },
+        "kimi-k2.7-code": {
+          "name": "Kimi K2.7 Code",
+          "temperature": true,
+          "reasoning": true,
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "limit": {
+            "context": 262144,
+            "output": 65536
+          }
+        },
+        "kimi-k2.7-code-highspeed": {
+          "name": "Kimi K2.7 Code Highspeed",
+          "temperature": true,
+          "reasoning": true,
+          "tool_call": true,
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "limit": {
+            "context": 262144,
+            "output": 65536
+          }
+        }
+      },
+      "default_model": "moonshotai/kimi-k3",
+      "small_model": "moonshotai/kimi-k2.7-code",
+      "fallback": [
+        "deepseek"
+      ]
     }
   },
   "tool_output": {

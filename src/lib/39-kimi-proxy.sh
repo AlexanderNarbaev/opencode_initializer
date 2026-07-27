@@ -2,9 +2,21 @@
 # lib/39-kimi-proxy.sh — Moonshot/Kimi Anthropic-compatible proxy (STEP 8.5)
 # Bridges opencode AI SDK (OpenAI-format) → Moonshot /anthropic endpoint
 # Injects: temperature=1, thinking.budget_tokens to prevent reasoning saturation.
+# Strips non-standard 'reasoning_content' from streaming responses (opencode 1.18.x bug).
 set -euo pipefail
 
-if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) && _gate "INTERACTIVE_DO_KIMI_PROXY"; then
+# When invoked directly (e.g. from dev CLI), source helpers/core so _gate/section/log exist
+if ! declare -f _gate &>/dev/null; then
+  SCRIPT_DIR="${SCRIPT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+  # shellcheck disable=SC1091
+  source "$SCRIPT_DIR/src/lib/helpers.sh"
+  # shellcheck disable=SC1091
+  source "$SCRIPT_DIR/src/lib/00-core.sh"
+fi
+
+# Default MODE=update so direct invocation from dev CLI works without setup.sh dispatch
+_MODE="${MODE:-update}"
+if ([ "$_MODE" = "full" ] || [ "$_MODE" = "reinit" ] || [ "$_MODE" = "update" ]) && _gate "INTERACTIVE_DO_KIMI_PROXY"; then
   section "Kimi Anthropic-Proxy"
 
   KIMI_PROXY_PORT="${KIMI_PROXY_PORT:-9876}"

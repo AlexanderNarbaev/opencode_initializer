@@ -15,6 +15,7 @@ else
   SCRIPTS_DIR="$(dirname "$(readlink -f "$0" 2>/dev/null || echo "$0")")"
 fi
 source "$SCRIPTS_DIR/src/lib/helpers.sh"
+source "$SCRIPTS_DIR/src/lib/00-core.sh"
 CONFIG_FILE="${HOME}/.config/opencode-setup/setup.conf"
 [ -f "$CONFIG_FILE" ] && source "$CONFIG_FILE"
 
@@ -86,6 +87,12 @@ cmd_update() {
       bash "$mig" && echo "$ts" >"$DL_CACHE/.mig-$ts" && log "Migration: $ts OK" || warn "Migration: $ts FAILED"
     fi
   done
+
+  # Start Kimi proxy BEFORE regenerating config so opencode.json sees it (handles opencode 1.18.x reasoning_content hang bug)
+  if [ "${KIMI_PROXY_ENABLED:-true}" != "false" ] && [ -f "$SCRIPTS_DIR/src/lib/39-kimi-proxy.sh" ]; then
+    section "Kimi proxy"
+    bash "$SCRIPTS_DIR/src/lib/39-kimi-proxy.sh" 2>&1 | tail -5 || warn "kimi-proxy: see $HOME/.local/share/kimi-proxy/proxy.log"
+  fi
 
   bash "$SCRIPTS_DIR/setup.sh" --fix-config
   log "Update complete"

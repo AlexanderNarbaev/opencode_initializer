@@ -8,7 +8,7 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "fix-config" ];
 
   generate_opencode_json() {
     python3 <<'PYGEN'
-import json, os, shutil, subprocess
+import json, os, shutil, subprocess, copy
 
 home = os.path.expanduser("~")
 project_dir = os.environ.get("PROJECT_DIR", os.path.join(home, "projects"))
@@ -170,7 +170,7 @@ def _build_providers():
 
     for provider, key in all_keys.items():
         if key or provider in ("deepseek", "opencode", "zai"):
-            providers[provider] = dict(opts)
+            providers[provider] = copy.deepcopy(opts)
             if provider in provider_models:
                 providers[provider]["default_model"] = provider_models[provider][0]
                 providers[provider]["small_model"] = provider_models[provider][1]
@@ -178,17 +178,77 @@ def _build_providers():
             env_name = PROVIDER_ENV_VARS.get(provider)
             if env_name:
                 providers[provider]["api_key"] = "${" + env_name + "}"
-            # Set baseURL for OpenAI-compatible providers
+            # Reset stale top-level base_url/api_key from previous broken configs
+            # (they were incorrectly pointing to local kimi proxy for ALL providers).
+            # Custom OpenAI-compatible providers must use options.baseURL (camelCase),
+            # and native providers (deepseek, opencode-go, xai, etc.) must NOT have base_url.
+            providers[provider].pop("base_url", None)
+            providers[provider].pop("api_key", None) if "api_key" in providers[provider] and provider != "opencode" else None
+            # Set baseURL ONLY for OpenAI-compatible custom providers (use options.baseURL)
             if provider == "zai":
-                providers[provider]["base_url"] = "https://api.z.ai/api/paas/v4"
+                providers[provider].setdefault("options", {})
+                providers[provider]["options"]["baseURL"] = "https://api.z.ai/api/paas/v4"
             elif provider == "openrouter":
-                providers[provider]["base_url"] = "https://openrouter.ai/api/v1"
+                providers[provider].setdefault("options", {})
+                providers[provider]["options"]["baseURL"] = "https://openrouter.ai/api/v1"
             elif provider == "deepinfra":
-                providers[provider]["base_url"] = "https://api.deepinfra.com/v1/openai"
+                providers[provider].setdefault("options", {})
+                providers[provider]["options"]["baseURL"] = "https://api.deepinfra.com/v1/openai"
             elif provider == "fireworks":
-                providers[provider]["base_url"] = "https://api.fireworks.ai/inference/v1"
+                providers[provider].setdefault("options", {})
+                providers[provider]["options"]["baseURL"] = "https://api.fireworks.ai/inference/v1"
+            elif provider == "minimax":
+                providers[provider].setdefault("options", {})
+                providers[provider]["options"]["baseURL"] = "https://api.minimax.io/v1"
             elif provider == "moonshotai":
-                providers[provider]["base_url"] = "https://api.moonshot.ai/v1"
+                # Kimi/Moonshot via local kimi-anthropic-proxy (port 9876).
+                # Proxy strips reasoning_content (opencode 1.18.x hang bug) and
+                # translates OpenAI<->Anthropic. See scripts/kimi-anthropic-proxy.py.
+                # CRITICAL: opencode requires baseURL/apiKey INSIDE options (camelCase),
+                # not base_url/api_key at top level. See anomalyco/opencode provider docs.
+                kimi_proxy_url = os.environ.get("KIMI_PROXY_URL", "http://127.0.0.1:9876/v1")
+                kimi_proxy_running = False
+                try:
+                    import urllib.request as _ur
+                    _ur.urlopen(kimi_proxy_url + "/models", timeout=1)
+                    kimi_proxy_running = True
+                except Exception:
+                    pass
+                providers[provider]["npm"] = "@ai-sdk/openai-compatible"
+                providers[provider]["name"] = "Moonshot Kimi" + (" (via local proxy)" if kimi_proxy_running else " (direct API)")
+                providers[provider].setdefault("options", {})
+                if kimi_proxy_running:
+                    providers[provider]["options"]["baseURL"] = kimi_proxy_url
+                    providers[provider]["options"]["apiKey"] = "not-needed-proxy-injects-key"
+                else:
+                    providers[provider]["options"]["baseURL"] = "https://api.moonshot.ai/v1"
+                    providers[provider]["options"]["apiKey"] = "${" + env_name + "}"
+                providers[provider]["models"] = {
+                    "kimi-k3": {
+                        "name": "Kimi K3",
+                        "temperature": True,
+                        "reasoning": True,
+                        "tool_call": True,
+                        "modalities": {"input": ["text"], "output": ["text"]},
+                        "limit": {"context": 1000000, "output": 65536}
+                    },
+                    "kimi-k2.7-code": {
+                        "name": "Kimi K2.7 Code",
+                        "temperature": True,
+                        "reasoning": True,
+                        "tool_call": True,
+                        "modalities": {"input": ["text"], "output": ["text"]},
+                        "limit": {"context": 262144, "output": 65536}
+                    },
+                    "kimi-k2.7-code-highspeed": {
+                        "name": "Kimi K2.7 Code Highspeed",
+                        "temperature": True,
+                        "reasoning": True,
+                        "tool_call": True,
+                        "modalities": {"input": ["text"], "output": ["text"]},
+                        "limit": {"context": 262144, "output": 65536}
+                    }
+                }
             elif provider == "minimax":
                 providers[provider]["base_url"] = "https://api.minimax.io/v1"
             if provider not in ("deepseek", "zai"):

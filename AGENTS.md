@@ -102,7 +102,7 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 | **openrouter** | **OpenRouter (100+ models)** | **yes** | **native** |
 | xai | xAI Grok 4.3 / Grok 4.20 | no | native |
 | mimo | Xiaomi MiMo V2.5 | yes | openai-compatible |
-| moonshot | Moonshot Kimi K2.7 Code | no | openai-compatible |
+| moonshot | Moonshot Kimi K3 / K2.7 Code (via kimi-proxy, VPN required) | no | openai-compatible |
 | minimax | MiniMax M3 | no | openai-compatible |
 | openai | OpenAI GPT-5.5 / GPT-5.4 Mini | no | native |
 | anthropic | Anthropic Claude Opus 4.8 / Sonnet 4.6 | no | native |
@@ -202,6 +202,7 @@ bash setup.sh --fix-zshrc                 # repair shell config
 | v1.0.0 | Initial public release. 8 languages, 21 MCPs, 15 plugins, 13 LSPs, 193-test suite. |
 | v1.1.0 | Ecosystem expansion: hardware auto-detection, LiteLLM, SearXNG, CI/CD mode, multimodal, 15+ providers, chezmoi, Devbox, ONNX. 29 modules, 65+ health checks. |
 | v2.0.0 | Infrastructure as Code (PostgreSQL+Qdrant+Redis+Prometheus+Grafana+MemoryLayer), Cockpit TUI (7-tab), Isolated Circuit Mode, z.ai GLM-5.2 + OpenRouter + Alibaba + DeepInfra providers, MemoryLayer embed proxy, 41 module, 24 providers, 350+ test assertions. |
+| v2.0.1 | kimi-proxy v14.2: dynamic payload compression for Moonshot API's undocumented 20KB limit. Sticky tools (bash/read/write/edit/grep/glob), progressive trimming, VPN requirement documented. |
 
 ## Modular Architecture (v2.0.0)
 

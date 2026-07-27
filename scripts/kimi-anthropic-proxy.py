@@ -1,167 +1,188 @@
 #!/usr/bin/env python3
 """
-Kimi/Moonshot proxy for opencode (v5.0 - reasoning-content stripper).
+Kimi/Moonshot proxy v14.2 — dynamic payload compression to fit 20KB limit.
 
-Why: opencode 1.18.3 has a bug where it hangs when streaming responses that
-include the non-standard 'reasoning_content' field. Moonshot models always
-return this field. This proxy translates OpenAI <-> Anthropic AND strips
-reasoning_content from the response, sending only 'content' to opencode.
+ CRITICAL: opencode v1.18.5 @ai-sdk/openai-compatible expects SSE format:
+     data: {json}\n\n
 
-Use case: makes moonshotai/kimi-k3 work with your own Moonshot API key in
-opencode TUI (instead of using opencode-go's default routing).
+ v14.2 strips tool descriptions, deduplicates tools, and truncates message
+ history to keep total payload under Moonshot API's ~20KB request limit.
 """
 import json
 import os
+import socket
 import sys
-import threading
 import time
 import uuid
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from http.server import BaseHTTPRequestHandler, HTTPServer
 
-import httpx
+import requests
 
-MOONSHOT_API_KEY = os.environ.get("MOONSHOT_API_KEY", "")
-ANTHROPIC_BASE = os.environ.get("ANTHROPIC_BASE", "https://api.moonshot.ai/anthropic")
-print(f"[kimi-proxy v5] key length: {len(MOONSHOT_API_KEY)}, starts with: {MOONSHOT_API_KEY[:8] if MOONSHOT_API_KEY else 'NONE'}", file=sys.stderr)
+
+def _force_ipv4():
+    """Monkey-patch urllib3 to force IPv4 DNS resolution. Idempotent."""
+    from urllib3.util import connection
+    if getattr(connection, "_opencode_kimi_ipv4_patched", False):
+        return
+    orig_create = connection.create_connection
+
+    def patched(address, timeout=None, *a, **kw):
+        host = address[0]
+        port = address[1]
+        infos = socket.getaddrinfo(host, port, socket.AF_INET, socket.SOCK_STREAM)
+        if not infos:
+            raise socket.gaierror(f"no IPv4 for {host}")
+        af, socktype, proto, canonname, sa = infos[0]
+        return orig_create((sa[0], port), timeout=timeout, *a, **kw)
+
+    connection.create_connection = patched
+    connection._opencode_kimi_ipv4_patched = True
+
+
+KEY = os.environ.get("MOONSHOT_API_KEY", "")
+BASE = os.environ.get("KIMI_PROXY_UPSTREAM", "https://api.moonshot.ai/v1")
 PORT = int(os.environ.get("KIMI_PROXY_PORT", "9876"))
-REQUEST_TIMEOUT = int(os.environ.get("KIMI_PROXY_TIMEOUT", "120"))
+TIMEOUT = int(os.environ.get("KIMI_PROXY_TIMEOUT", "600"))
+CONNECT_TIMEOUT = int(os.environ.get("KIMI_PROXY_CONNECT_TIMEOUT", str(TIMEOUT)))
+UPSTREAM_MAX_TOKENS_CAP = int(os.environ.get("KIMI_PROXY_MAX_TOKENS", "8192"))
+UPSTREAM_MIN_TOKENS = int(os.environ.get("KIMI_PROXY_MIN_TOKENS", "4096"))
+MAX_BODY_KB = int(os.environ.get("KIMI_PROXY_MAX_BODY_KB", "20"))
+MAX_MSGS = int(os.environ.get("KIMI_PROXY_MAX_MSGS", "15"))
+MAX_TOOL_DESC = int(os.environ.get("KIMI_PROXY_MAX_TOOL_DESC", "80"))
+MAX_TOOLS = int(os.environ.get("KIMI_PROXY_MAX_TOOLS", "10"))
+MAX_MSG_CONTENT = int(os.environ.get("KIMI_PROXY_MAX_MSG_CONTENT", "400"))
+STRIP_TOOL_PARAMS = os.environ.get("KIMI_PROXY_STRIP_TOOL_PARAMS", "0") == "1"
+STICKY_TOOLS = os.environ.get("KIMI_PROXY_STICKY_TOOLS",
+    "bash,read,write,edit,grep,glob,task,fetch_fetch,webfetch").split(",")
 
+def optimize_request(body):
+    tools = body.get("tools", [])
+    msgs = body.get("messages", [])
+    orig_tools = len(tools)
+    orig_msgs = len(msgs)
 
-def translate_openai_to_anthropic(body):
-    model = body.get("model", "kimi-k3")
-    max_tokens = int(body.get("max_tokens") or body.get("max_completion_tokens") or 16384)
-    temperature = body.get("temperature", 1)
-
-    msgs = []
-    for m in body.get("messages", []):
-        content = m.get("content", "")
-        if isinstance(content, list):
-            content = "".join(p.get("text", "") if isinstance(p, dict) else str(p) for p in content)
-        msgs.append({"role": m.get("role"), "content": content or " "})
-
-    anth = {
-        "model": model,
-        "max_tokens": max_tokens,
-        "messages": msgs,
-        "temperature": temperature,
-    }
-
-    thinking_budget = max(256, min(8192, max_tokens // 4))
-    anth["thinking"] = {"type": "enabled", "budget_tokens": thinking_budget}
-
-    sys_prompt = body.get("system")
-    if sys_prompt:
-        if isinstance(sys_prompt, list):
-            sys_prompt = "".join(p.get("text", "") if isinstance(p, dict) else str(p) for p in sys_prompt)
-        anth["system"] = sys_prompt
-
-    tools = body.get("tools")
-    if tools:
-        anth_tools = []
-        for t in tools:
-            if t.get("type") == "function":
-                anth_tools.append({
-                    "name": t["function"]["name"],
-                    "description": t["function"].get("description", ""),
-                    "input_schema": t["function"].get("parameters", {"type": "object"}),
-                })
-        if anth_tools:
-            anth["tools"] = anth_tools
-    return anth
-
-
-def strip_reasoning(d):
-    """Remove reasoning_content from a delta object. OpenAI-compatible."""
-    if isinstance(d, dict) and "reasoning_content" in d:
-        d = dict(d)
-        d.pop("reasoning_content", None)
-    return d
-
-
-def anthropic_chunk_to_openai(evt, msg_id, model):
-    t = evt.get("type")
-    if t == "message_start":
-        return {"id": msg_id, "object": "chat.completion.chunk", "created": int(time.time()),
-                "model": model, "choices": [{"index": 0, "delta": {"role": "assistant"}, "finish_reason": None}]}
-    if t == "content_block_start":
-        block = evt.get("content_block", {})
-        if block.get("type") == "tool_use":
-            return {"id": msg_id, "object": "chat.completion.chunk", "created": int(time.time()),
-                    "model": model, "choices": [{"index": 0, "delta": {"tool_calls": [{
-                        "index": 0, "id": block.get("id", f"call_{uuid.uuid4().hex[:8]}"),
-                        "type": "function", "function": {"name": block.get("name", ""), "arguments": ""}
-                    }]}, "finish_reason": None}]}
-    if t == "content_block_delta":
-        d = evt.get("delta", {})
-        if d.get("type") == "text_delta":
-            return {"id": msg_id, "object": "chat.completion.chunk", "created": int(time.time()),
-                    "model": model, "choices": [{"index": 0, "delta": {"content": d.get("text", "")}, "finish_reason": None}]}
-        if d.get("type") == "input_json_delta":
-            return {"id": msg_id, "object": "chat.completion.chunk", "created": int(time.time()),
-                    "model": model, "choices": [{"index": 0, "delta": {"tool_calls": [{
-                        "index": 0, "function": {"arguments": d.get("partial_json", "")}
-                    }]}, "finish_reason": None}]}
-        # STRIP reasoning_delta — this is what breaks opencode
-        if d.get("type") == "thinking_delta":
-            return None  # completely skip reasoning chunks
-    if t == "message_delta":
-        sr = evt.get("delta", {}).get("stop_reason")
-        return {"id": msg_id, "object": "chat.completion.chunk", "created": int(time.time()),
-                "model": model, "choices": [{"index": 0, "delta": {}, "finish_reason": sr}]}
-    return None
-
-
-def anthropic_response_to_openai(resp, model):
-    msg_id = resp.get("id", f"chatcmpl-{uuid.uuid4().hex[:24]}")
-    text = ""
-    # SKIP reasoning - only return text content
-    tool_calls = []
-    for b in resp.get("content", []):
-        btype = b.get("type")
-        if btype == "text":
-            text += b.get("text", "")
-        # SKIP thinking blocks
-        elif btype == "tool_use":
-            tool_calls.append({"id": b.get("id", f"call_{uuid.uuid4().hex[:8]}"), "type": "function",
-                               "function": {"name": b.get("name", ""), "arguments": json.dumps(b.get("input", {}))}})
-    sr = resp.get("stop_reason", "end_turn")
-    finish = {"end_turn": "stop", "max_tokens": "length", "tool_use": "tool_calls"}.get(sr, "stop")
-    msg = {"role": "assistant", "content": text}
-    if tool_calls:
-        msg["tool_calls"] = tool_calls
-    usage = resp.get("usage", {})
-    return {"id": msg_id, "object": "chat.completion", "created": int(time.time()), "model": model,
-            "choices": [{"index": 0, "message": msg, "finish_reason": finish}],
-            "usage": {"prompt_tokens": usage.get("input_tokens", 0),
-                      "completion_tokens": usage.get("output_tokens", 0),
-                      "total_tokens": usage.get("input_tokens", 0) + usage.get("output_tokens", 0)}}
-
-
-SESSIONS = threading.local()
-
-
-def get_client():
-    c = getattr(SESSIONS, "c", None)
-    if c is None:
-        # timeout: total request timeout. read/write timeouts are None for SSE streaming
-        timeout = httpx.Timeout(connect=10.0, read=None, write=10.0, pool=10.0)
-        c = httpx.Client(timeout=timeout)
-        SESSIONS.c = c
-    return c
-
-
-class Handler(BaseHTTPRequestHandler):
-    protocol_version = "HTTP/1.1"
-    server_version = "kimi-anthropic-proxy/5.0"
-
-    def log_message(self, format, *args):
-        sys.stderr.write("[kimi-proxy] " + (format % args) + "\n")
-
-    def _write_response(self, status, body, content_type="application/json"):
-        if isinstance(body, (dict, list)):
-            payload = json.dumps(body).encode()
+    # Deduplicate tools, strip descriptions, prioritize sticky tools
+    seen_names = set()
+    sticky = []
+    rest = []
+    for t in tools:
+        fn = t.get("function", {})
+        name = fn.get("name", "")
+        if name in seen_names:
+            continue
+        seen_names.add(name)
+        fn = dict(fn)
+        if MAX_TOOL_DESC >= 0 and len(fn.get("description", "")) > MAX_TOOL_DESC:
+            fn["description"] = fn.get("description", "")[:MAX_TOOL_DESC]
+        if STRIP_TOOL_PARAMS:
+            fn["parameters"] = {"type": "object", "properties": {}, "required": []}
+        t = dict(t)
+        t["function"] = fn
+        if name in STICKY_TOOLS:
+            sticky.append(t)
         else:
-            payload = body if isinstance(body, bytes) else str(body).encode()
+            rest.append(t)
+    new_tools = sticky + rest
+    if len(new_tools) > MAX_TOOLS:
+        new_tools = new_tools[:MAX_TOOLS]
+    body["tools"] = new_tools
+
+    # Trim message history
+    if len(msgs) > MAX_MSGS:
+        sys_msg = None
+        tail = []
+        for m in msgs:
+            if m.get("role") == "system":
+                sys_msg = m
+            else:
+                tail.append(m)
+        kept = tail[-MAX_MSGS:]
+        body["messages"] = [sys_msg] + kept if sys_msg else kept
+
+    # Trim long message content
+    for m in body["messages"]:
+        content = m.get("content", "")
+        if isinstance(content, str) and len(content) > MAX_MSG_CONTENT:
+            m["content"] = content[:MAX_MSG_CONTENT] + "..."
+
+    # Dynamic: if still over MAX_BODY_KB, progressively trim harder
+    max_bytes = MAX_BODY_KB * 1024
+    current = len(json.dumps(body))
+    if current <= max_bytes:
+        return orig_tools, orig_msgs
+
+    # Round 1: reduce tools to 5
+    body["tools"] = body["tools"][:5]
+    current = len(json.dumps(body))
+    if current <= max_bytes:
+        return orig_tools, orig_msgs
+
+    # Round 2: strip tool params
+    for t in body["tools"]:
+        t["function"]["parameters"] = {"type": "object", "properties": {}, "required": []}
+    current = len(json.dumps(body))
+    if current <= max_bytes:
+        return orig_tools, orig_msgs
+
+    # Round 3: reduce messages to 10
+    msgs = body["messages"]
+    sys_msg = [m for m in msgs if m.get("role") == "system"]
+    other = [m for m in msgs if m.get("role") != "system"]
+    body["messages"] = sys_msg + other[-10:]
+    current = len(json.dumps(body))
+    if current <= max_bytes:
+        return orig_tools, orig_msgs
+
+    # Round 4: truncate content to 200 chars
+    for m in body["messages"]:
+        content = m.get("content", "")
+        if isinstance(content, str) and len(content) > 200:
+            m["content"] = content[:200] + "..."
+    current = len(json.dumps(body))
+    if current <= max_bytes:
+        return orig_tools, orig_msgs
+
+    # Round 5: reduce to 3 tools, 5 messages, 100 chars
+    body["tools"] = body["tools"][:3]
+    msgs = body["messages"]
+    sys_msg = [m for m in msgs if m.get("role") == "system"]
+    other = [m for m in msgs if m.get("role") != "system"]
+    body["messages"] = sys_msg + other[-5:]
+    for m in body["messages"]:
+        content = m.get("content", "")
+        if isinstance(content, str) and len(content) > 100:
+            m["content"] = content[:100] + "..."
+    return orig_tools, orig_msgs
+
+_force_ipv4()
+print(f"[kimi-proxy v14.2] key_len={len(KEY)} base={BASE} port={PORT} "
+      f"tokens={UPSTREAM_MIN_TOKENS}-{UPSTREAM_MAX_TOKENS_CAP} "
+      f"(IPv4-only, SSE-format, tools+system passthrough)", file=sys.stderr)
+
+
+def strip_reasoning_content(obj):
+    if isinstance(obj, dict):
+        obj.pop("reasoning_content", None)
+        for v in obj.values():
+            strip_reasoning_content(v)
+    elif isinstance(obj, list):
+        for item in obj:
+            strip_reasoning_content(item)
+
+
+class H(BaseHTTPRequestHandler):
+    protocol_version = "HTTP/1.1"
+
+    def log_message(self, fmt, *args):
+        sys.stderr.write("[v14.2] " + (fmt % args) + "\n")
+
+    def _write(self, status, body, content_type="application/json"):
+        if isinstance(body, (dict, list)):
+            payload = json.dumps(body, ensure_ascii=False).encode("utf-8")
+        elif isinstance(body, bytes):
+            payload = body
+        else:
+            payload = str(body).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(payload)))
@@ -171,161 +192,169 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.flush()
 
     def do_GET(self):
-        if self.path == "/v1/models":
-            self._write_response(200, {"object": "list", "data": [
+        if self.path == "/v1/models" or self.path == "/v1/models/":
+            self._write(200, {"object": "list", "data": [
                 {"id": "kimi-k3", "object": "model", "owned_by": "moonshot"},
                 {"id": "kimi-k2.7-code", "object": "model", "owned_by": "moonshot"},
                 {"id": "kimi-k2.7-code-highspeed", "object": "model", "owned_by": "moonshot"},
             ]})
         elif self.path == "/health":
-            self._write_response(200, "ok", "text/plain")
+            self._write(200, "ok", "text/plain")
         else:
-            self._write_response(404, {"error": "not found"})
+            self._write(404, {"error": "not found"})
+
+    def _sse_data(self, obj):
+        """Write one SSE data: line."""
+        d = json.dumps(obj, ensure_ascii=False)
+        self.wfile.write(f"data: {d}\n\n".encode())
+        self.wfile.flush()
 
     def do_POST(self):
         if not self.path.startswith("/v1/chat/completions"):
-            self._write_response(404, {"error": "not found"})
+            self._write(404, {"error": "not found"})
             return
-        length = int(self.headers.get("Content-Length", 0))
+        cl = int(self.headers.get("Content-Length", 0))
         try:
-            body = json.loads(self.rfile.read(length))
+            body = json.loads(self.rfile.read(cl)) if cl > 0 else {}
         except Exception as e:
-            self._write_response(400, {"error": f"bad json: {e}"})
+            self._write(400, {"error": f"bad json: {e}"})
             return
 
-        anth_body = translate_openai_to_anthropic(body)
-        model = anth_body["model"]
-        stream = bool(body.get("stream", False))
+        model = body.get("model", "kimi-k3")
+        client_stream = body.get("stream", False)
 
-        sess = get_client()
-        start = time.time()
-        sys.stderr.write(f"[kimi-proxy] key to upstream: {MOONSHOT_API_KEY[:10]}... (len={len(MOONSHOT_API_KEY)})\n")
+        # Optimize request for Moonshot's ~20KB upstream limit
+        orig_tools, orig_msgs = optimize_request(body)
+        upstream_body = dict(body)
+        upstream_body["stream"] = False
+        client_max = upstream_body.get("max_tokens", 0)
+        if client_max < UPSTREAM_MIN_TOKENS:
+            upstream_body["max_tokens"] = UPSTREAM_MIN_TOKENS
+        elif client_max > UPSTREAM_MAX_TOKENS_CAP:
+            upstream_body["max_tokens"] = UPSTREAM_MAX_TOKENS_CAP
+        upstream_body["temperature"] = 1
 
-        if not stream:
+        t0 = time.time()
+        payload_json = json.dumps(upstream_body)
+        sys.stderr.write(f"[v14.2] request model={model} stream={client_stream} "
+                         f"max_tokens={upstream_body.get('max_tokens')} "
+                         f"tools={orig_tools}>{len(body.get('tools',[]))} "
+                         f"msgs={orig_msgs}>{len(upstream_body.get('messages',[]))} "
+                         f"payload={len(payload_json)}B\n")
+
+        sse_started = False
+        if client_stream:
             try:
-                client = get_client()
-                r = client.post(ANTHROPIC_BASE + "/v1/messages",
-                               json=anth_body,
-                               headers={"x-api-key": MOONSHOT_API_KEY, "anthropic-version": "2023-06-01"})
-                elapsed = time.time() - start
-                if r.status_code != 200:
-                    sys.stderr.write(f"[kimi-proxy] upstream {r.status_code} in {elapsed:.1f}s\n")
-                    self._write_response(r.status_code, {"error": r.text[:500]})
-                    return
-                data = r.json()
-                sys.stderr.write(f"[kimi-proxy] non-stream OK in {elapsed:.1f}s\n")
-                self._write_response(200, anthropic_response_to_openai(data, model))
-            except Exception as e:
-                sys.stderr.write(f"[kimi-proxy] ERR: {type(e).__name__}: {e}\n")
-                self._write_response(500, {"error": str(e)[:200]})
-            return
+                self.send_response(200)
+                self.send_header("Content-Type", "text/event-stream; charset=utf-8")
+                self.send_header("Cache-Control", "no-cache")
+                self.send_header("X-Accel-Buffering", "no")
+                self.send_header("Connection", "close")
+                self.end_headers()
+                ts0 = int(time.time())
+                self._sse_data({
+                    "id": "chatcmpl-keepalive",
+                    "object": "chat.completion.chunk",
+                    "created": ts0,
+                    "model": model,
+                    "choices": [{"index": 0, "delta": {"role": "assistant", "content": ""}, "finish_reason": None}],
+                })
+                sse_started = True
+                sys.stderr.write(f"[v14.2] SSE headers + keepalive sent in {time.time()-t0:.2f}s\n")
+            except (BrokenPipeError, ConnectionResetError, OSError) as e:
+                sys.stderr.write(f"[v14.2] client closed before headers: {e}\n")
+                return
 
-        # Streaming — chunked transfer encoding + strip reasoning
         try:
-            self.send_response(200)
-            self.send_header("Content-Type", "text/event-stream; charset=utf-8")
-            self.send_header("Cache-Control", "no-cache")
-            self.send_header("X-Accel-Buffering", "no")
-            self.send_header("Transfer-Encoding", "chunked")
-            self.send_header("Connection", "close")
-            self.end_headers()
-        except (BrokenPipeError, ConnectionResetError):
-            return
-
-        def write_chunk(data):
-            if isinstance(data, str):
-                data = data.encode("utf-8")
-            try:
-                self.wfile.write(f"{len(data):x}\r\n".encode())
-                self.wfile.write(data)
-                self.wfile.write(b"\r\n")
+            sys.stderr.write(f"[v14.2] upstream POST {BASE}/chat/completions timeout={TIMEOUT}s\n")
+            r = requests.post(
+                f"{BASE}/chat/completions",
+                data=payload_json,
+                headers={"Authorization": f"Bearer {KEY}", "Content-Type": "application/json"},
+                timeout=TIMEOUT,
+            )
+        except Exception as e:
+            err_obj = {"message": f"upstream: {e}", "type": "proxy_error", "code": "connection_error"}
+            if sse_started:
+                self._sse_data({"error": err_obj})
+                self.wfile.write(b"data: [DONE]\n\n")
                 self.wfile.flush()
-                return True
-            except (BrokenPipeError, ConnectionResetError, OSError):
-                return False
+            else:
+                self._write(502, {"error": err_obj})
+            return
 
-        msg_id = f"chatcmpl-{uuid.uuid4().hex[:24]}"
-        last_write = time.time()
-        pending = b""
-        event_count = 0
-        client_alive = True
+        dt = time.time() - t0
+        sys.stderr.write(f"[v14.2] upstream {r.status_code} in {dt:.1f}s body={len(r.text)}B\n")
+        if r.status_code != 200:
+            sys.stderr.write(f"[v14.2] upstream ERROR body: {r.text[:800]}\n")
+            err_obj = {"message": r.text[:500], "type": "upstream_error", "code": str(r.status_code)}
+            if sse_started:
+                self._sse_data({"error": err_obj})
+                self.wfile.write(b"data: [DONE]\n\n")
+                self.wfile.flush()
+            else:
+                self._write(r.status_code, {"error": err_obj})
+            return
+
         try:
-            client = get_client()
-            with client.stream("POST", ANTHROPIC_BASE + "/v1/messages",
-                               json=anth_body,
-                               headers={"x-api-key": MOONSHOT_API_KEY, "anthropic-version": "2023-06-01", "Accept": "text/event-stream"},
-                               timeout=REQUEST_TIMEOUT) as r:
-                if r.status_code != 200:
-                    err = r.read().decode(errors="replace")
-                    if write_chunk(f"data: {json.dumps({'error': err})}\n\n".encode()):
-                        write_chunk(b"data: [DONE]\n\n")
-                    return
-
-                for raw_chunk in r.iter_bytes(chunk_size=4096):
-                    if not raw_chunk:
-                        break
-                    if time.time() - last_write >= 5:
-                        if not write_chunk(b": keep-alive\n\n"):
-                            client_alive = False
-                            break
-                        last_write = time.time()
-
-                    pending += raw_chunk
-                    while b"\n" in pending:
-                        line_bytes, _, pending = pending.partition(b"\n")
-                        line = line_bytes.decode(errors="replace").rstrip("\r")
-                        if not line:
-                            continue
-                        if not line.startswith("data: "):
-                            continue
-                        data = line[6:]
-                        if data == "[DONE]":
-                            break
-                        try:
-                            evt = json.loads(data)
-                        except Exception:
-                            continue
-                        out = anthropic_chunk_to_openai(evt, msg_id, model)
-                        if out is None:
-                            continue  # reasoning chunks dropped here
-                        event_count += 1
-                        chunk_data = f"data: {json.dumps(out, ensure_ascii=False)}\n\n".encode()
-                        if not write_chunk(chunk_data):
-                            client_alive = False
-                            break
-                        last_write = time.time()
-                    if not client_alive:
-                        break
+            data = r.json()
         except Exception as e:
-            sys.stderr.write(f"[kimi-proxy] stream err: {type(e).__name__}: {e}\n")
+            sys.stderr.write(f"[v14.2] JSON parse error: {e}\n")
+            err_obj = {"message": f"upstream not json: {e}", "type": "parse_error", "code": "invalid_response"}
+            if sse_started:
+                self._sse_data({"error": err_obj})
+                self.wfile.write(b"data: [DONE]\n\n")
+                self.wfile.flush()
+            else:
+                self._write(500, {"error": err_obj})
+            return
 
-        try:
-            write_chunk(b"data: [DONE]\n\n")
-            self.wfile.write(b"0\r\n\r\n")
-            self.wfile.flush()
-        except Exception:
-            pass
-        sys.stderr.write(f"[kimi-proxy] stream end: events={event_count} (reasoning stripped) client_alive={client_alive}\n")
+        msg_raw = data.get("choices", [{}])[0].get("message", {})
+        raw_content = msg_raw.get("content", "")
+        raw_reasoning = msg_raw.get("reasoning_content", "")
+        sys.stderr.write(f"[v14.2] before_strip content={len(raw_content)}B reasoning={len(raw_reasoning)}B\n")
+        if raw_content:
+            sys.stderr.write(f"[v14.2] content_preview={repr(raw_content[:80])}\n")
+
+        strip_reasoning_content(data)
+
+        if not client_stream:
+            self._write(200, data)
+            return
+
+        msg = data.get("choices", [{}])[0].get("message", {})
+        content = msg.get("content", "")
+        finish = data.get("choices", [{}])[0].get("finish_reason", "stop")
+        uid = data.get("id", f"chatcmpl-{uuid.uuid4().hex[:24]}")
+        ts = int(time.time())
+
+        self._sse_data({
+            "id": uid, "object": "chat.completion.chunk", "created": ts,
+            "model": model,
+            "choices": [{"index": 0, "delta": {"content": content}, "finish_reason": finish}],
+        })
+
+        tool_calls = msg.get("tool_calls")
+        if tool_calls:
+            self._sse_data({
+                "id": uid, "object": "chat.completion.chunk", "created": ts,
+                "model": model,
+                "choices": [{"index": 0, "delta": {"tool_calls": tool_calls}, "finish_reason": None}],
+            })
+
+        self.wfile.write(b"data: [DONE]\n\n")
+        self.wfile.flush()
+        sys.stderr.write(f"[v14.2] stream done {time.time()-t0:.1f}s content={len(content)}B\n")
 
 
-class ThreadedServer(ThreadingHTTPServer):
-    daemon_threads = True
+class ThreadedServer(HTTPServer):
     allow_reuse_address = True
-
-
-def main():
-    if not MOONSHOT_API_KEY:
-        print("ERROR: MOONSHOT_API_KEY env var required", file=sys.stderr)
-        sys.exit(1)
-    server = ThreadedServer(("127.0.0.1", PORT), Handler)
-    print(f"[kimi-proxy v5] Listening on http://127.0.0.1:{PORT} (strip reasoning_content)", file=sys.stderr)
-    print(f"[kimi-proxy v5] Forwarding to {ANTHROPIC_BASE}", file=sys.stderr)
-    print(f"[kimi-proxy v5] Timeout={REQUEST_TIMEOUT}s", file=sys.stderr)
-    try:
-        server.serve_forever()
-    except KeyboardInterrupt:
-        pass
+    request_queue_size = 1
 
 
 if __name__ == "__main__":
-    main()
+    if not KEY:
+        print("ERROR: MOONSHOT_API_KEY env var required", file=sys.stderr)
+        sys.exit(1)
+    print(f"[v14.2] listening http://127.0.0.1:{PORT} -> {BASE}", file=sys.stderr)
+    ThreadedServer(("127.0.0.1", PORT), H).serve_forever()

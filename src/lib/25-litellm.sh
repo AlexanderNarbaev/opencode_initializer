@@ -33,10 +33,14 @@ general_settings:
 model_list:
 YAML
 
-# Register Ollama models
+# Register Ollama models — names match opencode provider prefixes
 for model in $(echo "$OLLAMA_MODELS" | tr ',' ' '); do
   cat >> ~/.config/litellm/config.yaml << YAML
-  - model_name: ollama/${model}
+  - model_name: ${model}
+    litellm_params:
+      model: ollama/${model}
+      api_base: http://localhost:11434
+  - model_name: litellm/${model}
     litellm_params:
       model: ollama/${model}
       api_base: http://localhost:11434
@@ -82,7 +86,7 @@ router_settings:
   allowed_fails: 3
   num_retries: 2
   fallbacks:
-    - ollama/qwen3:0.6b
+    - qwen3:0.6b
 YAML
 
 log "LiteLLM config written: ~/.config/litellm/config.yaml"
