@@ -12,3 +12,4 @@ a "has version" "grep -q opencode $O"
 a "has npm install" "grep -q npm $O"
 a "has _npm_install" "grep -q npm.install $O"
 echo "test_opencode: $TP passed, $TF failed"
+[ "$TF" -eq 0 ] || exit 1

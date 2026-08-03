@@ -26,11 +26,11 @@ assert "has isolated profile" "grep -q "isolated" \"$TMP/profiles.json\""
 assert "has ru_cn profile" "grep -q "ru_cn" \"$TMP/profiles.json\""
 
 # Model checks
-assert "agentic uses kimi-k3" "grep -q kimi-k3 \"$TMP/profiles.json\""
-assert "coding fallback has highspeed" "grep -q kimi-k2.7-code-highspeed \"$TMP/profiles.json\""
-assert "costs has kimi-k3" "grep -q kimi-k3 \"$TMP/costs.json\""
+assert "agentic uses deepseek-v4-pro" "grep -A3 '\"agentic\"' \"$TMP/profiles.json\" | grep -q deepseek-v4-pro"
+assert "coding fallback has glm-5.2" "grep -A5 '\"coding\"' \"$TMP/profiles.json\" | grep -q glm-5.2"
 assert "costs has deepseek-v4-pro" "grep -q deepseek-v4-pro \"$TMP/costs.json\""
 assert "costs has MiniMax-M3" "grep -q MiniMax-M3 \"$TMP/costs.json\""
-assert "kimi-k3 has 1000000 context" "grep -A5 kimi-k3 \"$TMP/costs.json\" | grep -q 1000000"
+assert "deepseek-v4-pro has 1000000 context" "grep deepseek-v4-pro \"$TMP/costs.json\" | grep -q 1000000"
 
 echo "test_model_router: $TESTS_PASS passed, $TESTS_FAIL failed"
+[ "$TESTS_FAIL" -eq 0 ] || exit 1

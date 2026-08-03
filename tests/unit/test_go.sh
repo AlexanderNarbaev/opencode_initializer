@@ -16,3 +16,4 @@ assert "has go.dev API call" "grep -q go.dev $G"
 assert "exports PATH" "grep -q PATH.*go $G"
 assert "has direct download" "grep -q go.dev/dl $G"
 echo "test_go: $TESTS_PASS passed, $TESTS_FAIL failed"
+[ "$TESTS_FAIL" -eq 0 ] || exit 1

@@ -5,6 +5,36 @@ All notable changes to opencode_initializer will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.2] — 2026-08-03
+
+### Removed
+- **Moonshot/Kimi provider and kimi-proxy** — dropped along with the LiteLLM local gateway (wave v2.0.2)
+  - Deleted modules `25-litellm.sh`, `39-kimi-proxy.sh` and scripts `kimi-anthropic-proxy.py`, `litellm-force-temp.py`, `kimi.sh`
+  - Removed Moonshot/LiteLLM from provider registry, opencode.json configs, health checks, and docs
+  - Local isolated-circuit backends are now: Ollama (:11434), vLLM (:8000), SGLang (:30000)
+
+### Fixed
+- **Test harness gate** — 23 test files defined their own `assert()` and never exited non-zero, so `run_tests.sh` and CI reported PASS despite real failures; all test files now exit non-zero on failure
+- 7 previously silent test failures: stale kimi assertions in `test_model_router.sh`, dangling `zai` fallback refs in root `opencode.json` (caught by `test_providers.sh`), stale `/v1/models` literal in `test_isolated.sh`
+- Dead modules wired into the orchestrator: `31-cockpit.sh` (Cockpit TUI), `32-isolated.sh` (Isolated Circuit), `33-services.sh` (Service Configuration Layer) were never sourced by `setup.sh`
+- Documentation drift: module/provider/test counts in AGENTS.md and README, `docs/VERSIONS.md` endpoints, LiteLLM references across docs (en+ru)
+
+### Changed
+- Provider registry: 22 providers (19 cloud + 3 local: Ollama, vLLM, SGLang)
+- `dist/` build artifacts now git-ignored
+
+## [2.0.1] — 2026-07-27
+
+### Added
+- **kimi-proxy v14.2**: dynamic payload compression for Moonshot API's undocumented ~20KB request body limit
+  - Sticky tools (bash/read/write/edit/grep/glob) always included first
+  - Progressive trimming: max 10 tools, 15 messages, truncated descriptions
+  - IPv4-only upstream workaround, SSE streaming, `reasoning_content` stripping
+  - Tunable via `KIMI_PROXY_*` environment variables
+  - VPN requirement documented for RU networks
+
+> **Note:** Moonshot/Kimi support (including kimi-proxy) was subsequently removed in v2.0.2.
+
 ## [2.0.0] — 2026-07-03
 
 ### Added

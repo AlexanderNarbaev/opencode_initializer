@@ -15,3 +15,4 @@ a "has WasmEdge" "grep -q wasmedge $L"
 a "has service setup" "grep -q systemd $L"
 a "has model pull" "grep -q ollama pull $L"
 echo "test_llm: $TP passed, $TF failed"
+[ "$TF" -eq 0 ] || exit 1

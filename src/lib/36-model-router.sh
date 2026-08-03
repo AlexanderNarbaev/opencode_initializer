@@ -20,8 +20,8 @@ cat >"$ROUTER_DIR/task-profiles.json" <<'PROFILES'
     "description": "Primary coding, implementation, refactoring",
     "model": "deepseek/deepseek-v4-pro",
     "small_model": "deepseek/deepseek-v4-flash",
-    "fallback": ["zai/glm-5.2", "anthropic/claude-opus-4-8", "moonshotai/kimi-k2.7-code-highspeed"],
-    "rationale": "DeepSeek V4 Pro: best price/performance for coding, 1M context, free tier. Moonshot highspeed for fast code iterations"
+    "fallback": ["zai/glm-5.2", "anthropic/claude-opus-4-8"],
+    "rationale": "DeepSeek V4 Pro: best price/performance for coding, 1M context, free tier"
   },
   "reasoning": {
     "description": "Complex reasoning, architecture, planning",
@@ -39,10 +39,10 @@ cat >"$ROUTER_DIR/task-profiles.json" <<'PROFILES'
   },
   "agentic": {
     "description": "Tool use, multi-step workflows, autonomous agents",
-    "model": "moonshotai/kimi-k3",
-    "small_model": "moonshotai/kimi-k2.7-code",
-    "fallback": ["zai/glm-5.2", "deepseek/deepseek-v4-pro", "anthropic/claude-opus-4-8"],
-    "rationale": "Kimi K3: flagship model, 1M context, best agentic tool use, open weights"
+    "model": "deepseek/deepseek-v4-pro",
+    "small_model": "deepseek/deepseek-v4-flash",
+    "fallback": ["zai/glm-5.2", "anthropic/claude-opus-4-8"],
+    "rationale": "DeepSeek V4 Pro: best agentic tool use, 1M context, free tier"
   },
   "budget": {
     "description": "Cost-sensitive tasks, bulk operations",
@@ -62,14 +62,14 @@ cat >"$ROUTER_DIR/task-profiles.json" <<'PROFILES'
     "description": "Air-gapped operation (Isolated Circuit Mode)",
     "model": "ollama/qwen3:32b",
     "small_model": "ollama/qwen3:14b",
-    "fallback": ["litellm/qwen3:32b", "ollama/qwen3:14b", "ollama/qwen3:1.8b"],
+    "fallback": ["ollama/qwen3:14b", "ollama/qwen3:1.8b"],
     "rationale": "Qwen3 32B: best local coding model, fits in 20GB VRAM"
   },
   "ru_cn": {
     "description": "Optimized for Russian/Chinese language tasks",
     "model": "zai/glm-5.2",
     "small_model": "zai/glm-5-turbo",
-    "fallback": ["deepseek/deepseek-v4-pro", "moonshotai/kimi-k3", "alibaba/qwen3.7-plus"],
+    "fallback": ["deepseek/deepseek-v4-pro", "alibaba/qwen3.7-plus"],
     "rationale": "GLM-5.2: best RU/CN language support, free tier, open weights"
   }
 }
@@ -92,10 +92,6 @@ cat >"$ROUTER_DIR/cost-table.json" <<'COSTS'
   "google/gemini-3.5-flash": {"input": 1.50, "output": 9.00, "context": 1048576, "free": false},
   "google/gemini-3.1-flash-lite": {"input": 0.25, "output": 1.50, "context": 1048576, "free": false},
   "xai/grok-4.3": {"input": 0.00, "output": 0.00, "context": 1000000, "free": true},
-  "moonshotai/kimi-k3": {"input": 0.00, "output": 0.00, "context": 1000000, "free": true, "note": "Flagship 2.8T params, reasoning_effort:max"},
-  "moonshotai/kimi-k2.7-code": {"input": 0.00, "output": 0.00, "context": 262144, "free": true},
-  "moonshotai/kimi-k2.7-code-highspeed": {"input": 0.00, "output": 0.00, "context": 262144, "free": true},
-  "moonshotai/kimi-k2.6": {"input": 0.00, "output": 0.00, "context": 262144, "free": true},
   "alibaba/qwen3.7-plus": {"input": 0.00, "output": 0.00, "context": 1000000, "free": true},
   "minimax/MiniMax-M3": {"input": 0.00, "output": 0.00, "context": 512000, "free": true},
   "groq/llama-4-maverick": {"input": 0.00, "output": 0.00, "context": 1000000, "free": true},

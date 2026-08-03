@@ -1,1 +1,17 @@
-{"last_commit": "523b1d6", "timestamp": "2026-07-19T12:00:00Z", "branch": "main", "wave": "v2.0.x-complete", "tests": {"unit": 29, "integration": 5, "e2e": 4, "total_test_files": 38}, "coverage": "69%", "modules": 42, "projects_synced": 9, "moonshot_fix": {"api_url_fixed": true, "key_updated": true, "inconsistent_urls_fixed": 3}}
+{
+  "last_commit": "ccf240e",
+  "timestamp": "2026-08-03T22:08:00Z",
+  "branch": "main",
+  "wave": "v2.0.2-moonshot-litellm-removal",
+  "tests": {"unit": 28, "integration": 5, "e2e": 4, "total_test_files": 37, "assertions": 484},
+  "modules": 43,
+  "providers": {"total": 22, "cloud": 19, "local": 3},
+  "health_checks": 119,
+  "audit_2026_08_03": {
+    "report": "docs/research/audit-2026-08-03.md",
+    "test_gate_fixed": true,
+    "silent_failures_fixed": 7,
+    "dead_modules_wired": ["31-cockpit.sh", "32-isolated.sh", "33-services.sh"],
+    "docs_synced": true
+  }
+}

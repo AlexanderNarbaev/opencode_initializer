@@ -34,7 +34,6 @@ bash setup.sh [MODE] [OPTIONS]
 | `--deepseek-key <key>` | DeepSeek API key |
 | `--xai-key <key>` | xAI Grok API key |
 | `--mimo-key <key>` | Xiaomi MiMo API key |
-| `--moonshot-key <key>` | Moonshot API key |
 | `--minimax-key <key>` | MiniMax API key |
 | `--github-token <token>` | GitHub personal access token |
 | `--gitlab-token <token>` | GitLab personal access token |
@@ -150,7 +149,6 @@ Providers are dynamically built based on available API keys (24 total):
 | `anthropic` | `ANTHROPIC_API_KEY` | — |
 | `google` | `GOOGLE_API_KEY` / `GOOGLE_MAPS_KEY` | google-maps-mcp |
 | `xai` | `XAI_API_KEY` | — |
-| `moonshot` | `MOONSHOT_API_KEY` | — |
 | `minimax` | `MINIMAX_API_KEY` | — |
 | `mimo` | `MIMO_API_KEY` | — |
 | `groq` | `GROQ_API_KEY` | — |
@@ -173,7 +171,6 @@ Providers are dynamically built based on available API keys (24 total):
 | `OPENAI_API_KEY` | OpenAI API | Optional |
 | `ANTHROPIC_API_KEY` | Anthropic API | Optional |
 | `XAI_API_KEY` | xAI Grok API | Optional |
-| `MOONSHOT_API_KEY` | Moonshot API | Optional |
 | `MINIMAX_API_KEY` | MiniMax API | Optional |
 | `MIMO_API_KEY` | MiMo API | Optional |
 | `GROQ_API_KEY` | Groq API | Optional |
@@ -249,7 +246,7 @@ During setup, you'll see:
 | Providers | `26-providers.sh` | 24 LLM providers (20 cloud + 4 local) |
 | Infrastructure | `30-infra.sh` | PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer |
 | Cockpit | `31-cockpit.sh` | 7-tab TUI server management daemon |
-| Isolated | `32-isolated.sh` | Air-gapped LLM mode (Ollama/LiteLLM/vLLM/SGLang) |
+| Isolated | `32-isolated.sh` | Air-gapped LLM mode (Ollama/vLLM/SGLang) |
 | Observability | `34-observability.sh` | Grafana + Prometheus stack |
 | GUI | `35-gui.sh` | Web management interface |
 | ChromaDB | `13-chromadb.sh` | ChromaDB + systemd service |
@@ -265,8 +262,7 @@ During setup, you'll see:
 | WebUI Service | `22-webui-service.sh` | Open WebUI systemd user service |
 | just | `23-just.sh` | just task runner with default justfile |
 | WebSearch | `24-websearch.sh` | SearXNG web search + sanitizer proxy |
-| LiteLLM | `25-litellm.sh` | LiteLLM OpenAI-compatible local API gateway |
-| Providers | `26-providers.sh` | 24 LLM provider registry with session switching |
+| Providers | `26-providers.sh` | 22 LLM provider registry with session switching |
 | Dotfiles | `27-dotfiles.sh` | chezmoi dotfiles manager for team config sharing |
 | Devbox | `28-devbox.sh` | Devbox — Nix-based isolated dev environments |
 | Version Check | `version-check.sh` | Version comparison (8+ tools, npm packages) |

@@ -34,7 +34,6 @@ bash setup.sh [РЕЖИМ] [ОПЦИИ]
 | `--deepseek-key <ключ>` | DeepSeek API ключ |
 | `--xai-key <ключ>` | xAI Grok API ключ |
 | `--mimo-key <ключ>` | Xiaomi MiMo API ключ |
-| `--moonshot-key <ключ>` | Moonshot API ключ |
 | `--minimax-key <ключ>` | MiniMax API ключ |
 | `--github-token <токен>` | GitHub токен |
 | `--gitlab-token <токен>` | GitLab токен |
@@ -150,7 +149,6 @@ dev self-update
 | `anthropic` | `ANTHROPIC_API_KEY` | — |
 | `google` | `GOOGLE_API_KEY` / `GOOGLE_MAPS_KEY` | google-maps-mcp |
 | `xai` | `XAI_API_KEY` | — |
-| `moonshot` | `MOONSHOT_API_KEY` | — |
 | `minimax` | `MINIMAX_API_KEY` | — |
 | `mimo` | `MIMO_API_KEY` | — |
 | `groq` | `GROQ_API_KEY` | — |
@@ -173,7 +171,6 @@ dev self-update
 | `OPENAI_API_KEY` | OpenAI API | Нет |
 | `ANTHROPIC_API_KEY` | Anthropic API | Нет |
 | `XAI_API_KEY` | xAI Grok API | Нет |
-| `MOONSHOT_API_KEY` | Moonshot API | Нет |
 | `MINIMAX_API_KEY` | MiniMax API | Нет |
 | `MIMO_API_KEY` | MiMo API | Нет |
 | `GROQ_API_KEY` | Groq API | Нет |
@@ -258,8 +255,7 @@ step_mark "01-system"      # Отметить как сделанное
 | WebUI Service | `22-webui-service.sh` | Open WebUI systemd сервис |
 | just | `23-just.sh` | just — таск-раннер с дефолтным justfile |
 | WebSearch | `24-websearch.sh` | SearXNG веб-поиск + sanitizer proxy |
-| LiteLLM | `25-litellm.sh` | LiteLLM OpenAI-совместимый API-шлюз |
-| Providers | `26-providers.sh` | Реестр 24 LLM-провайдеров с переключением сессий |
+| Providers | `26-providers.sh` | Реестр 22 LLM-провайдеров с переключением сессий |
 | Infrastructure | `30-infra.sh` | PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer |
 | Dotfiles | `27-dotfiles.sh` | chezmoi — менеджер dotfiles для командного шеринга |
 | Devbox | `28-devbox.sh` | Devbox — изолированные Nix-окружения |

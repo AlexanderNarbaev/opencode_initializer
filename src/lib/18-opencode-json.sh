@@ -70,7 +70,6 @@ PROVIDER_ENV_VARS = {
     "openrouter": "OPENROUTER_API_KEY",
     "xai": "XAI_API_KEY",
     "mimo": "MIMO_API_KEY",
-    "moonshotai": "MOONSHOT_API_KEY",
     "minimax": "MINIMAX_API_KEY",
     "openai": "OPENAI_API_KEY",
     "anthropic": "ANTHROPIC_API_KEY",
@@ -100,7 +99,6 @@ def _build_providers():
         # ── Isolated Circuit: local OpenAI-compatible providers only ─────────
         local_backends = {
             "ollama": ("http://localhost:11434/v1", "ollama/qwen3:14b", "ollama/qwen3:0.6b"),
-            "litellm": ("http://localhost:4000/v1", "litellm/qwen3:14b", "litellm/qwen3:0.6b"),
         }
 
         # Auto-detect running backends
@@ -116,9 +114,9 @@ def _build_providers():
             except Exception:
                 pass
 
-        primary = "ollama" if "ollama" in providers else "litellm"
+        primary = "ollama"
         if primary in providers:
-            providers[primary]["fallback"] = [p for p in ["ollama", "litellm"] if p in providers and p != primary]
+            providers[primary].pop("fallback", None)
 
         return providers
 
@@ -131,7 +129,6 @@ def _build_providers():
         "openrouter": os.environ.get("OPENROUTER_API_KEY") or secrets.get("OPENROUTER_API_KEY", ""),
         "xai": os.environ.get("XAI_API_KEY") or secrets.get("XAI_API_KEY", ""),
         "mimo": os.environ.get("MIMO_API_KEY") or secrets.get("MIMO_API_KEY", ""),
-        "moonshotai": os.environ.get("MOONSHOT_API_KEY") or secrets.get("MOONSHOT_API_KEY", ""),
         "minimax": os.environ.get("MINIMAX_API_KEY") or secrets.get("MINIMAX_API_KEY", ""),
         "openai": os.environ.get("OPENAI_API_KEY") or secrets.get("OPENAI_API_KEY", ""),
         "anthropic": os.environ.get("ANTHROPIC_API_KEY") or secrets.get("ANTHROPIC_API_KEY", ""),
@@ -160,7 +157,6 @@ def _build_providers():
         "xai": ("xai/grok-4.3", "xai/grok-4.20-0309-non-reasoning"),
         "minimax": ("minimax/MiniMax-M3", "minimax/MiniMax-M3"),
         "mimo": ("mimo/mimo-v2.5", "mimo/mimo-v2.5"),
-        "moonshotai": ("moonshotai/kimi-k3", "moonshotai/kimi-k2.7-code"),
         "perplexity": ("perplexity/sonar-pro", "perplexity/sonar"),
         "alibaba": ("alibaba/qwen3.7-plus", "alibaba/qwen3.6-flash"),
         "deepinfra": ("deepinfra/meta-llama/Llama-4-Maverick", "deepinfra/meta-llama/Llama-4-Scout"),
@@ -179,7 +175,7 @@ def _build_providers():
             if env_name:
                 providers[provider]["api_key"] = "${" + env_name + "}"
             # Reset stale top-level base_url/api_key from previous broken configs
-            # (they were incorrectly pointing to local kimi proxy for ALL providers).
+            # (legacy configs incorrectly shared one local proxy across ALL providers).
             # Custom OpenAI-compatible providers must use options.baseURL (camelCase),
             # and native providers (deepseek, opencode-go, xai, etc.) must NOT have base_url.
             providers[provider].pop("base_url", None)
@@ -200,55 +196,9 @@ def _build_providers():
             elif provider == "minimax":
                 providers[provider].setdefault("options", {})
                 providers[provider]["options"]["baseURL"] = "https://api.minimax.io/v1"
-            elif provider == "moonshotai":
-                # Kimi/Moonshot via local kimi-anthropic-proxy (port 9876).
-                # Proxy strips reasoning_content (opencode 1.18.x hang bug) and
-                # translates OpenAI<->Anthropic. See scripts/kimi-anthropic-proxy.py.
-                # CRITICAL: opencode requires baseURL/apiKey INSIDE options (camelCase),
-                # not base_url/api_key at top level. See anomalyco/opencode provider docs.
-                kimi_proxy_url = os.environ.get("KIMI_PROXY_URL", "http://127.0.0.1:9876/v1")
-                kimi_proxy_running = False
-                try:
-                    import urllib.request as _ur
-                    _ur.urlopen(kimi_proxy_url + "/models", timeout=1)
-                    kimi_proxy_running = True
-                except Exception:
-                    pass
-                providers[provider]["npm"] = "@ai-sdk/openai-compatible"
-                providers[provider]["name"] = "Moonshot Kimi" + (" (via local proxy)" if kimi_proxy_running else " (direct API)")
+            elif provider == "minimax":
                 providers[provider].setdefault("options", {})
-                if kimi_proxy_running:
-                    providers[provider]["options"]["baseURL"] = kimi_proxy_url
-                    providers[provider]["options"]["apiKey"] = "not-needed-proxy-injects-key"
-                else:
-                    providers[provider]["options"]["baseURL"] = "https://api.moonshot.ai/v1"
-                    providers[provider]["options"]["apiKey"] = "${" + env_name + "}"
-                providers[provider]["models"] = {
-                    "kimi-k3": {
-                        "name": "Kimi K3",
-                        "temperature": True,
-                        "reasoning": True,
-                        "tool_call": True,
-                        "modalities": {"input": ["text"], "output": ["text"]},
-                        "limit": {"context": 1000000, "output": 65536}
-                    },
-                    "kimi-k2.7-code": {
-                        "name": "Kimi K2.7 Code",
-                        "temperature": True,
-                        "reasoning": True,
-                        "tool_call": True,
-                        "modalities": {"input": ["text"], "output": ["text"]},
-                        "limit": {"context": 262144, "output": 65536}
-                    },
-                    "kimi-k2.7-code-highspeed": {
-                        "name": "Kimi K2.7 Code Highspeed",
-                        "temperature": True,
-                        "reasoning": True,
-                        "tool_call": True,
-                        "modalities": {"input": ["text"], "output": ["text"]},
-                        "limit": {"context": 262144, "output": 65536}
-                    }
-                }
+                providers[provider]["options"]["baseURL"] = "https://api.minimax.io/v1"
             elif provider == "minimax":
                 providers[provider]["base_url"] = "https://api.minimax.io/v1"
             if provider not in ("deepseek", "zai"):

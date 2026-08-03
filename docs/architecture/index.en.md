@@ -92,7 +92,6 @@ C4Container
         Container(webui, "22-webui-service.sh", "Bash", "Open WebUI systemd user service")
         Container(just, "23-just.sh", "Bash", "just task runner")
         Container(websearch, "24-websearch.sh", "Bash", "SearXNG web search + sanitizer")
-        Container(litellm, "25-litellm.sh", "Bash", "LiteLLM OpenAI-compatible API gateway")
         Container(providers, "26-providers.sh", "Bash", "24 LLM provider registry")
         Container(dotfiles, "27-dotfiles.sh", "Bash", "chezmoi dotfiles manager")
         Container(devbox, "28-devbox.sh", "Bash", "Devbox Nix-based environments")
@@ -113,7 +112,6 @@ C4Container
     Rel(mcp, helpers, "Uses _curl/_npm_install")
     Rel(finalize, json, "Calls")
     Rel(project, core, "Depends")
-    Rel(litellm, providers, "Depends")
 ```
 
 ## C4 Level 4: setup.sh Orchestrator Flow
@@ -178,7 +176,6 @@ graph LR
         llm["16-llm.sh"]
         rag["21-rag.sh"]
         websearch["24-websearch.sh"]
-        litellm["25-litellm.sh"]
         providers["26-providers.sh"]
     end
 
@@ -215,7 +212,6 @@ graph LR
     helpers --> rag
     helpers --> websearch
 
-    providers --> litellm
 
     core --> project
     project --> json

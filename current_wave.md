@@ -1,36 +1,29 @@
 # Current Wave Status
 
-> Last updated: 2026-07-18T16:15:00Z
+> Last updated: 2026-08-03T22:08:00Z
 
-## Status: ▶️ ACTIVE
+## Status: ✅ COMPLETE (pending commit)
 
 ## Active Task
-- **Wave:** v2.0.x — Provider Integration & Cross-Project Sync
-- **Task:** Moonshot AI + MiniMax endpoint fix + documentation sync
-- **Owner:** Goal agent + parallel swarm
+- **Wave:** v2.0.2 — Remove Moonshot/Kimi + LiteLLM, streamline proxy dependencies
+- **Task:** Complete removal from all configs, scripts, services — DONE
 
 ## Protection
-- **Blocked:** Moonshot API key needs regeneration on platform.kimi.ai
 - **Fragile zones:** src/lib/18-opencode-json.sh (provider config), src/lib/36-model-router.sh (routing profiles)
 
 ## Completed in this wave
-- [x] Integration tests: 50/50 PASS (fixed short flags grep patterns)
-- [x] IDE plugins module: 38-ide-plugins.sh
-- [x] Research: air-gapped AI architecture (Veai, DevoxxGenie, CPU-only LLMs)
-- [x] Research: open-source IDE plugins ecosystem (Cline, Tabby, Aider, Llama Coder)
-- [x] Research: local LLM dev workflow (FIM, RAG, MCP, Ollama models)
-- [x] Moonshot base_url fixed: api.moonshot.cn → api.moonshot.ai
-- [x] MiniMax base_url fixed: api.minimax.chat → api.minimax.io
-- [x] DeepSeek v3 → v4 migration
-- [x] Java 25 LTS consistency
-- [x] Cross-project opencode.json + AGENTS.md (9/9 projects)
-- [x] Provider health-check utility
-- [x] .env.example template
-- [x] Documentation version sync (11 files)
-- [x] ADR: Multi-Agent Framework v3.0
-- [x] Integration tests: 50/50 PASS (fixed short flags patterns)
-- [x] IDE plugins module: 38-ide-plugins.sh
-- [x] Research: air-gapped AI architecture (Veai, DevoxxGenie, CPU-only LLMs)
-- [x] Research: open-source IDE plugins ecosystem (Cline, Tabby, Aider, Llama Coder)
-- [x] Research: local LLM dev workflow (FIM, RAG, MCP, Ollama models)
-
+- [x] Moonshot/Kimi/LiteLLM removed from all 9 opencode.json configs
+- [x] litellm uninstalled from pipx
+- [x] kimi-proxy + litellm systemd services stopped/disabled/removed
+- [x] Project scripts cleaned (kimi-anthropic-proxy.py, litellm-force-temp.py, kimi.sh)
+- [x] Module files removed (25-litellm.sh, 39-kimi-proxy.sh)
+- [x] Provider registry updated (AGENTS.md, dev.sh, setup.sh)
+- [x] **Audit 2026-08-03 follow-ups** ([docs/research/audit-2026-08-03.md](./docs/research/audit-2026-08-03.md)):
+  - [x] Test harness gate: 23 test files gained exit-on-failure; 7 silent failures surfaced and fixed
+  - [x] Dead modules wired into setup.sh: 31-cockpit.sh, 32-isolated.sh, 33-services.sh (TOTAL_STEPS=41)
+  - [x] Stale kimi assertions in test_model_router.sh replaced (deepseek/glm reality)
+  - [x] Root opencode.json: dangling zai fallback refs removed; fallback-consistency invariant added to test_providers.sh
+  - [x] LiteLLM check removed from health.sh; dev.sh recommendation updated
+  - [x] docs/VERSIONS.md (Moonshot endpoint, rag-system row), README, 12 live docs files (en+ru) cleaned
+  - [x] SCRIPT_VERSION → v2.0.2; CHANGELOG [2.0.1] + [2.0.2]; session_checkpoint.json refreshed
+  - [x] dist/ added to .gitignore

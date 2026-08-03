@@ -36,19 +36,11 @@
 
 | Provider | Base URL | Notes |
 |----------|----------|-------|
-| Moonshot (Kimi) | `https://api.moonshot.ai/anthropic` | Via local proxy on `127.0.0.1:9876` |
 | MiniMax | `https://api.minimax.io/v1` | OpenAI-compatible |
 | MiMo | `https://api.mimo.run/v1` | OpenAI-compatible |
 | DeepSeek | `https://api.deepseek.com/v1` | OpenAI-compatible |
 | xAI Grok | `https://api.x.ai/v1` | OpenAI-compatible |
 | z.ai GLM | `https://api.z.ai/api/paas/v4` | OpenAI-compatible |
-
-## Kimi/K3 Anthropic Proxy
-
-- **Port:** `9876`
-- **Binary:** `~/.local/share/kimi-proxy/kimi-anthropic-proxy.py`
-- **Auto-injected:** `temperature: 1`, `thinking.budget_tokens: 1024`
-- **Models:** `kimi-k3`, `kimi-k2.7-code`, `kimi-k2.7-code-highspeed`
 
 ## MCP Servers (npm global)
 
@@ -79,7 +71,6 @@
 | upstream/opencode | https://github.com/opencode-ai/opencode.git | dev |
 | upstream/mcp-servers | https://github.com/modelcontextprotocol/servers.git | main |
 | upstream/searxng | https://github.com/searxng/searxng.git | master |
-| upstream/rag-system | https://github.com/AlexanderNarbaev/rag-system.git | main |
 | upstream/superpowers | https://github.com/obra/superpowers.git | main |
 | upstream/skill-conductor | https://github.com/smixs/skill-conductor.git | main |
 

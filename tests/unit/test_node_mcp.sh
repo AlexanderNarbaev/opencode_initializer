@@ -15,3 +15,4 @@ a "has MCP" "grep -qi mcp $M"
 a "has LSP" "grep -qi lsp $M"
 a "has bun bin paths" "grep -q bun.bin $M"
 echo "test_node_mcp: $TP passed, $TF failed"
+[ "$TF" -eq 0 ] || exit 1

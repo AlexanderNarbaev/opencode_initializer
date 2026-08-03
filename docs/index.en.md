@@ -42,7 +42,7 @@ A single script that turns a fresh Linux/WSL2 machine into a production-ready de
 - **Infrastructure as Code** — PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer via Docker Compose
 - **Cockpit TUI** — 7-tab terminal UI for server management
 - **Isolated Circuit Mode** — air-gapped LLM operation with local backends
-- **24 AI providers** — DeepSeek, z.ai GLM-5.2, OpenRouter, OpenAI, Anthropic, Google, xAI, Moonshot (Kimi K3), MiniMax M3, Alibaba Qwen3, and more
+- **22 AI providers** — DeepSeek, z.ai GLM-5.2, OpenRouter, OpenAI, Anthropic, Google, xAI, MiniMax M3, Alibaba Qwen3, and more
 - **GPU/LLM** — Ollama, vLLM, SGLang, Open WebUI, WasmEdge (multi-vendor GPU auto-detection)
 - **ZSH** — Oh My Zsh + Powerlevel10k with 14 plugins
 - **Chrome** — Google Chrome + ChromeDriver (WSL2-optimized)
@@ -54,7 +54,7 @@ A single script that turns a fresh Linux/WSL2 machine into a production-ready de
 |---------|-------------|
 | Infrastructure as Code | PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer via Docker Compose |
 | Cockpit TUI | 7-tab terminal UI — System, Plugins, GPU/Models, Sessions, Tasks, Logs, Infra |
-| Isolated Circuit Mode | Air-gapped LLM operation with Ollama, LiteLLM, vLLM, SGLang |
+| Isolated Circuit Mode | Air-gapped LLM operation with Ollama, vLLM, SGLang |
 | Model Routing Intelligence | 8 task profiles: coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn |
 | Web GUI | 9-section management interface: providers, models, MCP/LSP, infra, backup, logs |
 | z.ai GLM-5.2 | Primary provider for RU/CN markets, OpenAI-compatible, free tier |
@@ -117,7 +117,6 @@ dev isolated status                 # Check current state
 | **Containers** | Docker Engine |
 | **Infrastructure** | PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer |
 | **AI/ML** | Ollama, vLLM, SGLang, Open WebUI, ChromaDB, WasmEdge, ONNX |
-| **API Gateway** | LiteLLM — OpenAI-compatible endpoint for all providers |
 | **Web Search** | SearXNG self-hosted search + sanitizer proxy |
 | **MCP Servers** | 24 servers for AI-assisted development |
 | **LSP Servers** | 13 language servers |

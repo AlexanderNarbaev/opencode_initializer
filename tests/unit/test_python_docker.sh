@@ -14,3 +14,4 @@ a "docker syntax" "bash -n $D"
 a "docker has apt" "grep -q apt $D"
 a "docker has systemctl" "grep -q systemctl $D"
 echo "test_python_docker: $TP passed, $TF failed"
+[ "$TF" -eq 0 ] || exit 1

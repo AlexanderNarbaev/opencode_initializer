@@ -16,7 +16,6 @@ OpenCode Initializer fills a unique niche: no other tool combines **system-level
 | **18 OpenCode plugins** | :white_check_mark: auto | :x: | :x: | :x: | :x: | :x: |
 | **12 LSP servers** | :white_check_mark: auto | :x: (manual) | :white_check_mark: (nixpkgs) | :x: (per IDE) | :x: (per IDE) | :x: |
 | **Local LLM runtimes** | :white_check_mark: GPU-aware | :x: | :x: | :x: | :x: | :x: |
-| **LiteLLM API gateway** | :white_check_mark: | :x: | :x: | :x: | :x: | :x: |
 | **SearXNG web search** | :white_check_mark: | :x: | :x: | :x: | :x: | :x: |
 | **24 LLM providers** | :white_check_mark: dynamic | :x: | :x: | :x: | :x: | :x: |
 | **AI agent memory (Muninn)** | :white_check_mark: | :x: | :x: | :x: | :x: | :x: |
@@ -50,7 +49,6 @@ OpenCode Initializer does all of this automatically in a single command.
 **Where OpenCode Initializer adds value:**
 - AI tooling integration: MCP servers, OpenCode plugins, LSP servers are auto-configured
 - Local LLM runtimes: Ollama, vLLM, SGLang, Open WebUI with GPU auto-detection
-- LiteLLM API gateway: unified OpenAI-compatible endpoint for all providers
 - Memory and RAG: ChromaDB + Muninn for persistent AI memory
 - SearXNG web search for AI agents
 - WSL2-specific optimizations (DNS, memory, .wslconfig)
@@ -91,7 +89,7 @@ Many bootstrap scripts exist (Laptop, thoughtbot/laptop, omakub, etc.). They typ
 
 **Where OpenCode Initializer adds value:**
 - AI-native: MCP servers, LSP servers, OpenCode plugins, 24 LLM providers
-- Infrastructure: Docker, ChromaDB, LiteLLM, SearXNG
+- Infrastructure: Docker, ChromaDB, SearXNG
 - GPU-aware LLM runtimes with auto-detection
 - AI agent memory (Muninn + ChromaDB)
 - RAG system for corporate knowledge

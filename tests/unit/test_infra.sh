@@ -42,3 +42,4 @@ assert "MemoryLayer in config" "grep -q 'memorylayer' '$TEST_CONFIG'"
 assert "Docker compose valid" "docker compose -f '$TEST_CONFIG' config --quiet 2>/dev/null"
 
 echo "test_infra: $TESTS_PASS passed, $TESTS_FAIL failed"
+[ "$TESTS_FAIL" -eq 0 ] || exit 1

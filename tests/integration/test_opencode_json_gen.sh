@@ -25,7 +25,7 @@ JSON_GEN="$PROJECT_DIR/src/lib/18-opencode-json.sh"
 
 # ── Structure checks ────────────────────────────────────────────────────────
 assert "18-opencode-json.sh exists" "test -f \"$JSON_GEN\""
-assert "Python inline block exists" "grep -q 'python3 << .PYGEN.' \"$JSON_GEN\""
+assert "Python inline block exists" "grep -q \"python3 <<'PYGEN'\" \"$JSON_GEN\""
 assert "generate_opencode_json function" "grep -q 'generate_opencode_json()' \"$JSON_GEN\""
 
 # ── MCP detection ───────────────────────────────────────────────────────────
@@ -43,14 +43,24 @@ for lsp in $EXPECTED_LSP; do
 done
 
 # ── Plugin detection ────────────────────────────────────────────────────────
+# ── Plugin architecture (tier-based registry, v2.0+) ─────────────────────
+# Plugin names live in the installer (12-mcp-lsp.sh) + tier registry
+# (~/.config/opencode/plugins.json); the generator only reads the registry.
+assert "Plugin registry loader" "grep -q 'load_plugin_registry' \"$JSON_GEN\""
+assert "Registry path plugins.json" "grep -q 'plugins.json' \"$JSON_GEN\""
+assert "Tier: always" "grep -q '\"always\"' \"$JSON_GEN\""
+assert "Tier: conditional" "grep -q '\"conditional\"' \"$JSON_GEN\""
+assert "Tier: on_demand" "grep -q '\"on_demand\"' \"$JSON_GEN\""
+
+MCP_LSP="$PROJECT_DIR/src/lib/12-mcp-lsp.sh"
 EXPECTED_PLUGINS="opencode-codegraph opencode-dcp opencode-auto-fallback opencode-goal-mode opencode-swarm opencode-vibeguard opencode-daytona opencode-background-agents opencode-scheduler opencode-supermemory opencode-firecrawl opencode-conductor opencode-morph-plugin opencode-zellij-namer opencode-plugin-otel"
 for plug in $EXPECTED_PLUGINS; do
-  assert "Plugin detection for $plug" "grep -qE '\\\"$plug\\\"' \"$JSON_GEN\""
+  assert "Plugin installed by 12-mcp-lsp: $plug" "grep -q \"$plug\" \"$MCP_LSP\""
 done
 
 # ── Provider config ─────────────────────────────────────────────────────────
 assert "Provider builder exists" "grep -q '_build_providers()' \"$JSON_GEN\""
-for prov in deepseek opencode xai mimo moonshot minimax; do
+for prov in deepseek opencode xai mimo minimax; do
   assert "Provider: $prov" "grep -qE '\\\"$prov\\\"' \"$JSON_GEN\""
 done
 assert "Provider fallback chains exist" "grep -q 'fallback' \"$JSON_GEN\""

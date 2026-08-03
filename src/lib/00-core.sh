@@ -5,7 +5,7 @@
 set -euo pipefail
 
 # ── Version ──────────────────────────────────────────────────────────────────
-SCRIPT_VERSION="${SCRIPT_VERSION:-v2.0.0}"
+SCRIPT_VERSION="${SCRIPT_VERSION:-v2.0.2}"
 
 # ── OS validation ────────────────────────────────────────────────────────────
 if [ -f /etc/os-release ]; then
@@ -374,12 +374,12 @@ declare -A SERVICE_PORTS=(
   [postgres]=5432     [qdrant]=6333        [redis]=6379
   [prometheus]=9090   [grafana]=3001       [node_exporter]=9100
   [metrics_exporter]=9464  [gui]=4200      [ollama]=11434
-  [litellm]=4000      [vllm]=8000          [sglang]=30000
+  [vllm]=8000          [sglang]=30000
   [chromadb]=8000     [memorylayer]=61001  [kafka]=9092
   [neo4j]=7474        [minio]=9000         [searxng]=8888
   [open_webui]=3300
 )
 export SERVICE_PORTS
 
-OPencode_LOCAL_ENDPOINT="${OPencode_LOCAL_ENDPOINT:-http://localhost:4000/v1}"
+OPencode_LOCAL_ENDPOINT="${OPencode_LOCAL_ENDPOINT:-http://localhost:11434/v1}"
 export OPencode_LOCAL_ENDPOINT

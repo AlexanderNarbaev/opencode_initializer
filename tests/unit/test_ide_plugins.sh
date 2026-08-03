@@ -20,3 +20,4 @@ assert "has Cline CLI" "grep -q cline $M"
 assert "has ollama recommendations" "grep -q ollama pull $M"
 assert "has find_jetbrains function" "grep -q find_jetbrains $M"
 echo "test_ide_plugins: $TESTS_PASS passed, $TESTS_FAIL failed"
+[ "$TESTS_FAIL" -eq 0 ] || exit 1

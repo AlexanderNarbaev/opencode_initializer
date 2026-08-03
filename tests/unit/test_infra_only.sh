@@ -15,3 +15,4 @@ a "has Docker Compose" "grep -q compose $I"
 a "has MemoryLayer" "grep -qi memorylayer $I"
 a "has port config" "grep -q port.*[0-9] $I"
 echo "test_infra: $TP passed, $TF failed"
+[ "$TF" -eq 0 ] || exit 1

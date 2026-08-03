@@ -31,7 +31,6 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then
   sed -i "/OPENCODE_API_KEY=/d" "$SECRETS_FILE" 2>/dev/null || true
   sed -i "/XAI_API_KEY=/d" "$SECRETS_FILE" 2>/dev/null || true
   sed -i "/MIMO_API_KEY=/d" "$SECRETS_FILE" 2>/dev/null || true
-  sed -i "/MOONSHOT_API_KEY=/d" "$SECRETS_FILE" 2>/dev/null || true
   sed -i "/MINIMAX_API_KEY=/d" "$SECRETS_FILE" 2>/dev/null || true
   sed -i "/GITHUB_TOKEN=/d" "$SECRETS_FILE" 2>/dev/null || true
   sed -i "/GITLAB_TOKEN=/d" "$SECRETS_FILE" 2>/dev/null || true
@@ -41,7 +40,6 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then
   [ -n "${API_KEY:-}" ] && echo "export OPENCODE_API_KEY=\"$API_KEY\"" >> "$SECRETS_FILE"
   [ -n "${XAI_KEY:-}" ] && echo "export XAI_API_KEY=\"$XAI_KEY\"" >> "$SECRETS_FILE"
   [ -n "${MIMO_KEY:-}" ] && echo "export MIMO_API_KEY=\"$MIMO_KEY\"" >> "$SECRETS_FILE"
-  [ -n "${MOONSHOT_KEY:-}" ] && echo "export MOONSHOT_API_KEY=\"$MOONSHOT_KEY\"" >> "$SECRETS_FILE"
   [ -n "${MINIMAX_KEY:-}" ] && echo "export MINIMAX_API_KEY=\"$MINIMAX_KEY\"" >> "$SECRETS_FILE"
   [ -n "${GITHUB_TOKEN:-}" ] && echo "export GITHUB_TOKEN=\"$GITHUB_TOKEN\"" >> "$SECRETS_FILE"
   [ -n "${GITLAB_TOKEN:-}" ] && echo "export GITLAB_TOKEN=\"$GITLAB_TOKEN\"" >> "$SECRETS_FILE"
@@ -52,7 +50,6 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then
   [ -n "${API_KEY:-}" ] && export OPENCODE_API_KEY="$API_KEY"
   [ -n "${XAI_KEY:-}" ] && export XAI_API_KEY="$XAI_KEY"
   [ -n "${MIMO_KEY:-}" ] && export MIMO_API_KEY="$MIMO_KEY"
-  [ -n "${MOONSHOT_KEY:-}" ] && export MOONSHOT_API_KEY="$MOONSHOT_KEY"
   [ -n "${MINIMAX_KEY:-}" ] && export MINIMAX_API_KEY="$MINIMAX_KEY"
   [ -n "${GITLAB_TOKEN:-}" ] && export GITLAB_TOKEN="$GITLAB_TOKEN"
   [ -n "${GITVERSE_TOKEN:-}" ] && export GITVERSE_TOKEN="$GITVERSE_TOKEN"
@@ -211,8 +208,6 @@ _check "Session memory"     "[ -d ~/.config/opencode/sessions ]"
   _check "Skills testing-strategy" "[ -f \"$PROJECT_DIR/.opencode/skills/testing-strategy/SKILL.md\" ]"
   _check "Skills context-switching" "[ -f \"$PROJECT_DIR/.opencode/skills/context-switching/SKILL.md\" ]"
 _check "ChromaDB server"    "curl -sf http://127.0.0.1:8000/api/v2/heartbeat &>/dev/null"
-_check "LiteLLM gateway"    "curl -sf http://localhost:4000/health/liveliness &>/dev/null"
-_check "litellm"            "command -v litellm"
 
 # Web search verification
 _check "SearXNG container"  "docker ps --format '{{.Names}}' 2>/dev/null | grep -q searxng"

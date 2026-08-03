@@ -91,7 +91,6 @@ C4Container
         Container(webui, "22-webui-service.sh", "Bash", "Open WebUI systemd сервис")
         Container(just, "23-just.sh", "Bash", "just — таск-раннер")
         Container(websearch, "24-websearch.sh", "Bash", "SearXNG веб-поиск + sanitizer")
-        Container(litellm, "25-litellm.sh", "Bash", "LiteLLM OpenAI-совместимый API-шлюз")
         Container(providers, "26-providers.sh", "Bash", "Реестр 24 LLM-провайдеров")
         Container(dotfiles, "27-dotfiles.sh", "Bash", "chezmoi — менеджер dotfiles")
         Container(devbox, "28-devbox.sh", "Bash", "Devbox — Nix-окружения")
@@ -114,7 +113,6 @@ C4Container
     Rel(mcp, helpers, "Использует _curl/_npm_install")
     Rel(finalize, json, "Вызывает")
     Rel(project, core, "Зависит")
-    Rel(litellm, providers, "Зависит")
 ```
 
 ## C4 Уровень 4: Поток выполнения setup.sh
@@ -179,7 +177,6 @@ graph LR
         llm["16-llm.sh"]
         rag["21-rag.sh"]
         websearch["24-websearch.sh"]
-        litellm["25-litellm.sh"]
         providers["26-providers.sh"]
     end
 
@@ -216,7 +213,6 @@ graph LR
     helpers --> rag
     helpers --> websearch
 
-    providers --> litellm
 
     core --> project
     project --> json

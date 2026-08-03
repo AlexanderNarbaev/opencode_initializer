@@ -16,7 +16,6 @@ OpenCode Initializer занимает уникальную нишу: ни оди
 | **18 плагинов OpenCode** | :white_check_mark: авто | :x: | :x: | :x: | :x: | :x: |
 | **12 LSP-серверов** | :white_check_mark: авто | :x: (вручную) | :white_check_mark: (nixpkgs) | :x: (на IDE) | :x: (на IDE) | :x: |
 | **Локальные LLM-рантаймы** | :white_check_mark: GPU-aware | :x: | :x: | :x: | :x: | :x: |
-| **LiteLLM API-шлюз** | :white_check_mark: | :x: | :x: | :x: | :x: | :x: |
 | **SearXNG веб-поиск** | :white_check_mark: | :x: | :x: | :x: | :x: | :x: |
 | **24 LLM-провайдера** | :white_check_mark: динамически | :x: | :x: | :x: | :x: | :x: |
 | **Память AI-агента (Muninn)** | :white_check_mark: | :x: | :x: | :x: | :x: | :x: |
@@ -50,7 +49,6 @@ OpenCode Initializer делает всё это автоматически од�
 **Где OpenCode Initializer добавляет ценность:**
 - AI-инструментарий: MCP-серверы, плагины OpenCode, LSP-серверы настраиваются автоматически
 - Локальные LLM-рантаймы: Ollama, vLLM, SGLang, Open WebUI с автоопределением GPU
-- LiteLLM API-шлюз: единый OpenAI-совместимый эндпоинт для всех провайдеров
 - Память и RAG: ChromaDB + Muninn для постоянной памяти AI
 - SearXNG веб-поиск для AI-агентов
 - Оптимизации WSL2 (DNS, память, .wslconfig)
@@ -90,7 +88,7 @@ OpenCode Initializer делает всё это автоматически од�
 
 **Где OpenCode Initializer добавляет ценность:**
 - AI-нативный: MCP-серверы, LSP-серверы, плагины OpenCode, 24 LLM-провайдера
-- Инфраструктура: Docker, ChromaDB, LiteLLM, SearXNG
+- Инфраструктура: Docker, ChromaDB, SearXNG
 - GPU-aware LLM-рантаймы с автоопределением
 - Память AI-агента (Muninn + ChromaDB)
 - RAG система для корпоративных знаний

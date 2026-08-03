@@ -35,7 +35,7 @@ dk = '${DEEPSEEK_KEY:-}'
 ak = '${API_KEY:-}'
 xk = '${XAI_KEY:-}'
 mk = '${MIMO_KEY:-}'
-msk = '${MOONSHOT_KEY:-}'
+msk = ''
 mmk = '${MINIMAX_KEY:-}'
 ghk = '${GITHUB_TOKEN:-}'
 glk = '${GITLAB_TOKEN:-}'
@@ -48,8 +48,6 @@ if xk:
     auth['xai'] = {'type': 'api', 'key': xk}
 if mk:
     auth['mimo'] = {'type': 'api', 'key': mk}
-if msk:
-    auth['moonshotai'] = {'type': 'api', 'key': msk}
 if mmk:
     auth['minimax'] = {'type': 'api', 'key': mmk}
 if ghk:
@@ -97,7 +95,7 @@ if dk or ak or xk or mk or msk or mmk or ghk or glk or gmk:
     log "Interaction mode wrappers installed (~/.local/bin/oc-*)"
   fi
 
-  # AI SDK provider modules for custom OpenCode providers (moonshotai, minimax, mimo)
+  # AI SDK provider modules for custom OpenCode providers (minimax, mimo)
   section "AI SDK Provider Modules"
   _npm_install zod || true
   _npm_install @ai-sdk/openai-compatible || true

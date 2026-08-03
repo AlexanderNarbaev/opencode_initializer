@@ -23,3 +23,4 @@ a "has oh-my-zsh" "grep -q oh-my-zsh $ZS"
 a "has p10k" "grep -q p10k $ZS"
 
 echo "test_chrome_project_zsh: $TP passed, $TF failed"
+[ "$TF" -eq 0 ] || exit 1

@@ -13,17 +13,15 @@ if [ "${ISOLATED_CIRCUIT:-false}" = "true" ]; then
   declare -A PROVIDER_REGISTRY
   PROVIDER_REGISTRY=(
     [ollama]="OPencode_LOCAL_ENDPOINT|--local-endpoint|Ollama (local)|yes"
-    [litellm]="OPencode_LOCAL_ENDPOINT|--local-endpoint|LiteLLM proxy (local)|yes"
     [vllm]="OPencode_LOCAL_ENDPOINT|--local-endpoint|vLLM (local)|yes"
     [sglang]="OPencode_LOCAL_ENDPOINT|--local-endpoint|SGLang (local)|yes"
   )
 
   AVAILABLE_PROVIDERS=""
-  for backend in ollama litellm vllm sglang; do
+  for backend in ollama vllm sglang; do
     port=""
     case "$backend" in
       ollama)  port="11434";;
-      litellm) port="4000";;
       vllm)    port="8000";;
       sglang)  port="30000";;
     esac
@@ -50,7 +48,6 @@ PROVIDER_REGISTRY=(
   [openrouter]="OPENROUTER_API_KEY|--openrouter-key|OpenRouter (100+ models)|yes"
   [xai]="XAI_API_KEY|--xai-key|xAI Grok 4.3|no"
   [mimo]="MIMO_API_KEY|--mimo-key|Xiaomi MiMo V2.5|yes"
-  [moonshotai]="MOONSHOT_API_KEY|--moonshot-key|Moonshot Kimi (api.moonshot.ai / platform.kimi.ai)|no"
   [minimax]="MINIMAX_API_KEY|--minimax-key|MiniMax M3 (api.minimax.io)|no"
   [openai]="OPENAI_API_KEY|--openai-key|OpenAI GPT-5.5|no"
   [anthropic]="ANTHROPIC_API_KEY|--anthropic-key|Anthropic Claude Opus 4.8|no"
@@ -65,7 +62,6 @@ PROVIDER_REGISTRY=(
   [alibaba]="ALIBABA_API_KEY|--alibaba-key|Alibaba Qwen3.7 Plus|yes"
   [deepinfra]="DEEPINFRA_API_KEY|--deepinfra-key|DeepInfra (fast inference)|yes"
   [ollama]="OPencode_LOCAL_ENDPOINT|--local-endpoint|Ollama (localhost:11434)|yes"
-  [litellm]="OPencode_LOCAL_ENDPOINT|--local-endpoint|LiteLLM proxy (localhost:4000)|yes"
   [vllm]="OPencode_LOCAL_ENDPOINT|--local-endpoint|vLLM (localhost:8000)|yes"
   [sglang]="OPencode_LOCAL_ENDPOINT|--local-endpoint|SGLang (localhost:30000)|yes"
 )

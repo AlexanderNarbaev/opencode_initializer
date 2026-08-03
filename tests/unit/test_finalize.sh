@@ -21,3 +21,4 @@ assert "has step_finalize" "grep -q step_finalize $F"
 assert "has dev CLI mention" "grep -q dev.health $F"
 assert "has opencode.json mention" "grep -q fix-config $F"
 echo "test_finalize: $TESTS_PASS passed, $TESTS_FAIL failed"
+[ "$TESTS_FAIL" -eq 0 ] || exit 1

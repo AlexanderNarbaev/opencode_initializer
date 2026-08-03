@@ -29,3 +29,4 @@ assert "service has embed-proxy.py" "grep -q 'embed-proxy.py' '$S'"
 assert "service has Restart" "grep -q 'Restart' '$S'"
 
 echo "test_embed_proxy: $TESTS_PASS passed, $TESTS_FAIL failed"
+[ "$TESTS_FAIL" -eq 0 ] || exit 1

@@ -530,7 +530,7 @@ func fetchServices() []table.Row {
 			}
 			name := fields[0]
 			if strings.Contains(name, "opencode") || strings.Contains(name, "chroma") ||
-				strings.Contains(name, "litellm") || strings.Contains(name, "webui") ||
+				strings.Contains(name, "webui") ||
 				strings.Contains(name, "ollama") || strings.Contains(name, "cockpit") ||
 				strings.Contains(name, "searxng") || strings.Contains(name, "qdrant") {
 				state := fields[3]
@@ -1187,7 +1187,7 @@ func fetchTasks() []table.Row {
 func fetchLogs() []string {
 	var lines []string
 
-	serviceUnits := []string{"chromadb", "litellm", "open-webui", "ollama", "cockpit", "searxng", "qdrant"}
+	serviceUnits := []string{"chromadb", "open-webui", "ollama", "cockpit", "searxng", "qdrant"}
 	args := []string{"--user", "--no-pager", "-n", "30"}
 	for _, u := range serviceUnits {
 		args = append(args, "-u", u)

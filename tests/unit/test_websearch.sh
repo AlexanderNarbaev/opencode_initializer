@@ -11,3 +11,4 @@ a "has sanitizer" "grep -q sanitiz $W"
 a "has port 8080" "grep -q 8080 $W"
 a "has PII filter" "grep -q sanitiz $W"
 echo "test_websearch: $TP passed, $TF failed"
+[ "$TF" -eq 0 ] || exit 1

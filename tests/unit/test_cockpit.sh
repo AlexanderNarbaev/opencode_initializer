@@ -14,3 +14,4 @@ assert "cockpit binary exists" "[ -f '$BIN' ]"
 assert "cockpit is executable" "[ -x '$BIN' ]"
 assert "cockpit is ELF binary" "file '$BIN' | grep -q ELF"
 echo "test_cockpit: $TESTS_PASS passed, $TESTS_FAIL failed"
+[ "$TESTS_FAIL" -eq 0 ] || exit 1

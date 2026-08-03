@@ -12,8 +12,8 @@ run_test() {
   local name="$1" cmd="$2"
   TOTAL=$((TOTAL + 1))
   printf "  %-55s " "$name"
-  output=$(eval "$cmd" 2>&1)
-  if [ $? -eq 0 ]; then
+  output=$(eval "$cmd" 2>&1) && rc=0 || rc=$?
+  if [ "$rc" -eq 0 ]; then
     echo "PASS"
     PASS=$((PASS + 1))
   else
@@ -27,8 +27,8 @@ run_test_file() {
   local name="$1" file="$2"
   TOTAL=$((TOTAL + 1))
   printf "  %-55s " "$name"
-  output=$(bash "$file" 2>&1)
-  if [ $? -eq 0 ]; then
+  output=$(bash "$file" 2>&1) && rc=0 || rc=$?
+  if [ "$rc" -eq 0 ]; then
     echo "PASS"
     PASS=$((PASS + 1))
   else

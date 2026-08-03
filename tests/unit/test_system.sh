@@ -10,3 +10,4 @@ a "has apt" "grep -q apt $S"
 a "has PKG_MANAGER variable" "grep -q PKG_MANAGER $S"
 a "has cross-distro logic" "grep -q PKG_MANAGER $S"
 echo "test_system: $TP passed, $TF failed"
+[ "$TF" -eq 0 ] || exit 1

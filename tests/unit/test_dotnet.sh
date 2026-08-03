@@ -10,3 +10,4 @@ a "has dotnet-install" "grep -q dotnet-install $D"
 a "has apt fallback" "grep -q apt $D"
 a "has version" "grep -q dotnet-install $D"
 echo "test_dotnet: $TP passed, $TF failed"
+[ "$TF" -eq 0 ] || exit 1

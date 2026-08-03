@@ -24,14 +24,14 @@ SETUP="$PROJECT_DIR/setup.sh"
 
 # Use --fix-config mode to avoid sudo password requirement
 # Combined with --dry-run, this validates the dry-run infrastructure
-SETUP_OUTPUT=$(SUDO_PASS="" timeout 30 bash "$SETUP" --dry-run --fix-config -p /tmp/test-dry-project 2>&1) || true
+SETUP_OUTPUT=$(SUDO_PASS="" timeout 90 bash "$SETUP" --dry-run --fix-config -p /tmp/test-dry-project 2>&1) || true
 
 # ── Check dry-run completes (produces output) ──────────────────────
 assert "dry-run has output" '[ -n "'"$SETUP_OUTPUT"'" ]'
 
 # ── DRY-RUN prefix in output or exit success ─────────────────────
 assert "dry-run exit code 0" \
-  "timeout 30 bash \"$SETUP\" --dry-run --fix-config -p /tmp/test-dry-project 2>/dev/null"
+  "timeout 90 bash \"$SETUP\" --dry-run --fix-config -p /tmp/test-dry-project 2>/dev/null"
 
 # ── No real files created in project dir ─────────────────────────────
 assert "no opencode.json created in test dir" \

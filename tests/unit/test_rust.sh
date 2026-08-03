@@ -10,3 +10,4 @@ a "has rustup" "grep -q rustup $R"
 a "has cargo" "grep -q cargo $R"
 a "has stable toolchain" "grep -q stable $R"
 echo "test_rust: $TP passed, $TF failed"
+[ "$TF" -eq 0 ] || exit 1

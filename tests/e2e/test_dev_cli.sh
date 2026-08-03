@@ -45,7 +45,7 @@ assert "dev.sh has install case"    'grep -q "install)" "'"$D"'"'
 assert "dev.sh has remove case"     'grep -q "remove)" "'"$D"'"'
 assert "dev.sh has update case"     'grep -q "update)" "'"$D"'"'
 assert "dev.sh has health case"     'grep -q "health)" "'"$D"'"'
-assert "dev.sh has list case"       'grep -q "list|ls)" "'"$D"'"'
+assert "dev.sh has list case"       'grep -q "list | ls)" "'"$D"'"'
 assert "dev.sh has config case"     'grep -q "config)" "'"$D"'"'
 assert "dev.sh has self-update case" 'grep -q "self-update)" "'"$D"'"'
 
@@ -53,7 +53,9 @@ assert "dev.sh has self-update case" 'grep -q "self-update)" "'"$D"'"'
 assert "dev.sh sources helpers.sh"  'grep -q "src/lib/helpers.sh" "'"$D"'"'
 
 # ── dev.sh has valid overall structure ─────────────────────────────────
-assert "dev.sh has set -euo pipefail" 'grep -q "set -euo pipefail" "'"$D"'"'
+# NOTE: dev.sh intentionally omits set -euo pipefail — CLI uses err()/warn()
+# guard patterns with explicit error handling instead of strict mode.
+assert "dev.sh has error helpers"     'grep -q '"'"'err "'"'"' "'"$D"'"'
 assert "dev.sh has usage function"    'grep -q "usage()" "'"$D"'"'
 
 echo

@@ -2,7 +2,7 @@
 > **Operating Model:** Multi-Agent Continuous Development Framework v3.0 ([ADR](./docs/architecture/adr/2026-07-18-multi-agent-framework-v3.md))
 > **Current Wave:** [current_wave.md](./current_wave.md) | **Checkpoint:** [session_checkpoint.json](./session_checkpoint.json)
 
-## Status: v2.0.0 — All Phases Complete
+## Status: v2.0.2 — Moonshot/LiteLLM removed, test harness fixed
 
 | Phase | Status | Description |
 |-------|--------|-------------|
@@ -14,7 +14,7 @@
 
 ## Identity
 Universal Dev Machine Bootstrap — однокомандная настройка AI-усиленной dev-машины для WSL2/Linux.
-Модульная архитектура: 589 строк оркестратор + 42 модуля + автообновление через systemd-таймер.
+Модульная архитектура: 589 строк оркестратор + 43 модуля + автообновление через systemd-таймер.
 
 ## Язык общения
 Всё общение строго на русском языке. Код и комментарии — на английском.
@@ -24,12 +24,12 @@ Universal Dev Machine Bootstrap — однокомандная настройк�
 opencode_initializer/
 ├── setup.sh          ← оркестратор (589 строк, source модули из src/lib/)
 ├── src/
-│   ├── lib/          ← 42 модуля (00-core.sh … 38-ide-plugins.sh + helpers.sh + version-check.sh + pre-session-check.sh)
+│   ├── lib/          ← 43 модуля (00-core.sh … 40-best-practices.sh + 99-upstream-sync.sh + helpers.sh + version-check.sh + pre-session-check.sh)
 │   └── modes/            ← 5 режимных скриптов (+ 6 встроенных режимов)
 ├── dev.sh            ← CLI (dev install|metrics|observability|infra|...)
 ├── .env.example      ← шаблон переменных окружения (API ключи)
 ├── scripts/          ← утилиты (provider-check, ai-router, embed-proxy, oc-json, oc-rpc, oc-sdk, oc-tui, oc-metrics)
-├── tests/            ← unit (12), integration (5), e2e (4) — 398+ assertions
+├── tests/            ← unit (28), integration (5), e2e (4) — 480+ assertions
 ├── migrations/       ← timestamped, idempotent
 ├── docs/             ← документация + plans + research
 ├── .github/          ← CI (test, shellcheck, docs) + issue/PR шаблоны
@@ -47,7 +47,7 @@ opencode_initializer/
 ### Orchestrator (589 lines)
 Minimal entry point that sources modules from `src/lib/` and dispatches modes from `src/modes/`.
 
-### Module Layout (src/lib/ — 39 numbered + 3 helpers)
+### Module Layout (src/lib/ — 40 numbered + 3 helpers)
 | Module | Responsibility |
 |--------|---------------|
 | `helpers.sh` | `_curl()`, `_retry()`, `_npm_install()`, `_sudo()` — shared infrastructure |
@@ -69,21 +69,20 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 | `15-security.sh` | Trivy, Qodana |
 | `16-llm.sh` | Ollama, vLLM, SGLang, Open WebUI, WasmEdge (GPU-aware, multi-vendor) |
 | `17-project.sh` | Project structure (AGENTS.md, WAL, agents, docker-compose) |
-| `18-opencode-json.sh` | opencode.json generation (Python inline, bun bin paths, 24 providers, ISOLATED_CIRCUIT) |
+| `18-opencode-json.sh` | opencode.json generation (Python inline, bun bin paths, 22 providers, ISOLATED_CIRCUIT) |
 | `19-finalize.sh` | Git config, PATH, .zshrc, auth reminder, verification (36 checks) |
 | `20-autoupdate.sh` | topgrade + systemd weekly timer + unattended-upgrades + abtop |
 | `21-rag.sh` | RAG System — Corporate Knowledge Assistant (ETL + proxy + Qdrant + Gemma) |
 | `22-webui-service.sh` | Open WebUI systemd user service (auto-start) |
 | `23-just.sh` | just — task runner with default justfile |
 | `24-websearch.sh` | SearXNG web search + sanitizer proxy (internal hosts/IP/PII) |
-| `25-litellm.sh` | LiteLLM — OpenAI-compatible local API gateway |
-| `26-providers.sh` | 24 LLM provider registry (20 cloud + 4 local) with session switching |
+| `26-providers.sh` | 22 LLM provider registry (19 cloud + 3 local) with session switching |
 | `27-dotfiles.sh` | chezmoi dotfiles manager for team config sharing |
 | `28-devbox.sh` | Devbox — Nix-based isolated dev environments |
 | `29-mise.sh` | mise-en-place — universal tool version manager |
 | `30-infra.sh` | Infrastructure: PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer |
 | `31-cockpit.sh` | Cockpit TUI server management daemon (7-tab TUI) |
-| `32-isolated.sh` | Isolated Circuit Mode — air-gapped LLM (Ollama/LiteLLM/vLLM/SGLang) |
+| `32-isolated.sh` | Isolated Circuit Mode — air-gapped LLM (Ollama/vLLM/SGLang) |
 | `33-services.sh` | Unified Service Layer — port resolution, service modes (local/external/disabled), deployment profiles |
 | `34-observability.sh` | Grafana + Prometheus + Node Exporter observability stack + OTel support |
 | `35-gui.sh` | Web GUI — management interface on port 4200 |
@@ -93,7 +92,7 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 | `version-check.sh` | Version check: Rust/Go/Node/Python/Bun/OpenCode/Ollama/Zig + npm packages |
 | `pre-session-check.sh` | Pre-session provider/model validation + MCP status |
 
-### Provider Registry (26-providers.sh — 24 providers)
+### Provider Registry (26-providers.sh — 22 providers)
 | Provider | Model | Free Tier | SDK |
 |----------|-------|-----------|-----|
 | deepseek | DeepSeek V4 Pro / V4 Flash | yes | native |
@@ -102,7 +101,6 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 | **openrouter** | **OpenRouter (100+ models)** | **yes** | **native** |
 | xai | xAI Grok 4.3 / Grok 4.20 | no | native |
 | mimo | Xiaomi MiMo V2.5 | yes | openai-compatible |
-| moonshot | Moonshot Kimi K3 / K2.7 Code (via kimi-proxy, VPN required) | no | openai-compatible |
 | minimax | MiniMax M3 | no | openai-compatible |
 | openai | OpenAI GPT-5.5 / GPT-5.4 Mini | no | native |
 | anthropic | Anthropic Claude Opus 4.8 / Sonnet 4.6 | no | native |
@@ -117,7 +115,6 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 | **alibaba** | **Alibaba Qwen3.7 Plus** | **yes** | **native** |
 | **deepinfra** | **DeepInfra (Llama 4)** | **yes** | **openai-compatible** |
 | ollama | Ollama (localhost:11434) | yes | local |
-| litellm | LiteLLM proxy (localhost:4000) | yes | local |
 | vllm | vLLM (localhost:8000) | yes | local |
 | sglang | SGLang (localhost:30000) | yes | local |
 
@@ -127,7 +124,7 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 | full | Complete bootstrap (default) |
 | reinit | Reinstall tools, keep data |
 | new | Init new project only |
-| health | Diagnostics (65+ checks, 7 sections) |
+| health | Diagnostics (119 checks, 7 sections) |
 | update | Update tools only |
 | upgrade | Full system update chain |
 | interactive | Component-by-component selection |
@@ -174,8 +171,8 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 ```bash
 bash -n setup.sh                          # syntax check (orchestrator)
 for f in src/lib/*.sh src/modes/*.sh; do bash -n "$f"; done  # modular syntax check
-bash tests/run_tests.sh                   # full test suite (20 tests, 350+ assertions)
-bash setup.sh --health                    # diagnostics (65+ checks)
+bash tests/run_tests.sh                   # full test suite (37 tests, 480+ assertions)
+bash setup.sh --health                    # diagnostics (119 checks)
 bash setup.sh --fix-config                # regenerate opencode.json
 bash setup.sh --fix-zshrc                 # repair shell config
 ```
@@ -203,6 +200,7 @@ bash setup.sh --fix-zshrc                 # repair shell config
 | v1.1.0 | Ecosystem expansion: hardware auto-detection, LiteLLM, SearXNG, CI/CD mode, multimodal, 15+ providers, chezmoi, Devbox, ONNX. 29 modules, 65+ health checks. |
 | v2.0.0 | Infrastructure as Code (PostgreSQL+Qdrant+Redis+Prometheus+Grafana+MemoryLayer), Cockpit TUI (7-tab), Isolated Circuit Mode, z.ai GLM-5.2 + OpenRouter + Alibaba + DeepInfra providers, MemoryLayer embed proxy, 41 module, 24 providers, 350+ test assertions. |
 | v2.0.1 | kimi-proxy v14.2: dynamic payload compression for Moonshot API's undocumented 20KB limit. Sticky tools (bash/read/write/edit/grep/glob), progressive trimming, VPN requirement documented. |
+| v2.0.2 | Moonshot/Kimi + LiteLLM removed. Test harness gate fixed (23 files gained exit-on-failure; 7 silent failures surfaced and fixed). Dead modules wired: 31-cockpit, 32-isolated, 33-services. 22 providers (19 cloud + 3 local), 43 modules, 37 test files / 480+ assertions. |
 
 ## Modular Architecture (v2.0.0)
 
@@ -210,7 +208,7 @@ bash setup.sh --fix-zshrc                 # repair shell config
 opencode_initializer/
 ├── setup.sh              ← оркестратор (589 строк)
 ├── dev.sh                ← CLI
-├── opencode.json         ← конфиг OpenCode (24 providers)
+├── opencode.json         ← конфиг OpenCode (22 providers)
 ├── .env.example          ← шаблон переменных окружения (API ключи)
 ├── src/
 │   ├── lib/

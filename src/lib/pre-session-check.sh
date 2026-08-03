@@ -47,7 +47,6 @@ _pre_session() {
   _check_provider "Anthropic" "https://api.anthropic.com/v1/models" "${ANTHROPIC_API_KEY:-}" && available=$((available + 1)) || true
   _check_provider "Google" "https://generativelanguage.googleapis.com/v1beta/models?key=${GOOGLE_API_KEY:-}" "${GOOGLE_API_KEY:-}" && available=$((available + 1)) || true
   _check_provider "xAI Grok" "https://api.x.ai/v1/models" "${XAI_API_KEY:-}" && available=$((available + 1)) || true
-  _check_provider "Moonshot" "https://api.moonshot.ai/v1/models" "${MOONSHOT_API_KEY:-}" && available=$((available + 1)) || true
   _check_provider "Alibaba" "https://dashscope.aliyuncs.com/compatible-mode/v1/models" "${ALIBABA_API_KEY:-}" && available=$((available + 1)) || true
   _check_provider "MiniMax" "https://api.minimax.io/v1/models" "${MINIMAX_API_KEY:-}" && available=$((available + 1)) || true
   _check_provider "Mistral" "https://api.mistral.ai/v1/models" "${MISTRAL_API_KEY:-}" && available=$((available + 1)) || true
@@ -59,7 +58,7 @@ _pre_session() {
 
   # ── Local backends ──
   echo -e "${BOLD}--- Local Backends ---${NC}"
-  for backend in ollama:11434 litellm:4000 vllm:8000 sglang:30000; do
+  for backend in ollama:11434 vllm:8000 sglang:30000; do
     name="${backend%%:*}"
     port="${backend##*:}"
     if curl -sf "http://localhost:$port/v1/models" --max-time 2 >/dev/null 2>&1; then

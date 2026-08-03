@@ -88,12 +88,6 @@ cmd_update() {
     fi
   done
 
-  # Start Kimi proxy BEFORE regenerating config so opencode.json sees it (handles opencode 1.18.x reasoning_content hang bug)
-  if [ "${KIMI_PROXY_ENABLED:-true}" != "false" ] && [ -f "$SCRIPTS_DIR/src/lib/39-kimi-proxy.sh" ]; then
-    section "Kimi proxy"
-    bash "$SCRIPTS_DIR/src/lib/39-kimi-proxy.sh" 2>&1 | tail -5 || warn "kimi-proxy: see $HOME/.local/share/kimi-proxy/proxy.log"
-  fi
-
   bash "$SCRIPTS_DIR/setup.sh" --fix-config
   log "Update complete"
 }
@@ -405,7 +399,7 @@ cmd_isolated() {
       export ISOLATED_CIRCUIT=true
       log "Isolated circuit: ENABLED"
       info "All LLM providers now use local OpenAI-compatible servers."
-      info "Recommended: ensure Ollama or LiteLLM is running."
+      info "Recommended: ensure Ollama, vLLM or SGLang is running."
 
       # Regenerate opencode.json with local providers
       if command -v opencode &>/dev/null; then
@@ -443,7 +437,7 @@ cmd_isolated() {
         echo "  Local endpoint: ${OPencode_LOCAL_ENDPOINT:-http://localhost:4000/v1}"
         echo ""
         echo "  Running backends:"
-        for backend in ollama:11434 litellm:4000 vllm:8000 sglang:30000; do
+        for backend in ollama:11434 vllm:8000 sglang:30000; do
           name="${backend%%:*}"
           port="${backend##*:}"
           if ss -tlnp 2>/dev/null | grep -q ":$port "; then

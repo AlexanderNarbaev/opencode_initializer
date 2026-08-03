@@ -42,7 +42,7 @@
 - :fontawesome-solid-box: **Infrastructure as Code** — PostgreSQL, Qdrant, Redis, Prometheus, Grafana, MemoryLayer через Docker Compose
 - :fontawesome-solid-display: **Cockpit TUI** — 7-вкладочный терминальный UI для управления сервером
 - :fontawesome-solid-shield-halved: **Isolated Circuit Mode** — air-gapped LLM с локальными бэкендами
-- :fontawesome-solid-cloud: **24 AI-провайдера** — DeepSeek, z.ai GLM-5.2, OpenRouter, OpenAI, Anthropic, Google, xAI, Moonshot, Alibaba Qwen3 и другие
+- :fontawesome-solid-cloud: **22 AI-провайдера** — DeepSeek, z.ai GLM-5.2, OpenRouter, OpenAI, Anthropic, Google, xAI, Alibaba Qwen3 и другие
 - :fontawesome-solid-microchip: **GPU/LLM** — Ollama, vLLM, SGLang, Open WebUI, WasmEdge (автоопределение GPU)
 - :fontawesome-solid-terminal: **ZSH** — Oh My Zsh + Powerlevel10k с 14 плагинами
 - :fontawesome-solid-globe: **Chrome** — Google Chrome + ChromeDriver (оптимизирован для WSL2)
@@ -54,7 +54,7 @@
 |-------------|----------|
 | Infrastructure as Code | PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer через Docker Compose |
 | Cockpit TUI | 7-вкладочный терминальный UI — System, Plugins, GPU/Models, Sessions, Tasks, Logs, Infra |
-| Isolated Circuit Mode | Air-gapped LLM с Ollama, LiteLLM, vLLM, SGLang |
+| Isolated Circuit Mode | Air-gapped LLM с Ollama, vLLM, SGLang |
 | Model Routing Intelligence | 8 профилей: coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn |
 | Web GUI | 9-разделочный интерфейс управления: провайдеры, модели, MCP/LSP, инфраструктура, backup, логи |
 | z.ai GLM-5.2 | Основной провайдер для RU/CN рынков, OpenAI-совместимый, free tier |
@@ -115,7 +115,6 @@ dev isolated status                 # Проверить текущее сост
 | **Контейнеры** | Docker Engine |
 | **Инфраструктура** | PostgreSQL, Qdrant, Redis, Prometheus, Grafana, MemoryLayer |
 | **AI/ML** | Ollama, vLLM, SGLang, Open WebUI, ChromaDB, WasmEdge, ONNX |
-| **API-шлюз** | LiteLLM — OpenAI-совместимый эндпоинт для всех провайдеров |
 | **Веб-поиск** | SearXNG self-hosted поиск + sanitizer proxy |
 | **MCP-серверы** | 24 сервера для AI-ассистированной разработки |
 | **LSP-серверы** | 12 языковых серверов |

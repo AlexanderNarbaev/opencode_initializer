@@ -25,8 +25,6 @@ assert "has openrouter" "grep -q 'openrouter' '$C'"
 assert "has openrouter 100+ models" "grep -q '100+ models' '$C'"
 assert "has xai" "grep -q 'xai' '$C'"
 assert "has Grok 4.3" "grep -q 'Grok 4.3' '$C'"
-assert "has moonshot" "grep -q 'moonshot' '$C'"
-assert "has Kimi K2.7 Code" "grep -q 'api.moonshot.ai' '$C'"
 assert "has anthropic" "grep -q 'anthropic' '$C'"
 assert "has Claude Opus 4.8" "grep -q 'Claude Opus 4.8' '$C'"
 assert "has google" "grep -q 'google' '$C'"
@@ -47,7 +45,6 @@ assert "has mimo" "grep -q 'mimo' '$C'"
 
 # ── Local providers ──────────────────────────────────────────────────────────
 assert "has ollama" "grep -q 'ollama' '$C'"
-assert "has litellm" "grep -q 'litellm' '$C'"
 assert "has vllm" "grep -q 'vllm' '$C'"
 assert "has sglang" "grep -q 'sglang' '$C'"
 
@@ -67,12 +64,10 @@ assert "has --openrouter-key flag" "grep -F -- '--openrouter-key' '$C'"
 assert "has --alibaba-key flag" "grep -F -- '--alibaba-key' '$C'"
 assert "has --deepinfra-key flag" "grep -F -- '--deepinfra-key' '$C'"
 
-# ── opencode.json has z.ai ───────────────────────────────────────────────────
+# ── root opencode.json: fallback references must resolve to defined providers ──
 J="$PROJECT_DIR/opencode.json"
-assert "opencode.json has zai provider" "grep -q 'zai' '$J'"
-assert "opencode.json has zai in deepseek fallback" "python3 -c \"import json; c=json.load(open('$J')); assert 'zai' in c['provider']['deepseek']['fallback']\""
-assert "opencode.json has zai provider config" "python3 -c \"import json; c=json.load(open('$J')); assert 'zai' in c['provider']\""
-assert "opencode.json zai has fallback" "python3 -c \"import json; c=json.load(open('$J')); assert 'fallback' in c['provider']['zai']\""
+assert "opencode.json has provider map" "python3 -c \"import json; c=json.load(open('$J')); assert len(c['provider']) > 0\""
+assert "opencode.json fallback refs are all defined" "python3 -c \"import json; c=json.load(open('$J')); p=c['provider']; missing=[fb for v in p.values() for fb in v.get('fallback',[]) if fb not in p]; assert not missing, missing\""
 
 # ── 18-opencode-json.sh has new providers ────────────────────────────────────
 O="$PROJECT_DIR/src/lib/18-opencode-json.sh"
@@ -86,14 +81,10 @@ assert "18-opencode-json.sh has ALIBABA_API_KEY" "grep -q 'ALIBABA_API_KEY' '$O'
 assert "18-opencode-json.sh has DEEPINFRA_API_KEY" "grep -q 'DEEPINFRA_API_KEY' '$O'"
 assert "18-opencode-json.sh has glm-5.2 model" "grep -q 'glm-5.2' '$O'"
 assert "18-opencode-json.sh has grok-4.3 model" "grep -q 'grok-4.3' '$O'"
-assert "18-opencode-json.sh has kimi-k2.7-code model" "grep -q 'kimi-k2.7-code' '$O'"
 assert "18-opencode-json.sh has claude-opus-4-8" "grep -q 'claude-opus-4-8' '$O'"
 assert "18-opencode-json.sh has zai baseURL" "grep -q 'api.z.ai' '$O'"
 assert "18-opencode-json.sh has openrouter baseURL" "grep -q 'openrouter.ai' '$O'"
 
-assert "18-opencode-json.sh has kimi-k3 model" "grep -q 'kimi-k3' '$O'"
-assert "18-opencode-json.sh has api.moonshot.ai baseURL" "grep -q 'api.moonshot.ai' '$O'"
 assert "18-opencode-json.sh has api.minimax.io baseURL" "grep -q 'api.minimax.io' '$O'"
-assert "36-model-router.sh has kimi-k2.7-code-highspeed" "grep -q 'kimi-k2.7-code-highspeed' '$PROJECT_DIR/src/lib/36-model-router.sh'"
-assert "26-providers.sh has Kimi K3" "grep -q 'api.moonshot.ai' '$C'"
 echo "test_providers: $TESTS_PASS passed, $TESTS_FAIL failed"
+[ "$TESTS_FAIL" -eq 0 ] || exit 1

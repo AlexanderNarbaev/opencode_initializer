@@ -38,7 +38,7 @@ assert "00-core has SERVICE_PORTS" "grep -q 'SERVICE_PORTS' '$CORE'"
 assert "00-core has DEPLOYMENT_PROFILE" "grep -q 'DEPLOYMENT_PROFILE' '$CORE'"
 
 # ── Verify SERVICE_PORTS covers key services ─────────────────────────────
-for svc in postgres qdrant redis prometheus grafana node_exporter metrics_exporter gui ollama litellm; do
+for svc in postgres qdrant redis prometheus grafana node_exporter metrics_exporter gui ollama; do
   assert "SERVICE_PORTS has $svc" "grep -q '\[${svc}\]=' '$CORE'"
 done
 
@@ -47,3 +47,4 @@ DEV="$PROJECT_DIR/dev.sh"
 assert "dev.sh has service management" "grep -q 'cmd_metrics\|cmd_observability\|_service_mode' '$DEV' || grep -q 'services' '$DEV'"
 
 echo "test_services: $TESTS_PASS passed, $TESTS_FAIL failed"
+[ "$TESTS_FAIL" -eq 0 ] || exit 1

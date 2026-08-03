@@ -84,7 +84,6 @@ bash setup.sh --full \
 | `--deepseek-key` | DeepSeek | DeepSeek provider | :white_check_mark: [platform.deepseek.com](https://platform.deepseek.com) |
 | `--xai-key` | xAI Grok | xAI/Grok provider | — |
 | `--mimo-key` | Xiaomi MiMo | MiMo provider | — |
-| `--moonshot-key` | Moonshot Kimi | Moonshot provider | — |
 | `--minimax-key` | MiniMax M3 | MiniMax provider | — |
 | `--github-token` | GitHub (classic token) | GitHub MCP server, `gh` CLI | :white_check_mark: Free, no scopes needed |
 | `--gitlab-token` | GitLab | GitLab MCP server | :white_check_mark: `read_api` scope |

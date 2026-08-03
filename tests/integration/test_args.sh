@@ -34,7 +34,7 @@ for mode in full reinit health update upgrade interactive new fix-config fix-zsh
 done
 
 # ── All CLI options exist in source ────────────────────────────────────
-for opt in api-key deepseek-key xai-key mimo-key moonshot-key minimax-key github-token gitlab-token google-maps-key fzf-key git-name git-email sudo-pass project-dir dry-run; do
+for opt in api-key deepseek-key xai-key mimo-key minimax-key github-token gitlab-token google-maps-key fzf-key git-name git-email sudo-pass project-dir dry-run; do
   assert "option --$opt in source" 'grep -q "\-\-'"$opt"'" "'"$SETUP"'"'
 done
 

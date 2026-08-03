@@ -150,7 +150,6 @@ const server = http.createServer((req, res) => {
       ['Anthropic','ANTHROPIC_API_KEY','https://api.anthropic.com/v1/models',false],
       ['Google','GOOGLE_API_KEY','https://generativelanguage.googleapis.com/v1beta/models',true],
       ['xAI','XAI_API_KEY','https://api.x.ai/v1/models',false],
-      ['Moonshot','MOONSHOT_API_KEY','https://api.moonshot.ai/v1/models',false],
       ['MiniMax','MINIMAX_API_KEY','https://api.minimax.io/v1/models',false],
       ['Alibaba','ALIBABA_API_KEY','https://dashscope.aliyuncs.com/compatible-mode/v1/models',true],
       ['Groq','GROQ_API_KEY','https://api.groq.com/openai/v1/models',true],
@@ -213,7 +212,6 @@ const server = http.createServer((req, res) => {
       ['Prometheus', parseInt(cfg.PROMETHEUS_PORT) || 9090],
       ['Grafana', parseInt(cfg.GRAFANA_PORT) || 3001],
       ['SearXNG', parseInt(cfg.SEARXNG_PORT) || 8888],
-      ['LiteLLM', parseInt(cfg.LITELLM_PORT) || 4000],
       ['Ollama', parseInt(cfg.OLLAMA_PORT) || 11434],
     ];
     const result = services.map(([name,port])=>({name,port,running:checkPort(port)}));

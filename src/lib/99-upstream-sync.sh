@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 # lib/99-upstream-sync.sh — Sync upstream git submodules & version pins
-# Requires: KIMI_PROXY_ENABLED=false to opt out; default enabled since v2.0.1.
 set -euo pipefail
 
 if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) && _gate "INTERACTIVE_DO_UPSTREAM_SYNC"; then
@@ -23,27 +22,10 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
       warn "version-check.sh reported issues"
   fi
 
-  # ── 3. Ensure Kimi proxy is installed & running (default ON) ─────────────
-  if [ "${KIMI_PROXY_ENABLED:-true}" != "false" ] && [ -f "$SCRIPT_DIR/src/lib/39-kimi-proxy.sh" ]; then
-    info "Kimi proxy: enabled (default)"
-    bash "$SCRIPT_DIR/src/lib/39-kimi-proxy.sh" 2>&1 | tail -5 || true
-  else
-    log "Kimi proxy: disabled by env (KIMI_PROXY_ENABLED=${KIMI_PROXY_ENABLED:-unset})"
-  fi
-
   # ── 4. Ensure best-practices skills are installed ───────────────────────
   if [ "${BEST_PRACTICES_ENABLED:-true}" != "false" ] && [ -f "$SCRIPT_DIR/src/lib/40-best-practices.sh" ]; then
     info "Best practices skills: enabled (default)"
     bash "$SCRIPT_DIR/src/lib/40-best-practices.sh" 2>&1 | tail -5 || true
-  fi
-
-  # ── 5. Kimi proxy (DEPRECATED: not needed since auth.json update) ───────
-  # Kept available for offline setups but not auto-started.
-  # Direct Moonshot API via @ai-sdk/openai-compatible works fine when
-  # MOONSHOT_API_KEY env var is set and auth.json has been cleaned.
-  if [ "${KIMI_PROXY_ENABLED:-false}" = "true" ] && [ -f "$SCRIPT_DIR/scripts/kimi-proxy-autostart.sh" ]; then
-    info "Configuring kimi-proxy autostart (opt-in via KIMI_PROXY_ENABLED=true)..."
-    bash "$SCRIPT_DIR/scripts/kimi-proxy-autostart.sh" 2>&1 | tail -3 || true
   fi
 
   _step_done step_upstream_sync

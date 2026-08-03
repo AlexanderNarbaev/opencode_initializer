@@ -1,9 +1,9 @@
-# OpenCode Initializer v2.0.0
+# OpenCode Initializer v2.0.2
 
 > **Operating Model:** Multi-Agent Framework v3.0 | **Wave:** [current_wave.md](./current_wave.md) | **Checkpoint:** [session_checkpoint.json](./session_checkpoint.json)
 <p align="center">
   <b>One-command AI-enhanced development environment setup for WSL2, Linux, and macOS.</b><br>
-  <sub>589-line orchestrator · 42 modules · 11 modes · 24 MCPs · 15 plugins · 13 LSPs · 24 providers · model routing · GUI · metrics</sub>
+  <sub>589-line orchestrator · 43 modules · 11 modes · 24 MCPs · 15 plugins · 13 LSPs · 22 providers · model routing · GUI · metrics</sub>
 </p>
 
 <p align="center">
@@ -24,7 +24,7 @@
 curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializer/main/setup.sh | bash -s -- --full
 ```
 
-One command installs everything: 8 languages, 41 infrastructure modules, 24 MCP servers, 15 OpenCode plugins, 13 LSP servers, 24 AI providers, infrastructure as code (PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer), Cockpit TUI (7 tabs), Web GUI, Isolated Circuit Mode, hardware auto-detection, LiteLLM API gateway, and SearXNG web search.
+One command installs everything: 8 languages, 43 infrastructure modules, 24 MCP servers, 15 OpenCode plugins, 13 LSP servers, 22 AI providers, infrastructure as code (PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer), Cockpit TUI (7 tabs), Web GUI, Isolated Circuit Mode, hardware auto-detection, and SearXNG web search.
 
 [Full Documentation](https://alexandernarbaev.github.io/opencode_initializer/)
 
@@ -33,11 +33,11 @@ One command installs everything: 8 languages, 41 infrastructure modules, 24 MCP 
 | Category | Count | Details |
 |----------|-------|---------|
 | Languages | 8 | Java 25, Node.js 24, Python 3.14, Go 1.26, Rust 1.97.1, .NET 10, Kotlin, Zig |
-| Modules | 41 | System, Docker, Chrome, ZSH, 7 languages, OpenCode, MCP/LSP, ChromaDB, LLM, RAG, LiteLLM, SearXNG, providers, dotfiles, Devbox, Infra, Cockpit, Isolated Circuit, Services, Observability, GUI, Model Router, WAL, and more |
+| Modules | 43 | System, Docker, Chrome, ZSH, 7 languages, OpenCode, MCP/LSP, ChromaDB, LLM, RAG, SearXNG, providers, dotfiles, Devbox, Infra, Cockpit, Isolated Circuit, Services, Observability, GUI, Model Router, WAL, Best Practices, Upstream Sync, and more |
 | MCP Servers | 24 | GitHub, GitLab, Filesystem, Playwright, Chrome DevTools, Postgres, SQLite, Memory, Excalidraw, Brave Search, Context7, Google Maps, and more |
 | LSP Servers | 13 | gopls, rust-analyzer, tsserver, pyright, omnisharp, yaml, marksman, taplo, lua, zls, bash, dockerfile, css/html/json |
 | Plugins | 15 | token-tracker, dcp, swarm, goal-mode, vibeguard, orchestrator, auto-fallback, notify, pty, snip, snippets, envsitter-guard, command-inject, ignore |
-| AI Providers | 24 | DeepSeek, OpenCode, **z.ai GLM-5.2**, **OpenRouter**, OpenAI, Anthropic Claude 4, Google Gemini, xAI Grok 4, Moonshot Kimi K2, MiniMax, MiMo, **Alibaba Qwen3**, **DeepInfra**, Groq, Together, Fireworks, Perplexity, Mistral, Cohere, Cerebras + 4 local (Ollama, LiteLLM, vLLM, SGLang) |
+| AI Providers | 22 | DeepSeek, OpenCode, **z.ai GLM-5.2**, **OpenRouter**, OpenAI, Anthropic Claude 4, Google Gemini, xAI Grok 4, MiniMax, MiMo, **Alibaba Qwen3**, **DeepInfra**, Groq, Together, Fireworks, Perplexity, Mistral, Cohere, Cerebras + 3 local (Ollama, vLLM, SGLang) |
 | Model Router | 8 profiles | coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn |
 | CLI Modes | 11 | full, reinit, new, health, update, upgrade, interactive, ci, fix-config, fix-zshrc, dry-run |
 | Infrastructure | 7 | PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer |
@@ -50,7 +50,7 @@ One command installs everything: 8 languages, 41 infrastructure modules, 24 MCP 
 - **Infrastructure as Code**: PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer via Docker Compose
 - **Cockpit TUI**: 7-tab terminal UI (Services, Plugins, GPU/Models, Sessions, Tasks, Logs, Infra)
 - **Web GUI**: Full management dashboard on port 4200 with Metrics iframe, model switching, infrastructure control
-- **Isolated Circuit Mode**: Air-gapped LLM operation with local OpenAI-compatible backends (Ollama, LiteLLM, vLLM, SGLang)
+- **Isolated Circuit Mode**: Air-gapped LLM operation with local OpenAI-compatible backends (Ollama, vLLM, SGLang)
 - **z.ai GLM-5.2**: Primary provider for RU/CN markets, OpenAI-compatible API, free tier
 - **OpenRouter**: Aggregator access to 100+ models via single API key
 - **OpenCode Metrics**: Real-time Prometheus exporter on port 9464 — sessions, WAL entries, container health, Ollama models, active configuration

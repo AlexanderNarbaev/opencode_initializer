@@ -25,3 +25,4 @@ assert "setup.sh references 34-observability.sh" "grep -q '34-observability' '$S
 assert "setup.sh has OBSERVABILITY_ENABLED check" "grep -q 'OBSERVABILITY_ENABLED' '$S'"
 
 echo "test_observability: $TESTS_PASS passed, $TESTS_FAIL failed"
+[ "$TESTS_FAIL" -eq 0 ] || exit 1

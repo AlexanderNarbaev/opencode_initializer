@@ -7,7 +7,7 @@
     "default_provider": "deepseek",
     "default_model": "deepseek-v4-pro",
     "fast_model": "deepseek-v4-flash",
-    "fallback_chain": ["deepseek", "xai", "minimax", "moonshot"],
+    "fallback_chain": ["deepseek", "xai", "minimax"],
 
     "complexity_rules": {
       "simple": {

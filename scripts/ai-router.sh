@@ -18,12 +18,11 @@ usage() {
 cmd_status() {
   echo "=== Provider Status ==="
   local GREEN='\033[0;32m' RED='\033[0;31m' NC='\033[0m'
-  for p in deepseek xai minimax moonshot mimo opencode; do
+  for p in deepseek xai minimax mimo opencode; do
     case $p in
       deepseek) url="https://api.deepseek.com/v1/models"; key="${DEEPSEEK_API_KEY:-}" ;;
       xai) url="https://api.x.ai/v1/models"; key="${XAI_KEY:-}" ;;
       minimax) url="https://api.minimax.io/v1/models"; key="${MINIMAX_KEY:-}" ;;
-      moonshot) url="https://api.moonshot.ai/v1/models"; key="${MOONSHOT_KEY:-}" ;;
       *) continue ;;
     esac
     [ -z "$key" ] && { echo -e "  ${RED}✗${NC} $p — no key"; continue; }

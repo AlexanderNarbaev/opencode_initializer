@@ -46,7 +46,7 @@ assert "help: --project-dir"       'echo "'"$HELP_OUTPUT"'" | grep -q "\-\-proje
 assert "help: --dry-run"           'echo "'"$HELP_OUTPUT"'" | grep -q "\-\-dry-run"'
 
 # ── Help contains provider keys ───────────────────────────────────────
-for key in xai-key mimo-key moonshot-key minimax-key gitlab-token google-maps-key fzf-key; do
+for key in xai-key mimo-key minimax-key gitlab-token google-maps-key fzf-key; do
   assert "help: --$key" 'echo "'"$HELP_OUTPUT"'" | grep -q "\-\-'"$key"'"'
 done
 

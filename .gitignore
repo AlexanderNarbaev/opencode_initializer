@@ -49,3 +49,6 @@ docs/changelog/index.md
 .opencode/state/
 # Test/local node_modules
 node_modules/
+
+# Build artifacts
+dist/

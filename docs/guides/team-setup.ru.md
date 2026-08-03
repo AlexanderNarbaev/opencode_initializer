@@ -18,7 +18,7 @@
 curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializer/main/setup.sh | bash -s -- --full
 ```
 
-Эта единственная команда устанавливает **всё**: 8 языков программирования, 21 MCP-сервер, 15 плагинов OpenCode, 13 LSP-серверов, Docker, GPU/LLM-рантаймы, LiteLLM API-шлюз, SearXNG веб-поиск, ZSH с Powerlevel10k и CLI-инструмент `dev`.
+Эта единственная команда устанавливает **всё**: 8 языков программирования, 21 MCP-сервер, 15 плагинов OpenCode, 13 LSP-серверов, Docker, GPU/LLM-рантаймы, SearXNG веб-поиск, ZSH с Powerlevel10k и CLI-инструмент `dev`.
 
 ## Типовые конфигурации для команды
 
@@ -90,7 +90,6 @@ bash setup.sh --full \
 | `-k, --api-key` | OpenCode Go | — |
 | `--xai-key` | xAI Grok | — |
 | `--mimo-key` | Xiaomi MiMo | — |
-| `--moonshot-key` | Moonshot Kimi K2.7 | — |
 | `--minimax-key` | MiniMax M3 | — |
 | `--github-token` | GitHub (MCP, gh CLI) | Бесплатно (classic token, без scopes) |
 | `--gitlab-token` | GitLab (MCP) | Бесплатно (read_api scope) |
@@ -232,8 +231,7 @@ bash setup.sh --fix-config --deepseek-key "sk-..."
 | **MCP-серверы** | 21 — context7, filesystem, github, gitlab, playwright, chrome-devtools, postgres, sqlite, memory, excalidraw, brave-search, google-maps и другие |
 | **LSP-серверы** | 13 — gopls, rust-analyzer, tsserver, pyright, omnisharp, yaml, marksman, bash, dockerfile, css/html/json и другие |
 | **Плагины** | 15 — token-tracker, dcp, swarm, auto-fallback, goal-mode, vibeguard, orchestrator и другие |
-| **Инфраструктура** | Docker, ChromaDB, LiteLLM, SearXNG, Muninn, Ollama, vLLM, SGLang, Open WebUI |
-| **API-шлюз** | LiteLLM — OpenAI-совместимая точка доступа для всех 24 провайдеров |
+| **Инфраструктура** | Docker, ChromaDB, SearXNG, Muninn, Ollama, vLLM, SGLang, Open WebUI |
 | **Веб-поиск** | SearXNG self-hosted + sanitizer-прокси (внутренние хосты/IP/PII) |
 | **Оболочка** | ZSH + Oh My Zsh + Powerlevel10k + 14 плагинов |
 | **CLI** | Инструмент `dev` — install, remove, update, health, list, config, version-check |

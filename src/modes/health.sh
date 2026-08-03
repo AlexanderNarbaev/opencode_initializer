@@ -121,7 +121,6 @@ _check "oc-sdk wrapper"  "[ -x ~/.local/bin/oc-sdk ] || [ -x ~/.local/bin/oc-sdk
 _check "oc-rpc wrapper"  "[ -x ~/.local/bin/oc-rpc ]"
 _check "dialog (TUI)"    "command -v dialog &>/dev/null || command -v whiptail &>/dev/null"
 _check "socat (RPC)"     "command -v socat &>/dev/null || command -v nc &>/dev/null"
-_check "LiteLLM API"     "curl -sf http://localhost:4000/v1/models &>/dev/null"
 
 section "Systemd Services"
 _check "chromadb.service"   "systemctl --user is-active chromadb.service &>/dev/null"
@@ -129,7 +128,6 @@ _check "ollama (snap)"      "snap services ollama 2>/dev/null | grep -q active |
 _check "open-webui (docker)" "docker ps --format '{{.Names}}' 2>/dev/null | grep -q open-webui || systemctl --user is-active open-webui.service &>/dev/null"
 _check "opencode-update.timer" "systemctl --user is-active opencode-update.timer &>/dev/null"
 _check "docker.service"     "systemctl is-active docker &>/dev/null"
-_check "litellm (health)"   "curl -sf http://localhost:4000/health/liveliness &>/dev/null"
 _check "search-sanitizer.service" "systemctl --user is-active search-sanitizer.service &>/dev/null"
 
 section "Web Search (SearXNG)"
@@ -147,7 +145,6 @@ _check "Muninn memory-write" "[ -f ~/.config/opencode/skills/memory-write/SKILL.
 _check "Session dir"           "[ -d ~/.config/opencode/sessions ]"
 _check "Session writable"      "[ -w ~/.config/opencode/sessions ]"
 _check "CodeGraph index"       "[ -f .codegraph/codegraph.db ]"
-_check "LiteLLM service"       "systemctl --user is-active litellm.service &>/dev/null"
 
 section "MCP Binaries (~/.bun/bin/)"
 MCP_COUNT=$(ls ~/.bun/bin/ 2>/dev/null | grep -v -E '^(bun|bunx)$' | wc -l)

@@ -10,20 +10,17 @@
 | DeepSeek | api.deepseek.com | deepseek-v4-pro | ✅ Free tier |
 | z.ai GLM | api.z.ai/api/paas/v4 | glm-5.2 | ✅ Free tier |
 | OpenRouter | openrouter.ai/api/v1 | 100+ models | ✅ Aggregator |
-| Moonshot/Kimi | **api.moonshot.ai** | kimi-k3, kimi-k2.7-code | 🔧 Key: platform.kimi.ai |
 | MiniMax | **api.minimax.io** | MiniMax-M3 | 🔧 Token Plan credits |
 | xAI Grok | api.x.ai | grok-4.3 | ✅ Working |
 | Alibaba Qwen | dashscope-intl.aliyuncs.com | qwen3.7-plus | ✅ Free tier |
 | DeepInfra | api.deepinfra.com | Llama-4-Maverick | ✅ Free tier |
 | Ollama | localhost:11434 | llama3.2, qwen3 | ✅ Local |
-| LiteLLM | localhost:4000 | OpenAI-compat proxy | ✅ Local |
 
 ## API Key Sources
 
 | Provider | Key Source | Env Variable |
 |----------|-----------|-------------|
 | DeepSeek | platform.deepseek.com/api_keys | DEEPSEEK_API_KEY |
-| Moonshot | platform.kimi.ai/console/projects/api-keys | MOONSHOT_API_KEY |
 | MiniMax | platform.minimax.io (Token Plan or PayG) | MINIMAX_API_KEY |
 | xAI | console.x.ai | XAI_API_KEY |
 | z.ai | open.bigmodel.cn | ZAI_API_KEY |
@@ -50,7 +47,7 @@ bash scripts/provider-check.sh   # Tests all configured providers
 | Profile | Model | Use Case |
 |---------|-------|----------|
 | coding | deepseek-v4-pro | Primary implementation |
-| agentic | kimi-k3 | Tool use, agents |
+| agentic | deepseek-v4-pro | Tool use, agents |
 | reasoning | claude-opus-4-8 | Architecture, planning |
 | fast | deepseek-v4-flash | Quick answers |
 | budget | glm-5.2 | Cost-sensitive |

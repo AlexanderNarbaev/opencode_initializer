@@ -59,12 +59,12 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]) && _gate "INTERACTIVE_DO_LLM
 
     export HAS_NVIDIA_GPU HAS_AMD_GPU HAS_INTEL_GPU HAS_NPU OPTIMAL_BACKEND
 
-    # Write hardware profile for LiteLLM routing
-    mkdir -p ~/.config/litellm
+    # Write hardware profile
+    mkdir -p ~/.config/opencode
     python3 -c "
 import json, os
 home = os.path.expanduser('~')
-with open(os.path.join(home, '.config/litellm/hardware.json'), 'w') as f:
+with open(os.path.join(home, '.config/opencode/hardware.json'), 'w') as f:
     json.dump({
         'nvidia_gpu': $HAS_NVIDIA_GPU,
         'amd_gpu': $HAS_AMD_GPU,
