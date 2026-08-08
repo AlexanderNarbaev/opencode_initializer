@@ -1,0 +1,20 @@
+# ShellCheck Baseline — collected 2026-08-08
+# Command: shellcheck -S warning src/lib/*.sh src/modes/*.sh dev.sh setup.sh tests/unit/*.sh
+# Summary: 51 SC2034, 8 SC2140, 4 SC1090, 3 SC2155, 2 SC2010, 1 SC2088, 1 SC2064
+
+## SC2034 (51 warnings) — unused variables
+src/lib/03-chrome.sh:25         IS_WSL
+src/lib/40-best-practices.sh:12 ZPL_PKG_DIR
+src/lib/helpers.sh:87           SCRIPT_DIR
+src/lib/helpers.sh:109          opts (local)
+src/modes/ci.sh:14              TOTAL_STEPS
+src/modes/ci.sh:17-23,29        INTERACTIVE_DO_* (8 vars)
+src/modes/interactive.sh:82     MODE
+... (see full shellcheck output for all 51 occurrences)
+
+## SC2155 (3 warnings) — declare+assign masks exit code
+## SC2010 (2 warnings) — ls | grep patterns
+## SC2088 (1 warning) — tilde in double quotes
+## SC2140 (8 warnings) — consecutive double quotes (likely false positives)
+## SC1090 (4 warnings) — dynamic source path (by design)
+## SC2064 (1 warning) — trap expansion timing
