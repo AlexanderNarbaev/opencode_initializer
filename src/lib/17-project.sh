@@ -396,6 +396,14 @@ AGENTSEOF
     log "AGENTS.md created"
   fi
 
+  # ── SDD: constitution + commands (Wave D) ──────────────────────────────────
+  if declare -f _constitution_generate >/dev/null 2>&1; then
+    _constitution_generate "$PROJECT_DIR" "$(basename "$PROJECT_DIR")"
+  fi
+  if declare -f _sdd_generate_commands >/dev/null 2>&1; then
+    _sdd_generate_commands "$PROJECT_DIR"
+  fi
+
   # ── SDD: spec.md template (S5.2.1.3) ──────────────────────────────────────
   if [ ! -f "$PROJECT_DIR/specs/_template.md" ]; then
     mkdir -p "$PROJECT_DIR/specs"
@@ -641,18 +649,29 @@ SKILLEOF
     log "Skill: testing-strategy"
   fi
 
-  # Agents
-  declare -A ROLE_MODELS=(
-    [pm]="opencode-go/glm-5.1" [analyst]="opencode-go/glm-5.1" [architect]="opencode-go/glm-5.1"
-    [developer]="deepseek/deepseek-v4-pro" [qa]="opencode-go/minimax-m2.7"
-    [security]="opencode-go/glm-5" [devops]="deepseek/deepseek-v4-pro"
-    [reviewer]="opencode-go/qwen3.6-plus" [researcher]="deepseek/deepseek-v4-pro"
-    [designer]="opencode-go/minimax-m2.7"
-    [docs-writer]="deepseek/deepseek-v4-flash" [security-auditor]="deepseek/deepseek-v4-pro"
-    [debugger]="deepseek/deepseek-v4-pro" [go-dev]="deepseek/deepseek-v4-pro"
-    [rust-dev]="deepseek/deepseek-v4-pro" [ts-dev]="deepseek/deepseek-v4-flash"
-  )
-  for role in "${!ROLE_MODELS[@]}"; do
+  # Agents (bash 3.2 indexed arrays — migration from declare -A)
+  ROLE_NAMES=()
+  ROLE_MODEL_VALUES=()
+  _role_model_add() { local i=${#ROLE_NAMES[@]}; ROLE_NAMES[$i]="$1"; ROLE_MODEL_VALUES[$i]="$2"; }
+  _role_model_add "pm"              "opencode-go/glm-5.1"
+  _role_model_add "analyst"         "opencode-go/glm-5.1"
+  _role_model_add "architect"       "opencode-go/glm-5.1"
+  _role_model_add "developer"       "deepseek/deepseek-v4-pro"
+  _role_model_add "qa"              "opencode-go/minimax-m2.7"
+  _role_model_add "security"        "opencode-go/glm-5"
+  _role_model_add "devops"          "deepseek/deepseek-v4-pro"
+  _role_model_add "reviewer"        "opencode-go/qwen3.6-plus"
+  _role_model_add "researcher"      "deepseek/deepseek-v4-pro"
+  _role_model_add "designer"        "opencode-go/minimax-m2.7"
+  _role_model_add "docs-writer"     "deepseek/deepseek-v4-flash"
+  _role_model_add "security-auditor" "deepseek/deepseek-v4-pro"
+  _role_model_add "debugger"        "deepseek/deepseek-v4-pro"
+  _role_model_add "go-dev"          "deepseek/deepseek-v4-pro"
+  _role_model_add "rust-dev"        "deepseek/deepseek-v4-pro"
+  _role_model_add "ts-dev"          "deepseek/deepseek-v4-flash"
+  for ((_rmi=0; _rmi<${#ROLE_NAMES[@]}; _rmi++)); do
+    role="${ROLE_NAMES[$_rmi]}"
+    model_val="${ROLE_MODEL_VALUES[$_rmi]}"
     case $role in
       pm|analyst|architect)         perm="edit: allow\n  bash: deny\n  read: allow\n  glob: allow\n  grep: allow\n  write: allow" ;;
       developer)                    perm="edit: allow\n  bash: allow\n  read: allow\n  glob: allow\n  grep: allow\n  write: allow" ;;
@@ -668,7 +687,7 @@ SKILLEOF
     cat > "$PROJECT_DIR/.opencode/agents/${role}.md" << ROLEEOF
 ---
 description: "${role} specialist"
-model: ${ROLE_MODELS[$role]}
+model: ${model_val}
 mode: subagent
 temperature: 0.2
 permission:
@@ -678,7 +697,7 @@ permission:
 Ты — **${role}**. Следуй протоколу: изучи документы, предложи план, дождись подтверждения, выполни задачу, обнови WAL.
 ROLEEOF
   done
-  log "Agents created (${#ROLE_MODELS[@]} roles)"
+  log "Agents created (${#ROLE_NAMES[@]} roles)"
 
   # Docker Compose — universal development infrastructure
   if [ ! -f "$PROJECT_DIR/infra/docker-compose.yml" ]; then

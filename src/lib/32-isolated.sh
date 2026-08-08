@@ -17,7 +17,7 @@ ISOLATED_CIRCUIT="${ISOLATED_CIRCUIT:-}"
 [ -z "$ISOLATED_CIRCUIT" ] && ISOLATED_CIRCUIT="${OPENCODE_ISOLATED_CIRCUIT:-${OPencode_ISOLATED_CIRCUIT:-}}"
 
 # Normalize to true/false
-case "${ISOLATED_CIRCUIT,,}" in
+case "$(printf '%s' "${ISOLATED_CIRCUIT:-}" | tr '[:upper:]' '[:lower:]')" in
   true|1|yes|on|enabled)  ISOLATED_CIRCUIT="true" ;;
   false|0|no|off|disabled) ISOLATED_CIRCUIT="false" ;;
   "")                      ISOLATED_CIRCUIT="false" ;;  # default: off
@@ -32,11 +32,15 @@ export ISOLATED_CIRCUIT
 # 20-autoupdate.sh also gates on ISOLATED_CIRCUIT to skip systemd timer install.
 
 # ── Local OpenAI-compatible endpoint registry ───────────────────────────────
-declare -A LOCAL_ENDPOINTS=(
-  [ollama]="http://localhost:11434/v1"
-  [vllm]="http://localhost:8000/v1"
-  [sglang]="http://localhost:30000/v1"
-)
+# ── Local endpoint lookup (bash 3.2 compat: case dispatch) ─────────────────
+_get_local_endpoint() {
+  case "${1:-}" in
+    ollama) echo "http://localhost:11434/v1" ;;
+    vllm)   echo "http://localhost:8000/v1" ;;
+    sglang) echo "http://localhost:30000/v1" ;;
+    *)      echo "" ;;
+  esac
+}
 
 # Default local endpoint (overridable via OPENCODE_LOCAL_ENDPOINT or OPencode_LOCAL_ENDPOINT)
 OPENCODE_LOCAL_ENDPOINT="${OPENCODE_LOCAL_ENDPOINT:-${OPencode_LOCAL_ENDPOINT:-http://localhost:11434/v1}}"
@@ -45,8 +49,8 @@ export OPENCODE_LOCAL_ENDPOINT
 # ── Auto-detect available local backends ────────────────────────────────────
 AVAILABLE_LOCAL_BACKENDS=""
 for backend in ollama vllm sglang; do
-  port=$(echo "${LOCAL_ENDPOINTS[$backend]}" | grep -oE ':[0-9]+' | head -1 | tr -d ':')
-  if curl -s "${LOCAL_ENDPOINTS[$backend]}/models" --max-time 2 >/dev/null 2>&1; then
+  port=$(echo "$(_get_local_endpoint "$backend")" | grep -oE ':[0-9]+' | head -1 | tr -d ':')
+  if curl -s "$(_get_local_endpoint "$backend")/models" --max-time 2 >/dev/null 2>&1; then
     AVAILABLE_LOCAL_BACKENDS="$AVAILABLE_LOCAL_BACKENDS $backend"
     log "Local backend detected: $backend (port $port)"
   fi

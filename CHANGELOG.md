@@ -1,5 +1,23 @@
 # Changelog
 
+## [3.1.0] — 2026-08-08
+
+### Core Hardening (Wave A)
+- WAL race protection: `_wal_locked_append()` — flock-based atomic append in helpers.sh, applied to 37-wal.sh and 44-audit.sh
+- Safe-rm guard: `_safe_rm()` — blocks rm -rf on ~/.cache/opencode, HOME, /; logs blocked attempts to WAL
+- Unified error strategy: `_trap_cleanup()` — canonical ERR-trap with _CLEANUP_FILES[] support, configurable via _SETUP_ERROR_STRICT
+- trap ERR applied to 5 download-heavy modules (05-java, 08-go, 09-rust, 10-dotnet, 16-llm)
+- DNS DRY_RUN guard in setup.sh — skips sudo tee in drun-run mode
+
+### macOS bash 3.2 Compatibility (Wave C)
+- Eliminated ALL `declare -A` from codebase: MCP_PACKAGES → parallel indexed arrays + `_mcp_lookup()`, SERVICE_PORTS → `_get_service_port()` case-dispatch, PROVIDER_REGISTRY → `_provider_reg_get()`
+- Bash version detection: `_check_bash_version()` warns for bash < 4 and suggests brew install
+- All 46+ modules pass `bash -n` cleanly
+
+### Tests
+- New: test_wal_race.sh (5 assertions), test_safe_rm.sh (8), test_error_strategy.sh (6), test_bash32_compat.sh (55)
+- Extended: test_dryrun_dns.sh (+4 tests), test_core.sh (MCP registry migrated)
+
 ## [3.0.0] — 2026-08-08
 
 ### Breaking Changes

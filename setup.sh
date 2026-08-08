@@ -388,7 +388,9 @@ section "Network check"
 NET_OK=true
 info "Testing connectivity to key services..."
 
-if [ -f /etc/resolv.conf ] && ! grep -qE '8\.8\.8\.8|1\.1\.1\.1' /etc/resolv.conf 2>/dev/null; then
+if [ "${DRY_RUN:-false}" = "true" ]; then
+  info "[DRY] skip WSL2 DNS fix (8.8.8.8/1.1.1.1)"
+elif [ -f /etc/resolv.conf ] && ! grep -qE '8\.8\.8\.8|1\.1\.1\.1' /etc/resolv.conf 2>/dev/null; then
   info "WSL2: adding Google/Cloudflare DNS fallback"
   echo "nameserver 8.8.8.8" | sudo tee -a /etc/resolv.conf 2>/dev/null || true
   echo "nameserver 1.1.1.1" | sudo tee -a /etc/resolv.conf 2>/dev/null || true

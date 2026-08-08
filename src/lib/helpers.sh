@@ -230,3 +230,128 @@ _download_verify() {
   mv "$tmp" "$dest" && chmod +x "$dest" 2>/dev/null || true
   return 0
 }
+
+# ── WAL atomic append (flock-based) ───────────────────────────────────────────
+# Usage: _wal_locked_append <file> <json_line>
+# Acquires exclusive lock via flock (util-linux) with mkdir-fallback.
+# Creates parent directory. Bash 3.2-compatible (no exec {fd}>).
+# Returns 1 on missing file, 0 otherwise.
+_wal_locked_append() {
+  local file="$1" line="${2:-}"
+  [ -z "$file" ] && { warn "_wal_locked_append: missing file argument"; return 1; }
+  [ -z "$line" ] && return 0  # empty content is no-op
+
+  mkdir -p "$(dirname "$file")" 2>/dev/null || true
+  local lockfile="${file}.lock"
+
+  # Primary: flock with explicit fd 9 (bash 3.2 safe, fd 9 chosen as unlikely collision)
+  if command -v flock &>/dev/null; then
+    (
+      exec 9>>"$lockfile"
+      if flock -w 5 -x 9 2>/dev/null; then
+        printf '%s\n' "$line" >> "$file"
+        exec 9>&-
+        exit 0
+      fi
+      exec 9>&-
+      exit 1
+    ) && return 0
+    warn "_wal_locked_append: flock timeout on $file, trying mkdir fallback"
+  fi
+
+  # Fallback: mkdir-based advisory lock (10 attempts × 0.1s = 1s total)
+  local lockdir="${lockfile}.d" attempt=1 max=10
+  while [ $attempt -le $max ]; do
+    if mkdir "$lockdir" 2>/dev/null; then
+      printf '%s\n' "$line" >> "$file"
+      rmdir "$lockdir" 2>/dev/null
+      return 0
+    fi
+    sleep 0.1
+    attempt=$((attempt + 1))
+  done
+
+  # Last resort: plain append with warning (better than losing data)
+  warn "_wal_locked_append: mkdir lock timeout after ${max}s — appending unlocked to $file"
+  printf '%s\n' "$line" >> "$file"
+  return 0
+}
+
+# ── Safe rm with critical-path guard ──────────────────────────────────────────
+# Usage: _safe_rm <path...>
+# Blocks deletion of: /, $HOME, $HOME/.cache, $HOME/.cache/opencode + subpaths.
+# Allows all other paths (mktemp dirs, /tmp, /usr/local, build/, dist/, etc.).
+# Logs blocked attempts to WAL if _wal_agent_log is available.
+# Returns 1 if any path is blocked (does not delete anything if blocked).
+_safe_rm() {
+  local cache_opencode="${HOME}/.cache/opencode"
+  local p real_p blocked msg
+
+  for p in "$@"; do
+    [ -z "$p" ] && { warn "_safe_rm: empty path argument, skipping"; continue; }
+    blocked=0 msg=""
+
+    # Resolve to absolute path (best-effort)
+    if command -v realpath &>/dev/null; then
+      real_p=$(realpath -m "$p" 2>/dev/null || echo "$p")
+    else
+      case "$p" in
+        /*) real_p="$p" ;;
+        *)  real_p="$(cd "$(dirname "$p")" 2>/dev/null && pwd)/$(basename "$p")" ;;
+      esac
+    fi
+
+    # Guard: critical paths
+    case "$real_p" in
+      "/")                    blocked=1; msg="root filesystem" ;;
+      "$HOME")                blocked=1; msg="HOME directory" ;;
+      "${HOME}/.cache")       blocked=1; msg="~/.cache" ;;
+      "$cache_opencode")      blocked=1; msg="~/.cache/opencode" ;;
+      "${cache_opencode}/"*)  blocked=1; msg="under ~/.cache/opencode" ;;
+    esac
+
+    if [ "$blocked" = "1" ]; then
+      warn "_safe_rm: REFUSED to delete $p ($msg)"
+      command -v _wal_agent_log &>/dev/null && \
+        _wal_agent_log "safe_rm" "blocked: $p ($msg)" "protected path" "1.0" "S1"
+      return 1
+    fi
+  done
+
+  # All paths passed guard — safe to delete
+  rm -rf -- "$@"
+}
+
+# ── Canonical ERR-trap handler ────────────────────────────────────────────────
+# Usage: trap '_trap_cleanup "NN-module"' ERR
+# Saves exit code, reports module:line, logs to WAL, cleans _CLEANUP_FILES[].
+# Configurable via _SETUP_ERROR_STRICT env:
+#   0 (default) = warn + continue (return 0; does NOT swallow set -e on bash<4.4)
+#   1           = exit with saved exit code
+# Bash 3.2-compatible.
+_trap_cleanup() {
+  local code=$?   # MUST be first — capture before any command resets $?
+  local module="${1:-unknown}"
+  local lineno="${BASH_LINENO[0]:-?}"
+
+  # Log to agent WAL if available
+  if command -v _wal_agent_log &>/dev/null; then
+    _wal_agent_log "error" "${module}:${lineno} exit ${code}" "ERR trap fired" "0.9" "S2"
+  fi
+
+  # Clean registered temp files
+  local f
+  for f in "${_CLEANUP_FILES[@]:-}"; do
+    [ -n "$f" ] && [ -e "$f" ] && rm -rf "$f" 2>/dev/null
+  done
+
+  # Error strategy
+  local strict="${_SETUP_ERROR_STRICT:-0}"
+  if [ "$strict" = "1" ]; then
+    warn "${module}:${lineno} FATAL (exit ${code}, _SETUP_ERROR_STRICT=${strict})"
+    exit "$code"
+  fi
+
+  warn "${module}:${lineno} error (exit ${code}) — continuing"
+  return 0
+}

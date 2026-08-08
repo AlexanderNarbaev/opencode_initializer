@@ -12,18 +12,22 @@ SERVICES_DIR="$HOME/.config/opencode"
 mkdir -p "$SERVICES_DIR"
 
 # ── Define available services ─────────────────────────────────────────────
-declare -A INFRA_SERVICE_MAP=(
-  [postgres]="PostgreSQL 17 (port 5432)"
-  [qdrant]="Qdrant vector DB (port 6333)"
-  [redis]="Redis 7 cache (port 6379)"
-  [kafka]="Kafka message broker (port 9092)"
-  [neo4j]="Neo4j graph DB (port 7474)"
-  [minio]="MinIO S3 storage (port 9000)"
-  [prometheus]="Prometheus monitoring (port 9090)"
-  [grafana]="Grafana dashboards (port 3001)"
-  [memorylayer]="MemoryLayer AI memory server (port 61001)"
-  [node_exporter]="Node Exporter system metrics (port 9100)"
-)
+# ── Infrastructure service descriptions (bash 3.2 compat: case dispatch) ──
+_infra_service_desc() {
+  case "${1:-}" in
+    postgres)      echo "PostgreSQL 17 (port 5432)" ;;
+    qdrant)        echo "Qdrant vector DB (port 6333)" ;;
+    redis)         echo "Redis 7 cache (port 6379)" ;;
+    kafka)         echo "Kafka message broker (port 9092)" ;;
+    neo4j)         echo "Neo4j graph DB (port 7474)" ;;
+    minio)         echo "MinIO S3 storage (port 9000)" ;;
+    prometheus)    echo "Prometheus monitoring (port 9090)" ;;
+    grafana)       echo "Grafana dashboards (port 3001)" ;;
+    memorylayer)   echo "MemoryLayer AI memory server (port 61001)" ;;
+    node_exporter) echo "Node Exporter system metrics (port 9100)" ;;
+    *)             echo "" ;;
+  esac
+}
 
 # ── Determine which services to enable ────────────────────────────────────
 ENABLED_SERVICES=""
@@ -39,9 +43,9 @@ if [ -z "$ENABLED_SERVICES" ] && [ "${INTERACTIVE_DO_INFRA:-}" = "true" ]; then
   echo "Infrastructure Services (Docker):"
   echo "  These are shared across all projects on this machine."
   echo ""
-  for svc in "${!INFRA_SERVICE_MAP[@]}"; do
-    read -r -p "  Enable ${INFRA_SERVICE_MAP[$svc]}? [y/N]: " ans
-    if [ "${ans,,}" = "y" ]; then
+  for svc in postgres qdrant redis kafka neo4j minio prometheus grafana memorylayer node_exporter; do
+    read -r -p "  Enable $(_infra_service_desc "$svc")? [y/N]: " ans
+    if [ "$(printf '%s' "${ans:-}" | tr '[:upper:]' '[:lower:]')" = "y" ]; then
       ENABLED_SERVICES="${ENABLED_SERVICES}${svc} "
     fi
   done

@@ -12,9 +12,9 @@ section "Service Configuration"
 # ── Resolve all service ports ──────────────────────────────────────────────
 info "Deployment profile: ${DEPLOYMENT_PROFILE}"
 
-for svc in "${!SERVICE_PORTS[@]}"; do
+for svc in postgres qdrant redis prometheus grafana node_exporter metrics_exporter gui ollama vllm sglang chromadb memorylayer kafka neo4j minio searxng open_webui; do
   mode=$(_service_mode "$svc")
-  default_port="${SERVICE_PORTS[$svc]}"
+  default_port=$(_get_service_port "$svc")
   port=""
 
   case "$mode" in
@@ -23,7 +23,7 @@ for svc in "${!SERVICE_PORTS[@]}"; do
       continue
       ;;
     external)
-      url_var="${svc^^}_EXTERNAL_URL"
+      url_var="$(printf '%s' "$svc" | tr '[:lower:]' '[:upper:]')_EXTERNAL_URL"
       ext_url="${!url_var:-}"
       if [ -f "$SETUP_CONF" ]; then
         # shellcheck disable=SC1090
@@ -32,7 +32,7 @@ for svc in "${!SERVICE_PORTS[@]}"; do
       fi
       if [ -n "$ext_url" ]; then
         info "  ${svc}: external → ${ext_url}"
-        _set_config "${svc^^}_PORT" "0"
+        _set_config "$(printf '%s' "$svc" | tr '[:lower:]' '[:upper:]')_PORT" "0"
       else
         info "  ${svc}: external mode but no URL set — falling back to local"
         mode="local"
@@ -42,8 +42,8 @@ for svc in "${!SERVICE_PORTS[@]}"; do
 
   if [ "$mode" = "local" ]; then
     port=$(_resolve_service_port "$svc" "$default_port")
-    _set_config "${svc^^}_MODE" "local"
-    _set_config "${svc^^}_PORT" "$port"
+    _set_config "$(printf '%s' "$svc" | tr '[:lower:]' '[:upper:]')_MODE" "local"
+    _set_config "$(printf '%s' "$svc" | tr '[:lower:]' '[:upper:]')_PORT" "$port"
     if [ "$port" != "$default_port" ]; then
       info "  ${svc}: port ${port} (shifted from ${default_port})"
     else

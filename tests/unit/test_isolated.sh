@@ -24,7 +24,7 @@ assert "has port 11434" "grep -q '11434' '$C'"
 assert "has port 8000" "grep -q '8000' '$C'"
 assert "has port 30000" "grep -q '30000' '$C'"
 assert "has /models endpoint probe" "grep -q '/models' '$C'"
-assert "has LOCAL_ENDPOINTS registry" "grep -q 'LOCAL_ENDPOINTS' '$C'"
+assert "has _get_local_endpoint registry" "grep -q '_get_local_endpoint' '$C'"
 assert "has true/false normalization" "grep -q 'true.*false' '$C'"
 assert "has default off" "grep -q 'ISOLATED_CIRCUIT.*false' '$C'"
 

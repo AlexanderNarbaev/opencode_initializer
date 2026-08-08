@@ -7,6 +7,19 @@ set -euo pipefail
 # ── Version ──────────────────────────────────────────────────────────────────
 SCRIPT_VERSION="${SCRIPT_VERSION:-v3.0.0}"
 
+# ── Bash version compatibility check ──────────────────────────────────────────
+_BASH_CHECK_DONE="${_BASH_CHECK_DONE:-}"
+_check_bash_version() {
+  [ -n "$_BASH_CHECK_DONE" ] && return 0
+  _BASH_CHECK_DONE=1
+  local major="${BASH_VERSINFO[0]:-0}"
+  if [ "$major" -lt 4 ]; then
+    warn "bash ${BASH_VERSION:-unknown}: limited support (stock macOS 3.2)"
+    info "Recommended: brew install bash"
+  fi
+}
+_check_bash_version
+
 # ── OS validation ────────────────────────────────────────────────────────────
 if [ -f /etc/os-release ]; then
   . /etc/os-release 2>/dev/null || true
@@ -205,32 +218,40 @@ _spin() {
   printf "\r\033[K"
 }
 
-# ── MCP registry (used in install, health check, verification) ─────────────
-declare -A MCP_PACKAGES=(
-  [context7]="c7-mcp-server"
-  [context7-official]="@upstash/context7-mcp"
-  [filesystem]="@modelcontextprotocol/server-filesystem"
-  [agentic-tools]="@pimzino/agentic-tools-mcp"
-  [codegraph]="@colbymchenry/codegraph"
-  [playwright]="@playwright/mcp"
-  [agent-browser]="agent-browser-mcp-server"
-  [loopsense]="@loopsense/mcp"
-  [github]="@modelcontextprotocol/server-github"
-  [postgres]="@modelcontextprotocol/server-postgres"
-  [gitlab]="mcp-server-gitlab"
-  [google-maps]="mcp-server-google-maps"
-  [sequential-thinking]="@modelcontextprotocol/server-sequential-thinking"
-  [memorylayer]="@scitrera/memorylayer-mcp-server"
-  [chrome-devtools]="chrome-devtools-mcp"
-  [memory]="@modelcontextprotocol/server-memory"
-  [redis]="@modelcontextprotocol/server-redis"
-  [brave-search]="brave-search-mcp"
-  [sqlite]="mcp-server-sqlite"
-  [excalidraw]="excalidraw-architect-mcp"
-  [notion]="@notionhq/notion-mcp-server"
-  [websearch]="mcp-searxng"
-  [open-orchestra]="open-orchestra"
-)
+# ── MCP registry (bash 3.2 indexed arrays) ──────────────────────────────────
+MCP_NAMES=()
+MCP_PKGS=()
+_mcp_add() { local i=${#MCP_NAMES[@]}; MCP_NAMES[$i]="$1"; MCP_PKGS[$i]="$2"; }
+_mcp_lookup() {
+  local i
+  for ((i=0; i<${#MCP_NAMES[@]}; i++)); do
+    [ "${MCP_NAMES[$i]}" = "$1" ] && { echo "${MCP_PKGS[$i]}"; return 0; }
+  done
+  return 1
+}
+_mcp_add "context7"              "c7-mcp-server"
+_mcp_add "context7-official"     "@upstash/context7-mcp"
+_mcp_add "filesystem"            "@modelcontextprotocol/server-filesystem"
+_mcp_add "agentic-tools"         "@pimzino/agentic-tools-mcp"
+_mcp_add "codegraph"             "@colbymchenry/codegraph"
+_mcp_add "playwright"            "@playwright/mcp"
+_mcp_add "agent-browser"         "agent-browser-mcp-server"
+_mcp_add "loopsense"             "@loopsense/mcp"
+_mcp_add "github"                "@modelcontextprotocol/server-github"
+_mcp_add "postgres"              "@modelcontextprotocol/server-postgres"
+_mcp_add "gitlab"                "mcp-server-gitlab"
+_mcp_add "google-maps"           "mcp-server-google-maps"
+_mcp_add "sequential-thinking"   "@modelcontextprotocol/server-sequential-thinking"
+_mcp_add "memorylayer"           "@scitrera/memorylayer-mcp-server"
+_mcp_add "chrome-devtools"       "chrome-devtools-mcp"
+_mcp_add "memory"                "@modelcontextprotocol/server-memory"
+_mcp_add "redis"                 "@modelcontextprotocol/server-redis"
+_mcp_add "brave-search"          "brave-search-mcp"
+_mcp_add "sqlite"                "mcp-server-sqlite"
+_mcp_add "excalidraw"            "excalidraw-architect-mcp"
+_mcp_add "notion"                "@notionhq/notion-mcp-server"
+_mcp_add "websearch"             "mcp-searxng"
+_mcp_add "open-orchestra"        "open-orchestra"
 # NOTE: git, fetch, time MCPs are Python packages — installed via uvx/pip (not npm)
 #       mcp-server-git, mcp-server-fetch, mcp-server-time on npm are security canaries!
 
@@ -283,7 +304,7 @@ ISOLATED_CIRCUIT="${ISOLATED_CIRCUIT:-}"
   ISOLATED_CIRCUIT="${ISOLATED_CIRCUIT:-}"
 [ -z "$ISOLATED_CIRCUIT" ] && ISOLATED_CIRCUIT="${OPENCODE_ISOLATED_CIRCUIT:-${OPencode_ISOLATED_CIRCUIT:-}}"
 [ -z "$ISOLATED_CIRCUIT" ] && ISOLATED_CIRCUIT="false"
-case "${ISOLATED_CIRCUIT,,}" in true|1|yes|on|enabled) ISOLATED_CIRCUIT="true";; *) ISOLATED_CIRCUIT="false";; esac
+case "$(printf '%s' "${ISOLATED_CIRCUIT:-}" | tr '[:upper:]' '[:lower:]')" in true|1|yes|on|enabled) ISOLATED_CIRCUIT="true";; *) ISOLATED_CIRCUIT="false";; esac
 export ISOLATED_CIRCUIT
 
 # ── i18n: Russian CLI output if LANG=ru* (R18: Accessibility) ───────────────
@@ -319,7 +340,7 @@ _find_free_port() {
 _resolve_service_port() {
   local svc="$1" default="$2"
   local port=""
-  local env_name="${svc^^}_PORT"
+  local env_name="$(printf '%s' "$svc" | tr '[:lower:]' '[:upper:]')_PORT"
   port="${!env_name:-}"
   if [ -z "$port" ] || [ "$port" = "0" ]; then
     # shellcheck disable=SC1090
@@ -327,14 +348,14 @@ _resolve_service_port() {
   fi
   if [ -z "$port" ] || [ "$port" = "0" ]; then
     port="$(_find_free_port "$default")"
-    _set_config "${svc^^}_PORT" "$port"
+    _set_config "$(printf '%s' "$svc" | tr '[:lower:]' '[:upper:]')_PORT" "$port"
   fi
   echo "$port"
 }
 
 _service_mode() {
   local svc="$1"
-  local mode_var="${svc^^}_MODE"
+  local mode_var="$(printf '%s' "$svc" | tr '[:lower:]' '[:upper:]')_MODE"
   local mode="${!mode_var:-}"
   if [ -z "$mode" ] && [ -f "$SETUP_CONF" ]; then
     # shellcheck disable=SC1090
@@ -342,8 +363,9 @@ _service_mode() {
     mode="${!mode_var:-}"
   fi
   mode="${mode:-local}"
-  case "${mode,,}" in
-    local|external|disabled) echo "${mode,,}" ;;
+  local mode_lower="$(printf '%s' "$mode" | tr '[:upper:]' '[:lower:]')"
+  case "$mode_lower" in
+    local|external|disabled) echo "$mode_lower" ;;
     *) echo "local" ;;
   esac
 }
@@ -365,22 +387,36 @@ DEPLOYMENT_PROFILE="${DEPLOYMENT_PROFILE:-}"
 # shellcheck disable=SC1090
 [ -z "$DEPLOYMENT_PROFILE" ] && [ -f "$SETUP_CONF" ] &&   . "$SETUP_CONF" 2>/dev/null && DEPLOYMENT_PROFILE="${DEPLOYMENT_PROFILE:-}"
 DEPLOYMENT_PROFILE="${DEPLOYMENT_PROFILE:-personal}"
-case "${DEPLOYMENT_PROFILE,,}" in
+case "$(printf '%s' "${DEPLOYMENT_PROFILE:-}" | tr '[:upper:]' '[:lower:]')" in
   personal|corporate|airgapped|hybrid) ;;
   *) DEPLOYMENT_PROFILE="personal" ;;
 esac
 export DEPLOYMENT_PROFILE
 
-declare -A SERVICE_PORTS=(
-  [postgres]=5432     [qdrant]=6333        [redis]=6379
-  [prometheus]=9090   [grafana]=3001       [node_exporter]=9100
-  [metrics_exporter]=9464  [gui]=4200      [ollama]=11434
-  [vllm]=8000          [sglang]=30000
-  [chromadb]=8000     [memorylayer]=61001  [kafka]=9092
-  [neo4j]=7474        [minio]=9000         [searxng]=8888
-  [open_webui]=3300
-)
-export SERVICE_PORTS
+# ── Service port lookup (bash 3.2 case-dispatch) ────────────────────────────
+_get_service_port() {
+  case "${1:-}" in
+    postgres)         echo "5432" ;;
+    qdrant)           echo "6333" ;;
+    redis)            echo "6379" ;;
+    prometheus)       echo "9090" ;;
+    grafana)          echo "3001" ;;
+    node_exporter)    echo "9100" ;;
+    metrics_exporter) echo "9464" ;;
+    gui)              echo "4200" ;;
+    ollama)           echo "11434" ;;
+    vllm)             echo "8000" ;;
+    sglang)           echo "30000" ;;
+    chromadb)         echo "8000" ;;
+    memorylayer)      echo "61001" ;;
+    kafka)            echo "9092" ;;
+    neo4j)            echo "7474" ;;
+    minio)            echo "9000" ;;
+    searxng)          echo "8888" ;;
+    open_webui)       echo "3300" ;;
+    *)                echo "" ;;
+  esac
+}
 
 OPENCODE_LOCAL_ENDPOINT="${OPENCODE_LOCAL_ENDPOINT:-${OPencode_LOCAL_ENDPOINT:-http://localhost:11434/v1}}"
 export OPENCODE_LOCAL_ENDPOINT

@@ -34,13 +34,15 @@ assert "00-core has _find_free_port" "grep -q '_find_free_port' '$CORE'"
 assert "00-core has _resolve_service_port" "grep -q '_resolve_service_port' '$CORE'"
 assert "00-core has _service_mode" "grep -q '_service_mode' '$CORE'"
 assert "00-core has _set_config" "grep -q '_set_config' '$CORE'"
-assert "00-core has SERVICE_PORTS" "grep -q 'SERVICE_PORTS' '$CORE'"
+assert "00-core has _get_service_port" "grep -q '_get_service_port' '$CORE'"
 assert "00-core has DEPLOYMENT_PROFILE" "grep -q 'DEPLOYMENT_PROFILE' '$CORE'"
 
-# ── Verify SERVICE_PORTS covers key services ─────────────────────────────
+# ── Verify _get_service_port covers key services ─────────────────────────
 for svc in postgres qdrant redis prometheus grafana node_exporter metrics_exporter gui ollama; do
-  assert "SERVICE_PORTS has $svc" "grep -q '\[${svc}\]=' '$CORE'"
+  assert "_get_service_port has $svc" "grep -q '${svc})' '$CORE'"
 done
+assert "_get_service_port qdrant=6333" "grep -A1 'qdrant)' '$CORE' | grep -q 6333"
+assert "_get_service_port postgres=5432" "grep -A1 'postgres)' '$CORE' | grep -q 5432"
 
 # ── 33-services is a standalone module used by dev.sh CLI ──────────────────
 DEV="$PROJECT_DIR/dev.sh"

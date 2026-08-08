@@ -144,23 +144,42 @@ def _build_providers():
         "deepinfra": os.environ.get("DEEPINFRA_API_KEY") or secrets.get("DEEPINFRA_API_KEY", ""),
     }
 
-    provider_models = {
-        "deepseek": ("deepseek/deepseek-v4-pro", "deepseek/deepseek-v4-flash"),
-        "zai": ("zai/glm-5.2", "zai/glm-5-turbo"),
-        "openrouter": ("openrouter/deepseek/deepseek-v4-pro", "openrouter/deepseek/deepseek-v4-flash"),
-        "openai": ("openai/gpt-5.5", "openai/gpt-5.4-mini"),
-        "anthropic": ("anthropic/claude-opus-4-8", "anthropic/claude-sonnet-4-6"),
-        "google": ("google/gemini-3.5-flash", "google/gemini-3.1-flash-lite"),
-        "mistral": ("mistral/mistral-large-latest", "mistral/mistral-small-latest"),
-        "groq": ("groq/llama-4-maverick", "groq/llama-4-scout"),
-        "together": ("together/meta-llama/Llama-4-Maverick", "together/meta-llama/Llama-4-Scout"),
-        "xai": ("xai/grok-4.3", "xai/grok-4.20-0309-non-reasoning"),
-        "minimax": ("minimax/MiniMax-M3", "minimax/MiniMax-M3"),
-        "mimo": ("mimo/mimo-v2.5", "mimo/mimo-v2.5"),
-        "perplexity": ("perplexity/sonar-pro", "perplexity/sonar"),
-        "alibaba": ("alibaba/qwen3.7-plus", "alibaba/qwen3.6-flash"),
-        "deepinfra": ("deepinfra/meta-llama/Llama-4-Maverick", "deepinfra/meta-llama/Llama-4-Scout"),
-    }
+    # ── Load provider models from SSOT JSON (with hardcoded fallback) ──────
+    def _model_list_from_json(json_path="src/data/providers.json"):
+        """Read provider→(model, small_model) from providers.json SSOT."""
+        pmodels = {}
+        try:
+            with open(json_path) as f:
+                data = json.load(f)
+            for name, info in data.get("providers", {}).items():
+                model = info.get("model", "")
+                small = info.get("small_model", "") or model
+                if model:
+                    pmodels[name] = (f"{name}/{model}", f"{name}/{small}" if small else f"{name}/{model}")
+        except Exception:
+            pass
+        return pmodels
+
+    provider_models = _model_list_from_json()
+    if not provider_models:
+        # Hardcoded fallback (v3.0 baseline)
+        provider_models = {
+            "deepseek": ("deepseek/deepseek-v4-pro", "deepseek/deepseek-v4-flash"),
+            "zai": ("zai/glm-5.2", "zai/glm-5-turbo"),
+            "openrouter": ("openrouter/deepseek/deepseek-v4-pro", "openrouter/deepseek/deepseek-v4-flash"),
+            "openai": ("openai/gpt-5.5", "openai/gpt-5.4-mini"),
+            "anthropic": ("anthropic/claude-opus-4-8", "anthropic/claude-sonnet-4-6"),
+            "google": ("google/gemini-3.5-flash", "google/gemini-3.1-flash-lite"),
+            "mistral": ("mistral/mistral-large-latest", "mistral/mistral-small-latest"),
+            "groq": ("groq/llama-4-maverick", "groq/llama-4-scout"),
+            "together": ("together/meta-llama/Llama-4-Maverick", "together/meta-llama/Llama-4-Scout"),
+            "xai": ("xai/grok-4.3", "xai/grok-4.20-0309-non-reasoning"),
+            "minimax": ("minimax/MiniMax-M3", "minimax/MiniMax-M3"),
+            "mimo": ("mimo/mimo-v2.5", "mimo/mimo-v2.5"),
+            "perplexity": ("perplexity/sonar-pro", "perplexity/sonar"),
+            "alibaba": ("alibaba/qwen3.7-plus", "alibaba/qwen3.6-flash"),
+            "deepinfra": ("deepinfra/meta-llama/Llama-4-Maverick", "deepinfra/meta-llama/Llama-4-Scout"),
+        }
 
     fallback_chain = ["deepseek", "zai", "groq", "together", "openai", "minimax"]
 

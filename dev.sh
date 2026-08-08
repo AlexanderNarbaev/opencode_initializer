@@ -129,7 +129,7 @@ cmd_remove() {
       ;;
     node)
       _sudo apt-get remove -y nodejs 2>/dev/null
-      rm -rf ~/.n ~/.npm-global 2>/dev/null
+      _safe_rm ~/.n ~/.npm-global 2>/dev/null
       log "Node.js removed"
       ;;
     python)
@@ -143,11 +143,11 @@ cmd_remove() {
       ;;
     rust)
       _sudo apt-get remove -y cargo rustc 2>/dev/null
-      rm -rf ~/.cargo 2>/dev/null
+      _safe_rm ~/.cargo 2>/dev/null
       log "Rust removed"
       ;;
     dotnet)
-      rm -rf ~/.dotnet 2>/dev/null
+      _safe_rm ~/.dotnet 2>/dev/null
       log ".NET removed"
       ;;
     *) warn "Unknown: $pkg (remove manually)" ;;

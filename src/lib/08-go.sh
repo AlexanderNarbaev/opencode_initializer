@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # lib/08-go.sh — Go (latest, STEP 6a)
 set -euo pipefail
+trap '_trap_cleanup "08-go"' ERR
 
 if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) && _gate "INTERACTIVE_DO_GO"; then
   section "Go"

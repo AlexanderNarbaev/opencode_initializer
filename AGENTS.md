@@ -2,7 +2,7 @@
 > **Operating Model:** Multi-Agent Continuous Development Framework v3.0 ([ADR](./docs/architecture/adr/2026-07-18-multi-agent-framework-v3.md))
 > **Current Wave:** [current_wave.md](./current_wave.md) | **Checkpoint:** [session_checkpoint.json](./session_checkpoint.json)
 
-## Status: v3.0.0 — SDD-native AI Harness: air-gap completeness, model governance, PII sanitizer, audit trail, supply-chain hardening, offline bundle, 4 deployment profiles
+## Status: v3.1.0 — Core Hardening: WAL flock, safe-rm, unified error strategy, macOS bash 3.2 compat, SSOT completion
 
 | Phase | Status | Description |
 |-------|--------|-------------|
@@ -11,6 +11,7 @@
 | 2 | Done | Plugin Framework v2 (always/conditional/on-demand) |
 | 3 | Done | Integration tests, CI/CD for new modules |
 | 4 | Done | Cockpit TUI + Observability + Isolated Circuit + Documentation |
+| 5 | Done | v3.1.0 Core Hardening (WAL flock, safe-rm, macOS bash 3.2, SSOT) |
 
 ## Identity
 Universal Dev Machine Bootstrap — AI-Native SDD Harness для WSL2/Linux. 4 deployment profiles: personal, corporate, air-gapped, hybrid.

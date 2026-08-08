@@ -62,8 +62,10 @@ _wal_agent_log() {
   # Compute entry hash: SHA-256(prev + ts + domain + decision + confidence)
   entry_hash=$(echo -n "${prev_hash}${now}${domain}${decision}${confidence}" | sha256sum | awk '{print $1}')
 
-  printf '{"ts":"%s","domain":"%s","decision":"%s","rationale":"%s","impact":%s,"confidence":%s,"mode":"%s","prev_hash":"%s","hash":"%s"}\n' \
-    "$now" "$domain" "$decision" "$rationale" "$impact_json" "$confidence" "$mode" "$prev_hash" "$entry_hash" >> "$WAL_AGENT_FILE"
+  local entry_line
+  entry_line=$(printf '{"ts":"%s","domain":"%s","decision":"%s","rationale":"%s","impact":%s,"confidence":%s,"mode":"%s","prev_hash":"%s","hash":"%s"}' \
+    "$now" "$domain" "$decision" "$rationale" "$impact_json" "$confidence" "$mode" "$prev_hash" "$entry_hash")
+  _wal_locked_append "$WAL_AGENT_FILE" "$entry_line"
 }
 
 # ── WAL rotation: gzip archive when >10MB (S5.2.3.3) ───────────────────────

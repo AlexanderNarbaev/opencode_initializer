@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # lib/05-java.sh — Java 25 LTS via Adoptium + Gradle + Maven + jbang + Zig (STEP 4)
 set -euo pipefail
+trap '_trap_cleanup "05-java"' ERR
 
 if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) && _gate "INTERACTIVE_DO_JAVA"; then
   section "Java 25 LTS + Gradle + Maven + jbang"

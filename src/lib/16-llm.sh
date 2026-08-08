@@ -2,6 +2,10 @@
 # lib/16-llm.sh — GPU/LLM runtimes: Ollama, vLLM, SGLang, Open WebUI (STEP 12b)
 # Requires: MODE
 set -euo pipefail
+trap '_trap_cleanup "16-llm"' ERR
+
+
+
 
 if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]) && _gate "INTERACTIVE_DO_LLM"; then
   section "Local LLM runtimes"

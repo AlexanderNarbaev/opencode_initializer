@@ -29,14 +29,14 @@ HEALTH="$PROJECT_DIR/src/modes/health.sh"
 EXPECTED_MCPS="context7 context7-official filesystem agentic-tools codegraph playwright agent-browser loopsense github postgres gitlab google-maps sequential-thinking memorylayer chrome-devtools memory redis brave-search sqlite excalidraw notion"
 
 for mcp in $EXPECTED_MCPS; do
-  assert "MCP registry includes $mcp" "grep -qE '\[$mcp\]' \"$CORE\""
+  assert "MCP registry includes $mcp" "grep -qE '_mcp_add[[:space:]]+\"$mcp\"' \"$CORE\""
 done
-assert "MCP registry has 22+ entries" "test \$(grep -c '\]=' \"$CORE\") -ge 20"
+assert "MCP registry has 22+ entries" "test \$(grep -c '_mcp_add ' \"$CORE\") -ge 20"
 
 # ── Install coverage ────────────────────────────────────────────────────────
 # Every MCP in registry must have corresponding install handling in 12-mcp-lsp.sh
-assert "12-mcp-lsp.sh iterates registry" "grep -q 'for name in.*MCP_PACKAGES' \"$MCP_INSTALL\""
-assert "12-mcp-lsp.sh calls _mcp" "grep -q '_mcp.*MCP_PACKAGES' \"$MCP_INSTALL\""
+assert "12-mcp-lsp.sh iterates registry" "grep -qE 'for name in.*(MCP_NAMES|MCP_PACKAGES)' \"$MCP_INSTALL\""
+assert "12-mcp-lsp.sh calls _mcp with MCP_NAMES" "grep -q '_mcp' \"$MCP_INSTALL\" && grep -q 'MCP_NAMES' \"$MCP_INSTALL\""
 
 # ── Health check coverage ───────────────────────────────────────────────────
 for mcp in context7 filesystem agentic-tools codegraph playwright agent-browser loopsense github postgres sequential-thinking memorylayer chrome-devtools memory redis brave-search sqlite excalidraw context7-official notion; do

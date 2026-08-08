@@ -98,5 +98,110 @@ CONSTEOF
   log "constitution.md created: $output"
 }
 
+# ── SDD Command Templates ───────────────────────────────────────────────────
+# _sdd_generate_commands <project_dir>
+# Creates .opencode/commands/{tasks,analyze,implement}.sh — standalone SDD lifecycle helpers.
+_sdd_generate_commands() {
+  local project_dir="${1:-$PROJECT_DIR}"
+  local cmd_dir="$project_dir/.opencode/commands"
+
+  [ -z "$project_dir" ] && { warn "sdd-commands: no project dir"; return 1; }
+  mkdir -p "$cmd_dir"
+
+  # ── /tasks — status summary ──────────────────────────────────────────────
+  if [ ! -f "$cmd_dir/tasks.sh" ]; then
+    cat > "$cmd_dir/tasks.sh" << 'TASKSEOF'
+#!/usr/bin/env bash
+# SDD /tasks — parse spec.md and todo.md, show status summary
+set -euo pipefail
+PROJECT_DIR="${1:-${PROJECT_DIR:-$(cd "$(dirname "$0")/../.." && pwd)}}"
+SPEC="$PROJECT_DIR/.opencode/spec.md"
+TODO="$PROJECT_DIR/.opencode/todo.md"
+echo "# Tasks Summary"
+if [ -f "$SPEC" ]; then
+  fr_count=$(grep -c 'FR-' "$SPEC" 2>/dev/null || echo "0")
+  sc_count=$(grep -c 'SC-' "$SPEC" 2>/dev/null || echo "0")
+  echo "## From spec.md:"
+  echo "  FR requirements: $fr_count"
+  echo "  SC scenarios: $sc_count"
+else
+  echo "## spec.md: NOT FOUND"
+fi
+if [ -f "$TODO" ]; then
+  done_count=$(grep -c '\[x\]' "$TODO" 2>/dev/null || echo "0")
+  pending_count=$(grep -c '\- \[ \]' "$TODO" 2>/dev/null || echo "0")
+  echo "## From todo.md:"
+  echo "  Done: $done_count"
+  echo "  Pending: $pending_count"
+else
+  echo "## todo.md: NOT FOUND"
+fi
+TASKSEOF
+    chmod +x "$cmd_dir/tasks.sh"
+    log "SDD command: tasks.sh"
+  fi
+
+  # ── /analyze — divergence check ──────────────────────────────────────────
+  if [ ! -f "$cmd_dir/analyze.sh" ]; then
+    cat > "$cmd_dir/analyze.sh" << 'ANALYZEEOF'
+#!/usr/bin/env bash
+# SDD /analyze — cross-check constitution × spec × todo for divergence
+set -euo pipefail
+PROJECT_DIR="${1:-${PROJECT_DIR:-$(cd "$(dirname "$0")/../.." && pwd)}}"
+CONST="$PROJECT_DIR/memory/constitution.md"
+SPEC="$PROJECT_DIR/.opencode/spec.md"
+TODO="$PROJECT_DIR/.opencode/todo.md"
+issues=0
+echo "# SDD Analysis Report"
+for f in "$CONST" "$SPEC" "$TODO"; do
+  if [ -f "$f" ]; then
+    echo "  [OK] $(basename "$f") exists"
+  else
+    echo "  [MISSING] $(basename "$f")"
+    issues=$((issues + 1))
+  fi
+done
+if [ -f "$SPEC" ] && [ -f "$TODO" ]; then
+  spec_frs=$(grep -oE 'FR-[0-9]+' "$SPEC" 2>/dev/null | sort -u || true)
+  for fr in $spec_frs; do
+    if ! grep -q "$fr" "$TODO" 2>/dev/null; then
+      echo "  [DIVERGENCE] $fr in spec but not in todo"
+      issues=$((issues + 1))
+    fi
+  done
+fi
+echo "Total issues: $issues"
+exit $issues
+ANALYZEEOF
+    chmod +x "$cmd_dir/analyze.sh"
+    log "SDD command: analyze.sh"
+  fi
+
+  # ── /implement — next task selector ──────────────────────────────────────
+  if [ ! -f "$cmd_dir/implement.sh" ]; then
+    cat > "$cmd_dir/implement.sh" << 'IMPLEMENTEOF'
+#!/usr/bin/env bash
+# SDD /implement — find first pending task and show it
+set -euo pipefail
+PROJECT_DIR="${1:-${PROJECT_DIR:-$(cd "$(dirname "$0")/../.." && pwd)}}"
+TODO="$PROJECT_DIR/.opencode/todo.md"
+echo "# Next Task to Implement"
+if [ -f "$TODO" ]; then
+  next=$(grep -m1 '\- \[ \]' "$TODO" 2>/dev/null || true)
+  if [ -n "$next" ]; then
+    echo "$next"
+  else
+    echo "All tasks complete!"
+  fi
+else
+  echo "todo.md not found — run /tasks first"
+fi
+IMPLEMENTEOF
+    chmod +x "$cmd_dir/implement.sh"
+    log "SDD command: implement.sh"
+  fi
+}
+
 # ── Export ───────────────────────────────────────────────────────────────────
 export -f _constitution_generate
+export -f _sdd_generate_commands

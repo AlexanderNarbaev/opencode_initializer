@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # lib/10-dotnet.sh — .NET 10.0.302 SDK (STEP 6c)
 set -euo pipefail
+trap '_trap_cleanup "10-dotnet"' ERR
 
 if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) && _gate "INTERACTIVE_DO_DOTNET"; then
   section ".NET 10.0.302 SDK"

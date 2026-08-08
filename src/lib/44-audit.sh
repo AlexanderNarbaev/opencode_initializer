@@ -52,8 +52,10 @@ _audit_event() {
   event_hash=$(echo -n "${prev_hash}${ts}${event_type}${details}" | sha256sum | awk '{print $1}')
 
   # Write event as JSON line (printf avoids heredoc injection)
-  printf '{"ts":"%s","type":"%s","details":%s,"prev":"%s","hash":"%s"}\n' \
-    "$ts" "$event_type" "$details" "$prev_hash" "$event_hash" >> "$AUDIT_WAL"
+  local entry_line
+  entry_line=$(printf '{"ts":"%s","type":"%s","details":%s,"prev":"%s","hash":"%s"}' \
+    "$ts" "$event_type" "$details" "$prev_hash" "$event_hash")
+  _wal_locked_append "$AUDIT_WAL" "$entry_line"
 }
 
 # ── Rotation: compress and archive when >10MB ────────────────────────────────

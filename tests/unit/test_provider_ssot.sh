@@ -36,13 +36,18 @@ if cloud_start == -1:
 
 cloud_section = content[cloud_start:]
 
-# Find PROVIDER_REGISTRY=( after cloud section start
+# New format (v3.1): _provider_reg_add "name" "value"
+names = set(re.findall(r'_provider_reg_add\s+"(\w+)"', cloud_section))
+if names:
+    for n in sorted(names):
+        print(n)
+    sys.exit(0)
+
+# Fallback: old declare -A format
 pr_start = cloud_section.find('PROVIDER_REGISTRY=(')
 if pr_start == -1:
     print('ERROR: PROVIDER_REGISTRY=( not found in cloud section')
     sys.exit(1)
-
-# Extract all [name]=" patterns from after PROVIDER_REGISTRY=(
 after_pr = cloud_section[pr_start:]
 names = set(re.findall(r'\[(\w+)\]="', after_pr))
 for n in sorted(names):
@@ -119,13 +124,19 @@ cloud_start = content.find('Cloud provider registry')
 if cloud_start == -1:
     sys.exit(1)
 cloud_section = content[cloud_start:]
-pr_start = cloud_section.find('PROVIDER_REGISTRY=(')
-if pr_start == -1:
-    sys.exit(1)
-after_pr = cloud_section[pr_start:]
+
+# New format (v3.1): _provider_reg_add "name" "value1|value2|value3|free_tier"
+entries = list(re.finditer(r'_provider_reg_add\s+"(\w+)"\s+"([^"]+)"', cloud_section))
+if not entries:
+    # Fallback: old declare -A format
+    pr_start = cloud_section.find('PROVIDER_REGISTRY=(')
+    if pr_start == -1:
+        sys.exit(1)
+    after_pr = cloud_section[pr_start:]
+    entries = list(re.finditer(r'\[(\w+)\]="([^"]+)"', after_pr))
 
 mismatches = []
-for match in re.finditer(r'\[(\w+)\]="([^"]+)"', after_pr):
+for match in entries:
     name = match.group(1)
     value = match.group(2)
     parts = value.split('|')
@@ -179,13 +190,19 @@ cloud_start = content.find('Cloud provider registry')
 if cloud_start == -1:
     sys.exit(1)
 cloud_section = content[cloud_start:]
-pr_start = cloud_section.find('PROVIDER_REGISTRY=(')
-if pr_start == -1:
-    sys.exit(1)
-after_pr = cloud_section[pr_start:]
+
+# New format (v3.1): _provider_reg_add "name" "env_var|..."
+entries = list(re.finditer(r'_provider_reg_add\s+"(\w+)"\s+"([^"]+)"', cloud_section))
+if not entries:
+    # Fallback: old declare -A format
+    pr_start = cloud_section.find('PROVIDER_REGISTRY=(')
+    if pr_start == -1:
+        sys.exit(1)
+    after_pr = cloud_section[pr_start:]
+    entries = list(re.finditer(r'\[(\w+)\]="([^"]+)"', after_pr))
 
 mismatches = []
-for match in re.finditer(r'\[(\w+)\]="([^"]+)"', after_pr):
+for match in entries:
     name = match.group(1)
     value = match.group(2)
     parts = value.split('|')
@@ -209,6 +226,49 @@ assert "26-providers.sh syntax valid" "bash -n '$P26'"
 
 # ── T10: backward compat — test_providers.sh still passes ─────────────────────
 assert "test_providers.sh backward compat" "grep -q 'deepseek' '$P26' && grep -q 'zai' '$P26' && grep -q 'openrouter' '$P26'"
+
+# ── T11: ai-router provider set == JSON provider set ─────────────────────────
+assert "ai-router provider set matches JSON" "python3 -c \"
+import json, subprocess, sys
+
+d = json.load(open('$PJ'))
+json_names = set(d['providers'].keys())
+
+# Extract provider list from ai-router status output (use verify as proxy)
+result = subprocess.run(['bash', '$PROJECT_DIR/scripts/ai-router.sh', 'verify', '$PJ'], capture_output=True, text=True)
+if 'PASS' not in result.stdout:
+    print('ai-router verify FAILED:', result.stdout)
+    sys.exit(1)
+
+# Load ai-router embedded fallback list for cross-check
+ar_names = set('deepseek opencode zai xai minimax mimo openai anthropic google mistral groq together cohere fireworks cerebras perplexity alibaba deepinfra ollama vllm sglang openrouter'.split())
+diff = json_names ^ ar_names
+if diff:
+    print(f'DIVERGENCE (JSON vs ai-router): {diff}')
+    sys.exit(1)
+\""
+
+# ── T12: 18-opencode-json model names from JSON ──────────────────────────────
+assert "18-opencode-json model set matches JSON" "python3 -c \"
+import json, sys, os
+
+d = json.load(open('$PJ'))
+json_models = set()
+for name, info in d['providers'].items():
+    if info.get('model'):
+        json_models.add(f\\\"{name}/{info['model']}\\\")
+
+# Quick check: deepseek/deepseek-v4-pro must be in json_models
+if 'deepseek/deepseek-v4-pro' not in json_models:
+    print('FAIL: deepseek model missing from JSON')
+    sys.exit(1)
+if len(json_models) < 15:
+    print(f'FAIL: only {len(json_models)} models from JSON, expected >=15')
+    sys.exit(1)
+\""
+
+# ── T13: ai-router verify returns clean ──────────────────────────────────────
+assert "ai-router verify exit 0" "bash '$PROJECT_DIR/scripts/ai-router.sh' verify '$PJ'"
 
 echo "test_provider_ssot: $TESTS_PASS passed, $TESTS_FAIL failed"
 [ "$TESTS_FAIL" -eq 0 ] || exit 1

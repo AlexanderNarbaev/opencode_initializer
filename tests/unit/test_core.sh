@@ -84,11 +84,11 @@ assert "_step_done defined" 'grep -q "_step_done()" "'"$C"'"'
 assert "_spin defined" 'grep -q "_spin()" "'"$C"'"'
 
 # ── MCP registry ────────────────────────────────────────────────────────
-assert "MCP_PACKAGES declared" 'grep -q "MCP_PACKAGES=" "'"$C"'"'
+assert "MCP registry declared" 'grep -q "_mcp_add" "'"$C"'"'
 for mcp in context7 filesystem agentic-tools codegraph playwright agent-browser loopsense github postgres gitlab google-maps sequential-thinking memorylayer chrome-devtools; do
-  assert "MCP registry includes $mcp" "grep -qE '\['\"$mcp\"'\]' \"$C\""
+  assert "MCP registry includes $mcp" "grep -qE '_mcp_add[[:space:]]+\"$mcp\"' \"$C\""
 done
-assert "MCP registry has 14+ entries" "test \$(grep -c '\]=' \"$C\") -ge 14"
+assert "MCP registry has 14+ entries" "test \$(grep -c '_mcp_add ' \"$C\") -ge 14"
 
 # ── Interactive gate ─────────────────────────────────────────────────────
 assert "_gate defined" 'grep -q "_gate()" "'"$C"'"'
@@ -112,6 +112,17 @@ assert "RUSTUP_DIST_SERVER export"  'grep -q "export RUSTUP_DIST_SERVER" "'"$C"'
 # ── _set_dns / _install_ca_certs ────────────────────────────────────────
 assert "_set_dns defined"          'grep -q "_set_dns()" "'"$C"'"'
 assert "_install_ca_certs defined" 'grep -q "_install_ca_certs()" "'"$C"'"'
+
+# ── _check_bash_version ───────────────────────────────────────────────────
+assert "_check_bash_version defined" 'grep -q "_check_bash_version()" "'"$C"'"'
+# BASH_VERSINFO is a built-in readonly array — cannot mock. Verify no warning on bash 5.x:
+core_no_warn=$(bash -c 'source "'"$C"'"' 2>&1 || true)
+assert "bash 5.x no version warning" '! echo "$core_no_warn" | grep -q "limited support"'
+
+# ── Bash version detection ────────────────────────────────────────────────
+assert "_check_bash_version defined" 'grep -q "_check_bash_version()" "'"$C"'"'
+assert "BASH_VERSINFO check present" 'grep -q "BASH_VERSINFO" "'"$C"'"'
+assert "brew install bash hint" 'grep -q "brew install bash" "'"$C"'"'
 
 # ── Summary ──────────────────────────────────────────────────────────────
 echo

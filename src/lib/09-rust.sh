@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # lib/09-rust.sh — Rust via rustup (STEP 6b)
 set -euo pipefail
+trap '_trap_cleanup "09-rust"' ERR
 
 if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) && _gate "INTERACTIVE_DO_RUST"; then
   section "Rust"

@@ -9,8 +9,8 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
 
   _mcp() { _npm_install "$1" "$2"; }
 
-  for name in "${!MCP_PACKAGES[@]}"; do
-    _mcp "${MCP_PACKAGES[$name]}" "$name" || true
+  for name in "${MCP_NAMES[@]}"; do
+    _mcp "$(_mcp_pkg_lookup "$name")" "$name" || true
   done
 
   # Open-Orchestra — multi-agent orchestrator (bun cold-start preferred)
@@ -281,8 +281,8 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
   _mcp_miss=0
   _lsp_ok=0
   _lsp_miss=0
-  for mcp_name in "${!MCP_PACKAGES[@]}"; do
-    mcp_bin="${MCP_PACKAGES[$mcp_name]}"
+  for mcp_name in "${MCP_NAMES[@]}"; do
+    mcp_bin="$(_mcp_pkg_lookup "$mcp_name")"
     if [ -x "$HOME/.bun/bin/$mcp_bin" ] || which "$mcp_bin" &>/dev/null || which "$mcp_name" &>/dev/null; then
       _mcp_ok=$((_mcp_ok + 1))
       # Quick version/help check for healthy installs
