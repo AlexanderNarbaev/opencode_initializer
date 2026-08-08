@@ -764,4 +764,4 @@ DOCKEREOF
     log "docker-compose.yml created"
   fi
   _step_done step_project
-fi
+fi  # ── closes outer MODE check from line 6
