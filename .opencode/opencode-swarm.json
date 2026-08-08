@@ -1,1 +1,16 @@
-{}
+{
+  "version": 1,
+  "agents": {
+    "architect": { "model": "opencode/big-pickle" },
+    "explorer": { "model": "opencode/big-pickle" },
+    "sme": { "model": "opencode/big-pickle" },
+    "researcher": { "model": "opencode/big-pickle" },
+    "coder": { "model": "opencode/minimax-m2.5-free" },
+    "reviewer": { "model": "opencode/big-pickle" },
+    "test_engineer": { "model": "opencode/gpt-5-nano" },
+    "docs": { "model": "opencode/big-pickle" },
+    "skill_improver": { "model": "opencode/big-pickle" },
+    "spec_writer": { "model": "opencode/big-pickle" },
+    "critic": { "model": "opencode/big-pickle" }
+  }
+}
