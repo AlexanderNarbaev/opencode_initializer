@@ -1,8 +1,10 @@
 # Current Wave Status
 
-> Last updated: 2026-08-03T22:08:00Z
+> Last updated: 2026-08-08T10:07:00Z
 
-## Status: ✅ COMPLETE (pending commit)
+## Status: ✅ COMPLETE
+
+Committed as `0eff737`, pushed to github+gitverse.
 
 ## Active Task
 - **Wave:** v2.0.2 — Remove Moonshot/Kimi + LiteLLM, streamline proxy dependencies
@@ -27,3 +29,7 @@
   - [x] docs/VERSIONS.md (Moonshot endpoint, rag-system row), README, 12 live docs files (en+ru) cleaned
   - [x] SCRIPT_VERSION → v2.0.2; CHANGELOG [2.0.1] + [2.0.2]; session_checkpoint.json refreshed
   - [x] dist/ added to .gitignore
+
+## Next Wave: v2.0.3 — Deep-research findings implementation
+- Source: docs/research/deep-research-2026-08-03.md (10 findings: 4 HIGH / 4 MEDIUM / 2 LOW)
+- Status: IN PROGRESS
