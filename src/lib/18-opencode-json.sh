@@ -93,7 +93,7 @@ def _build_providers():
     providers = {}
 
     isolated = os.environ.get("ISOLATED_CIRCUIT", "false").lower() in ("true", "1", "yes", "on")
-    local_endpoint = os.environ.get("OPencode_LOCAL_ENDPOINT", "http://localhost:4000/v1")
+    local_endpoint = os.environ.get("OPENCODE_LOCAL_ENDPOINT") or os.environ.get("OPencode_LOCAL_ENDPOINT") or "http://localhost:4000/v1"
 
     if isolated:
         # ── Isolated Circuit: local OpenAI-compatible providers only ─────────
@@ -389,6 +389,40 @@ plugins = ["opencode-codegraph"]
 plugin_registry_path = os.path.join(home, ".config", "opencode", "plugins.json")
 project_override = os.path.join(os.environ.get("PROJECT_DIR", os.path.join(home, "projects")), ".opencode", "plugins.json")
 
+# Built-in default: when no registry file exists, include all known plugins
+# (design intent from commit 4a665b6 — "without plugins.json, all plugins included as before")
+_DEFAULT_ALL_PLUGINS = [
+    "opencode-codegraph",
+    "opencode-goal-mode",
+    "opencode-swarm",
+    "open-orchestra",
+    "@tarquinen/opencode-dcp",
+    "opencode-background-agents",
+    "opencode-devcontainers",
+    "opencode-worktree",
+    "opencode-daytona",
+    "opencode-scheduler",
+    "opencode-conductor",
+    "opencode-token-tracker",
+    "opencode-vibeguard",
+    "opencode-supermemory",
+    "opencode-notify",
+    "opencode-pty",
+    "opencode-ignore",
+    "opencode-snip",
+    "opencode-snippets",
+    "envsitter-guard",
+    "opencode-command-inject",
+    "opencode-auto-fallback",
+    "opencode-goal-plugin",
+    "opencode-zellij-namer",
+    "@zenobius/opencode-skillful",
+    "@morphllm/opencode-morph-plugin",
+    "@lyculs/opencode-firecrawl",
+    "opencode-websearch-cited",
+    "@devtheops/opencode-plugin-otel",
+]
+
 def load_plugin_registry():
     registry = {"tiers": {"always": [], "conditional": {}, "on_demand": []}}
     if os.path.exists(plugin_registry_path):
@@ -410,6 +444,10 @@ def load_plugin_registry():
                         for pkg, cfg in data["tiers"]["conditional"].items():
                             registry["tiers"]["conditional"][pkg] = cfg
         except: pass
+    # Fallback: when no registry file exists, include ALL known plugins.
+    # Design intent: "without plugins.json, all plugins included as before" (commit 4a665b6).
+    if not os.path.exists(plugin_registry_path) and not os.path.exists(project_override):
+        registry["tiers"]["always"] = _DEFAULT_ALL_PLUGINS
     return registry
 
 def check_dep(name):

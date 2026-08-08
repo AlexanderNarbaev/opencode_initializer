@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# src/modes/health.sh — health check mode (115+ checks, 11 sections)
+# src/modes/health.sh — health check mode (128+ checks, 12 sections)
 # Sources: src/lib/helpers.sh, src/lib/00-core.sh must be sourced before
 set -euo pipefail
 
@@ -129,6 +129,18 @@ _check "open-webui (docker)" "docker ps --format '{{.Names}}' 2>/dev/null | grep
 _check "opencode-update.timer" "systemctl --user is-active opencode-update.timer &>/dev/null"
 _check "docker.service"     "systemctl is-active docker &>/dev/null"
 _check "search-sanitizer.service" "systemctl --user is-active search-sanitizer.service &>/dev/null"
+
+section "Infrastructure & Platform"
+_check "cockpit binary"      "[ -x ~/.local/bin/cockpit ]"
+_check "Isolated Circuit"    "grep -q 'ISOLATED_CIRCUIT=true' ~/.config/opencode-setup/setup.conf 2>/dev/null"
+_check "Services config"     "[ -f ~/.config/opencode-setup/setup.conf ]"
+_check "GUI service"         "systemctl --user is-active opencode-gui.service &>/dev/null"
+_check "plugins.json registry" "[ -f ~/.config/opencode/plugins.json ]"
+_check "Infra compose"        "[ -f ~/.config/opencode/infra.yml ]"
+_check "Grafana container"    "docker ps --format '{{.Names}}' 2>/dev/null | grep -q grafana"
+_check "Model router"        "[ -f ~/.config/opencode/model-router/recommend.sh ]"
+_check "Embed proxy"         "[ -x ~/.local/bin/embed-proxy ]"
+_check "Provider check script" "[ -x ~/opencode_initializer/scripts/provider-check.sh ]"
 
 section "Web Search (SearXNG)"
 _check "SearXNG container"  "docker ps --format '{{.Names}}' 2>/dev/null | grep -q searxng"

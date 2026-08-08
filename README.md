@@ -28,6 +28,9 @@ One command installs everything: 8 languages, 43 infrastructure modules, 24 MCP 
 
 [Full Documentation](https://alexandernarbaev.github.io/opencode_initializer/)
 
+> **macOS users:** Requires `bash>=4` and `grep` with `-E` support (GNU grep). Install via `brew install bash grep`.
+> Associative arrays (`declare -A`) require bash>=4; macOS stock bash 3.2 needs `brew install bash`.
+
 ## Feature Grid
 
 | Category | Count | Details |
@@ -275,7 +278,7 @@ REDIS_MODE=disabled
 | `--github-token <token>` | GitHub personal access token |
 | `--gitlab-token <token>` | GitLab personal access token |
 | `--google-maps-key <key>` | Google Maps API key |
-| `-s, --sudo-pass <pass>` | Sudo password (cached) |
+| `-s, --sudo-pass <pass>` | **[DEPRECATED]** Use `SUDO_PASS` env or interactive `read -s` |
 | `-p, --project-dir <dir>` | Project directory (default: ~/projects) |
 | `-n, --git-name <name>` | Git user name |
 | `-e, --git-email <email>` | Git user email |

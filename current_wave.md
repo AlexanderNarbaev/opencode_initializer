@@ -1,35 +1,29 @@
 # Current Wave Status
 
-> Last updated: 2026-08-08T10:07:00Z
+> Last updated: 2026-08-08T10:21:51Z
 
 ## Status: ✅ COMPLETE
 
-Committed as `0eff737`, pushed to github+gitverse.
+## Active Wave
+- **Wave:** v2.0.3 — Deep-research findings implementation
+- **Source:** docs/research/deep-research-2026-08-03.md (10 findings: 4 HIGH / 4 MEDIUM / 2 LOW)
 
-## Active Task
-- **Wave:** v2.0.2 — Remove Moonshot/Kimi + LiteLLM, streamline proxy dependencies
-- **Task:** Complete removal from all configs, scripts, services — DONE
+## Completed in v2.0.3
 
-## Protection
-- **Fragile zones:** src/lib/18-opencode-json.sh (provider config), src/lib/36-model-router.sh (routing profiles)
+### HIGH
+- [x] #1 Plugins registry regression — default plugins.json creation in 17-project.sh
+- [x] #2 v2.0.2 migration — migrations/20260808-v2.0.2-remove-moonshot.sh
+- [x] #3 Sudo password deprecation — -s flag deprecated, SUDO_PASS env preferred
+- [x] #4 macOS grep -P fix — ERE replacements in 8 files + docs
 
-## Completed in this wave
-- [x] Moonshot/Kimi/LiteLLM removed from all 9 opencode.json configs
-- [x] litellm uninstalled from pipx
-- [x] kimi-proxy + litellm systemd services stopped/disabled/removed
-- [x] Project scripts cleaned (kimi-anthropic-proxy.py, litellm-force-temp.py, kimi.sh)
-- [x] Module files removed (25-litellm.sh, 39-kimi-proxy.sh)
-- [x] Provider registry updated (AGENTS.md, dev.sh, setup.sh)
-- [x] **Audit 2026-08-03 follow-ups** ([docs/research/audit-2026-08-03.md](./docs/research/audit-2026-08-03.md)):
-  - [x] Test harness gate: 23 test files gained exit-on-failure; 7 silent failures surfaced and fixed
-  - [x] Dead modules wired into setup.sh: 31-cockpit.sh, 32-isolated.sh, 33-services.sh (TOTAL_STEPS=41)
-  - [x] Stale kimi assertions in test_model_router.sh replaced (deepseek/glm reality)
-  - [x] Root opencode.json: dangling zai fallback refs removed; fallback-consistency invariant added to test_providers.sh
-  - [x] LiteLLM check removed from health.sh; dev.sh recommendation updated
-  - [x] docs/VERSIONS.md (Moonshot endpoint, rag-system row), README, 12 live docs files (en+ru) cleaned
-  - [x] SCRIPT_VERSION → v2.0.2; CHANGELOG [2.0.1] + [2.0.2]; session_checkpoint.json refreshed
-  - [x] dist/ added to .gitignore
+### MEDIUM
+- [x] #5 Trivy CI exit-code — blocking (1) + advisory (0, continue-on-error)
+- [x] #7 Test coverage — 9 new test files for uncovered modules
+- [x] #8 OPencode_* env naming — OPENCODE_* canonical, OPencode_* fallback
 
-## Next Wave: v2.0.3 — Deep-research findings implementation
-- Source: docs/research/deep-research-2026-08-03.md (10 findings: 4 HIGH / 4 MEDIUM / 2 LOW)
-- Status: IN PROGRESS
+### LOW
+- [x] #9 dev doctor — cmd_doctor() wired
+- [x] #10 Health checks — +2 new checks (model router, embed proxy), 128+ total
+
+## Previous Waves (Archived)
+See git history for v2.0.0, v2.0.1, v2.0.2.

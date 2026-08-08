@@ -19,5 +19,19 @@ jobs:
           scan-ref: '.'
           severity: 'CRITICAL,HIGH'
           ignore-unfixed: true
+          exit-code: '1'
+          format: 'table'
+  trivy-advisory:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Trivy advisory scan (non-blocking)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
           exit-code: '0'
           format: 'table'

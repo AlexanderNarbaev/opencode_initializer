@@ -44,7 +44,7 @@ command -v rustup &>/dev/null && rustup update 2>/dev/null && log "Rust toolchai
 
 section "UPGRADE: Go"
 if command -v go &>/dev/null; then
-  GO_CURRENT=$(go version 2>/dev/null | grep -oP 'go\K[0-9.]+' | head -1)
+  GO_CURRENT=$(go version 2>/dev/null | grep -oE 'go[0-9.]+' | sed 's/^go//' | head -1)
   GO_MINOR=$(echo "$GO_CURRENT" | cut -d. -f2)
   GO_LATEST=$(curl -s --connect-timeout 10 --retry 3 'https://go.dev/VERSION?m=text' 2>/dev/null | head -1 | tr -d 'go \n' || echo "1.26.4")
   if [ "$GO_MINOR" -lt 26 ] 2>/dev/null; then

@@ -5,7 +5,7 @@
 set -euo pipefail
 
 # ── Version ──────────────────────────────────────────────────────────────────
-SCRIPT_VERSION="${SCRIPT_VERSION:-v2.0.2}"
+SCRIPT_VERSION="${SCRIPT_VERSION:-v2.0.3}"
 
 # ── OS validation ────────────────────────────────────────────────────────────
 if [ -f /etc/os-release ]; then
@@ -280,7 +280,7 @@ ISOLATED_CIRCUIT="${ISOLATED_CIRCUIT:-}"
 [ -z "$ISOLATED_CIRCUIT" ] && [ -f "$HOME/.config/opencode-setup/setup.conf" ] && \
   . "$HOME/.config/opencode-setup/setup.conf" 2>/dev/null && \
   ISOLATED_CIRCUIT="${ISOLATED_CIRCUIT:-}"
-[ -z "$ISOLATED_CIRCUIT" ] && ISOLATED_CIRCUIT="${OPencode_ISOLATED_CIRCUIT:-}"
+[ -z "$ISOLATED_CIRCUIT" ] && ISOLATED_CIRCUIT="${OPENCODE_ISOLATED_CIRCUIT:-${OPencode_ISOLATED_CIRCUIT:-}}"
 [ -z "$ISOLATED_CIRCUIT" ] && ISOLATED_CIRCUIT="false"
 case "${ISOLATED_CIRCUIT,,}" in true|1|yes|on|enabled) ISOLATED_CIRCUIT="true";; *) ISOLATED_CIRCUIT="false";; esac
 export ISOLATED_CIRCUIT
@@ -381,5 +381,5 @@ declare -A SERVICE_PORTS=(
 )
 export SERVICE_PORTS
 
-OPencode_LOCAL_ENDPOINT="${OPencode_LOCAL_ENDPOINT:-http://localhost:11434/v1}"
-export OPencode_LOCAL_ENDPOINT
+OPENCODE_LOCAL_ENDPOINT="${OPENCODE_LOCAL_ENDPOINT:-${OPencode_LOCAL_ENDPOINT:-http://localhost:11434/v1}}"
+export OPENCODE_LOCAL_ENDPOINT

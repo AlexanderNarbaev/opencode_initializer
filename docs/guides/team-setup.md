@@ -186,11 +186,13 @@ wsl --shutdown
 
 ### Sudo password prompts
 
-Cache your sudo password for non-interactive runs:
+The `-s` flag is deprecated. For non-interactive runs, use the `SUDO_PASS` environment variable:
 
 ```bash
-bash setup.sh --full -s "your-sudo-password"
+SUDO_PASS="your-sudo-password" bash setup.sh --full
 ```
+
+For interactive runs, `setup.sh` prompts via `read -s`.
 
 ### Low disk space
 

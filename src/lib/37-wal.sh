@@ -15,7 +15,7 @@ _wal_init() {
 
   # Preserve previous progress for resume
   if [ -f "$WAL_FILE" ]; then
-    previous_done=$(grep -oP 'DONE: \K\d+' "$WAL_FILE" 2>/dev/null || echo "0")
+    previous_done=$(grep -oE 'DONE: [0-9]+' "$WAL_FILE" 2>/dev/null | grep -oE '[0-9]+' || echo "0")
   fi
 
   cat > "$WAL_FILE" <<WALEOF
@@ -57,6 +57,6 @@ _wal_agent_log() {
 
 if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]; then
   _wal_init
-  _done=$(grep -oP 'DONE: \K\d+' "$WAL_FILE" 2>/dev/null || echo "0")
+  _done=$(grep -oE 'DONE: [0-9]+' "$WAL_FILE" 2>/dev/null | grep -oE '[0-9]+' || echo "0")
   log "WAL resume: ${_done}/${WAL_TOTAL_MODULES} modules done"
 fi

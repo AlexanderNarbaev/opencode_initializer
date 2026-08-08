@@ -186,11 +186,13 @@ wsl --shutdown
 
 ### Запросы пароля sudo
 
-Закэшируйте пароль sudo для неинтерактивного запуска:
+Флаг `-s` устарел. Для неинтерактивного запуска используйте переменную окружения `SUDO_PASS`:
 
 ```bash
-bash setup.sh --full -s "your-sudo-password"
+SUDO_PASS="your-sudo-password" bash setup.sh --full
 ```
+
+При интерактивном запуске `setup.sh` запрашивает пароль через `read -s`.
 
 ### Недостаточно места на диске
 

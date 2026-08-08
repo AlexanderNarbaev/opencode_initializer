@@ -5,6 +5,27 @@ All notable changes to opencode_initializer will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.3] — 2026-08-08
+
+### Fixed
+- **Plugins regression on clean install** — 17-project.sh now writes default `~/.config/opencode/plugins.json` with 25 plugins in tiers (5 always / 9 conditional / 11 on-demand) when registry is absent
+- **Missing v2.0.2 migration** — new `migrations/20260808-v2.0.2-remove-moonshot.sh`: stops kimi-proxy/litellm systemd services, pipx uninstall, config cleanup, opencode.json regeneration
+- **Sudo password CLI flag deprecated** — `-s`/`--sudo-pass` marked deprecated; `SUDO_PASS` env var as preferred path; docs updated (ru+en)
+- **macOS grep -P + bash4 support** — all `grep -oP` (PCRE) patterns migrated to `grep -oE` (ERE) with `sed`/`awk` fallbacks across 8 files; macOS requirements documented in README + AGENTS.md
+- **Trivy CI exit-code** — `.github/workflows/security.yml`: blocking job with `exit-code: '1'` + non-blocking advisory job with `continue-on-error: true`
+- **OPencode_* env naming unified** — canonical `OPENCODE_*` prefix with `OPencode_*` as deprecated backward-compat fallback across 5 modules
+- **Uncovered module tests** — 9 new test files: java, chromadb, rag, dotfiles, mise, best-practices, upstream-sync, sync-providers (Python), sync-agents (Python)
+- **Health mode coverage** — +2 new checks: model router, embed proxy; total 128+ checks in 12 sections
+- **dev doctor** — `cmd_doctor()` wired for pre-session provider & model validation
+
+### Added
+- `dev doctor` CLI command for pre-session checks
+- macOS documentation: bash>=4 + GNU grep requirements, `declare -A` known limitation
+
+
+### Security
+- Sudo password no longer accepted via CLI flag (prevents `ps`/history leakage)
+
 ## [2.0.2] — 2026-08-03
 
 ### Removed

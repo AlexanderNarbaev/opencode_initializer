@@ -12,9 +12,9 @@ if [ "${ISOLATED_CIRCUIT:-false}" = "true" ]; then
 
   declare -A PROVIDER_REGISTRY
   PROVIDER_REGISTRY=(
-    [ollama]="OPencode_LOCAL_ENDPOINT|--local-endpoint|Ollama (local)|yes"
-    [vllm]="OPencode_LOCAL_ENDPOINT|--local-endpoint|vLLM (local)|yes"
-    [sglang]="OPencode_LOCAL_ENDPOINT|--local-endpoint|SGLang (local)|yes"
+    [ollama]="OPENCODE_LOCAL_ENDPOINT|--local-endpoint|Ollama (local)|yes"
+    [vllm]="OPENCODE_LOCAL_ENDPOINT|--local-endpoint|vLLM (local)|yes"
+    [sglang]="OPENCODE_LOCAL_ENDPOINT|--local-endpoint|SGLang (local)|yes"
   )
 
   AVAILABLE_PROVIDERS=""
@@ -61,15 +61,17 @@ PROVIDER_REGISTRY=(
   [perplexity]="PERPLEXITY_API_KEY|--perplexity-key|Perplexity (online search)|no"
   [alibaba]="ALIBABA_API_KEY|--alibaba-key|Alibaba Qwen3.7 Plus|yes"
   [deepinfra]="DEEPINFRA_API_KEY|--deepinfra-key|DeepInfra (fast inference)|yes"
-  [ollama]="OPencode_LOCAL_ENDPOINT|--local-endpoint|Ollama (localhost:11434)|yes"
-  [vllm]="OPencode_LOCAL_ENDPOINT|--local-endpoint|vLLM (localhost:8000)|yes"
-  [sglang]="OPencode_LOCAL_ENDPOINT|--local-endpoint|SGLang (localhost:30000)|yes"
+  [ollama]="OPENCODE_LOCAL_ENDPOINT|--local-endpoint|Ollama (localhost:11434)|yes"
+  [vllm]="OPENCODE_LOCAL_ENDPOINT|--local-endpoint|vLLM (localhost:8000)|yes"
+  [sglang]="OPENCODE_LOCAL_ENDPOINT|--local-endpoint|SGLang (localhost:30000)|yes"
 )
 
 AVAILABLE_PROVIDERS=""
 for provider in "${!PROVIDER_REGISTRY[@]}"; do
   IFS='|' read -r env_var _cli_flag _desc _free <<< "${PROVIDER_REGISTRY[$provider]}"
   key_val="${!env_var:-}"
+  # Backward compat: try OPencode_* fallback when OPENCODE_* not set
+  [ -z "$key_val" ] && [ "$env_var" = "OPENCODE_LOCAL_ENDPOINT" ] && key_val="${OPencode_LOCAL_ENDPOINT:-}"
   if [ -z "$key_val" ] && [ -f "$HOME/.local/share/opencode/auth.json" ]; then
     key_val=$(python3 -c "
 import json

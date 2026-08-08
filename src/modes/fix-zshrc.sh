@@ -88,5 +88,5 @@ if [ -f "$P10K_FILE" ]; then
   log "P10k instant prompt: verbose → quiet"
 fi
 
-log "~/.zshrc repair complete"
+log "$HOME/.zshrc repair complete"
 exit 0

@@ -25,7 +25,7 @@ assert "has external mode" "grep -q 'external' '$S'"
 assert "has local mode" "grep -q 'local' '$S'"
 assert "has _set_config" "grep -q '_set_config' '$S'"
 assert "has step_services" "grep -q 'step_services' '$S'"
-assert "no local in loop" "! grep -P '^\\s+local ' '$S'"
+assert "no local in loop" "! grep -E '^[[:space:]]+local ' '$S'"
 
 # ── Integration with 00-core.sh ──────────────────────────────────────────
 CORE="$PROJECT_DIR/src/lib/00-core.sh"

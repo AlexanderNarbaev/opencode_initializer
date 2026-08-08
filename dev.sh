@@ -4,6 +4,7 @@
 #   dev remove <component>   — remove a component
 #   dev update               — update all tools + run migrations
 #   dev health               — full diagnostic
+#   dev doctor               — pre-session provider & model validation
 #   dev list                 — list installed components
 
 # ── Resolve script directory (supports symlinks and copies) ───
@@ -39,6 +40,7 @@ usage() {
   echo "  dev models <task>     Show model recommendation for task"
   echo "  dev models install <model>  Download local model via Ollama"
   echo "  dev models list-local       List installed local models"
+  echo "  dev doctor            Pre-session provider & model validation"
   echo "  dev backup create     Backup all configs to tar.gz"
   echo "  dev backup list       Show available backups"
   echo "  dev backup restore <file>  Restore from backup"
@@ -48,7 +50,7 @@ cmd_list() {
   echo "Installed components:"
   for lib in "$SCRIPTS_DIR/src/lib"/0[0-9]-*.sh; do
     [ -f "$lib" ] || continue
-    local name=$(basename "$lib" .sh | sed 's/^[0-9][0-9]-//')
+    local name; name=$(basename "$lib" .sh | sed 's/^[0-9][0-9]-//')
     printf "  %-20s %s\n" "$name" "$lib"
   done
   echo
@@ -81,7 +83,7 @@ cmd_update() {
   section "Run migrations"
   for mig in "$SCRIPTS_DIR/migrations/"*.sh; do
     [ -f "$mig" ] || continue
-    local ts=$(basename "$mig" .sh)
+    local ts; ts=$(basename "$mig" .sh)
     if [ ! -f "$DL_CACHE/.mig-$ts" ]; then
       info "Running migration: $(basename "$mig")"
       bash "$mig" && echo "$ts" >"$DL_CACHE/.mig-$ts" && log "Migration: $ts OK" || warn "Migration: $ts FAILED"
@@ -158,7 +160,7 @@ cmd_self_update() {
     # Run pending migrations
     for mig in "$SCRIPTS_DIR/migrations/"*.sh; do
       [ -f "$mig" ] || continue
-      local ts=$(basename "$mig" .sh)
+      local ts; ts=$(basename "$mig" .sh)
       if [ ! -f "$DL_CACHE/.mig-$ts" ]; then
         info "Migration: $(basename "$mig")"
         bash "$mig" && echo "$ts" >"$DL_CACHE/.mig-$ts" && log "Migration: $ts OK" || warn "Migration: $ts FAILED"
@@ -312,7 +314,7 @@ cmd_observability() {
       NODE_PORT="${NODE_EXPORTER_PORT:-9100}"
       METRICS_PORT="${METRICS_EXPORTER_PORT:-9464}"
       # Resolve docker host IP for Linux (host.docker.internal only works on Mac/Win)
-      DOCKER_HOST=$(ip -4 addr show docker0 2>/dev/null | grep -oP 'inet \K[\d.]+' || echo "host.docker.internal")
+      DOCKER_HOST=$(ip -4 addr show docker0 2>/dev/null | grep -oE 'inet [0-9.]+' | awk '{print $2}' || echo "host.docker.internal")
       cat > "$PROM_YML" << PROMCONF
 global:
   scrape_interval: 15s
@@ -434,7 +436,7 @@ cmd_isolated() {
       if [ "$current" = "true" ]; then
         echo "  Isolated Circuit: ${GREEN}ENABLED${NC}"
         echo "  All LLM providers use local OpenAI-compatible servers."
-        echo "  Local endpoint: ${OPencode_LOCAL_ENDPOINT:-http://localhost:4000/v1}"
+        echo "  Local endpoint: ${OPENCODE_LOCAL_ENDPOINT:-${OPencode_LOCAL_ENDPOINT:-http://localhost:4000/v1}}"
         echo ""
         echo "  Running backends:"
         for backend in ollama:11434 vllm:8000 sglang:30000; do
@@ -520,10 +522,16 @@ cmd_models() {
   bash "$ROUTER" "$task"
 }
 
+cmd_doctor() {
+  section "Pre-Session Check"
+  source "$SCRIPTS_DIR/src/lib/pre-session-check.sh"
+  _pre_session
+}
+
 cmd_backup() {
   local action="${2:-create}"
   local BACKUP_DIR="$HOME/.config/opencode-setup/backups"
-  local TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+  local TIMESTAMP; TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 
   case "$action" in
     create)
@@ -586,7 +594,8 @@ case "${1:-}" in
   metrics) cmd_metrics "${@}" ;;
   isolated) cmd_isolated "${@}" ;;
   models) cmd_models "${@}" ;;
+  doctor) cmd_doctor ;;
   backup) cmd_backup "${@}" ;;
   -h | --help | help | "") usage ;;
-  *) err "Unknown: $1. Use: dev install|remove|update|health|list|config|self-update|version-check|autoupdate|infra|plugins|observability|models|backup" ;;
+  *) err "Unknown: $1. Use: dev install|remove|update|health|list|config|self-update|version-check|autoupdate|infra|plugins|observability|models|doctor|backup" ;;
 esac

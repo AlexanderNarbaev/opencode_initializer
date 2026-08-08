@@ -6,7 +6,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
   section "Google Chrome"
 
   if command -v google-chrome-stable &>/dev/null; then
-    log "Google Chrome $(google-chrome-stable --version 2>/dev/null | grep -oP '\d+\.\d+\.\d+\.\d+' || true) already installed"
+    log "Google Chrome $(google-chrome-stable --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' || true) already installed"
   else
     CHROME_KEY_URL="https://dl.google.com/linux/linux_signing_key.pub"
     sudo mkdir -p /usr/share/keyrings 2>/dev/null || true

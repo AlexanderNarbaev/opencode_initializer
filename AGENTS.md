@@ -2,7 +2,7 @@
 > **Operating Model:** Multi-Agent Continuous Development Framework v3.0 ([ADR](./docs/architecture/adr/2026-07-18-multi-agent-framework-v3.md))
 > **Current Wave:** [current_wave.md](./current_wave.md) | **Checkpoint:** [session_checkpoint.json](./session_checkpoint.json)
 
-## Status: v2.0.2 — Moonshot/LiteLLM removed, test harness fixed
+## Status: v2.0.3 — 10 deep-research findings fixed (plugins registry, migration, sudo safety, macOS grep, CI trivy, OPencode env, test coverage, dev doctor, health coverage)
 
 | Phase | Status | Description |
 |-------|--------|-------------|
@@ -166,6 +166,7 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 16. **Model routing intelligence** (v2.0) — task-based model selection with 8 profiles (coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn)
 17. **Grafana dashboards** (v2.0) — auto-provisioned datasource + infrastructure overview dashboard
 18. **Config backup/restore** (v2.0) — `dev backup` for disaster recovery
+19. **OPENCODE_* env naming** (v2.0.3) — canonical prefix `OPENCODE_` for local endpoint/model/circuit vars (`OPencode_` still accepted as deprecated backward-compat fallback)
 
 ## Testing & Verification
 ```bash
@@ -201,6 +202,7 @@ bash setup.sh --fix-zshrc                 # repair shell config
 | v2.0.0 | Infrastructure as Code (PostgreSQL+Qdrant+Redis+Prometheus+Grafana+MemoryLayer), Cockpit TUI (7-tab), Isolated Circuit Mode, z.ai GLM-5.2 + OpenRouter + Alibaba + DeepInfra providers, MemoryLayer embed proxy, 41 module, 24 providers, 350+ test assertions. |
 | v2.0.1 | kimi-proxy v14.2: dynamic payload compression for Moonshot API's undocumented 20KB limit. Sticky tools (bash/read/write/edit/grep/glob), progressive trimming, VPN requirement documented. |
 | v2.0.2 | Moonshot/Kimi + LiteLLM removed. Test harness gate fixed (23 files gained exit-on-failure; 7 silent failures surfaced and fixed). Dead modules wired: 31-cockpit, 32-isolated, 33-services. 22 providers (19 cloud + 3 local), 43 modules, 37 test files / 480+ assertions. |
+| v2.0.3 | Deep-research 10 findings: plugins fix, macOS compat, env naming, CI gates, test coverage, health checks, dev doctor, sudo deprecation, migration |
 
 ## Modular Architecture (v2.0.0)
 
@@ -239,6 +241,7 @@ opencode_initializer/
 - `dev self-update` — git pull + reinstall dev CLI + setup.sh
 - `dev isolated on|off|status` — toggle Isolated Circuit Mode
 - `dev models <task>` — model recommendation for task type (coding, reasoning, fast, etc.)
+- `dev doctor` — pre-session provider & model validation
 - `dev backup create|list|restore` — config backup/restore
 
 **Config file:** `~/.config/opencode-setup/setup.conf` — persistent settings, sourced by both setup.sh and dev CLI.
@@ -288,3 +291,15 @@ Write a WAL entry on every:
 2. Read `AGENTS.md` and active `.opencode/skills/`
 3. Emit `[CTX: domain]` anchor
 4. Begin work
+
+## Known Limitations
+
+### macOS
+- **bash 4+ required**: Stock macOS ships bash 3.2. Associative arrays (`declare -A`) and other bash 4 features are unavailable without `brew install bash`.
+- **GNU grep required**: macOS ships BSD grep without `-P` (Perl regex) support. All `grep -oP` patterns have been migrated to `grep -oE` (ERE) with `sed`/`awk` fallbacks since v2.0.3. Install GNU grep via `brew install grep` for full compatibility.
+- **`declare -A` deferred**: Modules using associative arrays (`32-isolated.sh`, `26-providers.sh`) will fail on stock macOS bash 3.2. A future migration to indexed arrays or a bash version gate is planned.
+
+### Non-Linux Environments
+- The project is optimised for **WSL2/Linux**. macOS and Windows-native paths are not actively tested in CI.
+- Docker-based services (`30-infra.sh`, `34-observability.sh`) require Docker Desktop on macOS.
+- Systemd user services are Linux-only; macOS equivalents (launchd) are not implemented.

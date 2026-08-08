@@ -11,6 +11,92 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "new" ]; then
 
   section "Project structure: $PROJECT_DIR"
   mkdir -p "$HOME/.config/opencode/sessions" 2>/dev/null || true
+
+  # Default plugins registry — if missing, create with tier-based layout.
+  # Inline JSON to avoid a dependency on the template system (tier 0 bootstrap).
+  # Plugin names MUST match npm package names (checked by pkg_installed in 18-opencode-json.sh).
+  if [ ! -f "$HOME/.config/opencode/plugins.json" ]; then
+    mkdir -p "$HOME/.config/opencode"
+    cat > "$HOME/.config/opencode/plugins.json" << 'PLUGINSEOF'
+{
+  "tiers": {
+    "always": [
+      "opencode-codegraph",
+      "opencode-goal-mode",
+      "opencode-swarm",
+      "open-orchestra",
+      "@tarquinen/opencode-dcp"
+    ],
+    "conditional": {
+      "opencode-background-agents": {
+        "enabled": false,
+        "auto_enable": true,
+        "depends": []
+      },
+      "opencode-devcontainers": {
+        "enabled": false,
+        "auto_enable": true,
+        "depends": ["docker"]
+      },
+      "opencode-worktree": {
+        "enabled": false,
+        "auto_enable": true,
+        "depends": ["git_worktree"]
+      },
+      "opencode-daytona": {
+        "enabled": false,
+        "auto_enable": true,
+        "depends": ["daytona_daemon"]
+      },
+      "opencode-scheduler": {
+        "enabled": false,
+        "auto_enable": true,
+        "depends": []
+      },
+      "opencode-conductor": {
+        "enabled": false,
+        "auto_enable": true,
+        "depends": ["goal_mode"]
+      },
+      "opencode-token-tracker": {
+        "enabled": false,
+        "auto_enable": true,
+        "depends": []
+      },
+      "opencode-vibeguard": {
+        "enabled": false,
+        "auto_enable": true,
+        "depends": []
+      },
+      "opencode-supermemory": {
+        "enabled": false,
+        "auto_enable": false,
+        "depends": []
+      }
+    },
+    "on_demand": [
+      "opencode-notify",
+      "opencode-pty",
+      "opencode-ignore",
+      "opencode-snip",
+      "opencode-snippets",
+      "envsitter-guard",
+      "opencode-command-inject",
+      "opencode-auto-fallback",
+      "opencode-goal-plugin",
+      "opencode-zellij-namer",
+      "@zenobius/opencode-skillful",
+      "@morphllm/opencode-morph-plugin",
+      "@lyculs/opencode-firecrawl",
+      "opencode-websearch-cited",
+      "@devtheops/opencode-plugin-otel"
+    ]
+  }
+}
+PLUGINSEOF
+    log "plugins.json registry created (default)"
+  fi
+
   if mkdir -p "$PROJECT_DIR" 2>/dev/null; then
     mkdir -p "$PROJECT_DIR"/{docs,wal,.lock,.opencode/{agents,skills/{code-review-checklist,deployment-checklist,testing-strategy,context-switching},commands,context},infra,icon,templates,output}
   else

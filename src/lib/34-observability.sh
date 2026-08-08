@@ -55,7 +55,7 @@ mkdir -p "$SERVICES_DIR"
 NODE_PORT="${NODE_EXPORTER_PORT:-9100}"
 METRICS_PORT="${METRICS_EXPORTER_PORT:-9464}"
 # Resolve docker host IP for Linux (host.docker.internal only works on Mac/Win)
-DOCKER_HOST=$(ip -4 addr show docker0 2>/dev/null | grep -oP 'inet \K[\d.]+' || echo "host.docker.internal")
+DOCKER_HOST=$(ip -4 addr show docker0 2>/dev/null | grep -oE 'inet [0-9.]+' | awk '{print $2}' || echo "host.docker.internal")
 
 # ── Create/update prometheus.yml ──────────────────────────────────────────
 log "Generating $PROMETHEUS_YML"

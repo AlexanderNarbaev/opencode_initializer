@@ -14,7 +14,7 @@ section "Isolated Circuit Configuration"
 # ── Detection priority ─────────────────────────────────────────────────────
 ISOLATED_CIRCUIT="${ISOLATED_CIRCUIT:-}"
 [ -z "$ISOLATED_CIRCUIT" ] && ISOLATED_CIRCUIT="${ISOLATED_FLAG:-}"
-[ -z "$ISOLATED_CIRCUIT" ] && ISOLATED_CIRCUIT="${OPencode_ISOLATED_CIRCUIT:-}"
+[ -z "$ISOLATED_CIRCUIT" ] && ISOLATED_CIRCUIT="${OPENCODE_ISOLATED_CIRCUIT:-${OPencode_ISOLATED_CIRCUIT:-}}"
 
 # Normalize to true/false
 case "${ISOLATED_CIRCUIT,,}" in
@@ -34,14 +34,14 @@ declare -A LOCAL_ENDPOINTS=(
   [sglang]="http://localhost:30000/v1"
 )
 
-# Default local endpoint (overridable via OPencode_LOCAL_ENDPOINT)
-OPencode_LOCAL_ENDPOINT="${OPencode_LOCAL_ENDPOINT:-http://localhost:11434/v1}"
-export OPencode_LOCAL_ENDPOINT
+# Default local endpoint (overridable via OPENCODE_LOCAL_ENDPOINT or OPencode_LOCAL_ENDPOINT)
+OPENCODE_LOCAL_ENDPOINT="${OPENCODE_LOCAL_ENDPOINT:-${OPencode_LOCAL_ENDPOINT:-http://localhost:11434/v1}}"
+export OPENCODE_LOCAL_ENDPOINT
 
 # ── Auto-detect available local backends ────────────────────────────────────
 AVAILABLE_LOCAL_BACKENDS=""
 for backend in ollama vllm sglang; do
-  port=$(echo "${LOCAL_ENDPOINTS[$backend]}" | grep -oP ':\d+' | head -1 | tr -d ':')
+  port=$(echo "${LOCAL_ENDPOINTS[$backend]}" | grep -oE ':[0-9]+' | head -1 | tr -d ':')
   if curl -s "${LOCAL_ENDPOINTS[$backend]}/models" --max-time 2 >/dev/null 2>&1; then
     AVAILABLE_LOCAL_BACKENDS="$AVAILABLE_LOCAL_BACKENDS $backend"
     log "Local backend detected: $backend (port $port)"
@@ -65,14 +65,14 @@ FIRST_LOCAL_MODEL=$(echo "$LOCAL_MODELS" | awk '{print $1}')
 [ -z "$FIRST_LOCAL_MODEL" ] && FIRST_LOCAL_MODEL="qwen3:0.6b"
 export FIRST_LOCAL_MODEL
 export LOCAL_MODELS
-export OPencode_LOCAL_MODEL="${OPencode_LOCAL_MODEL:-$FIRST_LOCAL_MODEL}"
+export OPENCODE_LOCAL_MODEL="${OPENCODE_LOCAL_MODEL:-${OPencode_LOCAL_MODEL:-$FIRST_LOCAL_MODEL}}"
 
 if [ "$ISOLATED_CIRCUIT" = "true" ]; then
   info "ISOLATED CIRCUIT: ENABLED"
-  info "  Endpoint: $OPencode_LOCAL_ENDPOINT"
+  info "  Endpoint: $OPENCODE_LOCAL_ENDPOINT"
   info "  Available backends: ${AVAILABLE_LOCAL_BACKENDS:-none}"
   info "  Available models: ${LOCAL_MODELS:-none}"
-  info "  Primary model: $OPencode_LOCAL_MODEL"
+  info "  Primary model: $OPENCODE_LOCAL_MODEL"
   info "  No cloud API keys required — everything runs locally."
 else
   info "Isolated circuit: DISABLED (cloud providers available)"
@@ -90,11 +90,13 @@ else
   echo "ISOLATED_CIRCUIT=$ISOLATED_CIRCUIT" >> "$CONFIG_FILE"
 fi
 
-# Update or add OPencode_LOCAL_ENDPOINT
-if grep -q "^OPencode_LOCAL_ENDPOINT=" "$CONFIG_FILE" 2>/dev/null; then
-  sed -i "s|^OPencode_LOCAL_ENDPOINT=.*|OPencode_LOCAL_ENDPOINT=$OPencode_LOCAL_ENDPOINT|" "$CONFIG_FILE"
+# Update or add OPENCODE_LOCAL_ENDPOINT (migrate from old OPencode_ prefix if present)
+if grep -q "^OPENCODE_LOCAL_ENDPOINT=" "$CONFIG_FILE" 2>/dev/null; then
+  sed -i "s|^OPENCODE_LOCAL_ENDPOINT=.*|OPENCODE_LOCAL_ENDPOINT=$OPENCODE_LOCAL_ENDPOINT|" "$CONFIG_FILE"
+elif grep -q "^OPencode_LOCAL_ENDPOINT=" "$CONFIG_FILE" 2>/dev/null; then
+  sed -i "s|^OPencode_LOCAL_ENDPOINT=.*|OPENCODE_LOCAL_ENDPOINT=$OPENCODE_LOCAL_ENDPOINT|" "$CONFIG_FILE"
 else
-  echo "OPencode_LOCAL_ENDPOINT=$OPencode_LOCAL_ENDPOINT" >> "$CONFIG_FILE"
+  echo "OPENCODE_LOCAL_ENDPOINT=$OPENCODE_LOCAL_ENDPOINT" >> "$CONFIG_FILE"
 fi
 
 _step_done step_isolated

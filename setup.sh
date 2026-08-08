@@ -263,6 +263,7 @@ while [[ $# -gt 0 ]]; do case $1 in
     shift 2
     ;;
   -s | --sudo-pass)
+    echo "[DEPRECATED] -s/--sudo-pass is deprecated. Use 'read -s' interactively or SUDO_PASS env variable." >&2
     SUDO_PASS="$2"
     shift 2
     ;;
@@ -320,7 +321,7 @@ Options:
   --with-minio        Enable MinIO S3 storage (needed for artifacts)
   --with-all-infra    Enable all Docker infrastructure services
   --dry-run           Preview mode: show what would be installed, make no changes
-  -s, --sudo-pass     Sudo password (cached between steps)
+  -s, --sudo-pass     [DEPRECATED] Sudo password (use SUDO_PASS env or read -s instead)
   -h, --help          Show this help
 
 Examples:

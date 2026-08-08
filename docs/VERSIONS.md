@@ -98,4 +98,12 @@ bash src/lib/version-check.sh
 
 # Update pinned versions
 bash src/lib/99-upstream-sync.sh    # (new module, see below)
+
+## v2.0.3 Changes (2026-08-08)
+
+### macOS Compatibility
+- All `grep -oP` (PCRE) patterns migrated to `grep -oE` (ERE) with `sed`/`awk` fallbacks
+- macOS users need: `brew install bash grep` (bash>=4 + GNU grep)
+- `declare -A` (associative arrays) documented as known limitation on macOS bash 3.2
+- See AGENTS.md "Known Limitations" for full details
 ```
