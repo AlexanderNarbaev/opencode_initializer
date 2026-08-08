@@ -11,22 +11,22 @@ section "CI/CD Headless Mode — Minimal AI Agent Setup"
 log "CI mode: OpenCode CLI + Bun + essential MCPs only"
 log "Skipping: ZSH, Docker, Chrome, GUI tools, LLM runtimes, RAG"
 
-TOTAL_STEPS=5
+export TOTAL_STEPS=5
 
 # Only install what CI/CD needs
-INTERACTIVE_DO_SYSTEM=false
-INTERACTIVE_DO_OPENCODE=true
-INTERACTIVE_DO_MCP=true
-INTERACTIVE_DO_CHROMADB=false
-INTERACTIVE_DO_LLM=false
-INTERACTIVE_DO_RAG=false
-INTERACTIVE_DO_ZSH=false
+export INTERACTIVE_DO_SYSTEM=false
+export INTERACTIVE_DO_OPENCODE=true
+export INTERACTIVE_DO_MCP=true
+export INTERACTIVE_DO_CHROMADB=false
+export INTERACTIVE_DO_LLM=false
+export INTERACTIVE_DO_RAG=false
+export INTERACTIVE_DO_ZSH=false
 
 # ── Step 1: System essentials ────────────────────────────────────────────
 _run_step step_system "System essentials" "$SCRIPT_DIR/src/lib/01-system.sh" || true
 
 # ── Step 2: Node.js (OpenCode depends on Node) ───────────────────────────
-INTERACTIVE_DO_NODE=true
+export INTERACTIVE_DO_NODE=true
 _run_step step_node "Node.js" "$SCRIPT_DIR/src/lib/06-node.sh" || true
 
 # ── Step 3: OpenCode CLI + Bun ───────────────────────────────────────────
