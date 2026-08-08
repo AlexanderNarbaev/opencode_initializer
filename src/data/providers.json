@@ -1,0 +1,26 @@
+{
+  "providers": {
+    "deepseek": {"model": "deepseek-v4-pro", "small_model": "deepseek-v4-flash", "free": true, "sdk": "native", "fallback": ["zai","opencode","xai","minimax"]},
+    "opencode": {"model": "opencode-go", "free": true, "sdk": "native", "fallback": ["deepseek","zai","minimax"]},
+    "zai": {"model": "glm-5.2", "small_model": "glm-4-flash", "free": true, "sdk": "openai-compatible", "base_url": "https://api.z.ai/api/paas/v4", "fallback": ["deepseek","opencode"]},
+    "openrouter": {"free": true, "sdk": "native"},
+    "xai": {"model": "grok-4.3", "free": false, "sdk": "native"},
+    "mimo": {"model": "mimo-v2.5", "free": true, "sdk": "openai-compatible"},
+    "minimax": {"model": "MiniMax-M3", "free": false, "sdk": "openai-compatible", "base_url": "https://api.minimax.io/v1"},
+    "openai": {"model": "gpt-5.5", "small_model": "gpt-5.4-mini", "free": false, "sdk": "native"},
+    "anthropic": {"model": "claude-opus-4.8", "small_model": "claude-sonnet-4.6", "free": false, "sdk": "native"},
+    "google": {"model": "gemini-3.5-flash", "free": true, "sdk": "native"},
+    "mistral": {"model": "mistral-large-3", "free": false, "sdk": "native"},
+    "groq": {"model": "llama-4-maverick", "free": true, "sdk": "native"},
+    "together": {"model": "llama-4", "free": true, "sdk": "native"},
+    "cohere": {"model": "command-r-plus", "free": true, "sdk": "native"},
+    "fireworks": {"free": false, "sdk": "openai-compatible"},
+    "cerebras": {"free": false, "sdk": "native"},
+    "perplexity": {"free": false, "sdk": "native"},
+    "alibaba": {"model": "qwen3.7-plus", "free": true, "sdk": "native"},
+    "deepinfra": {"model": "llama-4", "free": true, "sdk": "openai-compatible"},
+    "ollama": {"free": true, "sdk": "local", "port": 11434},
+    "vllm": {"free": true, "sdk": "local", "port": 8000},
+    "sglang": {"free": true, "sdk": "local", "port": 30000}
+  }
+}
