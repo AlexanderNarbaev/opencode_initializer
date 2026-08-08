@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # oc-tui — Terminal UI wrapper for OpenCode
 # Uses dialog/whiptail for interactive prompt construction
-# Falls back to basic prompt if neither is available
+# Falls back to plain prompt if neither is available
 set -euo pipefail
 
 OPENCODE="${OPENCODE_BIN:-opencode}"
@@ -13,7 +13,7 @@ elif command -v whiptail &>/dev/null; then
   DIALOG="whiptail"
   DIALOG_ARGS=""
 else
-  echo "⚠ dialog/whiptail not found — using basic prompt mode"
+  echo "⚠ dialog/whiptail not found — using plain prompt mode"
   read -r -p "Enter your prompt: " PROMPT
   if [ -z "${PROMPT:-}" ]; then
     echo "No prompt provided. Exiting."
