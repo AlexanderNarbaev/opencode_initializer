@@ -542,7 +542,10 @@ _run_step() {
     return 0
   fi
   # shellcheck disable=SC1090
-  source "$module"
+  if ! (set +e; source "$module"); then
+    warn "$step_name — FAILED (continuing with next step)"
+    return 1
+  fi
   _wal_checkpoint "$step_name" "$step_key"
   log "$step_name — done"
 }
@@ -619,7 +622,11 @@ _run_step step_upstream_sync "Upstream Sync (submodules + pins)" "$SCRIPT_DIR/sr
 # ── Future modules (Wave 2-3 registration — sourced but not executed yet) ────
 # These modules will be wired into _run_step by their owners in subsequent waves.
 # Source guards ensure they load only when the module file exists (offline-safe).
+[ -f "$SCRIPT_DIR/src/lib/41-constitution.sh" ] && source "$SCRIPT_DIR/src/lib/41-constitution.sh" || true
+[ -f "$SCRIPT_DIR/src/lib/42-hooks.sh" ] && source "$SCRIPT_DIR/src/lib/42-hooks.sh" || true
 [ -f "$SCRIPT_DIR/src/lib/43-governance.sh" ] && source "$SCRIPT_DIR/src/lib/43-governance.sh" || true
+[ -f "$SCRIPT_DIR/src/lib/44-audit.sh" ] && source "$SCRIPT_DIR/src/lib/44-audit.sh" || true
+[ -f "$SCRIPT_DIR/src/lib/45-pii-guard.sh" ] && source "$SCRIPT_DIR/src/lib/45-pii-guard.sh" || true
 [ -f "$SCRIPT_DIR/src/lib/46-offline-bundle.sh" ] && source "$SCRIPT_DIR/src/lib/46-offline-bundle.sh" || true
 
 # ── Air-gap mode: trigger offline bundle if available ────────────────────────

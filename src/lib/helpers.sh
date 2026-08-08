@@ -191,11 +191,14 @@ _npm_install() {
 }
 
 _sudo() {
+  local sudo_err
+  sudo_err=$(mktemp /tmp/opencode-sudo-err.XXXXXX)
   if [ -n "${SUDO_PASS:-}" ]; then
-    sudo -S "$@" 2>/dev/null <<< "$SUDO_PASS"
+    sudo -S "$@" 2>"$sudo_err" <<< "$SUDO_PASS" || { warn "sudo failed: $(head -1 "$sudo_err")"; rm -f "$sudo_err"; return 1; }
   else
-    sudo "$@" 2>/dev/null
+    sudo "$@" 2>"$sudo_err" || { warn "sudo failed: $(head -1 "$sudo_err")"; rm -f "$sudo_err"; return 1; }
   fi
+  rm -f "$sudo_err"
 }
 
 # Download a file and optionally verify its SHA256 checksum.

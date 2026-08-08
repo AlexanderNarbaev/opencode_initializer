@@ -6,7 +6,7 @@ set -euo pipefail
 
 WAL_FILE="${HOME}/.cache/opencode-setup/wal.md"
 WAL_AGENT_FILE="${HOME}/.cache/opencode/wal.jsonl"
-WAL_TOTAL_MODULES="${WAL_TOTAL_MODULES:-39}"
+WAL_TOTAL_MODULES="${WAL_TOTAL_MODULES:-46}"
 
 _wal_init() {
   local now previous_done=0

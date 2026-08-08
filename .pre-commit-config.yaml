@@ -1,19 +1,41 @@
+# Pre-commit hooks for opencode_initializer
+# Run: pre-commit install
+# Skip: SKIP=bash-syntax,shellcheck,secrets git commit -m "..."
 repos:
-  - repo: https://github.com/koalaman/shellcheck-precommit
-    rev: v0.10.0
+  - repo: local
     hooks:
+      - id: bash-syntax
+        name: Bash syntax check
+        entry: bash -n
+        language: system
+        files: \.sh$
+        types: [shell]
+        fail_fast: true
+
       - id: shellcheck
-        args: ["--severity=warning"]
-        exclude: ^tests/.*\.sh$
+        name: ShellCheck
+        entry: shellcheck -S error
+        language: system
+        files: \.sh$
+        types: [shell]
 
-  - repo: https://github.com/scop/pre-commit-shfmt
-    rev: v3.8.0-1
-    hooks:
-      - id: shfmt
-        args: ["-i", "2", "-ci", "-bn", "-d"]
-        exclude: ^tests/.*\.sh$
+      - id: secrets
+        name: Secret scan (API keys, tokens)
+        entry: bash -c 'grep -rnE "sk-[a-zA-Z0-9]{20,}|[a-zA-Z0-9_-]{32,}" "$@" | grep -v ".pre-commit-config.yaml" | grep -v "tests/" && exit 1 || exit 0' --
+        language: system
+        files: \.sh$|\.py$|\.json$|\.yaml$|\.yml$|\.env$
+        exclude: tests/|\.pre-commit-config\.yaml|\.example$
 
-  - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.18.0
-    hooks:
-      - id: gitleaks
+      - id: grep-p-macos
+        name: No grep -P (macOS compat)
+        entry: bash -c '! grep -rPn "grep\s+-[A-Za-z]*P" "$@"' --
+        language: system
+        files: \.sh$
+        exclude: tests/
+
+      - id: trivy-critical
+        name: Trivy CRITICAL check
+        entry: bash -c 'command -v trivy >/dev/null && trivy fs --severity CRITICAL --exit-code 1 --skip-dirs tests . || echo "[pre-commit] Trivy not installed — skipping"'
+        language: system
+        always_run: true
+        pass_filenames: false

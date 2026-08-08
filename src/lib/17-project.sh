@@ -333,10 +333,142 @@ At the start of each response, include a brief anchor tag: `[CTX: <3-word sessio
 5. Observability (OpenTelemetry)
 -->
 
+## SDD WORKFLOW (v3.0+)
+
+Все изменения в проекте следуют циклу: **constitution → specify → clarify → plan → tasks → implement → verify → converge**
+
+### Фазы
+| Фаза | Команда | Результат |
+|------|---------|----------|
+| **Constitution** | `dev constitution` | `memory/constitution.md` — принципы MUST/SHOULD/MUST-NOT |
+| **Specify** | `/specify` | `specs/<feature>/spec.md` — FR-###, SC-###, NFR, GIVEN/WHEN/THEN |
+| **Clarify** | `/clarify` | `specs/<feature>/clarifications.md` — уточнения и decisions |
+| **Plan** | `/plan` | `.opencode/todo.md` — M/T/S структура с [P]-маркерами |
+| **Tasks** | `dev tasks` | Разбивка на подзадачи с dependencies и estimates |
+| **Implement** | Worker agent | Код + тесты, одна задача за раз |
+| **Verify** | Reviewer agent | Проверка соответствия spec→code, тесты, shellcheck, bash -n |
+| **Converge** | `/converge` | Итеративная полировка до стабильного состояния |
+
+### Ключевые правила
+1. **Каждое изменение начинается с spec:// требования.** Без spec — без кода.
+2. **Spec > Code.** Если spec и код расходятся — spec прав, код исправляется.
+3. **Одна задача = один Worker + один Reviewer.** Атомарная проверка.
+4. **WAL checkpoint на каждой фазе.** Неприрывный audit trail.
+
+### Артефакты
+- `memory/constitution.md` — governance rules (создаётся автоматически)
+- `specs/<feature>/spec.md` — функциональные требования
+- `.opencode/todo.md` — план работ с M/T/S маркерами
+- `wal/GLOBAL_WAL.md` — журнал всех сессий
+
 ## СТАРТ СЕССИИ
 [CTX: project dev session]. Немедленно выполни инициализацию: прочитай WAL, INDEX.md, загрузи память из muninn/agentic-tools, получи обзор codegraph. Выведи сводку в 3 строках: статус, активная задача, защищённые зоны.
 AGENTSEOF
     log "AGENTS.md created"
+  fi
+
+  # ── SDD: spec.md template (S5.2.1.3) ──────────────────────────────────────
+  if [ ! -f "$PROJECT_DIR/specs/_template.md" ]; then
+    mkdir -p "$PROJECT_DIR/specs"
+    cat > "$PROJECT_DIR/specs/_template.md" << 'SPECEOF'
+# Spec: [Feature Name]
+> **Spec ID:** SPEC-### | **Status:** draft | **Author:** [name]
+> **Created:** [date] | **Depends on:** [SPEC-###]
+
+## Overview
+[One paragraph summary of the feature]
+
+## Functional Requirements
+
+### FR-001: [Requirement Name]
+**Priority:** P0 | **Effort:** M | **Wave:** W1
+
+GIVEN [precondition]
+WHEN [action]
+THEN [expected outcome]
+
+**Acceptance Criteria:**
+- [ ] AC-001.1: [criterion]
+- [ ] AC-001.2: [criterion]
+
+---
+
+### FR-002: [Requirement Name]
+**Priority:** P1 | **Effort:** S
+
+GIVEN [precondition]
+WHEN [action]
+THEN [expected outcome]
+
+---
+
+## Success Criteria (SC)
+- **SC-001:** [measurable outcome]
+- **SC-002:** [measurable outcome]
+
+## Non-Functional Requirements (NFR)
+- **NFR-001 (Performance):** [requirement]
+- **NFR-002 (Security):** [requirement]
+- **NFR-003 (Reliability):** [requirement]
+
+## Constraints
+- [constraint 1]
+- [constraint 2]
+
+## Open Questions
+- [ ] Q1: [question]
+- [ ] Q2: [question]
+
+## References
+- [SPEC-###: Related feature]
+- [ADR-###: Architecture decision]
+SPECEOF
+    log "Spec template: specs/_template.md"
+  fi
+
+  # ── SDD: .opencode/todo.md template (S5.2.2.3) ────────────────────────────
+  if [ ! -f "$PROJECT_DIR/.opencode/todo.md" ]; then
+    mkdir -p "$PROJECT_DIR/.opencode"
+    cat > "$PROJECT_DIR/.opencode/todo.md" << 'TODOEOF'
+# Mission: [Project Name]
+> **Start:** [date] | **Goal:** [one-line summary]
+
+---
+
+## M1: [Milestone Name] | status: pending
+> **Description:** [what this milestone achieves]
+> **Depends on:** [M0 or none]
+
+### T1.1: [Task Name] | agent:Worker | est:1d
+- [ ] S1.1.1: [Subtask description] | size:S | finding:[ref]
+- [ ] S1.1.2: [Subtask description] | size:M | depends:S1.1.1
+- [ ] S1.1.3: [Subtask description] | size:S
+
+### T1.2: [Task Name] | agent:Worker | est:2d
+- [ ] S1.2.1: [Subtask description] | size:M | finding:[ref]
+
+---
+
+## M2: [Next Milestone] | status: pending | depends:M1
+
+### T2.1: [Task Name] | agent:Worker | est:1d
+- [ ] S2.1.1: [Subtask description] | size:S
+
+---
+
+## Legend
+- **[P]** = Parallel-safe (no shared state)
+- **M** = Milestone
+- **T** = Task (one per file/concern)
+- **S** = Subtask (atomic unit of work)
+- `size:` XS (<1h), S (1-4h), M (4-12h), L (1-3d), XL (3d+)
+- `finding:` cross-reference to audit gap-matrix ID
+
+## Progress
+- Total: [N] subtasks | Done: [N] | Remaining: [N]
+TODOEOF
+    log ".opencode/todo.md template created"
+  fi
   fi
 
   # Custom project skills

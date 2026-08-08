@@ -45,6 +45,9 @@ usage() {
   echo "  dev backup create     Backup all configs to tar.gz"
   echo "  dev backup list       Show available backups"
   echo "  dev backup restore <file>  Restore from backup"
+  echo "  dev bundle create       Create offline installation bundle"
+  echo "  dev bundle list          List bundle contents"
+  echo "  dev bundle verify        Verify bundle SHA-256 integrity"
 }
 
 cmd_list() {
@@ -530,6 +533,29 @@ cmd_doctor() {
   _pre_session
 }
 
+cmd_bundle() {
+  # shellcheck disable=SC1090
+  source "$SCRIPTS_DIR/src/lib/46-offline-bundle.sh" 2>/dev/null || {
+    err "46-offline-bundle.sh not found — bundle commands unavailable"
+    return 1
+  }
+  local action="${2:-list}"
+  case "$action" in
+    create)
+      _offline_bundle_create "${3:-}"
+      ;;
+    list | ls)
+      _offline_bundle_list "${3:-}"
+      ;;
+    verify)
+      _offline_bundle_verify "${3:-}"
+      ;;
+    *)
+      err "Unknown: dev bundle $action. Use: create|list|verify"
+      ;;
+  esac
+}
+
 cmd_backup() {
   local action="${2:-create}"
   local BACKUP_DIR="$HOME/.config/opencode-setup/backups"
@@ -598,6 +624,7 @@ case "${1:-}" in
   models) cmd_models "${@}" ;;
   doctor) cmd_doctor ;;
   backup) cmd_backup "${@}" ;;
+  bundle) cmd_bundle "${@}" ;;
   -h | --help | help | "") usage ;;
-  *) err "Unknown: $1. Use: dev install|remove|update|health|list|config|self-update|version-check|autoupdate|infra|plugins|observability|models|doctor|backup" ;;
+  *) err "Unknown: $1. Use: dev install|remove|update|health|list|config|self-update|version-check|autoupdate|infra|plugins|observability|models|doctor|backup|bundle" ;;
 esac

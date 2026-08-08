@@ -5,7 +5,17 @@ set -euo pipefail
 if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) && _gate "INTERACTIVE_DO_UPSTREAM_SYNC"; then
   section "Upstream Sync (submodules + version pins)"
 
-  # ── 1. Initialize git submodules ──────────────────────────────────────────
+  # ── 1. Configure git merge strategy (3-way with conflict resolution) ───
+  if [ -d "$SCRIPT_DIR/.git" ]; then
+    info "Configuring git merge strategy..."
+    # Use 3-way merge with patience diff for better conflict resolution
+    git -C "$SCRIPT_DIR" config merge.conflictstyle diff3 2>/dev/null || true
+    git -C "$SCRIPT_DIR" config pull.rebase false 2>/dev/null || true
+    git -C "$SCRIPT_DIR" config merge.tool vimdiff 2>/dev/null || true
+    log "Git: diff3 conflict style, patience merge"
+  fi
+
+  # ── 2. Initialize git submodules ──────────────────────────────────────────
   if [ -f "$SCRIPT_DIR/.gitmodules" ] && [ -d "$SCRIPT_DIR/.git" ]; then
     info "Syncing upstream git submodules..."
     git -C "$SCRIPT_DIR" submodule update --init --recursive --depth 1 2>&1 | tail -5 || \

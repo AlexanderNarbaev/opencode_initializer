@@ -158,8 +158,8 @@ _step_done() { [ "${DRY_RUN:-false}" = "true" ] && return 0; echo "$1" >> "$PROG
 
 # ── WAL (Write-Ahead Log) checkpoint system ──────────────────────────────────
 WAL_FILE="${HOME}/.cache/opencode-setup/wal.md"
-WAL_MODULE_COUNT=0
-_WAL_TOTAL="${WAL_TOTAL:-39}"
+WAL_MODULE_COUNT=0  # NOTE: not atomic — parallel subshells lose increments (cosmetic only, F2.3)
+_WAL_TOTAL="${WAL_TOTAL:-41}"
 
 _wal_checkpoint() {
   local step_name="${1:-}"

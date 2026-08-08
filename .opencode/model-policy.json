@@ -1,0 +1,9 @@
+{
+  "version": "1.0.0",
+  "deployment_profile": "personal",
+  "mode": "allow-all",
+  "allowlist": { "providers": [], "models": [] },
+  "blocklist": { "providers": [], "models": [] },
+  "rate_limits": { "max_requests_per_hour": 0 },
+  "_comment": "mode: allow-all | allowlist | corporate. allow-all = no restrictions. allowlist = only listed. corporate = allowlist + audit + PII guard."
+}
