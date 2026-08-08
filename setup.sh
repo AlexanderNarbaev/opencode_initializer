@@ -44,6 +44,7 @@ log "Setup log: $SETUP_LOG"
 # ── CLI argument parsing ────────────────────────────────────────────────────
 MODE="full"
 NEW_PROJECT_DIR=""
+# shellcheck disable=SC2034  # API key vars assigned from CLI args, exported for child processes at ~L490
 while [[ $# -gt 0 ]]; do case $1 in
   --full)
     MODE="full"
@@ -532,6 +533,7 @@ _run_step() {
     info "[DRY] $step_name ($module)"
     return 0
   fi
+  # shellcheck disable=SC1090
   source "$module"
   _wal_checkpoint "$step_name" "$step_key"
   log "$step_name — done"
