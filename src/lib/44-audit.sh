@@ -136,10 +136,16 @@ _audit_stats() {
 }
 
 # ── Log initial event (only if WAL is empty — idempotent) ────────────────────
-_audit_event "session_boundary" "{\"event\":\"audit_module_initialized\",\"version\":\"${SCRIPT_VERSION:-v3.0.0}\"}"
+if [ ! -s "$AUDIT_WAL" ]; then
+  _audit_event "session_boundary" "{\"event\":\"audit_module_initialized\",\"version\":\"${SCRIPT_VERSION:-v3.0.0}\"}"
+fi
 
 # ── Run rotation check ──────────────────────────────────────────────────────
 _audit_rotate
 
 _step_done step_audit
 log "Audit trail active — WAL: $AUDIT_WAL (max ${AUDIT_MAX_SIZE_MB}MB)"
+
+# ── Exports ──────────────────────────────────────────────────────────────────
+export AUDIT_WAL AUDIT_MAX_SIZE_MB
+export -f _audit_init _audit_event _audit_rotate _audit_stats _audit_verify_chain

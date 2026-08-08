@@ -219,6 +219,35 @@ At the start of each response, include a brief anchor tag: `[CTX: <3-word sessio
 ## COMMAND FLAGS
 `/mode instant|expert|deep` `/as [role]` `/autopilot` `/stepbystep` `/sources` `/verify` `/deterministic` `/critique` `/creative` `/interactive` `/lang XX` `/atomic` `/heartbeat` `/refactor` `/superthink` `/anarchic` `/evolve` `/tcov`
 
+## SDD WORKFLOW (Specification-Driven Development)
+
+### Full Cycle: constitution → specify → clarify → plan → tasks → implement → verify → converge
+
+1. **constitution** — Define project principles, quality gates, compliance requirements
+2. **specify** — Write spec.md with FR-###/SC-###/NFR, GIVEN/WHEN/THEN scenarios
+3. **clarify** — Resolve ambiguities, refine scope, get stakeholder sign-off
+4. **plan** — Decompose into M/T/S hierarchy (Milestones/Tasks/Subtasks) with [P0]-[P3] priorities
+5. **tasks** — Generate atomic subtasks in .opencode/todo.md (15-60 min each)
+6. **implement** — Execute tasks, write tests, pass gates (lint → typecheck → unit → integration)
+7. **verify** — Reviewer checks code, tests pass, no regressions, evidence collected
+8. **converge** — Polish, document, CHANGELOG, version bump, release
+
+### Task Format (M/T/S Canon)
+```
+## M1: Milestone Name | status: pending | depends:M0
+### T1.1: Task Name | agent:Worker | depends:[none]
+- [ ] S1.1.1: Subtask description | size:S | finding:ID
+```
+
+### Spec Format
+```
+# Spec: Feature Name
+## FR-001: Requirement description
+**Priority:** [P0]
+**Scenario:** GIVEN ... WHEN ... THEN ...
+**Acceptance:** [measurable criterion]
+```
+
 ## ОКРУЖЕНИЕ И ИНСТРУМЕНТЫ
 
 ### Модели (Multi-Provider: DeepSeek API + OpenCode Go)
@@ -737,4 +766,3 @@ DOCKEREOF
     log "docker-compose.yml created"
   fi
   _step_done step_project
-fi

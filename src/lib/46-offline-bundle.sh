@@ -5,7 +5,10 @@
 # v3.0.0
 set -euo pipefail
 
-_step_skip step_offline_bundle && return 0
+# When sourced from dev.sh (not setup.sh module chain), skip the step gate
+if declare -f _step_skip &>/dev/null; then
+  _step_skip step_offline_bundle && return 0
+fi
 
 section "Offline Bundle — Air-Gap Bootstrap"
 
@@ -135,9 +138,50 @@ _offline_bundle_verify() {
   fi
 }
 
+# ── List bundle contents ─────────────────────────────────────────────────────
+_offline_bundle_list() {
+  local bundle_path="${1:-$BUNDLE_DIR}"
+  local tarball
+  tarball=$(ls -t "$BUNDLE_DIR"/opencode-offline-*.tar.gz 2>/dev/null | head -1)
+
+  if [ ! -f "$tarball" ] && [ ! -d "$bundle_path/bundle" ]; then
+    echo "No offline bundle found at $BUNDLE_DIR"
+    echo "Create one with: dev bundle create"
+    return 0
+  fi
+
+  echo ""
+  echo "  Bundle directory: $bundle_path"
+
+  if [ -f "$tarball" ]; then
+    local size files
+    size=$(du -sh "$tarball" 2>/dev/null | awk '{print $1}')
+    files=$(tar -tzf "$tarball" 2>/dev/null | wc -l)
+    echo "  Tarball: $(basename "$tarball")"
+    echo "  Size:    $size"
+    echo "  Files:   $files"
+  fi
+
+  if [ -d "$bundle_path/bundle" ]; then
+    echo "  Extracted: YES"
+    echo "  Contents:"
+    ls -1 "$bundle_path/bundle/" 2>/dev/null | sed 's/^/    /'
+  fi
+
+  if [ -f "$BUNDLE_MANIFEST" ]; then
+    echo ""
+    echo "  Manifest: $(head -1 "$BUNDLE_MANIFEST" 2>/dev/null || echo 'present')"
+    echo "  Files in manifest: $(grep -c '^[a-f0-9]' "$BUNDLE_MANIFEST" 2>/dev/null || echo 0)"
+  fi
+  echo ""
+  return 0
+}
+
 # ── Exports ──────────────────────────────────────────────────────────────────
 export BUNDLE_DIR BUNDLE_MANIFEST BUNDLE_TARBALL
-export -f _offline_bundle_create _offline_bundle_run _offline_bundle_verify
+export -f _offline_bundle_create _offline_bundle_run _offline_bundle_verify _offline_bundle_list
 
-_step_done step_offline_bundle
+if declare -f _step_done &>/dev/null; then
+  _step_done step_offline_bundle
+fi
 log "Offline bundle support initialized — use 'dev bundle create' to build"

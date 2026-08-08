@@ -43,7 +43,7 @@ functions=$(bash -c "
   declare -F | grep 'declare -f _audit_' | sed 's/declare -f //'
 " 2>/dev/null || echo "")
 
-for fn in _audit_event _audit_rotate _audit_stats _audit_init; do
+for fn in _audit_event _audit_rotate _audit_stats _audit_init _audit_verify_chain; do
   if echo "$functions" | grep -q "^${fn}$"; then
     echo "PASS: function $fn exported"
     PASS=$((PASS+1))
