@@ -122,8 +122,8 @@ _audit_stats() {
 
   for etype in model_call tool_call provider_switch pii_redacted checkpoint error session_boundary; do
     local count
-    count=$(grep -c "\"type\":\"$etype\"" "$AUDIT_WAL" 2>/dev/null || echo 0)
-    [ "$count" -gt 0 ] && echo "  $etype: $count"
+    count=$(grep -c "\"type\":\"$etype\"" "$AUDIT_WAL" 2>/dev/null | tr -d '[:space:]' || echo 0)
+    [ "${count:-0}" -gt 0 ] 2>/dev/null && echo "  $etype: $count"
   done
 
   local last_ts
@@ -148,4 +148,9 @@ log "Audit trail active — WAL: $AUDIT_WAL (max ${AUDIT_MAX_SIZE_MB}MB)"
 
 # ── Exports ──────────────────────────────────────────────────────────────────
 export AUDIT_WAL AUDIT_MAX_SIZE_MB
-export -f _audit_init _audit_event _audit_rotate _audit_stats _audit_verify_chain
+# Functions are available to setup.sh via source; export -f for subshell access
+export -f _audit_init 2>/dev/null || true
+export -f _audit_event 2>/dev/null || true
+export -f _audit_rotate 2>/dev/null || true
+export -f _audit_stats 2>/dev/null || true
+export -f _audit_verify_chain 2>/dev/null || true

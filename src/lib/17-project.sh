@@ -498,8 +498,6 @@ SPECEOF
 TODOEOF
     log ".opencode/todo.md template created"
   fi
-  fi
-
   # Custom project skills
   if [ ! -f "$PROJECT_DIR/.opencode/skills/context-switching/SKILL.md" ]; then
     mkdir -p "$PROJECT_DIR/.opencode/skills/context-switching"
@@ -766,3 +764,4 @@ DOCKEREOF
     log "docker-compose.yml created"
   fi
   _step_done step_project
+fi
