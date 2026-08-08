@@ -20,7 +20,7 @@ fi
 # Test 2: No curl|sh execution patterns in supply-chain files
 for f in 29-mise.sh 28-devbox.sh 14-shokunin.sh; do
   # Count lines with curl piping to shell (exclude comment lines starting with #)
-  count=$(grep -n 'curl.*|.*sh\|curl.*|.*bash' "$PROJECT_DIR/src/lib/$f" 2>/dev/null | grep -v '^[0-9]*:[[:space:]]*#' | wc -l)
+  count=$(grep -n 'curl.*|.*sh\|curl.*|.*bash' "$PROJECT_DIR/src/lib/$f" 2>/dev/null | grep -v '^[0-9]*:[[:space:]]*#' | wc -l) || true
   if [ "$count" -eq 0 ]; then
     echo "PASS: $f — no curl|sh execution"
     PASS=$((PASS+1))
