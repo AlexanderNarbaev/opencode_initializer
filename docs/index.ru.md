@@ -1,4 +1,4 @@
-# OpenCode Initializer v2.0.0
+# OpenCode Initializer v3.0.0
 
 [![GitHub stars](https://img.shields.io/github/stars/AlexanderNarbaev/opencode_initializer?style=social)](https://github.com/AlexanderNarbaev/opencode_initializer)
 [![License](https://img.shields.io/github/license/AlexanderNarbaev/opencode_initializer)](https://github.com/AlexanderNarbaev/opencode_initializer/blob/main/LICENSE)
@@ -16,7 +16,8 @@
 
 | Метрика | Значение |
 |---------|----------|
-| Модулей | 39 (+ 3 инфраструктурных) |
+| Модулей | 49 |
+| Новое в v3.0 | SDD-native AI Harness: governance, audit, PII, воздушный зазор, 4 профиля развёртывания |
 | Оркестратор | 561 строки Bash |
 | Режимов CLI | 11 (full, health, interactive, ci и другие) |
 | Языков | 8 |
@@ -27,7 +28,7 @@
 | Model Router | 8 профилей (coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn) |
 | Инфраструктура | 6 сервисов (PostgreSQL, Qdrant, Redis, Prometheus, Grafana, MemoryLayer) |
 | Web GUI | 9 разделов управления (порт 4200) |
-| Тестов | 350+ проверок |
+| Тестов | 480+ проверок (40 unit + 5 integration + 4 e2e) |
 | Пакетных менеджеров | apt, dnf, pacman, apk, zypper, brew |
 | Архитектур | amd64, arm64 |
 
@@ -47,6 +48,19 @@
 - :fontawesome-solid-terminal: **ZSH** — Oh My Zsh + Powerlevel10k с 14 плагинами
 - :fontawesome-solid-globe: **Chrome** — Google Chrome + ChromeDriver (оптимизирован для WSL2)
 - :fontawesome-solid-clock-rotate-left: **Автообновление** — systemd weekly timer + topgrade
+
+## :fontawesome-solid-star: Новое в v3.0.0
+
+| Возможность | Описание |
+|-------------|----------|
+| SDD-native AI Harness | Полный SDD-цикл: constitution → specify → clarify → plan → tasks → implement → verify |
+| Model Governance | `model-policy.json` — allowlist/blocklist провайдеров и моделей, 3 режима, аудит |
+| PII Sanitizer | 9 детекторов (email, phone, INN, SNILS, паспорт, карта, IP, API key) — pre-LLM gate |
+| Audit Trail | 7 типов WAL-событий, SHA-256 hash-chain, ротация >10MB → gzip+Qdrant |
+| Air-Gap Completeness | `--airgap` режим, `dev bundle create\|list\|verify`, SHA-256 манифест |
+| Supply-Chain Hardening | 6 `curl\|sh` заменены на download→verify SHA256 |
+| 4 Deployment Profiles | personal, corporate, airgapped, hybrid — enforced правила на каждый |
+| 7 новых модулей | 41-constitution, 42-hooks, 43-governance, 44-audit, 45-pii-guard, 46-offline-bundle, pii-guard.py |
 
 ## :fontawesome-solid-star: Новое в v2.0.0
 

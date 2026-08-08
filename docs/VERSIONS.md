@@ -99,6 +99,27 @@ bash src/lib/version-check.sh
 # Update pinned versions
 bash src/lib/99-upstream-sync.sh    # (new module, see below)
 
+## v3.0.0 Changes (2026-08-08)
+
+### SDD-native AI Harness
+- **Model Governance** (43-governance.sh): `model-policy.json` with provider/model allowlist/blocklist; modes: allow-all, allowlist, corporate; audit log per call
+- **PII Sanitizer** (45-pii-guard.sh + scripts/pii-guard.py): 9 detectors — email, phone, INN, SNILS, passport, credit card, IP, API key; pre-LLM-request gate
+- **Audit Trail** (44-audit.sh): 7 WAL event types (model_call, tool_call, provider_switch, pii_redacted, etc.); SHA-256 hash-chain; rotation >10MB → gzip+Qdrant archive
+- **Constitution Generator** (41-constitution.sh): `memory/constitution.md` auto-generation at project init; 4 deployment profile templates
+- **Lifecycle Hooks** (42-hooks.sh): pre-request, post-response, pre-commit, on-error hook framework; pluggable via `~/.config/opencode/hooks/`
+- **Air-Gap Offline Bundle** (46-offline-bundle.sh): `dev bundle create|list|verify <path>`; SHA-256 manifest; `setup.sh --airgap` for fully offline installation
+
+### Deployment Profiles
+4 profiles with enforced rules: **personal** (auto-update, telemetry: on), **corporate** (provider allowlist, audit: on, telemetry: off), **air-gapped** (no network, isolated circuit, SHA-256 verify only), **hybrid** (online dev + offline CI)
+
+### Supply-Chain Hardening
+6 `curl|sh` patterns replaced with `_download_verify()` — download artifact → verify SHA-256 → execute. `_download_verify()` defined in helpers.sh with retry and checksum enforcement.
+
+### Core Fixes
+- Dry-run guard: `_set_dns()` now respects `DRY_RUN` flag (00-core.sh)
+- ISOLATED_CIRCUIT gates: version-check, autoupdate, unattended-upgrades all gated
+- Idempotency: `rm -rf ~/.cache/opencode` removed from bootstrap (setup.sh)
+
 ## v2.0.3 Changes (2026-08-08)
 
 ### macOS Compatibility

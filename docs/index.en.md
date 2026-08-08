@@ -1,4 +1,4 @@
-# OpenCode Initializer v2.0.0
+# OpenCode Initializer v3.0.0
 
 [![GitHub stars](https://img.shields.io/github/stars/AlexanderNarbaev/opencode_initializer?style=social)](https://github.com/AlexanderNarbaev/opencode_initializer)
 [![License](https://img.shields.io/github/license/AlexanderNarbaev/opencode_initializer)](https://github.com/AlexanderNarbaev/opencode_initializer/blob/main/LICENSE)
@@ -16,7 +16,8 @@
 
 | Metric | Value |
 |--------|-------|
-| Modules | 41 |
+| Modules | 49 |
+| New in v3.0 | SDD-native AI Harness: governance, audit, PII, air-gap, 4 deployment profiles |
 | Orchestrator | 589 lines of Bash |
 | CLI modes | 11 (full, health, interactive, ci, and more) |
 | Languages | 8 |
@@ -27,7 +28,7 @@
 | Model Router | 8 task profiles (coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn) |
 | Infrastructure | 7 services (PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer) |
 | Web GUI | 9 management sections (port 4200) |
-| Test suite | 350+ assertions |
+| Test suite | 480+ assertions (40 unit + 5 integration + 4 e2e) |
 | Package managers | apt, dnf, pacman, apk, zypper, brew |
 | Architectures | amd64, arm64 |
 
@@ -47,6 +48,19 @@ A single script that turns a fresh Linux/WSL2 machine into a production-ready de
 - **ZSH** — Oh My Zsh + Powerlevel10k with 14 plugins
 - **Chrome** — Google Chrome + ChromeDriver (WSL2-optimized)
 - **Auto-update** — systemd weekly timer + topgrade
+
+## What's New in v3.0.0
+
+| Feature | Description |
+|---------|-------------|
+| SDD-native AI Harness | Full SDD lifecycle: constitution → specify → clarify → plan → tasks → implement → verify |
+| Model Governance | `model-policy.json` — provider/model allowlist/blocklist, 3 modes, audit log |
+| PII Sanitizer | 9 detectors (email, phone, INN, SNILS, passport, credit card, IP, API key) — pre-LLM gate |
+| Audit Trail | 7 WAL event types, SHA-256 hash-chain, rotation >10MB → gzip+Qdrant |
+| Air-Gap Completeness | `--airgap` mode, `dev bundle create\|list\|verify`, SHA-256 manifest |
+| Supply-Chain Hardening | 6 `curl\|sh` replaced with download→verify SHA256 |
+| 4 Deployment Profiles | personal, corporate, airgapped, hybrid — enforced rules per profile |
+| 7 New Modules | 41-constitution, 42-hooks, 43-governance, 44-audit, 45-pii-guard, 46-offline-bundle, pii-guard.py |
 
 ## What's New in v2.0.0
 

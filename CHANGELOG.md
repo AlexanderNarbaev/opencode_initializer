@@ -8,13 +8,15 @@
 - Audit trail: 7 WAL event types (model_call, tool_call, provider_switch, pii_redacted, ...)
 
 ### Added
-- 41-model-policy.sh: Model Governance module
-- 42-pii-guard.sh: PII Sanitizer (9 detectors)
-- 43-audit-chain.sh: WAL hash-chain + rotation
-- 44-offline-bundle.sh: Air-gap bootstrap
-- : offline installer generation
-- 4 deployment profiles (personal/corporate/airgapped/hybrid) with enforced rules
+- 41-constitution.sh: Constitution + spec format generator — `memory/constitution.md` at project init
+- 42-hooks.sh: Lifecycle hooks framework — pre-request, post-response, pre-commit, on-error
+- 43-governance.sh: Model Governance — `model-policy.json` allowlist/blocklist per deployment profile
+- 44-audit.sh: Audit trail — 7 WAL event types, SHA-256 hash-chain, rotation >10MB → gzip+Qdrant
+- 45-pii-guard.sh: PII Sanitizer — 9 detectors (email, phone, INN, SNILS, passport, credit card, IP, API key)
+- 46-offline-bundle.sh: Air-gap offline bootstrap — `dev bundle create|list|verify`, `setup.sh --airgap`
+- scripts/pii-guard.py: PII scan CLI — standalone Python script for file scanning and redaction
 - Scheduled Trivy/Qodana security scanning
+- 4 deployment profiles (personal/corporate/airgapped/hybrid) with enforced rules
 - SBOM generation (CycloneDX)
 
 ### Fixed
