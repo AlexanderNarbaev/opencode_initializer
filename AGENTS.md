@@ -2,7 +2,7 @@
 > **Operating Model:** Multi-Agent Continuous Development Framework v3.0 ([ADR](./docs/architecture/adr/2026-07-18-multi-agent-framework-v3.md))
 > **Current Wave:** [current_wave.md](./current_wave.md) | **Checkpoint:** [session_checkpoint.json](./session_checkpoint.json)
 
-## Status: v2.0.3 — 10 deep-research findings fixed (plugins registry, migration, sudo safety, macOS grep, CI trivy, OPencode env, test coverage, shellcheck, dev doctor, health coverage)
+## Status: v3.0.0 — SDD-native AI Harness: air-gap completeness, model governance, PII sanitizer, audit trail, supply-chain hardening, offline bundle, 4 deployment profiles
 
 | Phase | Status | Description |
 |-------|--------|-------------|
@@ -13,8 +13,8 @@
 | 4 | Done | Cockpit TUI + Observability + Isolated Circuit + Documentation |
 
 ## Identity
-Universal Dev Machine Bootstrap — однокомандная настройка AI-усиленной dev-машины для WSL2/Linux.
-Модульная архитектура: 589 строк оркестратор + 43 модуля + автообновление через systemd-таймер.
+Universal Dev Machine Bootstrap — AI-Native SDD Harness для WSL2/Linux. 4 deployment profiles: personal, corporate, air-gapped, hybrid.
+Модульная архитектура: 589 строк оркестратор + 49 модулей + автообновление через systemd-таймер.
 
 ## Язык общения
 Всё общение строго на русском языке. Код и комментарии — на английском.
@@ -24,11 +24,11 @@ Universal Dev Machine Bootstrap — однокомандная настройк�
 opencode_initializer/
 ├── setup.sh          ← оркестратор (589 строк, source модули из src/lib/)
 ├── src/
-│   ├── lib/          ← 43 модуля (00-core.sh … 40-best-practices.sh + 99-upstream-sync.sh + helpers.sh + version-check.sh + pre-session-check.sh)
+│   ├── lib/          ← 49 модулей (00-core.sh … 46-offline-bundle.sh + 99-upstream-sync.sh + helpers.sh + version-check.sh + pre-session-check.sh)
 │   └── modes/            ← 5 режимных скриптов (+ 6 встроенных режимов)
 ├── dev.sh            ← CLI (dev install|metrics|observability|infra|...)
 ├── .env.example      ← шаблон переменных окружения (API ключи)
-├── scripts/          ← утилиты (provider-check, ai-router, embed-proxy, oc-json, oc-rpc, oc-sdk, oc-tui, oc-metrics)
+├── scripts/          ← утилиты (provider-check, ai-router, embed-proxy, pii-guard, oc-json, oc-rpc, oc-sdk, oc-tui, oc-metrics)
 ├── tests/            ← unit (28), integration (5), e2e (4) — 480+ assertions
 ├── migrations/       ← timestamped, idempotent
 ├── docs/             ← документация + plans + research
@@ -47,7 +47,7 @@ opencode_initializer/
 ### Orchestrator (589 lines)
 Minimal entry point that sources modules from `src/lib/` and dispatches modes from `src/modes/`.
 
-### Module Layout (src/lib/ — 40 numbered + 3 helpers)
+### Module Layout (src/lib/ — 46 numbered + 3 helpers)
 | Module | Responsibility |
 |--------|---------------|
 | `helpers.sh` | `_curl()`, `_retry()`, `_npm_install()`, `_sudo()` — shared infrastructure |
@@ -89,6 +89,14 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 | `36-model-router.sh` | Model routing intelligence — task-based model selection, cost table, recommendations |
 | `37-wal.sh` | Write-Ahead Log — setup checkpoint + agent session journal (JSONL) |
 | `38-ide-plugins.sh` | IDE AI plugins — DevoxxGenie + GitHub Copilot for JetBrains/VS Code |
+| `39-shell.sh` | Shell integration — zsh/bash completions, aliases, prompt helpers |
+| `40-best-practices.sh` | Best practices — linting, formatting, pre-commit hooks |
+| `41-constitution.sh` | Constitution + spec format generator — `memory/constitution.md` at project init |
+| `42-hooks.sh` | Lifecycle hooks framework — pre-request, post-response, pre-commit, on-error |
+| `43-governance.sh` | Model governance — `model-policy.json` allowlist/blocklist per deployment profile |
+| `44-audit.sh` | Audit trail — 7 WAL event types, SHA-256 hash-chain, rotation >10MB → gzip+Qdrant |
+| `45-pii-guard.sh` | PII sanitizer — 9 detectors (email, phone, INN, SNILS, passport, credit card, IP, API key) |
+| `46-offline-bundle.sh` | Air-gap offline bootstrap — tarball bundle, SHA-256 manifest, `dev bundle create` |
 | `version-check.sh` | Version check: Rust/Go/Node/Python/Bun/OpenCode/Ollama/Zig + npm packages |
 | `pre-session-check.sh` | Pre-session provider/model validation + MCP status |
 
@@ -132,6 +140,7 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 | fix-config | Regenerate opencode.json |
 | fix-zshrc | Repair .zshrc |
 | dry-run | Preview mode, no changes |
+| airgap | Offline install from bundle, no network |
 
 ### Multi-Provider Config (opencode.json)
 ```json
@@ -167,6 +176,12 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 17. **Grafana dashboards** (v2.0) — auto-provisioned datasource + infrastructure overview dashboard
 18. **Config backup/restore** (v2.0) — `dev backup` for disaster recovery
 19. **OPENCODE_* env naming** (v2.0.3) — canonical prefix `OPENCODE_` for local endpoint/model/circuit vars (`OPencode_` still accepted as deprecated backward-compat fallback)
+20. **Model Governance** (v3.0) — `model-policy.json` per-project allowlist/blocklist, 3 modes (allow-all/allowlist/corporate)
+21. **Air-Gap Offline Bundle** (v3.0) — `--airgap` mode + `dev bundle create` for fully offline installation
+22. **PII Sanitizer** (v3.0) — 9 detectors (email, phone, INN, passport, credit card, IP, API key), pre-LLM-request gate
+23. **Audit Trail** (v3.0) — 7 WAL event types, SHA-256 hash-chain, rotation >10MB → gzip+Qdrant archive
+24. **Supply-Chain Hardening** (v3.0) — `_download_verify()` with SHA256, all `curl|sh` replaced with download→verify→execute
+25. **SDD-native Workflow** (v3.0) — constitution→specify→clarify→plan→tasks→implement→verify→converge lifecycle
 
 ## Testing & Verification
 ```bash
@@ -202,9 +217,10 @@ bash setup.sh --fix-zshrc                 # repair shell config
 | v2.0.0 | Infrastructure as Code (PostgreSQL+Qdrant+Redis+Prometheus+Grafana+MemoryLayer), Cockpit TUI (7-tab), Isolated Circuit Mode, z.ai GLM-5.2 + OpenRouter + Alibaba + DeepInfra providers, MemoryLayer embed proxy, 41 module, 24 providers, 350+ test assertions. |
 | v2.0.1 | kimi-proxy v14.2: dynamic payload compression for Moonshot API's undocumented 20KB limit. Sticky tools (bash/read/write/edit/grep/glob), progressive trimming, VPN requirement documented. |
 | v2.0.2 | Moonshot/Kimi + LiteLLM removed. Test harness gate fixed (23 files gained exit-on-failure; 7 silent failures surfaced and fixed). Dead modules wired: 31-cockpit, 32-isolated, 33-services. 22 providers (19 cloud + 3 local), 43 modules, 37 test files / 480+ assertions. |
+| v3.0.0 | SDD-native AI Harness: air-gap completeness, model governance, PII sanitizer, audit trail, supply-chain hardening (SHA256 verify), offline bundle, 4 deployment profiles (personal/corporate/air-gapped/hybrid). 22 providers, 49 modules, 37 test files / 480+ assertions. |
 | v2.0.3 | Deep-research 10 findings: plugins fix, macOS compat, env naming, CI gates, test coverage, health checks, dev doctor, sudo deprecation, migration |
 
-## Modular Architecture (v2.0.0)
+## Modular Architecture (v3.0.0)
 
 ```
 opencode_initializer/
@@ -243,6 +259,10 @@ opencode_initializer/
 - `dev models <task>` — model recommendation for task type (coding, reasoning, fast, etc.)
 - `dev doctor` — pre-session provider & model validation
 - `dev backup create|list|restore` — config backup/restore
+- `dev bundle create|list|verify <path>` — offline installation bundle
+- `dev governance show|policy` — model policy management
+- `dev audit log|stats|rotate` — audit trail inspection
+- `dev pii scan <file>` — PII scan and redaction
 
 **Config file:** `~/.config/opencode-setup/setup.conf` — persistent settings, sourced by both setup.sh and dev CLI.
 

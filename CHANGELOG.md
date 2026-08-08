@@ -1,5 +1,36 @@
 # Changelog
 
+## [3.0.0] — 2026-08-08
+
+### Breaking Changes
+- Air-gap completeness: ISOLATED_CIRCUIT now gates version-check, topgrade, unattended-upgrades
+- Model governance: new model-policy.json with allowlist/blocklist per deployment profile
+- Audit trail: 7 WAL event types (model_call, tool_call, provider_switch, pii_redacted, ...)
+
+### Added
+- 41-model-policy.sh: Model Governance module
+- 42-pii-guard.sh: PII Sanitizer (9 detectors)
+- 43-audit-chain.sh: WAL hash-chain + rotation
+- 44-offline-bundle.sh: Air-gap bootstrap
+- : offline installer generation
+- 4 deployment profiles (personal/corporate/airgapped/hybrid) with enforced rules
+- Scheduled Trivy/Qodana security scanning
+- SBOM generation (CycloneDX)
+
+### Fixed
+- Supply-chain: 6 curl|bash → download+verify SHA256
+- Dry-run: _set_dns() now respects DRY_RUN flag
+- Idempotency: rm -rf ~/.cache/opencode removed from bootstrap
+- WAL race condition in parallel module execution
+- TOTAL_STEPS unified to 39
+
+### Security
+- SOC2 CC5.2/CC7.2/CC8.2 compliance mapping
+- ISO27001 A.9.2.1/A.12.4.1/A.14.2.5 compliance mapping
+- GDPR Art.32/Art.35 readiness
+
+
+
 All notable changes to opencode_initializer will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),

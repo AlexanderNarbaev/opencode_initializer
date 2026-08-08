@@ -9,8 +9,11 @@ section "Devbox — Isolated Dev Environments"
 if ! command -v devbox &>/dev/null; then
   _progress "devbox" "Installing Nix-based dev environment manager..."
   _spin_start "Downloading devbox"
-  curl -fsSL https://get.jetify.com/devbox | bash -s -- -f 2>/dev/null && \
-    _spin_stop "✓" && log "Devbox installed" || { _spin_stop "✗"; warn "Devbox install failed"; }
+  if _download_verify "https://get.jetify.com/devbox" /tmp/devbox-install.sh && bash /tmp/devbox-install.sh -f 2>/dev/null; then
+    _spin_stop "✓" && log "Devbox installed" && rm -f /tmp/devbox-install.sh
+  else
+    _spin_stop "✗"; rm -f /tmp/devbox-install.sh; warn "Devbox install failed";
+  fi
 fi
 
 # Generate devbox.json template in project dir

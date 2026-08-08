@@ -1,9 +1,9 @@
-# OpenCode Initializer v2.0.2
+# OpenCode Initializer v3.0.0
 
 > **Operating Model:** Multi-Agent Framework v3.0 | **Wave:** [current_wave.md](./current_wave.md) | **Checkpoint:** [session_checkpoint.json](./session_checkpoint.json)
 <p align="center">
-  <b>One-command AI-enhanced development environment setup for WSL2, Linux, and macOS.</b><br>
-  <sub>589-line orchestrator · 43 modules · 11 modes · 24 MCPs · 15 plugins · 13 LSPs · 22 providers · model routing · GUI · metrics</sub>
+  <b>AI-Native SDD Harness — one-command AI-enhanced development environment for WSL2, Linux, and macOS. 4 deployment profiles.</b><br>
+  <sub>589-line orchestrator · 49 modules · 12 modes · 24 MCPs · 15 plugins · 13 LSPs · 22 providers · air-gap · governance · PII guard · audit trail · offline bundle</sub>
 </p>
 
 <p align="center">
@@ -64,6 +64,18 @@ One command installs everything: 8 languages, 43 infrastructure modules, 24 MCP 
 - **Unified Service Layer**: Single configuration point for all 18 infrastructure services via `setup.conf`
 - **External Service Support**: Point any component to external URLs — corporate OTel, existing Grafana, managed databases
 - **MemoryLayer**: AI memory system with Ollama embed proxy (mxbai-embed-large, 1024-dim)
+
+### v3.0.0 — SDD-native AI Harness: Audit & Governance
+
+- **Model Governance** (`43-governance.sh`): `model-policy.json` per-project allowlist/blocklist, 3 enforcement modes (allow-all/allowlist/corporate)
+- **PII Sanitizer** (`45-pii-guard.sh`): 9 detectors (email, phone, INN, SNILS, passport, credit card, IP, API key) — pre-LLM-request gate
+- **Audit Trail** (`44-audit.sh`): 7 WAL event types (model_call, tool_call, provider_switch, pii_redacted, checkpoint, error, session_boundary), SHA-256 hash-chain, rotation >10MB → gzip+Qdrant
+- **Constitution + Spec Format** (`41-constitution.sh`): `memory/constitution.md` generator, SDD workflow (constitution→specify→clarify→plan→tasks→implement→verify→converge)
+- **Lifecycle Hooks** (`42-hooks.sh`): pre-request, post-response, pre-commit, on-error hooks framework
+- **Offline Bundle** (`46-offline-bundle.sh`): `dev bundle create` for fully air-gapped installation, SHA-256 manifest
+- **Supply-Chain Hardening**: `curl|sh` → download+verify SHA256 for all 6 affected modules (mise, devbox, WasmEdge, Shokunin, Oh My Zsh)
+- **SOC2/ISO27001 Ready**: Compliance checklists (CC5.2/CC7.2/CC8.2, A.9/A.12/A.14/A.16/A.17/A.18 + GDPR Art.32/35)
+- **Scheduled Security**: Systemd timer for daily Trivy + Qodana scan, SBOM generation (CycloneDX), pre-commit hook
 
 ## Architecture
 

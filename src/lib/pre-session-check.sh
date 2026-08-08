@@ -9,6 +9,14 @@ _pre_session() {
 
   echo -e "${CYAN}=== Pre-Session Check ===${NC}"
 
+  # ── Model governance ──
+  if [ -f "$HOME/opencode_initializer/src/lib/43-governance.sh" ]; then
+    source "$HOME/opencode_initializer/src/lib/43-governance.sh" 2>/dev/null
+    if declare -f _governance_pre_session_check &>/dev/null; then
+      _governance_pre_session_check 2>/dev/null || true
+    fi
+  fi
+
   # ── Provider validation ──
   _check_provider() {
     local name="$1" url="$2" key="$3"
@@ -122,5 +130,35 @@ if isolated:
 
   echo -e "${CYAN}=== ${available} provider(s) available ===${NC}"
   echo -e "${CYAN}Use 'dev models <task>' for task-specific model recommendations${NC}"
+
+  # ── Model governance policy check ──
+  local POLICY_FILE="${OPENCODE_MODEL_POLICY:-$HOME/.config/opencode/model-policy.json}"
+  if [ -f "$POLICY_FILE" ] && command -v jq &>/dev/null; then
+    local policy_mode
+    policy_mode=$(jq -r '.mode // "allow-all"' "$POLICY_FILE" 2>/dev/null) || policy_mode="allow-all"
+    if [ "$policy_mode" != "allow-all" ]; then
+      echo -e "${BOLD}--- Model Governance (mode: $policy_mode) ---${NC}"
+      # Check current model from opencode.json
+      local current_model
+      current_model=$(jq -r '.model // "unknown"' "$cfg" 2>/dev/null) || current_model="unknown"
+      local provider_name
+      provider_name="${current_model%%/*}"
+      # Check provider allowed
+      if jq -e --arg p "$provider_name" '.denied_providers | index($p) != null' "$POLICY_FILE" >/dev/null 2>&1; then
+        echo -e "  ${RED}[DENIED]${NC} provider '$provider_name' is explicitly denied by model policy"
+        echo -e "  ${YELLOW}Action: remove '$provider_name' from denied_providers in ${POLICY_FILE} or switch model${NC}"
+        return 2
+      fi
+      if [ "$policy_mode" = "allowlist" ] || [ "$policy_mode" = "corporate" ]; then
+        if ! jq -e --arg p "$provider_name" '.allowed_providers | index($p) != null' "$POLICY_FILE" >/dev/null 2>&1; then
+          echo -e "  ${RED}[DENIED]${NC} provider '$provider_name' is not in the allowlist (mode=$policy_mode)"
+          echo -e "  ${YELLOW}Action: add '$provider_name' to allowed_providers in ${POLICY_FILE} or switch model${NC}"
+          return 2
+        fi
+      fi
+      echo -e "  ${GREEN}[OK]${NC} model '$current_model' allowed by governance policy"
+    fi
+  fi
+
   echo
 }

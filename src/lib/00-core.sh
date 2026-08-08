@@ -5,7 +5,7 @@
 set -euo pipefail
 
 # ── Version ──────────────────────────────────────────────────────────────────
-SCRIPT_VERSION="${SCRIPT_VERSION:-v2.0.3}"
+SCRIPT_VERSION="${SCRIPT_VERSION:-v3.0.0}"
 
 # ── OS validation ────────────────────────────────────────────────────────────
 if [ -f /etc/os-release ]; then
@@ -73,6 +73,7 @@ _pkg_list() {
 
 # ── Mirror system — try primary, then RU-friendly fallbacks ─────────────────
 _set_dns() {
+  [ "${DRY_RUN:-false}" = "true" ] && { info "[DRY] skip DNS"; return 0; }
   if [ -f /etc/resolv.conf ] && ! grep -q '77.88.8.8' /etc/resolv.conf 2>/dev/null; then
     echo "nameserver 77.88.8.8" | sudo tee -a /etc/resolv.conf >/dev/null 2>&1 || true
     echo "nameserver 77.88.8.1" | sudo tee -a /etc/resolv.conf >/dev/null 2>&1 || true

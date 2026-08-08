@@ -91,6 +91,11 @@ while [[ $# -gt 0 ]]; do case $1 in
     ISOLATED_CIRCUIT="false"
     shift
     ;;
+  --airgap)
+    ISOLATED_CIRCUIT="true"
+    MODE="airgap"
+    shift
+    ;;
   --dry-run)
     MODE="dry-run"
     DRY_RUN=true
@@ -285,6 +290,9 @@ Modes:
   --ci                Headless CI/CD mode: OpenCode CLI + essential MCPs only
 
 Options:
+  --airgap            Air-gap mode: set ISOLATED_CIRCUIT, bootstrap from offline bundle
+  --isolated          Enable Isolated Circuit Mode (local LLM only, no cloud)
+  --no-isolated       Disable Isolated Circuit Mode
   -p, --project-dir   Project directory (default: ~/projects)
   -k, --api-key       OpenCode Go API key
   --deepseek-key      DeepSeek API key
@@ -555,7 +563,10 @@ _run_step step_dotnet ".NET 10.0.302" "$SCRIPT_DIR/src/lib/10-dotnet.sh"
 # ── Clean old configs ────────────────────────────────────────────────────────
 if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then
   section "Cleaning old configs & stale agents"
-  rm -rf ~/.cache/opencode ~/.local/share/opencode ~/.opencode ~/opencode.json
+  # F2.4: Do NOT delete OpenCode runtime cache (~/.cache/opencode) or
+  # state (~/.local/share/opencode) — these are needed for session resume.
+  # Only remove the old opencode.json config (migrated to ~/.config/opencode/).
+  rm -f ~/opencode.json
   mkdir -p ~/.config/opencode
   for scout_path in \
     "$PROJECT_DIR/.opencode/agents/scout.md" \
@@ -604,6 +615,24 @@ _run_step step_isolated "Isolated Circuit Mode" "$SCRIPT_DIR/src/lib/32-isolated
 _run_step step_model_router "Model Routing Intelligence" "$SCRIPT_DIR/src/lib/36-model-router.sh"
 [ "${BEST_PRACTICES_ENABLED:-true}" != "false" ] && _run_step step_best_practices "Best Practices Skills (smixs)" "$SCRIPT_DIR/src/lib/40-best-practices.sh"
 _run_step step_upstream_sync "Upstream Sync (submodules + pins)" "$SCRIPT_DIR/src/lib/99-upstream-sync.sh"
+
+# ── Future modules (Wave 2-3 registration — sourced but not executed yet) ────
+# These modules will be wired into _run_step by their owners in subsequent waves.
+# Source guards ensure they load only when the module file exists (offline-safe).
+[ -f "$SCRIPT_DIR/src/lib/43-governance.sh" ] && source "$SCRIPT_DIR/src/lib/43-governance.sh" || true
+[ -f "$SCRIPT_DIR/src/lib/46-offline-bundle.sh" ] && source "$SCRIPT_DIR/src/lib/46-offline-bundle.sh" || true
+
+# ── Air-gap mode: trigger offline bundle if available ────────────────────────
+if [ "$MODE" = "airgap" ]; then
+  section "Air-Gap Bootstrap"
+  info "ISOLATED_CIRCUIT=true — running offline bundle bootstrap"
+  if declare -f _offline_bundle_run &>/dev/null; then
+    _offline_bundle_run
+  else
+    warn "46-offline-bundle.sh not found — skipping offline bundle execution"
+    info "Ensure the offline bundle is available at ~/.cache/opencode-setup/offline-bundle/"
+  fi
+fi
 
 echo ""
 echo -e "  ${GREEN}╔══════════════════════════════════════╗${NC}"

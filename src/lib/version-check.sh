@@ -6,6 +6,22 @@ set -euo pipefail
 _check_versions() {
   local updates=0 current latest
 
+  # ── Air-gap gate: skip all external version checks when ISOLATED_CIRCUIT is active
+  if [ "${ISOLATED_CIRCUIT:-false}" = "true" ]; then
+    echo "=== Version Check ($(date +%Y-%m-%d)) ==="
+    echo "  ISOLATED: external version checks skipped (air-gap mode)"
+    # Show local versions only (no curl calls)
+    if command -v rustc &>/dev/null; then echo "  Local: Rust $(rustc --version 2>/dev/null | awk '{print $2}')"; fi
+    if command -v go &>/dev/null; then echo "  Local: Go $(go version 2>/dev/null | awk '{print $3}' | tr -d 'go')"; fi
+    if command -v node &>/dev/null; then echo "  Local: Node.js $(node --version 2>/dev/null | tr -d 'v')"; fi
+    if command -v python3 &>/dev/null; then echo "  Local: Python $(python3 --version 2>/dev/null | awk '{print $2}')"; fi
+    if command -v bun &>/dev/null; then echo "  Local: Bun $(bun --version 2>/dev/null)"; fi
+    if command -v ollama &>/dev/null; then echo "  Local: Ollama $(ollama --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1 || echo 'installed')"; fi
+    if command -v zig &>/dev/null; then echo "  Local: Zig $(zig version 2>/dev/null)"; fi
+    echo "=== 0 update(s) available (isolated) ==="
+    return 0
+  fi
+
   echo "=== Version Check ($(date +%Y-%m-%d)) ==="
 
   # ── Rust ──

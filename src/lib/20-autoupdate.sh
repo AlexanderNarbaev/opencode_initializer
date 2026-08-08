@@ -3,6 +3,14 @@
 # Requires: MODE, CORE_PATH
 set -euo pipefail
 
+# ── Air-gap gate: skip auto-update services in ISOLATED_CIRCUIT mode
+if [ "${ISOLATED_CIRCUIT:-false}" = "true" ]; then
+  section "Auto-update system (ISOLATED: skipped — air-gap mode)"
+  info "ISOLATED_CIRCUIT=true: topgrade, systemd timer, and unattended-upgrades are not installed in air-gap mode"
+  _step_done step_autoupdate
+  return 0
+fi
+
 if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) && _gate "INTERACTIVE_DO_SYSTEM"; then
   section "Auto-update system (topgrade + timer)"
 

@@ -27,6 +27,10 @@ esac
 
 export ISOLATED_CIRCUIT
 
+# ── Air-gap gate: all external version checks skip when isolated ───────────────
+# version-check.sh (sourced elsewhere) respects ISOLATED_CIRCUIT via its gate.
+# 20-autoupdate.sh also gates on ISOLATED_CIRCUIT to skip systemd timer install.
+
 # ── Local OpenAI-compatible endpoint registry ───────────────────────────────
 declare -A LOCAL_ENDPOINTS=(
   [ollama]="http://localhost:11434/v1"

@@ -192,8 +192,38 @@ _npm_install() {
 
 _sudo() {
   if [ -n "${SUDO_PASS:-}" ]; then
-    echo "$SUDO_PASS" | sudo -S "$@" 2>/dev/null
+    sudo -S "$@" 2>/dev/null <<< "$SUDO_PASS"
   else
     sudo "$@" 2>/dev/null
   fi
+}
+
+# Download a file and optionally verify its SHA256 checksum.
+# Usage: _download_verify <url> <dest_path> [sha256_checksum]
+#   - Downloads via _curl (retries, cache, mirror fallback)
+#   - If sha256 provided: verifies and fails on mismatch, cleans up tmp
+#   - If sha256 omitted: warns "unverified download" but continues (backward compat)
+#   - Atomic: downloads to .tmp, then mv to dest on success
+#   - Sets executable bit on dest after successful download
+# Used by: 29-mise.sh, 28-devbox.sh, 16-llm.sh, 14-shokunin.sh, 04-zsh.sh
+_download_verify() {
+  local url="$1" dest="$2" sha256="${3:-}"
+  local tmp="${dest}.tmp"
+
+  _curl "$url" "$tmp" || { warn "Download failed: $url"; rm -f "$tmp"; return 1; }
+
+  if [ -n "$sha256" ]; then
+    if echo "$sha256  $tmp" | sha256sum -c - --status 2>/dev/null; then
+      log "SHA256 verified: $dest"
+    else
+      err "SHA256 mismatch for $url — expected $sha256, got $(sha256sum "$tmp" | awk '{print $1}')"
+      rm -f "$tmp"
+      return 1
+    fi
+  else
+    warn "Unverified download (no SHA256): $url → $dest"
+  fi
+
+  mv "$tmp" "$dest" && chmod +x "$dest" 2>/dev/null || true
+  return 0
 }

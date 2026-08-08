@@ -9,10 +9,13 @@ section "mise — Universal Tool Manager"
 if ! command -v mise &>/dev/null; then
   _progress "mise" "Installing mise..."
   _spin_start "Downloading mise"
-  if curl -fsSL https://mise.run | sh 2>/dev/null; then
+  # Download → verify (no upstream SHA256, warn) → execute (defense-in-depth vs curl|sh)
+  if _download_verify "https://mise.run" /tmp/mise-install.sh && bash /tmp/mise-install.sh 2>/dev/null; then
     _spin_stop "✓"
+    rm -f /tmp/mise-install.sh
   else
     _spin_stop "✗"
+    rm -f /tmp/mise-install.sh
     warn "mise install failed — skipping"
     return 0
   fi

@@ -6,7 +6,8 @@ set -euo pipefail
 if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]) && _gate "INTERACTIVE_DO_SHOKUNIN"; then
   section "Shokunin + Superpowers"
   if [ ! -d "$HOME/.shokunin" ]; then
-    bash <(curl -sL https://raw.githubusercontent.com/EliasOulkadi/shokunin/master/install.sh) -y 2>/dev/null || true
+    _download_verify "https://raw.githubusercontent.com/EliasOulkadi/shokunin/master/install.sh" /tmp/shokunin-install.sh && bash /tmp/shokunin-install.sh -y 2>/dev/null || true
+    rm -f /tmp/shokunin-install.sh
     log "Shokunin installed"
     SHOKUNIN_PROFILE="$HOME/.shokunin/scripts/linux/profile.sh"
     [ -f "$SHOKUNIN_PROFILE" ] && sed -i 's/echo "Shokunin AI Ecosystem loaded"/# echo "Shokunin AI Ecosystem loaded"/' "$SHOKUNIN_PROFILE" 2>/dev/null || true

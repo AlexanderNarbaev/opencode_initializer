@@ -1,0 +1,348 @@
+{
+  "documents": {
+    "raw_githubusercontent_com_github_spec-kit_main_spec-drivenmd.md": {
+      "url": "https://raw.githubusercontent.com/github/spec-kit/main/spec-driven.md",
+      "title": "Plain Text",
+      "fetchedAt": "2026-08-08T11:04:13.460Z",
+      "expiresAt": "2026-08-09T11:04:13.460Z",
+      "size": 26300
+    },
+    "raw_githubusercontent_com_github_spec-kit_main_templates_spec-templatemd.md": {
+      "url": "https://raw.githubusercontent.com/github/spec-kit/main/templates/spec-template.md",
+      "title": "Plain Text",
+      "fetchedAt": "2026-08-08T11:04:13.825Z",
+      "expiresAt": "2026-08-09T11:04:13.825Z",
+      "size": 4703
+    },
+    "raw_githubusercontent_com_github_spec-kit_main_templates_plan-templatemd.md": {
+      "url": "https://raw.githubusercontent.com/github/spec-kit/main/templates/plan-template.md",
+      "title": "Plain Text",
+      "fetchedAt": "2026-08-08T11:04:13.944Z",
+      "expiresAt": "2026-08-09T11:04:13.944Z",
+      "size": 3755
+    },
+    "raw_githubusercontent_com_github_spec-kit_main_templates_tasks-templatemd.md": {
+      "url": "https://raw.githubusercontent.com/github/spec-kit/main/templates/tasks-template.md",
+      "title": "Plain Text",
+      "fetchedAt": "2026-08-08T11:04:14.423Z",
+      "expiresAt": "2026-08-09T11:04:14.423Z",
+      "size": 9294
+    },
+    "raw_githubusercontent_com_github_spec-kit_main_AGENTSmd.md": {
+      "url": "https://raw.githubusercontent.com/github/spec-kit/main/AGENTS.md",
+      "title": "Plain Text",
+      "fetchedAt": "2026-08-08T11:04:14.906Z",
+      "expiresAt": "2026-08-09T11:04:14.906Z",
+      "size": 30808
+    },
+    "raw_githubusercontent_com_Fission-AI_OpenSpec_main_READMEmd.md": {
+      "url": "https://raw.githubusercontent.com/Fission-AI/OpenSpec/main/README.md",
+      "title": "Plain Text",
+      "fetchedAt": "2026-08-08T11:04:15.478Z",
+      "expiresAt": "2026-08-09T11:04:15.478Z",
+      "size": 12064
+    },
+    "raw_githubusercontent_com_Fission-AI_OpenSpec_main_AGENTSmd.md": {
+      "url": "https://raw.githubusercontent.com/Fission-AI/OpenSpec/main/AGENTS.md",
+      "title": "Plain Text",
+      "fetchedAt": "2026-08-08T11:04:15.885Z",
+      "expiresAt": "2026-08-09T11:04:15.885Z",
+      "size": 134
+    },
+    "raw_githubusercontent_com_Fission-AI_OpenSpec_main_docs_conceptsmd.md": {
+      "url": "https://raw.githubusercontent.com/Fission-AI/OpenSpec/main/docs/concepts.md",
+      "title": "Plain Text",
+      "fetchedAt": "2026-08-08T11:04:16.196Z",
+      "expiresAt": "2026-08-09T11:04:16.196Z",
+      "size": 22860
+    },
+    "raw_githubusercontent_com_Fission-AI_OpenSpec_main_docs_writing-specsmd.md": {
+      "url": "https://raw.githubusercontent.com/Fission-AI/OpenSpec/main/docs/writing-specs.md",
+      "title": "Plain Text",
+      "fetchedAt": "2026-08-08T11:04:16.561Z",
+      "expiresAt": "2026-08-09T11:04:16.561Z",
+      "size": 7963
+    },
+    "oleg_guru_redbook_ru_.md": {
+      "url": "https://oleg.guru/redbook/ru/",
+      "title": "Красная книга AI-инженера",
+      "fetchedAt": "2026-08-08T11:04:17.113Z",
+      "expiresAt": "2026-08-09T11:04:17.113Z",
+      "size": 1042
+    },
+    "oleg_guru_redbook_ru_two-process-model.md": {
+      "url": "https://oleg.guru/redbook/ru/two-process-model",
+      "title": "Два процесса, одна задача — Красная книга AI-инженера",
+      "fetchedAt": "2026-08-08T11:04:17.356Z",
+      "expiresAt": "2026-08-09T11:04:17.356Z",
+      "size": 15180
+    },
+    "oleg_guru_redbook_ru_memory-architecture.md": {
+      "url": "https://oleg.guru/redbook/ru/memory-architecture",
+      "title": "Архитектура памяти — Красная книга AI-инженера",
+      "fetchedAt": "2026-08-08T11:04:17.468Z",
+      "expiresAt": "2026-08-09T11:04:17.468Z",
+      "size": 15175
+    },
+    "oleg_guru_redbook_ru_shared-state-and-files.md": {
+      "url": "https://oleg.guru/redbook/ru/shared-state-and-files",
+      "title": "Shared state: файлы как IPC — Красная книга AI-инженера",
+      "fetchedAt": "2026-08-08T11:04:17.660Z",
+      "expiresAt": "2026-08-09T11:04:17.660Z",
+      "size": 15187
+    },
+    "raw_githubusercontent_com_github_spec-kit_main_templates_commands_clarifymd.md": {
+      "url": "https://raw.githubusercontent.com/github/spec-kit/main/templates/commands/clarify.md",
+      "title": "Plain Text",
+      "fetchedAt": "2026-08-08T11:04:20.923Z",
+      "expiresAt": "2026-08-09T11:04:20.923Z",
+      "size": 19126
+    },
+    "raw_githubusercontent_com_github_spec-kit_main_templates_commands_implementm.md": {
+      "url": "https://raw.githubusercontent.com/github/spec-kit/main/templates/commands/implement.md",
+      "title": "Plain Text",
+      "fetchedAt": "2026-08-08T11:04:21.406Z",
+      "expiresAt": "2026-08-09T11:04:21.406Z",
+      "size": 11949
+    },
+    "raw_githubusercontent_com_github_spec-kit_main_templates_commands_analyzemd.md": {
+      "url": "https://raw.githubusercontent.com/github/spec-kit/main/templates/commands/analyze.md",
+      "title": "Plain Text",
+      "fetchedAt": "2026-08-08T11:04:21.890Z",
+      "expiresAt": "2026-08-09T11:04:21.890Z",
+      "size": 11495
+    },
+    "raw_githubusercontent_com_Fission-AI_OpenSpec_main_docs_climd.md": {
+      "url": "https://raw.githubusercontent.com/Fission-AI/OpenSpec/main/docs/cli.md",
+      "title": "Plain Text",
+      "fetchedAt": "2026-08-08T11:04:22.153Z",
+      "expiresAt": "2026-08-09T11:04:22.153Z",
+      "size": 44820
+    },
+    "raw_githubusercontent_com_github_spec-kit_main_docs_concepts_sddmd.md": {
+      "url": "https://raw.githubusercontent.com/github/spec-kit/main/docs/concepts/sdd.md",
+      "title": "Plain Text",
+      "fetchedAt": "2026-08-08T11:04:22.330Z",
+      "expiresAt": "2026-08-09T11:04:22.330Z",
+      "size": 2903
+    },
+    "raw_githubusercontent_com_Fission-AI_OpenSpec_main_docs_workflowsmd.md": {
+      "url": "https://raw.githubusercontent.com/Fission-AI/OpenSpec/main/docs/workflows.md",
+      "title": "Plain Text",
+      "fetchedAt": "2026-08-08T11:04:22.521Z",
+      "expiresAt": "2026-08-09T11:04:22.521Z",
+      "size": 17157
+    },
+    "raw_githubusercontent_com_Fission-AI_OpenSpec_main_docs_opsxmd.md": {
+      "url": "https://raw.githubusercontent.com/Fission-AI/OpenSpec/main/docs/opsx.md",
+      "title": "Plain Text",
+      "fetchedAt": "2026-08-08T11:04:22.891Z",
+      "expiresAt": "2026-08-09T11:04:22.891Z",
+      "size": 28292
+    },
+    "raw_githubusercontent_com_Fission-AI_OpenSpec_main_docs_existing-projectsmd.md": {
+      "url": "https://raw.githubusercontent.com/Fission-AI/OpenSpec/main/docs/existing-projects.md",
+      "title": "Plain Text",
+      "fetchedAt": "2026-08-08T11:04:23.255Z",
+      "expiresAt": "2026-08-09T11:04:23.255Z",
+      "size": 8039
+    },
+    "raw_githubusercontent_com_Fission-AI_OpenSpec_main_docs_how-commands-workmd.md": {
+      "url": "https://raw.githubusercontent.com/Fission-AI/OpenSpec/main/docs/how-commands-work.md",
+      "title": "Plain Text",
+      "fetchedAt": "2026-08-08T11:04:29.005Z",
+      "expiresAt": "2026-08-09T11:04:29.005Z",
+      "size": 10867
+    },
+    "raw_githubusercontent_com_Fission-AI_OpenSpec_main_docs_reviewing-changesmd.md": {
+      "url": "https://raw.githubusercontent.com/Fission-AI/OpenSpec/main/docs/reviewing-changes.md",
+      "title": "Plain Text",
+      "fetchedAt": "2026-08-08T11:04:29.443Z",
+      "expiresAt": "2026-08-09T11:04:29.443Z",
+      "size": 7520
+    },
+    "jimmysong_io_book_ai-native-infra_.md": {
+      "url": "https://jimmysong.io/book/ai-native-infra/",
+      "title": "AI Native Infrastructure - Systems Designed for Uncertainty …",
+      "fetchedAt": "2026-08-08T11:04:35.901Z",
+      "expiresAt": "2026-08-09T11:04:35.901Z",
+      "size": 2852
+    },
+    "jimmysong_io_ai_.md": {
+      "url": "https://jimmysong.io/ai/",
+      "title": "AI Native Landscape",
+      "fetchedAt": "2026-08-08T11:04:36.107Z",
+      "expiresAt": "2026-08-09T11:04:36.107Z",
+      "size": 460
+    },
+    "system-design_space.md": {
+      "url": "https://system-design.space/",
+      "title": "System Design Space — Главная, граф знаний, треки и материалы",
+      "fetchedAt": "2026-08-08T11:04:41.311Z",
+      "expiresAt": "2026-08-09T11:04:41.311Z",
+      "size": 3305
+    },
+    "jimmysong_io_blog_.md": {
+      "url": "https://jimmysong.io/blog/",
+      "title": "Blog | Jimmy Song",
+      "fetchedAt": "2026-08-08T11:04:49.138Z",
+      "expiresAt": "2026-08-09T11:04:49.138Z",
+      "size": 260
+    },
+    "system-design_space_theme_ai-engineering.md": {
+      "url": "https://system-design.space/theme/ai-engineering",
+      "title": "AI Engineering — System Design Space",
+      "fetchedAt": "2026-08-08T11:04:50.136Z",
+      "expiresAt": "2026-08-09T11:04:50.136Z",
+      "size": 6689
+    },
+    "system-design_space_theme_ml-engineering.md": {
+      "url": "https://system-design.space/theme/ml-engineering",
+      "title": "ML Engineering — System Design Space",
+      "fetchedAt": "2026-08-08T11:04:50.513Z",
+      "expiresAt": "2026-08-09T11:04:50.513Z",
+      "size": 5236
+    },
+    "jimmysong_io_book_ai-native-infra_compute-governance_.md": {
+      "url": "https://jimmysong.io/book/ai-native-infra/compute-governance/",
+      "title": "Why Start with Compute Governance, Not API Design | Jimmy …",
+      "fetchedAt": "2026-08-08T11:04:58.901Z",
+      "expiresAt": "2026-08-09T11:04:58.901Z",
+      "size": 11647
+    },
+    "github_com_openai_codex.md": {
+      "url": "https://github.com/openai/codex",
+      "title": "GitHub - openai/codex: Lightweight coding agent that runs in your terminal · GitHub",
+      "fetchedAt": "2026-08-08T11:04:59.984Z",
+      "expiresAt": "2026-08-09T11:04:59.984Z",
+      "size": 3367
+    },
+    "docs_anthropic_com_en_docs_claude-code_overview.md": {
+      "url": "https://docs.anthropic.com/en/docs/claude-code/overview",
+      "title": "Overview - Claude Code Docs",
+      "fetchedAt": "2026-08-08T11:05:00.203Z",
+      "expiresAt": "2026-08-09T11:05:00.203Z",
+      "size": 13915
+    },
+    "github_com_sst_opencode.md": {
+      "url": "https://github.com/sst/opencode",
+      "title": "GitHub - anomalyco/opencode: The open source coding agent. · GitHub",
+      "fetchedAt": "2026-08-08T11:05:00.627Z",
+      "expiresAt": "2026-08-09T11:05:00.627Z",
+      "size": 4877
+    },
+    "jimmysong_io_book_ai-native-infra_migration-roadmap_.md": {
+      "url": "https://jimmysong.io/book/ai-native-infra/migration-roadmap/",
+      "title": "Migration Roadmap: From Cloud Native to AI Native | Jimmy …",
+      "fetchedAt": "2026-08-08T11:05:07.010Z",
+      "expiresAt": "2026-08-09T11:05:07.010Z",
+      "size": 15092
+    },
+    "jimmysong_io_book_ai-native-infra_definition_.md": {
+      "url": "https://jimmysong.io/book/ai-native-infra/definition/",
+      "title": "What Is AI-Native Infrastructure? | Jimmy Song",
+      "fetchedAt": "2026-08-08T11:05:07.478Z",
+      "expiresAt": "2026-08-09T11:05:07.478Z",
+      "size": 13361
+    },
+    "github_com_moonshotai_kimi-code.md": {
+      "url": "https://github.com/moonshotai/kimi-code",
+      "title": "GitHub - MoonshotAI/kimi-code: Kimi Code CLI  —  The Starting Point for Next-Gen Agents · GitHub",
+      "fetchedAt": "2026-08-08T11:05:11.510Z",
+      "expiresAt": "2026-08-09T11:05:11.510Z",
+      "size": 5688
+    },
+    "opencode_ai_docs.md": {
+      "url": "https://opencode.ai/docs",
+      "title": "Intro | AI coding agent built for the terminal",
+      "fetchedAt": "2026-08-08T11:05:12.748Z",
+      "expiresAt": "2026-08-09T11:05:12.748Z",
+      "size": 8049
+    },
+    "docs_cursor_com_agent_overview.md": {
+      "url": "https://docs.cursor.com/agent/overview",
+      "title": "Cursor Docs — Agent, Rules, MCP, Skills &amp; CLI",
+      "fetchedAt": "2026-08-08T11:05:12.768Z",
+      "expiresAt": "2026-08-09T11:05:12.768Z",
+      "size": 143
+    },
+    "aider_chat_docs_.md": {
+      "url": "https://aider.chat/docs/",
+      "title": "Aider Documentation | aider",
+      "fetchedAt": "2026-08-08T11:05:18.745Z",
+      "expiresAt": "2026-08-09T11:05:18.745Z",
+      "size": 15132
+    },
+    "docs_cursor_com_agent_features.md": {
+      "url": "https://docs.cursor.com/agent/features",
+      "title": "Cursor Docs — Agent, Rules, MCP, Skills &amp; CLI",
+      "fetchedAt": "2026-08-08T11:05:19.214Z",
+      "expiresAt": "2026-08-09T11:05:19.214Z",
+      "size": 143
+    },
+    "opencode_ai_docs_agents.md": {
+      "url": "https://opencode.ai/docs/agents",
+      "title": "Agents | OpenCode",
+      "fetchedAt": "2026-08-08T11:05:19.727Z",
+      "expiresAt": "2026-08-09T11:05:19.727Z",
+      "size": 15129
+    },
+    "docs_cursor_com_agent_background-agents.md": {
+      "url": "https://docs.cursor.com/agent/background-agents",
+      "title": "Cursor Docs — Agent, Rules, MCP, Skills &amp; CLI",
+      "fetchedAt": "2026-08-08T11:05:25.986Z",
+      "expiresAt": "2026-08-09T11:05:25.986Z",
+      "size": 152
+    },
+    "opencode_ai_docs_tools.md": {
+      "url": "https://opencode.ai/docs/tools",
+      "title": "Tools | OpenCode",
+      "fetchedAt": "2026-08-08T11:05:26.041Z",
+      "expiresAt": "2026-08-09T11:05:26.041Z",
+      "size": 8747
+    },
+    "opencode_ai_docs_permissions.md": {
+      "url": "https://opencode.ai/docs/permissions",
+      "title": "Permissions | OpenCode",
+      "fetchedAt": "2026-08-08T11:05:26.355Z",
+      "expiresAt": "2026-08-09T11:05:26.355Z",
+      "size": 7969
+    },
+    "system-design_space_materials_.md": {
+      "url": "https://system-design.space/materials/",
+      "title": "Каталог материалов — System Design Space",
+      "fetchedAt": "2026-08-08T11:05:34.414Z",
+      "expiresAt": "2026-08-09T11:05:34.414Z",
+      "size": 1208
+    },
+    "system-design_space_tracks_.md": {
+      "url": "https://system-design.space/tracks/",
+      "title": "System Design Space — Главная, граф знаний, треки и материалы",
+      "fetchedAt": "2026-08-08T11:05:34.878Z",
+      "expiresAt": "2026-08-09T11:05:34.878Z",
+      "size": 721
+    },
+    "jimmysong_io_blog_page_2_.md": {
+      "url": "https://jimmysong.io/blog/page/2/",
+      "title": "Blog | Jimmy Song",
+      "fetchedAt": "2026-08-08T11:05:41.716Z",
+      "expiresAt": "2026-08-09T11:05:41.716Z",
+      "size": 322
+    },
+    "jimmysong_io_tags_ai_.md": {
+      "url": "https://jimmysong.io/tags/ai/",
+      "title": "AI - Tag | Jimmy Song",
+      "fetchedAt": "2026-08-08T11:05:42.200Z",
+      "expiresAt": "2026-08-09T11:05:42.200Z",
+      "size": 554
+    },
+    "jimmysong_io_tags_llm_.md": {
+      "url": "https://jimmysong.io/tags/llm/",
+      "title": "LLM - Tag | Jimmy Song",
+      "fetchedAt": "2026-08-08T11:05:42.611Z",
+      "expiresAt": "2026-08-09T11:05:42.611Z",
+      "size": 374
+    }
+  },
+  "lastUpdated": "2026-08-08T11:05:42.611Z"
+}

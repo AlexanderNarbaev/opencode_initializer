@@ -8,7 +8,7 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "fix-config" ];
 
   generate_opencode_json() {
     python3 <<'PYGEN'
-import json, os, shutil, subprocess, copy
+import json, os, shutil, subprocess, copy, sys
 
 home = os.path.expanduser("~")
 project_dir = os.environ.get("PROJECT_DIR", os.path.join(home, "projects"))
@@ -164,7 +164,35 @@ def _build_providers():
 
     fallback_chain = ["deepseek", "zai", "groq", "together", "openai", "minimax"]
 
+    # ── Model governance: load policy and filter providers ───────────────────
+    denied = set()
+    allowed = set()
+    policy_path = os.path.join(home, ".config", "opencode", "model-policy.json")
+    if os.path.exists(policy_path):
+        try:
+            with open(policy_path) as pf:
+                policy = json.load(pf)
+            mode = policy.get("mode", "allow-all")
+            denied = set(policy.get("denied_providers", []))
+            if mode in ("allowlist", "corporate"):
+                allowed = set(policy.get("allowed_providers", []))
+            if denied:
+                sys.stderr.write(f"  [policy] denied providers: {', '.join(sorted(denied))}\n")
+            if allowed:
+                sys.stderr.write(f"  [policy] allowed providers (mode={mode}): {', '.join(sorted(allowed))}\n")
+        except Exception:
+            pass
+
     for provider, key in all_keys.items():
+        # Skip providers denied by model governance policy
+        if provider in denied:
+            sys.stderr.write(f"  [policy] provider {provider} denied — skipped\n")
+            continue
+        # In allowlist/corporate mode, only include explicitly allowed providers
+        if allowed and provider not in allowed:
+            sys.stderr.write(f"  [policy] provider {provider} not in allowlist — skipped\n")
+            continue
+
         if key or provider in ("deepseek", "opencode", "zai"):
             providers[provider] = copy.deepcopy(opts)
             if provider in provider_models:
@@ -196,11 +224,6 @@ def _build_providers():
             elif provider == "minimax":
                 providers[provider].setdefault("options", {})
                 providers[provider]["options"]["baseURL"] = "https://api.minimax.io/v1"
-            elif provider == "minimax":
-                providers[provider].setdefault("options", {})
-                providers[provider]["options"]["baseURL"] = "https://api.minimax.io/v1"
-            elif provider == "minimax":
-                providers[provider]["base_url"] = "https://api.minimax.io/v1"
             if provider not in ("deepseek", "zai"):
                 providers[provider]["fallback"] = ["deepseek"]
             elif provider == "deepseek":

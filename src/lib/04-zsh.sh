@@ -23,7 +23,9 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]) && _gate "INTERACTIVE_DO_ZSH
   if [ ! -d "$HOME/.oh-my-zsh" ]; then
     OMZ_URL="https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
     OMZ_MIRROR="https://ghproxy.com/$OMZ_URL"
-    sh -c "$(curl -fsSL --connect-timeout 15 --retry 2 "$OMZ_URL" 2>/dev/null || curl -fsSL --connect-timeout 15 "$OMZ_MIRROR" 2>/dev/null)" "" --unattended 2>/dev/null || true
+    _download_verify "$OMZ_URL" /tmp/omz-install.sh && bash /tmp/omz-install.sh --unattended 2>/dev/null || \
+    _download_verify "$OMZ_MIRROR" /tmp/omz-install.sh && bash /tmp/omz-install.sh --unattended 2>/dev/null || true
+    rm -f /tmp/omz-install.sh
   fi
 
   ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
