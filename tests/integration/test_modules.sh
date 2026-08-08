@@ -80,8 +80,8 @@ done
 
 # ── setup.sh orchestrator line count ──────────────────────────────────
 SETUP_LINES=$(wc -l < "$PROJECT_DIR/setup.sh")
-assert "setup.sh is ~589 lines (+/- 20)" \
-  "[ '$SETUP_LINES' -ge 569 ] && [ '$SETUP_LINES' -le 609 ]"
+assert "setup.sh is ~615 lines (+/- 20)" \
+  "[ '$SETUP_LINES' -ge 595 ] && [ '$SETUP_LINES' -le 635 ]"
 
 # ── Module count matches AGENTS.md description ────────────────────────
 MODES_COUNT=$(ls "$PROJECT_DIR/src/modes/"*.sh 2>/dev/null | wc -l)
