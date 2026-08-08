@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+[ "${DRY_RUN:-false}" = "true" ] && { info "[DRY] Finalize skipped"; return 0; }
 # lib/19-finalize.sh — Finalization: Git config, PATH persistence, .zshrc fix, auth reminder, dev CLI, verification (STEPS 15-19)
 # Requires: MODE, GIT_NAME, GIT_EMAIL, all *_KEY vars, SECRETS_FILE, SCRIPTS_DIR
 set -euo pipefail
