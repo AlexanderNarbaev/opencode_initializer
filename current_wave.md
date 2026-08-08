@@ -18,6 +18,7 @@
 
 ### MEDIUM
 - [x] #5 Trivy CI exit-code — blocking (1) + advisory (0, continue-on-error)
+- [x] #6 ShellCheck sweep — 24 SC2034 fixed, 0 warnings across all modules
 - [x] #7 Test coverage — 9 new test files for uncovered modules
 - [x] #8 OPencode_* env naming — OPENCODE_* canonical, OPencode_* fallback
 

@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Uncovered module tests** — 9 new test files: java, chromadb, rag, dotfiles, mise, best-practices, upstream-sync, sync-providers (Python), sync-agents (Python)
 - **Health mode coverage** — +2 new checks: model router, embed proxy; total 128+ checks in 12 sections
 - **dev doctor** — `cmd_doctor()` wired for pre-session provider & model validation
+- **ShellCheck sweep** — 24 SC2034 (unused variables) eliminated; 4 SC1090 (non-constant source) suppressed; `shellcheck -S warning` = 0 across all modules
 
 ### Added
 - `dev doctor` CLI command for pre-session checks

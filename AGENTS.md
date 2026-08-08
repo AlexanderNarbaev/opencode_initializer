@@ -2,7 +2,7 @@
 > **Operating Model:** Multi-Agent Continuous Development Framework v3.0 ([ADR](./docs/architecture/adr/2026-07-18-multi-agent-framework-v3.md))
 > **Current Wave:** [current_wave.md](./current_wave.md) | **Checkpoint:** [session_checkpoint.json](./session_checkpoint.json)
 
-## Status: v2.0.3 — 10 deep-research findings fixed (plugins registry, migration, sudo safety, macOS grep, CI trivy, OPencode env, test coverage, dev doctor, health coverage)
+## Status: v2.0.3 — 10 deep-research findings fixed (plugins registry, migration, sudo safety, macOS grep, CI trivy, OPencode env, test coverage, shellcheck, dev doctor, health coverage)
 
 | Phase | Status | Description |
 |-------|--------|-------------|
