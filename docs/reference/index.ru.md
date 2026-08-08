@@ -38,7 +38,7 @@ bash setup.sh [РЕЖИМ] [ОПЦИИ]
 | `--github-token <токен>` | GitHub токен |
 | `--gitlab-token <токен>` | GitLab токен |
 | `--google-maps-key <ключ>` | Google Maps API ключ |
-| `-s, --sudo-pass <пароль>` | Пароль sudo (кэшируется) |
+| `-s, --sudo-pass <пароль>` | **[УСТАРЕЛО]** Используйте `SUDO_PASS` env или интерактивный `read -s` |
 | `-p, --project-dir <папка>` | Директория проекта (по умолчанию: ~/projects) |
 | `-n, --git-name <имя>` | Имя пользователя Git |
 | `-e, --git-email <email>` | Email Git |

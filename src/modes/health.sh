@@ -159,7 +159,7 @@ _check "Session writable"      "[ -w ~/.config/opencode/sessions ]"
 _check "CodeGraph index"       "[ -f .codegraph/codegraph.db ]"
 
 section "MCP Binaries (~/.bun/bin/)"
-MCP_COUNT=$(ls ~/.bun/bin/ 2>/dev/null | grep -v -E '^(bun|bunx)$' | wc -l)
+MCP_COUNT=$(find ~/.bun/bin/ -maxdepth 1 \( -type f -o -type l \) 2>/dev/null | grep -v -E '/(bun|bunx)$' | wc -l)
 echo -e "  ${GREEN}✓${NC} $MCP_COUNT MCP binaries installed"
 
 echo; log "Health: $PASS passed, $FAIL failed"

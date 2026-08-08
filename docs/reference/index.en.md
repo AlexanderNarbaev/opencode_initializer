@@ -38,7 +38,7 @@ bash setup.sh [MODE] [OPTIONS]
 | `--github-token <token>` | GitHub personal access token |
 | `--gitlab-token <token>` | GitLab personal access token |
 | `--google-maps-key <key>` | Google Maps API key |
-| `-s, --sudo-pass <pass>` | Sudo password (cached) |
+| `-s, --sudo-pass <pass>` | **[DEPRECATED]** Use `SUDO_PASS` env or interactive `read -s` |
 | `-p, --project-dir <dir>` | Project directory (default: ~/projects) |
 | `-n, --git-name <name>` | Git user name |
 | `-e, --git-email <email>` | Git user email |
