@@ -20,6 +20,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
     command -v chromedriver &>/dev/null || sudo apt-get install -y -qq google-chromedriver 2>/dev/null || sudo apt-get install -y -qq chromium-chromedriver 2>/dev/null || true
   fi
 
+  # shellcheck disable=SC2034
   IS_WSL=false
   grep -qi microsoft /proc/version 2>/dev/null && IS_WSL=true
   grep -qi wsl /proc/version 2>/dev/null && IS_WSL=true

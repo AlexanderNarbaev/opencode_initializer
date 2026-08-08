@@ -9,6 +9,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]) && _gate "INTERACTIVE_DO_BES
   section "Best Practices Skills (smixs curated)"
 
   SMIXS_SKILLS_DIR="$HOME/.config/opencode/skills/smixs"
+  # shellcheck disable=SC2034
   ZPL_PKG_DIR="$HOME/.local/share/zpl80"
 
   # ── 1. humanizer-ru (Russian AI text humanizer) ─────────────────────────

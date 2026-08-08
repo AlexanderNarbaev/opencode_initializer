@@ -84,6 +84,7 @@ _blur() {
   printf "\r  ${MAGENTA}▌${NC} ${GRAY}%.*s...${NC}" "$max" "$msg"
 }
 
+# shellcheck disable=SC2034
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 DL_CACHE="${HOME}/.cache/opencode-setup"
 mkdir -p "$DL_CACHE"
@@ -106,7 +107,7 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 _curl() {
-  local url="$1" out="${2:-}" opts="${3:-}" attempt=1 max=5 cache_key cache_file
+  local url="$1" out="${2:-}" attempt=1 max=5 cache_key cache_file
   cache_key=$(echo "$url" | md5sum | awk '{print $1}')
   cache_file="$DL_CACHE/${cache_key}.dl"
   [ -n "$out" ] && [ -f "$cache_file" ] && [ $(($(date +%s) - $(stat -c %Y "$cache_file" 2>/dev/null || echo 0))) -lt 86400 ] && cp "$cache_file" "$out" 2>/dev/null && return 0
