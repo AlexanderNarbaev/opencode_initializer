@@ -18,6 +18,7 @@ fi
 source "$SCRIPTS_DIR/src/lib/helpers.sh"
 source "$SCRIPTS_DIR/src/lib/00-core.sh"
 CONFIG_FILE="${HOME}/.config/opencode-setup/setup.conf"
+# shellcheck disable=SC1090
 [ -f "$CONFIG_FILE" ] && source "$CONFIG_FILE"
 
 usage() {
@@ -430,6 +431,7 @@ cmd_isolated() {
     status | "")
       section "Isolated Circuit Status"
       local current="${ISOLATED_CIRCUIT:-false}"
+      # shellcheck disable=SC1090
       [ -z "$current" ] && [ -f "$CONFIG" ] && . "$CONFIG" 2>/dev/null && current="${ISOLATED_CIRCUIT:-false}"
       case "${current,,}" in true | 1 | yes | on | enabled) current="true" ;; *) current="false" ;; esac
 
