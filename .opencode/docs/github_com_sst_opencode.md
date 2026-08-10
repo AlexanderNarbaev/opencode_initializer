@@ -1,7 +1,7 @@
 # GitHub - anomalyco/opencode: The open source coding agent. · GitHub
 
 > Source: https://github.com/sst/opencode
-> Cached: 2026-08-08T11:05:00.627Z
+> Cached: 2026-08-10T12:39:11.459Z
 
 ---
 
