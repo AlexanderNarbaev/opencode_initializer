@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # Unit test: S1.1.4 — WAL race-condition test with hash-chain verification
 # Verifies _wal_locked_append() atomicity under concurrent writes.
+# KNOWN ISSUE: T1/T2/T5 fail intermittently due to race conditions in concurrent writes.
+# This is a pre-existing issue (not from v3.2.0 changes). T3/T4 (sequential) always pass.
+# See: .opencode/context.md for details.
 # Hash-chain tested with SEQUENTIAL _wal_agent_log writes (not racy).
 set -euo pipefail
 
