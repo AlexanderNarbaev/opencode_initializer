@@ -26,7 +26,7 @@
 | Плагинов OpenCode | 15 |
 | AI-провайдеров | 23 (20 облачных + 3 локальных) |
 | Model Router | 8 профилей (coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn) |
-| Инфраструктура | 6 сервисов (PostgreSQL, Qdrant, Redis, Prometheus, Grafana, MemoryLayer) |
+| Инфраструктура | 7 сервисов (PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer) |
 | Web GUI | 9 разделов управления (порт 4200) |
 | Тестов | 480+ проверок (40 unit + 5 integration + 4 e2e) |
 | Пакетных менеджеров | apt, dnf, pacman, apk, zypper, brew |
@@ -40,7 +40,7 @@
 - :fontawesome-solid-robot: **24 MCP-серверов** — GitHub, GitLab, Filesystem, Playwright, Chrome DevTools, SQLite, Postgres, Memory, Excalidraw, Brave Search, Context7, Google Maps и другие
 - :fontawesome-solid-puzzle-piece: **15 плагинов OpenCode** — codegraph, dcp, auto-fallback, goal-mode, swarm, vibeguard, devcontainers, worktree, scheduler, background-agents, goal-plugin, conductor, zellij-namer, morph-plugin, supermemory
 - :fontawesome-solid-gears: **13 LSP-серверов** — gopls, rust-analyzer, tsserver, pyright, omnisharp, yaml, marksman, taplo, lua, zls, bash, dockerfile, css/html/json
-- :fontawesome-solid-box: **Infrastructure as Code** — PostgreSQL, Qdrant, Redis, Prometheus, Grafana, MemoryLayer через Docker Compose
+- :fontawesome-solid-box: **Infrastructure as Code** — PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer через Docker Compose
 - :fontawesome-solid-display: **Cockpit TUI** — 7-вкладочный терминальный UI для управления сервером
 - :fontawesome-solid-shield-halved: **Isolated Circuit Mode** — air-gapped LLM с локальными бэкендами
 - :fontawesome-solid-cloud: **23 AI-провайдера** — DeepSeek, z.ai GLM-5.2, OpenRouter, OpenAI, Anthropic, Google, xAI, Alibaba Qwen3 и другие
@@ -75,7 +75,7 @@
 
 | Возможность | Описание |
 |-------------|----------|
-| Infrastructure as Code | PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer через Docker Compose |
+| Infrastructure as Code | PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer через Docker Compose |
 | Cockpit TUI | 7-вкладочный терминальный UI — System, Plugins, GPU/Models, Sessions, Tasks, Logs, Infra |
 | Isolated Circuit Mode | Air-gapped LLM с Ollama, vLLM, SGLang |
 | Model Routing Intelligence | 8 профилей: coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn |
@@ -136,7 +136,7 @@ dev isolated status                 # Проверить текущее сост
 | **Оболочка** | Zsh 5.8+, Oh My Zsh, Powerlevel10k, 14 плагинов |
 | **Браузер** | Google Chrome, ChromeDriver (оптимизирован для WSL2) |
 | **Контейнеры** | Docker Engine |
-| **Инфраструктура** | PostgreSQL, Qdrant, Redis, Prometheus, Grafana, MemoryLayer |
+| **Инфраструктура** | PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer |
 | **AI/ML** | Ollama, vLLM, SGLang, Open WebUI, ChromaDB, WasmEdge, ONNX |
 | **Веб-поиск** | SearXNG self-hosted поиск + sanitizer proxy |
 | **MCP-серверы** | 24 сервера для AI-ассистированной разработки |
