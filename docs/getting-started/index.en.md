@@ -317,7 +317,7 @@ bash setup.sh --full \
   --gitlab-token "glpat-team-gitlab-token"
 ```
 
-See the [Team Setup Guide](../guides/team-setup/) for detailed team onboarding.
+See the [Team Setup Guide](../guides/team-setup.md) for detailed team onboarding.
 
 ### Scenario 5: ML/AI Developer with GPU
 
@@ -383,9 +383,9 @@ bash setup.sh --interactive
 
 ## :fontawesome-solid-arrow-right: Next Steps
 
-- [User Guide](../user-guide/) — day-to-day usage
-- [Advanced Guide](../advanced/) — customization and WSL2 tuning
-- [Architecture](../architecture/) — understand how it works
-- [Reference](../reference/) — CLI and config reference
-- [FAQ](../faq/) — common questions and answers
-- [Comparison](../comparison/) — how OpenCode Initializer compares to alternatives
+- [User Guide](../user-guide/index.md) — day-to-day usage
+- [Advanced Guide](../advanced/index.md) — customization and WSL2 tuning
+- [Architecture](../architecture/index.md) — understand how it works
+- [Reference](../reference/index.md) — CLI and config reference
+- [FAQ](../faq/index.md) — common questions and answers
+- [Comparison](../comparison.md) — how OpenCode Initializer compares to alternatives

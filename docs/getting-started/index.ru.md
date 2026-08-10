@@ -297,7 +297,7 @@ bash setup.sh --full \
   --gitlab-token "glpat-team-gitlab-token"
 ```
 
-См. [Руководство по командной установке](../guides/team-setup/).
+См. [Руководство по командной установке](../guides/team-setup.md).
 
 ### Сценарий 5: ML/AI разработчик с GPU
 
@@ -363,9 +363,9 @@ bash setup.sh --interactive
 
 ## :fontawesome-solid-arrow-right: Далее
 
-- [Руководство](../user-guide/) — повседневное использование
-- [Продвинутое](../advanced/) — кастомизация и WSL2
-- [Архитектура](../architecture/) — как это работает
-- [Справочник](../reference/) — CLI и конфигурация
-- [FAQ](../faq/) — частые вопросы
-- [Сравнение](../comparison/) — сравнение с альтернативами
+- [Руководство](../user-guide/index.md) — повседневное использование
+- [Продвинутое](../advanced/index.md) — кастомизация и WSL2
+- [Архитектура](../architecture/index.md) — как это работает
+- [Справочник](../reference/index.md) — CLI и конфигурация
+- [FAQ](../faq/index.md) — частые вопросы
+- [Сравнение](../comparison.md) — сравнение с альтернативами

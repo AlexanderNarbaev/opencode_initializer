@@ -271,7 +271,7 @@ During setup, you'll see:
 ---
 
 **See also:**
-- [MCP, LSP & Plugins](../reference/mcp-lsp-plugins/) — 24+12+18 component catalogue
-- [Architecture](../architecture/) — C4 diagrams and design decisions
-- [User Guide](../user-guide/) — daily CLI usage
-- [FAQ](../faq/) — troubleshooting and solutions
+- [MCP, LSP & Plugins](../reference/mcp-lsp-plugins.md) — 24+12+18 component catalogue
+- [Architecture](../architecture/index.md) — C4 diagrams and design decisions
+- [User Guide](../user-guide/index.md) — daily CLI usage
+- [FAQ](../faq/index.md) — troubleshooting and solutions

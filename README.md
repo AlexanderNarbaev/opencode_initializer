@@ -1,9 +1,9 @@
-# OpenCode Initializer v3.0.0
+# OpenCode Initializer v3.2.0
 
 > **Operating Model:** Multi-Agent Framework v3.0 | **Wave:** [current_wave.md](./current_wave.md) | **Checkpoint:** [session_checkpoint.json](./session_checkpoint.json)
 <p align="center">
   <b>AI-Native SDD Harness — one-command AI-enhanced development environment for WSL2, Linux, and macOS. 4 deployment profiles.</b><br>
-  <sub>685-line orchestrator · 50 modules · 12 modes · 24 MCPs · 15 plugins · 13 LSPs · 22 providers · air-gap · governance · PII guard · audit trail · offline bundle</sub>
+  <sub>685-line orchestrator · 52 modules · 12 modes · 24 MCPs · 15 plugins · 13 LSPs · 22 providers · air-gap · governance · PII guard · audit trail · offline bundle</sub>
 </p>
 
 <p align="center">
@@ -24,7 +24,7 @@
 curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializer/main/setup.sh | bash -s -- --full
 ```
 
-One command installs everything: 8 languages, 50 infrastructure modules, 24 MCP servers, 15 OpenCode plugins, 13 LSP servers, 22 AI providers, infrastructure as code (PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer), Cockpit TUI (7 tabs), Web GUI, Isolated Circuit Mode, hardware auto-detection, and SearXNG web search.
+One command installs everything: 8 languages, 52 infrastructure modules, 24 MCP servers, 15 OpenCode plugins, 13 LSP servers, 22 AI providers, infrastructure as code (PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer), Cockpit TUI (7 tabs), Web GUI, Isolated Circuit Mode, hardware auto-detection, Lynis CIS scanner, auditd kernel rules, and SearXNG web search.
 
 [Full Documentation](https://alexandernarbaev.github.io/opencode_initializer/)
 
@@ -36,7 +36,7 @@ One command installs everything: 8 languages, 50 infrastructure modules, 24 MCP 
 | Category | Count | Details |
 |----------|-------|---------|
 | Languages | 8 | Java 25, Node.js 24, Python 3.14, Go 1.26, Rust 1.97.1, .NET 10, Kotlin, Zig |
-| Modules | 50 | System, Docker, Chrome, ZSH, 7 languages, OpenCode, MCP/LSP, ChromaDB, LLM, RAG, SearXNG, providers, dotfiles, Devbox, Infra, Cockpit, Isolated Circuit, Services, Observability, GUI, Model Router, WAL, Best Practices, Upstream Sync, and more |
+| Modules | 52 | System, Docker, Chrome, ZSH, 7 languages, OpenCode, MCP/LSP, ChromaDB, LLM, RAG, SearXNG, providers, dotfiles, Devbox, Infra, Cockpit, Isolated Circuit, Services, Observability, GUI, Model Router, WAL, Best Practices, Upstream Sync, Linux Platform, Lynis, auditd, and more |
 | MCP Servers | 24 | GitHub, GitLab, Filesystem, Playwright, Chrome DevTools, Postgres, SQLite, Memory, Excalidraw, Brave Search, Context7, Google Maps, and more |
 | LSP Servers | 13 | gopls, rust-analyzer, tsserver, pyright, omnisharp, yaml, marksman, taplo, lua, zls, bash, dockerfile, css/html/json |
 | Plugins | 15 | token-tracker, dcp, swarm, goal-mode, vibeguard, orchestrator, auto-fallback, notify, pty, snip, snippets, envsitter-guard, command-inject, ignore |

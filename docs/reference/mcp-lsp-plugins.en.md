@@ -168,7 +168,7 @@ For system-wide installation, modify `src/lib/12-mcp-lsp.sh` and run `bash setup
 ---
 
 **See also:**
-- [Architecture](../architecture/) — C4 diagrams and module layout
-- [Reference](../reference/) — CLI reference and opencode.json schema
-- [User Guide](../user-guide/) — daily usage of MCP and LSP
-- [Advanced Guide](../advanced/) — custom MCP/LSP configuration
+- [Architecture](../architecture/index.md) — C4 diagrams and module layout
+- [Reference](../reference/index.md) — CLI reference and opencode.json schema
+- [User Guide](../user-guide/index.md) — daily usage of MCP and LSP
+- [Advanced Guide](../advanced/index.md) — custom MCP/LSP configuration

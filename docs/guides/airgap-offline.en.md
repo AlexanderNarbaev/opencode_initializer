@@ -96,6 +96,6 @@ cat bundle-manifest.sha256
 
 ## See Also
 
-- [Deployment Profiles](deployment-profiles/) — 4 profile types
-- [Security & Compliance](../reference/security-compliance/) — PII, audit, SBOM
-- [Model Governance](../reference/governance/) — allowlist/blocklist
+- [Deployment Profiles](deployment-profiles.md) — 4 profile types
+- [Security & Compliance](../reference/security-compliance.md) — PII, audit, SBOM
+- [Model Governance](../reference/governance.md) — allowlist/blocklist

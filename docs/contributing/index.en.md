@@ -143,6 +143,6 @@ Contributors are recognized in the [GitHub contributors graph](https://github.co
 ---
 
 **See also:**
-- [Architecture](../architecture/) — system design and module layout
-- [Reference](../reference/) — CLI and config schema
-- [Getting Started](../getting-started/) — installation and first use
+- [Architecture](../architecture/index.md) — system design and module layout
+- [Reference](../reference/index.md) — CLI and config schema
+- [Getting Started](../getting-started/index.md) — installation and first use

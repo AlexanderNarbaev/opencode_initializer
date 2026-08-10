@@ -242,7 +242,7 @@ graph LR
 ---
 
 **See also:**
-- [Reference](../reference/) — CLI reference and module table
-- [MCP, LSP & Plugins](../reference/mcp-lsp-plugins/) — full component catalogue
-- [User Guide](../user-guide/) — daily usage patterns
-- [Advanced Guide](../advanced/) — customization and optimization
+- [Reference](../reference/index.md) — CLI reference and module table
+- [MCP, LSP & Plugins](../reference/mcp-lsp-plugins.md) — full component catalogue
+- [User Guide](../user-guide/index.md) — daily usage patterns
+- [Advanced Guide](../advanced/index.md) — customization and optimization

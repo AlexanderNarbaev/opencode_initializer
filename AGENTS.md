@@ -15,7 +15,7 @@
 
 ## Identity
 Universal Dev Machine Bootstrap — AI-Native SDD Harness для WSL2/Linux. 4 deployment profiles: personal, corporate, air-gapped, hybrid.
-Модульная архитектура: 685 строк оркестратор + 50 модулей + автообновление через systemd-таймер.
+Модульная архитектура: 685 строк оркестратор + 52 модуля + автообновление через systemd-таймер.
 
 ## Язык общения
 Всё общение строго на русском языке. Код и комментарии — на английском.
@@ -25,7 +25,7 @@ Universal Dev Machine Bootstrap — AI-Native SDD Harness для WSL2/Linux. 4 d
 opencode_initializer/
 ├── setup.sh          ← оркестратор (685 строк, source модули из src/lib/)
 ├── src/
-│   ├── lib/          ← 50 модулей (00-core.sh … 46-offline-bundle.sh + 99-upstream-sync.sh + helpers.sh + version-check.sh + pre-session-check.sh)
+│   ├── lib/          ← 52 модуля (00-core.sh … 48-auditd.sh + 99-upstream-sync.sh + helpers.sh + version-check.sh + pre-session-check.sh)
 │   └── modes/            ← 5 режимных скриптов (+ 6 встроенных режимов)
 ├── dev.sh            ← CLI (dev install|metrics|observability|infra|...)
 ├── .env.example      ← шаблон переменных окружения (API ключи)
@@ -54,6 +54,7 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 | `helpers.sh` | `_curl()`, `_retry()`, `_npm_install()`, `_sudo()` — shared infrastructure |
 | `00-core.sh` | Progress tracking, step skip/done, OS/PKG detection, mirrors, npm prefix, cache dirs, ISOLATED_CIRCUIT |
 | `01-system.sh` | System packages (apt/dnf/pacman/apk/zypper/brew) |
+| `01b-linux-platform.sh` | Linux platform detection (WSL2/Ubuntu/Debian/Fedora/Arch/Alpine) |
 | `02-docker.sh` | Docker engine installation |
 | `03-chrome.sh` | Google Chrome + chromedriver (WSL2-aware) |
 | `04-zsh.sh` | Zsh + Oh My Zsh + P10k + 14 plugins |
@@ -98,6 +99,9 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 | `44-audit.sh` | Audit trail — 7 WAL event types, SHA-256 hash-chain, rotation >10MB → gzip+Qdrant |
 | `45-pii-guard.sh` | PII sanitizer — 9 detectors (email, phone, INN, SNILS, passport, credit card, IP, API key) |
 | `46-offline-bundle.sh` | Air-gap offline bootstrap — tarball bundle, SHA-256 manifest, `dev bundle create` |
+| `47-lynis.sh` | Lynis CIS scanner — system security audit + cron.weekly |
+| `48-auditd.sh` | Linux audit daemon — 18 kernel audit rules (access, mounts, sudo) |
+| `99-upstream-sync.sh` | Upstream sync — providers, MCP, LSP, plugins from OpenCode upstream |
 | `version-check.sh` | Version check: Rust/Go/Node/Python/Bun/OpenCode/Ollama/Zig + npm packages |
 | `pre-session-check.sh` | Pre-session provider/model validation + MCP status |
 

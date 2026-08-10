@@ -16,7 +16,7 @@
 
 | Метрика | Значение |
 |---------|----------|
-| Модулей | 50 |
+| Модулей | 52 |
 | Новое в v3.2 | Lynis CIS-сканер + auditd kernel-правила + AI Gateway proxy + pre-commit hook |
 | Оркестратор | 685 строк Bash |
 | Режимов CLI | 11 (full, health, interactive, ci и другие) |
@@ -179,14 +179,14 @@ dev isolated status                 # Проверить текущее сост
 
 ## :fontawesome-solid-book: Документация
 
-- [Начало работы](getting-started/) — установка для начинающих
-- [Руководство](user-guide/) — повседневное использование
-- [Продвинутое](advanced/) — кастомизация, WSL2, GPU
-- [Архитектура](architecture/) — C4-диаграммы, модули
-- [Справочник](reference/) — CLI, opencode.json, MCP/LSP каталог
-- [Участие](contributing/) — как помочь
-- [FAQ](faq/) — частые вопросы
-- [Командная установка](guides/team-setup/) — гайд для онбординга команд
+- [Начало работы](getting-started/index.md) — установка для начинающих
+- [Руководство](user-guide/index.md) — повседневное использование
+- [Продвинутое](advanced/index.md) — кастомизация, WSL2, GPU
+- [Архитектура](architecture/index.md) — C4-диаграммы, модули
+- [Справочник](reference/index.md) — CLI, opencode.json, MCP/LSP каталог
+- [Участие](contributing/index.md) — как помочь
+- [FAQ](faq/index.md) — частые вопросы
+- [Командная установка](guides/team-setup.md) — гайд для онбординга команд
 
 ## :fontawesome-solid-heart: Сообщество
 

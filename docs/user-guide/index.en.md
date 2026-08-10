@@ -300,7 +300,7 @@ tar -czf opencode-backup-$(date +%Y%m%d).tar.gz \
 ---
 
 **See also:**
-- [MCP, LSP & Plugins Reference](../reference/mcp-lsp-plugins/) — full catalogue of all servers
-- [Advanced Guide](../advanced/) — WSL2, GPU, customization
-- [FAQ](../faq/) — common issues and solutions
-- [Architecture](../architecture/) — C4 diagrams and module reference
+- [MCP, LSP & Plugins Reference](../reference/mcp-lsp-plugins.md) — full catalogue of all servers
+- [Advanced Guide](../advanced/index.md) — WSL2, GPU, customization
+- [FAQ](../faq/index.md) — common issues and solutions
+- [Architecture](../architecture/index.md) — C4 diagrams and module reference

@@ -16,7 +16,7 @@
 
 | Metric | Value |
 |--------|-------|
-| Modules | 50 |
+| Modules | 52 |
 | New in v3.2 | Lynis CIS scanner + auditd kernel rules + AI Gateway proxy + pre-commit hook |
 | Orchestrator | 685 lines of Bash |
 | CLI modes | 11 (full, health, interactive, ci, and more) |
@@ -181,14 +181,14 @@ dev isolated status                 # Check current state
 
 ## Documentation
 
-- [Getting Started](getting-started/) — beginner-friendly installation guide
-- [User Guide](user-guide/) — day-to-day usage
-- [Advanced Guide](advanced/) — customization, WSL2, GPU setup
-- [Architecture](architecture/) — C4 diagrams, module reference
-- [Reference](reference/) — CLI, opencode.json schema, MCP/LSP catalog
-- [Contributing](contributing/) — how to help
-- [FAQ](faq/) — common questions
-- [Team Setup](guides/team-setup/) — onboarding guide for teams
+- [Getting Started](getting-started/index.md) — beginner-friendly installation guide
+- [User Guide](user-guide/index.md) — day-to-day usage
+- [Advanced Guide](advanced/index.md) — customization, WSL2, GPU setup
+- [Architecture](architecture/index.md) — C4 diagrams, module reference
+- [Reference](reference/index.md) — CLI, opencode.json schema, MCP/LSP catalog
+- [Contributing](contributing/index.md) — how to help
+- [FAQ](faq/index.md) — common questions
+- [Team Setup](guides/team-setup.md) — onboarding guide for teams
 
 ## Community
 

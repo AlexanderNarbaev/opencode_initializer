@@ -102,7 +102,7 @@ _download_verify "https://example.com/tool.sh" "tool.sh" "expected_sha256"
 
 ## См. также
 
-- [Model Governance](../reference/governance/) — схема политик и enforcement
-- [Air-Gap & Offline](airgap-offline/) — `dev bundle` и офлайн-установка
-- [Security & Compliance](../reference/security-compliance/) — аудит, PII, SBOM
+- [Model Governance](../reference/governance.md) — схема политик и enforcement
+- [Air-Gap & Offline](airgap-offline.md) — `dev bundle` и офлайн-установка
+- [Security & Compliance](../reference/security-compliance.md) — аудит, PII, SBOM
 - [SOC2 Checklist](../compliance/soc2-checklist.md) — CC5.2/CC7.2/CC8.2 маппинг

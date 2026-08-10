@@ -133,7 +133,7 @@ opencode_initializer/
 
 ## :fontawesome-solid-book: См. также
 
-- [Справочник](../reference/) — CLI и схема opencode.json
-- [MCP, LSP и плагины](../reference/mcp-lsp-plugins/) — каталог компонентов
-- [FAQ](../faq/) — частые вопросы
-- [Архитектура](../architecture/) — C4-диаграммы и проектные решения
+- [Справочник](../reference/index.md) — CLI и схема opencode.json
+- [MCP, LSP и плагины](../reference/mcp-lsp-plugins.md) — каталог компонентов
+- [FAQ](../faq/index.md) — частые вопросы
+- [Архитектура](../architecture/index.md) — C4-диаграммы и проектные решения

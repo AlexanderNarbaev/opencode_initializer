@@ -102,7 +102,7 @@ Attempts download with retry, verifies SHA-256, fails hard on mismatch.
 
 ## See Also
 
-- [Model Governance](../reference/governance/) — policy schema and enforcement
-- [Air-Gap & Offline Guide](airgap-offline/) — `dev bundle` and offline install
-- [Security & Compliance](../reference/security-compliance/) — audit, PII, SBOM
+- [Model Governance](../reference/governance.md) — policy schema and enforcement
+- [Air-Gap & Offline Guide](airgap-offline.md) — `dev bundle` and offline install
+- [Security & Compliance](../reference/security-compliance.md) — audit, PII, SBOM
 - [SOC2 Checklist](../compliance/soc2-checklist.md) — CC5.2/CC7.2/CC8.2 mapping

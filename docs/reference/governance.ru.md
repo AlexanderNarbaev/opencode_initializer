@@ -137,7 +137,7 @@ dev audit rotate
 
 ## См. также
 
-- [Профили развёртывания](../guides/deployment-profiles/) — дефолтные политики по профилям
-- [Security & Compliance](security-compliance/) — PII, hash-chain аудита, SBOM
+- [Профили развёртывания](../guides/deployment-profiles.md) — дефолтные политики по профилям
+- [Security & Compliance](security-compliance.md) — PII, hash-chain аудита, SBOM
 - [SOC2 Checklist](../compliance/soc2-checklist.md)
 - [ISO27001 Mapping](../compliance/iso27001-mapping.md)

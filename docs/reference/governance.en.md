@@ -137,7 +137,7 @@ dev audit rotate
 
 ## See Also
 
-- [Deployment Profiles](../guides/deployment-profiles/) — profile-based policy defaults
-- [Security & Compliance](security-compliance/) — PII, audit hash-chain, SBOM
+- [Deployment Profiles](../guides/deployment-profiles.md) — profile-based policy defaults
+- [Security & Compliance](security-compliance.md) — PII, audit hash-chain, SBOM
 - [SOC2 Checklist](../compliance/soc2-checklist.md)
 - [ISO27001 Mapping](../compliance/iso27001-mapping.md)

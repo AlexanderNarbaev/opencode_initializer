@@ -147,7 +147,7 @@ bash setup.sh --fix-zshrc
 ---
 
 **See also:**
-- [Getting Started](../getting-started/) — installation guide
-- [User Guide](../user-guide/) — daily usage
-- [Advanced Guide](../advanced/) — WSL2, GPU, customization
-- [Reference](../reference/) — CLI and config schema
+- [Getting Started](../getting-started/index.md) — installation guide
+- [User Guide](../user-guide/index.md) — daily usage
+- [Advanced Guide](../advanced/index.md) — WSL2, GPU, customization
+- [Reference](../reference/index.md) — CLI and config schema
