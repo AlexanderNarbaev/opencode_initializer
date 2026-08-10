@@ -33,6 +33,13 @@ repos:
         files: \.sh$
         exclude: tests/
 
+      - id: setup-lines-check
+        name: Check setup.sh line count in README
+        entry: bash scripts/check-setup-lines.sh
+        language: script
+        pass_filenames: false
+        always_run: true
+
       - id: trivy-critical
         name: Trivy CRITICAL check
         entry: bash -c 'command -v trivy >/dev/null && trivy fs --severity CRITICAL --exit-code 1 --skip-dirs tests . || echo "[pre-commit] Trivy not installed — skipping"'

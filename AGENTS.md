@@ -15,7 +15,7 @@
 
 ## Identity
 Universal Dev Machine Bootstrap — AI-Native SDD Harness для WSL2/Linux. 4 deployment profiles: personal, corporate, air-gapped, hybrid.
-Модульная архитектура: 589 строк оркестратор + 49 модулей + автообновление через systemd-таймер.
+Модульная архитектура: 685 строк оркестратор + 50 модулей + автообновление через systemd-таймер.
 
 ## Язык общения
 Всё общение строго на русском языке. Код и комментарии — на английском.
@@ -23,9 +23,9 @@ Universal Dev Machine Bootstrap — AI-Native SDD Harness для WSL2/Linux. 4 d
 ## Project Structure
 ```
 opencode_initializer/
-├── setup.sh          ← оркестратор (589 строк, source модули из src/lib/)
+├── setup.sh          ← оркестратор (685 строк, source модули из src/lib/)
 ├── src/
-│   ├── lib/          ← 49 модулей (00-core.sh … 46-offline-bundle.sh + 99-upstream-sync.sh + helpers.sh + version-check.sh + pre-session-check.sh)
+│   ├── lib/          ← 50 модулей (00-core.sh … 46-offline-bundle.sh + 99-upstream-sync.sh + helpers.sh + version-check.sh + pre-session-check.sh)
 │   └── modes/            ← 5 режимных скриптов (+ 6 встроенных режимов)
 ├── dev.sh            ← CLI (dev install|metrics|observability|infra|...)
 ├── .env.example      ← шаблон переменных окружения (API ключи)
@@ -45,7 +45,7 @@ opencode_initializer/
 
 ## Architecture (setup.sh)
 
-### Orchestrator (589 lines)
+### Orchestrator (685 lines)
 Minimal entry point that sources modules from `src/lib/` and dispatches modes from `src/modes/`.
 
 ### Module Layout (src/lib/ — 46 numbered + 3 helpers)
@@ -217,15 +217,15 @@ bash setup.sh --fix-zshrc                 # repair shell config
 | v1.1.0 | Ecosystem expansion: hardware auto-detection, LiteLLM, SearXNG, CI/CD mode, multimodal, 15+ providers, chezmoi, Devbox, ONNX. 29 modules, 65+ health checks. |
 | v2.0.0 | Infrastructure as Code (PostgreSQL+Qdrant+Redis+Prometheus+Grafana+MemoryLayer), Cockpit TUI (7-tab), Isolated Circuit Mode, z.ai GLM-5.2 + OpenRouter + Alibaba + DeepInfra providers, MemoryLayer embed proxy, 41 module, 24 providers, 350+ test assertions. |
 | v2.0.1 | kimi-proxy v14.2: dynamic payload compression for Moonshot API's undocumented 20KB limit. Sticky tools (bash/read/write/edit/grep/glob), progressive trimming, VPN requirement documented. |
-| v2.0.2 | Moonshot/Kimi + LiteLLM removed. Test harness gate fixed (23 files gained exit-on-failure; 7 silent failures surfaced and fixed). Dead modules wired: 31-cockpit, 32-isolated, 33-services. 22 providers (19 cloud + 3 local), 43 modules, 37 test files / 480+ assertions. |
-| v3.0.0 | SDD-native AI Harness: air-gap completeness, model governance, PII sanitizer, audit trail, supply-chain hardening (SHA256 verify), offline bundle, 4 deployment profiles (personal/corporate/air-gapped/hybrid). 22 providers, 49 modules, 37 test files / 480+ assertions. |
+| v2.0.2 | Moonshot/Kimi + LiteLLM removed. Test harness gate fixed (23 files gained exit-on-failure; 7 silent failures surfaced and fixed). Dead modules wired: 31-cockpit, 32-isolated, 33-services. 22 providers (19 cloud + 3 local), 50 modules, 37 test files / 480+ assertions. |
+| v3.0.0 | SDD-native AI Harness: air-gap completeness, model governance, PII sanitizer, audit trail, supply-chain hardening (SHA256 verify), offline bundle, 4 deployment profiles (personal/corporate/air-gapped/hybrid). 22 providers, 50 modules, 37 test files / 480+ assertions. |
 | v2.0.3 | Deep-research 10 findings: plugins fix, macOS compat, env naming, CI gates, test coverage, health checks, dev doctor, sudo deprecation, migration |
 
 ## Modular Architecture (v3.0.0)
 
 ```
 opencode_initializer/
-├── setup.sh              ← оркестратор (589 строк)
+├── setup.sh              ← оркестратор (685 строк)
 ├── dev.sh                ← CLI
 ├── opencode.json         ← конфиг OpenCode (22 providers)
 ├── .env.example          ← шаблон переменных окружения (API ключи)

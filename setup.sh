@@ -367,15 +367,42 @@ if [ "$MODE" = "upgrade" ]; then source "$SCRIPT_DIR/src/modes/upgrade.sh"; fi
 if [ "$MODE" = "interactive" ]; then source "$SCRIPT_DIR/src/modes/interactive.sh"; fi
 
 # ── Sudo — authenticate before any sudo operations ──────────────────────────
+# Fix (P0.1): bash `read -p` writes prompt to STDERR, and `2>/dev/null` was
+# swallowing that prompt — making this hang forever with no visible indicator.
+# New: try passwordless sudo first, then env, then TTY prompt with -t 30 timeout.
 [ "$EUID" -eq 0 ] && err "Do not run as root."
-if [ -z "${SUDO_PASS:-}" ] && [ "$MODE" != "new" ] && [ "$MODE" != "fix-config" ]; then
-  read -r -s -p "Sudo password (cached): " SUDO_PASS 2>/dev/null || true
-  echo
-fi
-if [ -n "${SUDO_PASS:-}" ]; then
-  echo "$SUDO_PASS" | sudo -S true 2>/dev/null || err "Wrong sudo password"
-  sudo -v 2>/dev/null || true
-fi
+
+_sudo_prompt_ok() {
+  # 1) passwordless sudo (NOPASSWD / already cached)
+  if sudo -n true 2>/dev/null; then return 0; fi
+  # 2) SUDO_PASS from env
+  if [ -n "${SUDO_PASS:-}" ] && printf '%s\n' "$SUDO_PASS" | sudo -S true 2>/dev/null; then
+    return 0
+  fi
+  # 3) Interactive — only on real TTY, with 30s timeout, prompt visible on stderr
+  if [ -t 0 ]; then
+    printf >&2 "Sudo password (cached, 30s timeout): "
+    if IFS= read -r -s -t 30 SUDO_PASS; then
+      printf >&2 "\n"
+      if [ -n "${SUDO_PASS:-}" ] && printf '%s\n' "$SUDO_PASS" | sudo -S true 2>/dev/null; then
+        return 0
+      fi
+    else
+      printf >&2 "\n[sudo prompt timed out]\n"
+    fi
+  fi
+  return 1
+}
+
+case "$MODE" in
+  new|fix-config|health|ci|fix-zshrc) ;;
+  *)
+    if ! _sudo_prompt_ok; then
+      err "sudo unavailable. Run with --no-sudo (CI), set SUDO_PASS env, or configure NOPASSWD."
+    fi
+    ;;
+esac
+sudo -v 2>/dev/null || true
 
 # ── DNS + CA certs — after interactive (which may change MODE to full) ──────
 if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]; then
@@ -523,13 +550,11 @@ export FZF_KEY="${FZF_KEY:-}"
 GIT_NAME="${GIT_NAME:-}"
 GIT_EMAIL="${GIT_EMAIL:-}"
 
-# ── Logging ─────────────────────────────────────────────────────────────────
-LOG_FILE="$HOME/setup-$(date +%Y%m%d-%H%M%S).log"
-exec > >(tee -a "$LOG_FILE") 2>&1
+# ── Mode banner ─────────────────────────────────────────────────────────────
 echo -e "${GREEN}============================================================${NC}"
 echo -e "${GREEN}     Ultimate Dev Machine Bootstrap ${SCRIPT_VERSION}${NC}"
 echo -e "${GREEN}     Mode: $MODE${NC}"
-echo -e "${GREEN}     Log:  $LOG_FILE${NC}"
+echo -e "${GREEN}     Log:  $SETUP_LOG${NC}"
 echo -e "${GREEN}============================================================${NC}"
 
 # ── Execute steps ───────────────────────────────────────────────────────────
@@ -635,6 +660,8 @@ _run_step step_upstream_sync "Upstream Sync (submodules + pins)" "$SCRIPT_DIR/sr
 [ -f "$SCRIPT_DIR/src/lib/44-audit.sh" ] && source "$SCRIPT_DIR/src/lib/44-audit.sh" || true
 [ -f "$SCRIPT_DIR/src/lib/45-pii-guard.sh" ] && source "$SCRIPT_DIR/src/lib/45-pii-guard.sh" || true
 [ -f "$SCRIPT_DIR/src/lib/46-offline-bundle.sh" ] && source "$SCRIPT_DIR/src/lib/46-offline-bundle.sh" || true
+[ -f "$SCRIPT_DIR/src/lib/47-lynis.sh" ] && source "$SCRIPT_DIR/src/lib/47-lynis.sh" || true
+[ -f "$SCRIPT_DIR/src/lib/48-auditd.sh" ] && source "$SCRIPT_DIR/src/lib/48-auditd.sh" || true
 
 # ── Air-gap mode: trigger offline bundle if available ────────────────────────
 if [ "$MODE" = "airgap" ]; then
