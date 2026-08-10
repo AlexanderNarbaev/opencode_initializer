@@ -71,14 +71,14 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 | `15-security.sh` | Trivy, Qodana |
 | `16-llm.sh` | Ollama, vLLM, SGLang, Open WebUI, WasmEdge (GPU-aware, multi-vendor) |
 | `17-project.sh` | Project structure (AGENTS.md, WAL, agents, docker-compose) |
-| `18-opencode-json.sh` | opencode.json generation (Python inline, bun bin paths, 22 providers, ISOLATED_CIRCUIT) |
+| `18-opencode-json.sh` | opencode.json generation (Python inline, bun bin paths, 23 providers, ISOLATED_CIRCUIT) |
 | `19-finalize.sh` | Git config, PATH, .zshrc, auth reminder, verification (36 checks) |
 | `20-autoupdate.sh` | topgrade + systemd weekly timer + unattended-upgrades + abtop |
 | `21-rag.sh` | RAG System — Corporate Knowledge Assistant (ETL + proxy + Qdrant + Gemma) |
 | `22-webui-service.sh` | Open WebUI systemd user service (auto-start) |
 | `23-just.sh` | just — task runner with default justfile |
 | `24-websearch.sh` | SearXNG web search + sanitizer proxy (internal hosts/IP/PII) |
-| `26-providers.sh` | 22 LLM provider registry (19 cloud + 3 local) with session switching |
+| `26-providers.sh` | 23 LLM provider registry (20 cloud + 3 local) with session switching |
 | `27-dotfiles.sh` | chezmoi dotfiles manager for team config sharing |
 | `28-devbox.sh` | Devbox — Nix-based isolated dev environments |
 | `29-mise.sh` | mise-en-place — universal tool version manager |
@@ -105,7 +105,7 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 | `version-check.sh` | Version check: Rust/Go/Node/Python/Bun/OpenCode/Ollama/Zig + npm packages |
 | `pre-session-check.sh` | Pre-session provider/model validation + MCP status |
 
-### Provider Registry (26-providers.sh — 22 providers)
+### Provider Registry (26-providers.sh — 23 providers)
 | Provider | Model | Free Tier | SDK |
 |----------|-------|-----------|-----|
 | deepseek | DeepSeek V4 Pro / V4 Flash | yes | native |
@@ -231,7 +231,7 @@ bash setup.sh --fix-zshrc                 # repair shell config
 opencode_initializer/
 ├── setup.sh              ← оркестратор (685 строк)
 ├── dev.sh                ← CLI
-├── opencode.json         ← конфиг OpenCode (22 providers)
+├── opencode.json         ← конфиг OpenCode (23 providers)
 ├── .env.example          ← шаблон переменных окружения (API ключи)
 ├── src/
 │   ├── lib/

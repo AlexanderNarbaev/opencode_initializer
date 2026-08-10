@@ -255,7 +255,7 @@ step_mark "01-system"      # Отметить как сделанное
 | WebUI Service | `22-webui-service.sh` | Open WebUI systemd сервис |
 | just | `23-just.sh` | just — таск-раннер с дефолтным justfile |
 | WebSearch | `24-websearch.sh` | SearXNG веб-поиск + sanitizer proxy |
-| Providers | `26-providers.sh` | Реестр 22 LLM-провайдеров с переключением сессий |
+| Providers | `26-providers.sh` | Реестр 23 LLM-провайдеров с переключением сессий |
 | Infrastructure | `30-infra.sh` | PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer |
 | Dotfiles | `27-dotfiles.sh` | chezmoi — менеджер dotfiles для командного шеринга |
 | Devbox | `28-devbox.sh` | Devbox — изолированные Nix-окружения |

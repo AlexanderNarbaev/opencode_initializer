@@ -24,7 +24,7 @@
 | MCP-серверов | 24 |
 | LSP-серверов | 13 |
 | Плагинов OpenCode | 15 |
-| AI-провайдеров | 24 (20 облачных + 4 локальных) |
+| AI-провайдеров | 23 (20 облачных + 3 локальных) |
 | Model Router | 8 профилей (coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn) |
 | Инфраструктура | 6 сервисов (PostgreSQL, Qdrant, Redis, Prometheus, Grafana, MemoryLayer) |
 | Web GUI | 9 разделов управления (порт 4200) |
@@ -43,7 +43,7 @@
 - :fontawesome-solid-box: **Infrastructure as Code** — PostgreSQL, Qdrant, Redis, Prometheus, Grafana, MemoryLayer через Docker Compose
 - :fontawesome-solid-display: **Cockpit TUI** — 7-вкладочный терминальный UI для управления сервером
 - :fontawesome-solid-shield-halved: **Isolated Circuit Mode** — air-gapped LLM с локальными бэкендами
-- :fontawesome-solid-cloud: **22 AI-провайдера** — DeepSeek, z.ai GLM-5.2, OpenRouter, OpenAI, Anthropic, Google, xAI, Alibaba Qwen3 и другие
+- :fontawesome-solid-cloud: **23 AI-провайдера** — DeepSeek, z.ai GLM-5.2, OpenRouter, OpenAI, Anthropic, Google, xAI, Alibaba Qwen3 и другие
 - :fontawesome-solid-microchip: **GPU/LLM** — Ollama, vLLM, SGLang, Open WebUI, WasmEdge (автоопределение GPU)
 - :fontawesome-solid-terminal: **ZSH** — Oh My Zsh + Powerlevel10k с 14 плагинами
 - :fontawesome-solid-globe: **Chrome** — Google Chrome + ChromeDriver (оптимизирован для WSL2)
@@ -89,7 +89,7 @@
 | Corporate Proxy | Поддержка HTTP_PROXY, HTTPS_PROXY, CURL_CA_BUNDLE |
 | Config Backup | `dev backup create\|list\|restore` для disaster recovery |
 | Model Download | `dev models install <model>` для локальных Ollama моделей |
-| 24 провайдера | 20 облачных + 4 локальных (было 16 в v1.1.0) |
+| 23 провайдера | 20 облачных + 3 локальных (было 16 в v1.1.0) |
 | 39 модулей | Было 29 в v1.1.0 |
 
 ## :fontawesome-solid-download: Быстрая установка

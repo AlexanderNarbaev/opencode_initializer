@@ -3,7 +3,7 @@
 > **Operating Model:** Multi-Agent Framework v3.0 | **Wave:** [current_wave.md](./current_wave.md) | **Checkpoint:** [session_checkpoint.json](./session_checkpoint.json)
 <p align="center">
   <b>AI-Native SDD Harness — one-command AI-enhanced development environment for WSL2, Linux, and macOS. 4 deployment profiles.</b><br>
-  <sub>685-line orchestrator · 52 modules · 12 modes · 24 MCPs · 15 plugins · 13 LSPs · 22 providers · air-gap · governance · PII guard · audit trail · offline bundle</sub>
+  <sub>685-line orchestrator · 52 modules · 12 modes · 24 MCPs · 15 plugins · 13 LSPs · 23 providers · air-gap · governance · PII guard · audit trail · offline bundle</sub>
 </p>
 
 <p align="center">
@@ -24,7 +24,7 @@
 curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializer/main/setup.sh | bash -s -- --full
 ```
 
-One command installs everything: 8 languages, 52 infrastructure modules, 24 MCP servers, 15 OpenCode plugins, 13 LSP servers, 22 AI providers, infrastructure as code (PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer), Cockpit TUI (7 tabs), Web GUI, Isolated Circuit Mode, hardware auto-detection, Lynis CIS scanner, auditd kernel rules, and SearXNG web search.
+One command installs everything: 8 languages, 52 infrastructure modules, 24 MCP servers, 15 OpenCode plugins, 13 LSP servers, 23 AI providers, infrastructure as code (PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer), Cockpit TUI (7 tabs), Web GUI, Isolated Circuit Mode, hardware auto-detection, Lynis CIS scanner, auditd kernel rules, and SearXNG web search.
 
 [Full Documentation](https://alexandernarbaev.github.io/opencode_initializer/)
 
@@ -83,7 +83,7 @@ One command installs everything: 8 languages, 52 infrastructure modules, 24 MCP 
 opencode_initializer/
 ├── setup.sh                  # Orchestrator (685 lines)
 ├── dev.sh                    # CLI: dev install|remove|update|health|metrics|observability|isolated|...
-├── opencode.json             # Generated OpenCode multi-provider config (24 providers)
+├── opencode.json             # Generated OpenCode multi-provider config (23 providers)
 ├── src/
 │   ├── lib/                  # 42 modules (39 numbered + 3 helpers)
 │   │   ├── helpers.sh        # _curl, _retry, _npm_install infrastructure

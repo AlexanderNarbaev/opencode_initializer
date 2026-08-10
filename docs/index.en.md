@@ -24,7 +24,7 @@
 | MCP servers | 24 |
 | LSP servers | 13 |
 | OpenCode plugins | 15 |
-| AI providers | 24 (20 cloud + 4 local) |
+| AI providers | 23 (20 cloud + 3 local) |
 | Model Router | 8 task profiles (coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn) |
 | Infrastructure | 7 services (PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer) |
 | Web GUI | 9 management sections (port 4200) |
@@ -43,7 +43,7 @@ A single script that turns a fresh Linux/WSL2 machine into a production-ready de
 - **Infrastructure as Code** — PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer via Docker Compose
 - **Cockpit TUI** — 7-tab terminal UI for server management
 - **Isolated Circuit Mode** — air-gapped LLM operation with local backends
-- **22 AI providers** — DeepSeek, z.ai GLM-5.2, OpenRouter, OpenAI, Anthropic, Google, xAI, MiniMax M3, Alibaba Qwen3, and more
+- **23 AI providers** — DeepSeek, z.ai GLM-5.2, OpenRouter, OpenAI, Anthropic, Google, xAI, MiniMax M3, Alibaba Qwen3, and more
 - **GPU/LLM** — Ollama, vLLM, SGLang, Open WebUI, WasmEdge (multi-vendor GPU auto-detection)
 - **ZSH** — Oh My Zsh + Powerlevel10k with 14 plugins
 - **Chrome** — Google Chrome + ChromeDriver (WSL2-optimized)
@@ -89,7 +89,7 @@ A single script that turns a fresh Linux/WSL2 machine into a production-ready de
 | Corporate Proxy | HTTP_PROXY, HTTPS_PROXY, CURL_CA_BUNDLE support |
 | Config Backup | `dev backup create\|list\|restore` for disaster recovery |
 | Model Download | `dev models install <model>` for local Ollama models |
-| 24 providers | 20 cloud + 4 local (was 16 in v1.1.0) |
+| 23 providers | 20 cloud + 3 local (was 16 in v1.1.0) |
 | Provider Check | \`bash scripts/provider-check.sh\` to verify provider connectivity |
 | .env.example | Template with all 20 API key variables |
 | 42 modules | Was 29 in v1.1.0 |

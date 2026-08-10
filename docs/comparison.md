@@ -7,7 +7,7 @@
 | Feature | opencode_initializer | Claude Code (Anthropic) | OpenAI Codex CLI | Cursor | Windsurf | OpenCode (upstream) |
 |---------|---------------------|------------------------|-----------------|--------|----------|-------------------|
 | **Type** | Bootstrap + SDD harness | Cloud AI agent | Cloud AI agent | IDE (VSCode fork) | IDE (VSCode fork) | Terminal AI agent |
-| **LLM Providers** | 22 cloud + 3 local | 1 (Anthropic) | 1 (OpenAI) | Multi (via API) | Multi | 75+ |
+| **LLM Providers** | 20 cloud + 3 local | 1 (Anthropic) | 1 (OpenAI) | Multi (via API) | Multi | 75+ |
 | **Local LLM** | ✅ Ollama/vLLM/SGLang | ❌ | ❌ | ❌ | ❌ | ✅ Ollama |
 | **SDD Workflow** | ✅ /tasks /analyze /implement | ❌ | ❌ | ❌ | ❌ | ❌ (Skills system) |
 | **Audit Trail** | ✅ SHA-256 hash-chain | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -31,7 +31,7 @@
 2. **Air-Gap Capability**: Offline bundle for disconnected environments — no competitor offers this
 3. **SDD-Native**: Specification-driven workflow built into the bootstrap, not just prompt engineering
 4. **Infrastructure as Code**: PostgreSQL/Qdrant/Redis/Prometheus/Grafana provisioned automatically
-5. **22 LLM Providers**: More provider choice than any single IDE competitor (except upstream OpenCode)
+5. **23 LLM Providers**: More provider choice than any single IDE competitor (except upstream OpenCode)
 6. **4 Deployment Profiles**: Personal/corporate/airgapped/hybrid with per-service mode control
 7. **Corporate AI Gateway**: Built-in proxy support with per-provider routing — unique for enterprise compliance
 8. **Data Classification Framework**: Д-0…Д-5 levels for Russian regulatory compliance (152-ФЗ, 98-ФЗ)

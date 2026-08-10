@@ -262,7 +262,7 @@ During setup, you'll see:
 | WebUI Service | `22-webui-service.sh` | Open WebUI systemd user service |
 | just | `23-just.sh` | just task runner with default justfile |
 | WebSearch | `24-websearch.sh` | SearXNG web search + sanitizer proxy |
-| Providers | `26-providers.sh` | 22 LLM provider registry with session switching |
+| Providers | `26-providers.sh` | 23 LLM provider registry with session switching |
 | Dotfiles | `27-dotfiles.sh` | chezmoi dotfiles manager for team config sharing |
 | Devbox | `28-devbox.sh` | Devbox — Nix-based isolated dev environments |
 | Version Check | `version-check.sh` | Version comparison (8+ tools, npm packages) |
