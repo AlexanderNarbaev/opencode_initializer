@@ -19,22 +19,25 @@
       },
       "fallback": [
         "opencode",
-        "minimax",
-        "mimo"
+        "zai",
+        "openrouter",
+        "minimax"
       ]
     },
     "opencode": {
       "fallback": [
         "deepseek",
-        "minimax",
-        "mimo"
+        "zai",
+        "openrouter",
+        "minimax"
       ]
     },
     "opencode-go": {
       "fallback": [
         "deepseek",
-        "minimax",
-        "mimo"
+        "zai",
+        "openrouter",
+        "minimax"
       ]
     },
     "minimax": {
@@ -47,7 +50,8 @@
       },
       "fallback": [
         "deepseek",
-        "opencode-go"
+        "opencode",
+        "zai"
       ]
     },
     "mimo": {
@@ -59,7 +63,244 @@
       },
       "fallback": [
         "deepseek",
-        "opencode-go"
+        "opencode",
+        "zai"
+      ]
+    },
+    "zai": {
+      "options": {
+        "timeout": 600000,
+        "chunkTimeout": 60000,
+        "setCacheKey": true,
+        "baseURL": "https://api.z.ai/api/paas/v4",
+        "apiKey": "{env:ZAI_API_KEY}"
+      },
+      "fallback": [
+        "deepseek",
+        "opencode",
+        "openrouter"
+      ]
+    },
+    "openrouter": {
+      "options": {
+        "timeout": 600000,
+        "chunkTimeout": 60000,
+        "setCacheKey": true,
+        "apiKey": "{env:OPENROUTER_API_KEY}"
+      },
+      "fallback": [
+        "deepseek",
+        "opencode",
+        "zai"
+      ]
+    },
+    "xai": {
+      "options": {
+        "timeout": 600000,
+        "chunkTimeout": 60000,
+        "setCacheKey": true,
+        "apiKey": "{env:XAI_API_KEY}"
+      },
+      "fallback": [
+        "deepseek",
+        "opencode",
+        "zai"
+      ]
+    },
+    "openai": {
+      "options": {
+        "timeout": 600000,
+        "chunkTimeout": 60000,
+        "setCacheKey": true,
+        "apiKey": "{env:OPENAI_API_KEY}"
+      },
+      "fallback": [
+        "deepseek",
+        "opencode",
+        "anthropic"
+      ]
+    },
+    "anthropic": {
+      "options": {
+        "timeout": 600000,
+        "chunkTimeout": 60000,
+        "setCacheKey": true,
+        "apiKey": "{env:ANTHROPIC_API_KEY}"
+      },
+      "fallback": [
+        "deepseek",
+        "opencode",
+        "openai"
+      ]
+    },
+    "google": {
+      "options": {
+        "timeout": 600000,
+        "chunkTimeout": 60000,
+        "setCacheKey": true,
+        "apiKey": "{env:GOOGLE_API_KEY}"
+      },
+      "fallback": [
+        "deepseek",
+        "opencode",
+        "zai"
+      ]
+    },
+    "mistral": {
+      "options": {
+        "timeout": 600000,
+        "chunkTimeout": 60000,
+        "setCacheKey": true,
+        "apiKey": "{env:MISTRAL_API_KEY}"
+      },
+      "fallback": [
+        "deepseek",
+        "opencode",
+        "openai"
+      ]
+    },
+    "groq": {
+      "options": {
+        "timeout": 600000,
+        "chunkTimeout": 60000,
+        "setCacheKey": true,
+        "apiKey": "{env:GROQ_API_KEY}"
+      },
+      "fallback": [
+        "deepseek",
+        "opencode",
+        "zai"
+      ]
+    },
+    "together": {
+      "options": {
+        "timeout": 600000,
+        "chunkTimeout": 60000,
+        "setCacheKey": true,
+        "apiKey": "{env:TOGETHER_API_KEY}"
+      },
+      "fallback": [
+        "deepseek",
+        "opencode",
+        "groq"
+      ]
+    },
+    "cohere": {
+      "options": {
+        "timeout": 600000,
+        "chunkTimeout": 60000,
+        "setCacheKey": true,
+        "apiKey": "{env:COHERE_API_KEY}"
+      },
+      "fallback": [
+        "deepseek",
+        "opencode",
+        "zai"
+      ]
+    },
+    "fireworks": {
+      "options": {
+        "timeout": 600000,
+        "chunkTimeout": 60000,
+        "setCacheKey": true,
+        "baseURL": "https://api.fireworks.ai/inference/v1",
+        "apiKey": "{env:FIREWORKS_API_KEY}"
+      },
+      "fallback": [
+        "deepseek",
+        "opencode",
+        "together"
+      ]
+    },
+    "cerebras": {
+      "options": {
+        "timeout": 600000,
+        "chunkTimeout": 60000,
+        "setCacheKey": true,
+        "apiKey": "{env:CEREBRAS_API_KEY}"
+      },
+      "fallback": [
+        "deepseek",
+        "opencode",
+        "groq"
+      ]
+    },
+    "perplexity": {
+      "options": {
+        "timeout": 600000,
+        "chunkTimeout": 60000,
+        "setCacheKey": true,
+        "apiKey": "{env:PERPLEXITY_API_KEY}"
+      },
+      "fallback": [
+        "deepseek",
+        "opencode",
+        "openai"
+      ]
+    },
+    "alibaba": {
+      "options": {
+        "timeout": 600000,
+        "chunkTimeout": 60000,
+        "setCacheKey": true,
+        "apiKey": "{env:ALIBABA_API_KEY}"
+      },
+      "fallback": [
+        "deepseek",
+        "opencode",
+        "zai"
+      ]
+    },
+    "deepinfra": {
+      "options": {
+        "timeout": 600000,
+        "chunkTimeout": 60000,
+        "setCacheKey": true,
+        "baseURL": "https://api.deepinfra.com/v1/openai",
+        "apiKey": "{env:DEEPINFRA_API_KEY}"
+      },
+      "fallback": [
+        "deepseek",
+        "opencode",
+        "zai"
+      ]
+    },
+    "ollama": {
+      "options": {
+        "timeout": 600000,
+        "chunkTimeout": 60000,
+        "setCacheKey": true,
+        "baseURL": "http://localhost:11434/v1"
+      },
+      "fallback": [
+        "deepseek",
+        "opencode"
+      ]
+    },
+    "vllm": {
+      "options": {
+        "timeout": 600000,
+        "chunkTimeout": 60000,
+        "setCacheKey": true,
+        "baseURL": "http://localhost:8000/v1"
+      },
+      "fallback": [
+        "ollama",
+        "deepseek",
+        "opencode"
+      ]
+    },
+    "sglang": {
+      "options": {
+        "timeout": 600000,
+        "chunkTimeout": 60000,
+        "setCacheKey": true,
+        "baseURL": "http://localhost:30000/v1"
+      },
+      "fallback": [
+        "ollama",
+        "deepseek",
+        "opencode"
       ]
     }
   },
