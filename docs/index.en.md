@@ -1,4 +1,4 @@
-# OpenCode Initializer v3.0.0
+# OpenCode Initializer v3.2.0
 
 [![GitHub stars](https://img.shields.io/github/stars/AlexanderNarbaev/opencode_initializer?style=social)](https://github.com/AlexanderNarbaev/opencode_initializer)
 [![License](https://img.shields.io/github/license/AlexanderNarbaev/opencode_initializer)](https://github.com/AlexanderNarbaev/opencode_initializer/blob/main/LICENSE)
@@ -16,9 +16,9 @@
 
 | Metric | Value |
 |--------|-------|
-| Modules | 49 |
-| New in v3.0 | SDD-native AI Harness: governance, audit, PII, air-gap, 4 deployment profiles |
-| Orchestrator | 589 lines of Bash |
+| Modules | 50 |
+| New in v3.2 | Lynis CIS scanner + auditd kernel rules + AI Gateway proxy + pre-commit hook |
+| Orchestrator | 685 lines of Bash |
 | CLI modes | 11 (full, health, interactive, ci, and more) |
 | Languages | 8 |
 | MCP servers | 24 |
@@ -48,6 +48,15 @@ A single script that turns a fresh Linux/WSL2 machine into a production-ready de
 - **ZSH** — Oh My Zsh + Powerlevel10k with 14 plugins
 - **Chrome** — Google Chrome + ChromeDriver (WSL2-optimized)
 - **Auto-update** — systemd weekly timer + topgrade
+
+## What's New in v3.2.0
+
+| Feature | Description |
+|---------|-------------|
+| Lynis + Auditd | Lynis CIS security scanner + auditd kernel audit rules, weekly cron |
+| AI Gateway Proxy | Corporate AI Gateway support (HTTP/HTTPS proxy for API calls) |
+| Pre-commit Hook | `check-setup-lines.sh` — automatic line-count consistency check between setup.sh and README |
+| Extended CI | ShellCheck severity error across all modules, CI gates for new files |
 
 ## What's New in v3.0.0
 

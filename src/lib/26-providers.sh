@@ -156,4 +156,12 @@ done
 [ -z "$AVAILABLE_PROVIDERS" ] && warn "No provider API keys found"
 export AVAILABLE_PROVIDERS
 
+# ── Corporate AI Gateway proxy ────────────────────────────────────────────────
+if [ -n "${OPENCODE_PROXY_URL:-}" ] || [ -n "${OPENCODE_GATEWAY_URL:-}" ]; then
+  PROXY_URL="${OPENCODE_PROXY_URL:-$OPENCODE_GATEWAY_URL}"
+  section "Corporate AI Gateway Proxy"
+  log "All providers route through: $PROXY_URL"
+  log "Set OPENCODE_PROXY_<PROVIDER> for per-provider override (e.g. OPENCODE_PROXY_DEEPSEEK)"
+fi
+
 _step_done step_providers

@@ -331,6 +331,29 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  if (api === '/proxy-status') {
+    const proxyUrl = process.env.OPENCODE_PROXY_URL || process.env.OPENCODE_GATEWAY_URL || '';
+    const perProvider = {};
+    for (const [key, val] of Object.entries(process.env)) {
+      if (key.startsWith('OPENCODE_PROXY_') && key !== 'OPENCODE_PROXY_URL') {
+        perProvider[key.replace('OPENCODE_PROXY_', '').toLowerCase()] = val;
+      }
+    }
+    return json(res, {
+      globalProxy: proxyUrl,
+      perProvider,
+      hasProxy: !!proxyUrl,
+      gatewayMode: proxyUrl ? 'corporate' : 'direct'
+    });
+  }
+
+  if (api === '/compliance-status') {
+    const piiGuard = fs.existsSync(path.join(HOME, '.cache/opencode/audit.jsonl'));
+    const governance = fs.existsSync(path.join(HOME, '.config/opencode/model-policy.json'));
+    const auditTrail = fs.existsSync(path.join(HOME, '.cache/opencode/wal.jsonl'));
+    return json(res, { piiGuard, governance, auditTrail });
+  }
+
   res.writeHead(404);
   res.end('Not found');
 });

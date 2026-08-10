@@ -15,6 +15,8 @@
 | **Model Governance** | ✅ allowlist/blocklist | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Air-Gap Install** | ✅ offline bundle | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **OS Hardening** | ✅ Lynis + auditd + Trivy | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Corporate Proxy** | ✅ OPENCODE_PROXY_URL + per-provider | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Data Classification** | ✅ Д-0…Д-5 framework (from enterprise chat) | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Infrastructure** | ✅ PostgreSQL/Qdrant/Redis/Prometheus/Grafana | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Desktop App** | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
 | **Skills/Plugins** | 15 plugins + 26 skills | Skills (built-in) | ❌ | ❌ | ❌ | Skills (built-in v1.0.190+) |
@@ -31,6 +33,8 @@
 4. **Infrastructure as Code**: PostgreSQL/Qdrant/Redis/Prometheus/Grafana provisioned automatically
 5. **22 LLM Providers**: More provider choice than any single IDE competitor (except upstream OpenCode)
 6. **4 Deployment Profiles**: Personal/corporate/airgapped/hybrid with per-service mode control
+7. **Corporate AI Gateway**: Built-in proxy support with per-provider routing — unique for enterprise compliance
+8. **Data Classification Framework**: Д-0…Д-5 levels for Russian regulatory compliance (152-ФЗ, 98-ФЗ)
 
 ## Where Competitors Win
 

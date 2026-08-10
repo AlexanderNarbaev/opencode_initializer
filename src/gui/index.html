@@ -73,6 +73,7 @@ pre{background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:10px;o
 <div class="nav-item" data-section="metrics">Metrics</div>
 <div class="nav-item" data-section="memory">Memory</div>
 <div class="nav-item" data-section="isolated">Isolated Circuit</div>
+<div class="nav-item" data-section="gateway">AI Gateway</div>
 <div class="nav-item" data-section="backup">Backup</div>
 <div class="nav-item" data-section="logs">Logs</div>
 </div>
@@ -203,6 +204,55 @@ pre{background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:10px;o
 </div>
 </div>
 
+<div class="section" id="gateway">
+<h2>🌐 Corporate AI Gateway</h2>
+<p class="subtitle" style="color:#8b949e;font-size:13px;margin-bottom:14px">Proxy configuration for enterprise environments</p>
+
+<div class="card">
+  <h3>Gateway Configuration</h3>
+  <div class="stat-grid" id="proxy-status">
+    <div class="stat">
+      <div class="value" id="proxy-mode">Loading...</div>
+      <div class="label">Gateway Mode</div>
+    </div>
+    <div class="stat">
+      <div class="value" id="proxy-url" style="font-size:13px">Loading...</div>
+      <div class="label">Global Proxy</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Per-Provider Overrides</h3>
+  <div id="proxy-providers" style="font-size:12px;color:#8b949e">Loading...</div>
+</div>
+
+<div class="card">
+  <h3>Quick Setup</h3>
+  <p style="font-size:12px;margin-bottom:8px">Set <code style="background:#21262d;padding:2px 6px;border-radius:4px">OPENCODE_PROXY_URL</code> in your <code style="background:#21262d;padding:2px 6px;border-radius:4px">.env</code> file or environment:</p>
+  <pre>export OPENCODE_PROXY_URL="https://ai-gateway.corp.example.com/v1"</pre>
+  <p style="font-size:11px;color:#8b949e;margin-top:6px">Per-provider: <code style="background:#21262d;padding:1px 4px;border-radius:3px">OPENCODE_PROXY_DEEPSEEK</code>, <code style="background:#21262d;padding:1px 4px;border-radius:3px">OPENCODE_PROXY_OPENAI</code>, etc.</p>
+</div>
+
+<div class="card">
+  <h3>Compliance Status</h3>
+  <div class="stat-grid">
+    <div class="stat">
+      <div class="value" id="pii-status">—</div>
+      <div class="label">PII Sanitizer</div>
+    </div>
+    <div class="stat">
+      <div class="value" id="governance-status">—</div>
+      <div class="label">Model Governance</div>
+    </div>
+    <div class="stat">
+      <div class="value" id="audit-status">—</div>
+      <div class="label">Audit Trail</div>
+    </div>
+  </div>
+</div>
+</div>
+
 <div class="section" id="backup">
 <h2>Backup & Restore</h2>
 <div class="action-bar">
@@ -240,7 +290,7 @@ async function action(act,target){
 }
 
 async function refreshAll(){
-  loadOverview();loadActiveModel();loadOllamaModels();loadProviders();loadModels();loadMCP();loadLSP();loadInfra();loadMetrics();loadMemory();loadIsolated();
+  loadOverview();loadActiveModel();loadOllamaModels();loadProviders();loadModels();loadMCP();loadLSP();loadInfra();loadMetrics();loadMemory();loadIsolated();loadGateway();
   toast('All refreshed','#1f6feb');
 }
 
@@ -440,6 +490,26 @@ async function loadIsolated(){
   }catch(e){}
 }
 
+async function loadGateway(){
+  try{
+    const d=await fetch(API+'/proxy-status').then(r=>r.json());
+    document.getElementById('proxy-mode').textContent=d.hasProxy?'🏢 Corporate Gateway':'🔗 Direct Connection';
+    document.getElementById('proxy-mode').className=d.hasProxy?'value badge-ok':'value badge-warn';
+    document.getElementById('proxy-url').textContent=d.globalProxy||'Not configured';
+    const pp=document.getElementById('proxy-providers');
+    if(Object.keys(d.perProvider).length>0){
+      pp.innerHTML=Object.entries(d.perProvider).map(([k,v])=>`<div style="padding:6px 0;border-bottom:1px solid #21262d"><span style="text-transform:uppercase;color:#58a6ff;font-weight:600">${k}</span><span style="margin-left:8px;color:#8b949e">${v}</span></div>`).join('');
+    }else{
+      pp.innerHTML='<span style="color:#8b949e">No per-provider overrides configured</span>';
+    }
+    fetch(API+'/compliance-status').then(r=>r.json()).then(c=>{
+      document.getElementById('pii-status').textContent=c.piiGuard?'✅ Active':'❌ Inactive';
+      document.getElementById('governance-status').textContent=c.governance?'✅ Active':'❌ Inactive';
+      document.getElementById('audit-status').textContent=c.auditTrail?'✅ Active':'❌ Inactive';
+    }).catch(()=>{});
+  }catch(e){}
+}
+
 async function loadBackups(){
   try{
     const d=await fetch(API+'/backups').then(r=>r.json());
@@ -460,7 +530,7 @@ async function createBackup(){await fetch(API+'/backup/create',{method:'POST'});
 
 document.querySelectorAll('.nav-item').forEach(n=>n.addEventListener('click',function(){nav(this.dataset.section)}));
 // Initial load
-loadOverview();loadActiveModel();loadOllamaModels();loadProviders();loadModels();loadMCP();loadLSP();loadInfra();loadMetrics();loadMemory();loadIsolated();loadBackups();loadLogs();
+loadOverview();loadActiveModel();loadOllamaModels();loadProviders();loadModels();loadMCP();loadLSP();loadInfra();loadMetrics();loadMemory();loadIsolated();loadGateway();loadBackups();loadLogs();
 setInterval(loadOverview,15000);
 </script>
 </body>

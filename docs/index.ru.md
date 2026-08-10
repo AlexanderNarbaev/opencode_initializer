@@ -1,4 +1,4 @@
-# OpenCode Initializer v3.0.0
+# OpenCode Initializer v3.2.0
 
 [![GitHub stars](https://img.shields.io/github/stars/AlexanderNarbaev/opencode_initializer?style=social)](https://github.com/AlexanderNarbaev/opencode_initializer)
 [![License](https://img.shields.io/github/license/AlexanderNarbaev/opencode_initializer)](https://github.com/AlexanderNarbaev/opencode_initializer/blob/main/LICENSE)
@@ -16,14 +16,14 @@
 
 | Метрика | Значение |
 |---------|----------|
-| Модулей | 49 |
-| Новое в v3.0 | SDD-native AI Harness: governance, audit, PII, воздушный зазор, 4 профиля развёртывания |
-| Оркестратор | 561 строки Bash |
+| Модулей | 50 |
+| Новое в v3.2 | Lynis CIS-сканер + auditd kernel-правила + AI Gateway proxy + pre-commit hook |
+| Оркестратор | 685 строк Bash |
 | Режимов CLI | 11 (full, health, interactive, ci и другие) |
 | Языков | 8 |
 | MCP-серверов | 24 |
-| LSP-серверов | 12 |
-| Плагинов OpenCode | 18 |
+| LSP-серверов | 13 |
+| Плагинов OpenCode | 15 |
 | AI-провайдеров | 24 (20 облачных + 4 локальных) |
 | Model Router | 8 профилей (coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn) |
 | Инфраструктура | 6 сервисов (PostgreSQL, Qdrant, Redis, Prometheus, Grafana, MemoryLayer) |
@@ -38,8 +38,8 @@
 
 - :fontawesome-solid-code: **8 языков программирования** — Java 25, Node.js 24, Python 3.14, Go 1.26, Rust 1.97.1, .NET 10, Kotlin, Zig
 - :fontawesome-solid-robot: **24 MCP-серверов** — GitHub, GitLab, Filesystem, Playwright, Chrome DevTools, SQLite, Postgres, Memory, Excalidraw, Brave Search, Context7, Google Maps и другие
-- :fontawesome-solid-puzzle-piece: **18 плагинов OpenCode** — codegraph, dcp, auto-fallback, goal-mode, swarm, vibeguard, devcontainers, worktree, scheduler, background-agents, goal-plugin, conductor, zellij-namer, morph-plugin, supermemory, websearch-cited, firecrawl, plugin-otel
-- :fontawesome-solid-gears: **12 LSP-серверов** — gopls, rust-analyzer, tsserver, pyright, omnisharp, yaml, marksman, taplo, lua, zls, bash, dockerfile
+- :fontawesome-solid-puzzle-piece: **15 плагинов OpenCode** — codegraph, dcp, auto-fallback, goal-mode, swarm, vibeguard, devcontainers, worktree, scheduler, background-agents, goal-plugin, conductor, zellij-namer, morph-plugin, supermemory
+- :fontawesome-solid-gears: **13 LSP-серверов** — gopls, rust-analyzer, tsserver, pyright, omnisharp, yaml, marksman, taplo, lua, zls, bash, dockerfile, css/html/json
 - :fontawesome-solid-box: **Infrastructure as Code** — PostgreSQL, Qdrant, Redis, Prometheus, Grafana, MemoryLayer через Docker Compose
 - :fontawesome-solid-display: **Cockpit TUI** — 7-вкладочный терминальный UI для управления сервером
 - :fontawesome-solid-shield-halved: **Isolated Circuit Mode** — air-gapped LLM с локальными бэкендами
@@ -48,6 +48,15 @@
 - :fontawesome-solid-terminal: **ZSH** — Oh My Zsh + Powerlevel10k с 14 плагинами
 - :fontawesome-solid-globe: **Chrome** — Google Chrome + ChromeDriver (оптимизирован для WSL2)
 - :fontawesome-solid-clock-rotate-left: **Автообновление** — systemd weekly timer + topgrade
+
+## :fontawesome-solid-star: Новое в v3.2.0
+
+| Возможность | Описание |
+|-------------|----------|
+| Lynis + Auditd | Lynis CIS-сканер безопасности + auditd kernel-правила аудита, weekly cron |
+| AI Gateway Proxy | Поддержка корпоративного AI Gateway (HTTP/HTTPS прокси для API-вызовов) |
+| Pre-commit Hook | `check-setup-lines.sh` — автоматическая проверка консистентности строк setup.sh ↔ README |
+| Расширенный CI | ShellCheck severity error по всем модулям, CI-гейты для новых файлов |
 
 ## :fontawesome-solid-star: Новое в v3.0.0
 
@@ -131,8 +140,8 @@ dev isolated status                 # Проверить текущее сост
 | **AI/ML** | Ollama, vLLM, SGLang, Open WebUI, ChromaDB, WasmEdge, ONNX |
 | **Веб-поиск** | SearXNG self-hosted поиск + sanitizer proxy |
 | **MCP-серверы** | 24 сервера для AI-ассистированной разработки |
-| **LSP-серверы** | 12 языковых серверов |
-| **Плагины** | 18 плагинов продуктивности OpenCode |
+| **LSP-серверы** | 13 языковых серверов |
+| **Плагины** | 15 плагинов продуктивности OpenCode |
 | **Безопасность** | Trivy, Qodana |
 | **Утилиты** | bat, btm, fd, ripgrep, sd, typos, topgrade, just, mise |
 | **Dotfiles** | chezmoi для командного шеринга конфигов |
