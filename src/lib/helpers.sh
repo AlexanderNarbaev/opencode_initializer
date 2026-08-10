@@ -99,7 +99,7 @@ cleanup() {
   npm config set strict-ssl true 2>/dev/null || true
   if [ $exit_code -ne 0 ] && [ "${MODE:-}" != "health" ]; then
     warn "Script exited with code $exit_code at $(date +%H:%M:%S)"
-    warn "Log: ${LOG_FILE:-not started}"
+    warn "Log: ${SETUP_LOG:-not started}"
     warn "Re-run: bash ~/setup.sh --health ; or resume with --full (progress tracked)"
   fi
   exit $exit_code

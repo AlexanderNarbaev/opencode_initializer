@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 # Unit test: S5.1.1.3 — _set_dns() dry-run guard
 # Structural test: verifies DRY_RUN guard exists in 00-core.sh
+# v2: dynamic DNS block extraction (no hardcoded line numbers)
 set -euo pipefail
 
 PASS=0; FAIL=0
 
 PROJECT_DIR="/home/alexandr-narbaev/Projects/opencode_initializer"
 CORE="$PROJECT_DIR/src/lib/00-core.sh"
+SETUP_SH="$PROJECT_DIR/setup.sh"
 
 echo "=== Testing _set_dns() dry-run guard ==="
 
@@ -40,7 +42,7 @@ else
 fi
 
 # Test 4: No rm -rf ~/.cache/opencode in setup.sh (S5.1.1.4)
-if ! grep -q 'rm.*-rf.*\.cache/opencode' "$PROJECT_DIR/setup.sh"; then
+if ! grep -q 'rm.*-rf.*\.cache/opencode' "$SETUP_SH"; then
   echo "PASS: setup.sh has no destructive ~/.cache/opencode removal"
   PASS=$((PASS+1))
 else
@@ -48,11 +50,33 @@ else
   FAIL=$((FAIL+1))
 fi
 
+# ── Dynamic DNS block extraction ──────────────────────────────────────────
+# Find the DNS DRY_RUN guard block by pattern matching instead of hardcoded lines
+DRY_DNS_LINE=$(grep -n '\[DRY\] skip WSL2 DNS' "$SETUP_SH" | head -1 | cut -d: -f1)
+if [ -z "${DRY_DNS_LINE:-}" ] || [ "$DRY_DNS_LINE" -lt 2 ]; then
+  echo "FAIL: cannot locate [DRY] skip WSL2 DNS line in setup.sh"
+  FAIL=$((FAIL+1))
+  echo "RESULTS: $PASS pass, $FAIL fail"
+  exit 1
+fi
+# The 'if' line is immediately before the info message
+DNS_IF_LINE=$((DRY_DNS_LINE - 1))
+# Extract from the if line to the next 'fi' (the DNS guard block)
+DNS_BLOCK=$(tail -n "+$DNS_IF_LINE" "$SETUP_SH" | awk '/^[[:space:]]*fi[[:space:]]*$/{print; exit} {print}')
+
+# Verify we got a meaningful block (at least 4 lines: if/info/elif/fi)
+BLOCK_LINES=$(echo "$DNS_BLOCK" | wc -l)
+if [ "${BLOCK_LINES:-0}" -lt 4 ]; then
+  echo "FAIL: DNS block extraction returned only $BLOCK_LINES lines (expected >=4)"
+  FAIL=$((FAIL+1))
+  echo "RESULTS: $PASS pass, $FAIL fail"
+  exit 1
+fi
+echo "INFO: extracted DNS DRY_RUN guard block ($BLOCK_LINES lines, starting at line $DNS_IF_LINE)"
+
 # Test 5: setup.sh WSL2 DNS block has DRY_RUN guard (S1.4.1)
-SETUP_SH="$PROJECT_DIR/setup.sh"
-# The DNS block (lines ~391-397) must have DRY_RUN check before sudo
-if sed -n '391,400p' "$SETUP_SH" | grep -q 'DRY_RUN' && \
-   sed -n '391,400p' "$SETUP_SH" | grep -q 'skip WSL2 DNS'; then
+if echo "$DNS_BLOCK" | grep -q 'DRY_RUN' && \
+   echo "$DNS_BLOCK" | grep -q 'skip WSL2 DNS'; then
   echo "PASS: setup.sh DNS block has DRY_RUN guard"
   PASS=$((PASS+1))
 else
@@ -61,8 +85,8 @@ else
 fi
 
 # Test 6: DNS block has elif branch (guard + conditional execution)
-if sed -n '391,400p' "$SETUP_SH" | grep -q 'elif.*resolv.conf' && \
-   sed -n '391,400p' "$SETUP_SH" | grep -q 'sudo tee.*resolv.conf'; then
+if echo "$DNS_BLOCK" | grep -q 'elif.*resolv.conf' && \
+   echo "$DNS_BLOCK" | grep -q 'sudo tee.*resolv.conf'; then
   echo "PASS: DNS block has elif guard + sudo tee in conditional branch"
   PASS=$((PASS+1))
 else
@@ -84,7 +108,7 @@ echo "=== Extended DRY_RUN guard checks (S1.4.2) ==="
 
 # Test 8: The DRY_RUN guard uses 'info' (not 'echo' or bare message)
 # This ensures the message goes through the standard logging channel
-if sed -n '391,400p' "$SETUP_SH" | grep -qE 'info.*\[DRY\].*skip WSL2 DNS'; then
+if echo "$DNS_BLOCK" | grep -qE 'info.*\[DRY\].*skip WSL2 DNS'; then
   echo "PASS: DRY_RUN guard uses info() logging function"
   PASS=$((PASS + 1))
 else
@@ -93,10 +117,9 @@ else
 fi
 
 # Test 9: sudo appears ONLY in elif branch (never on DRY_RUN path)
-# Extract the if/elif/fi block, verify sudo only in elif
-dns_block=$(sed -n '391,400p' "$SETUP_SH")
-if echo "$dns_block" | grep -q 'elif.*resolv.conf' && \
-   ! echo "$dns_block" | head -2 | grep -q 'sudo'; then
+# Check that the first 2 lines (if + info) don't contain 'sudo'
+if echo "$DNS_BLOCK" | grep -q 'elif.*resolv.conf' && \
+   ! echo "$DNS_BLOCK" | head -2 | grep -q 'sudo'; then
   echo "PASS: sudo only in elif branch, never on DRY_RUN path"
   PASS=$((PASS + 1))
 else
@@ -106,8 +129,8 @@ fi
 
 # Test 10: DRY_RUN guard in setup.sh matches 00-core.sh DRY_RUN pattern
 # Both should use: [ "${DRY_RUN:-false}" = "true" ] → info/return pattern
-SETUP_DRY_GUARD=$(sed -n '391,393p' "$SETUP_SH" | grep -c 'DRY_RUN.*true' 2>/dev/null) || true
-SETUP_DRY_SKIP=$(sed -n '391,393p' "$SETUP_SH" | grep -ci 'skip WSL2 DNS' 2>/dev/null) || true
+SETUP_DRY_GUARD=$(echo "$DNS_BLOCK" | head -3 | grep -c 'DRY_RUN.*true' 2>/dev/null) || true
+SETUP_DRY_SKIP=$(echo "$DNS_BLOCK" | head -3 | grep -ci 'skip WSL2 DNS' 2>/dev/null) || true
 if [ "${SETUP_DRY_GUARD:-0}" -ge 1 ] && [ "${SETUP_DRY_SKIP:-0}" -ge 1 ]; then
   echo "PASS: setup.sh DRY_RUN guard + info skip message present"
   PASS=$((PASS + 1))
@@ -117,10 +140,10 @@ else
 fi
 
 # Test 11: Full DRY_RUN block structure: if → info → elif → sudo → fi
-if sed -n '391,400p' "$SETUP_SH" | grep -q 'if.*DRY_RUN' && \
-   sed -n '391,400p' "$SETUP_SH" | grep -q 'elif.*resolv.conf' && \
-   sed -n '391,400p' "$SETUP_SH" | grep -q 'sudo tee.*resolv.conf' && \
-   sed -n '391,400p' "$SETUP_SH" | grep -q '^fi$'; then
+if echo "$DNS_BLOCK" | grep -q 'if.*DRY_RUN' && \
+   echo "$DNS_BLOCK" | grep -q 'elif.*resolv.conf' && \
+   echo "$DNS_BLOCK" | grep -q 'sudo tee.*resolv.conf' && \
+   echo "$DNS_BLOCK" | grep -q '^[[:space:]]*fi[[:space:]]*$'; then
   echo "PASS: complete if/elif/fi structure around DNS fix"
   PASS=$((PASS + 1))
 else
