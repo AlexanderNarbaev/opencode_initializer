@@ -106,7 +106,7 @@ _linux_platform_nvidia_persistenced() {
 if ([ "${MODE:-}" = "full" ] || [ "${MODE:-}" = "reinit" ] || [ "${MODE:-}" = "update" ]) && _gate "INTERACTIVE_DO_LINUX_PLATFORM"; then
   section "Linux platform optimizations"
 
-  local applied=0
+  applied=0
 
   if _is_wsl2; then
     _linux_platform_wsl_systemd
