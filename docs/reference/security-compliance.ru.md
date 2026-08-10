@@ -115,6 +115,6 @@ qodana scan --project-dir /path/to/project
 
 ## См. также
 
-- [Model Governance](governance/) — схема `model-policy.json`
-- [Профили развёртывания](../guides/deployment-profiles/) — безопасность по профилям
-- [Air-Gap & Offline](../guides/airgap-offline/) — режим isolated circuit
+- [Model Governance](governance.md) — схема `model-policy.json`
+- [Профили развёртывания](../guides/deployment-profiles.md) — безопасность по профилям
+- [Air-Gap & Offline](../guides/airgap-offline.md) — режим isolated circuit

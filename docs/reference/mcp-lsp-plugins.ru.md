@@ -146,7 +146,7 @@ MCP (Model Context Protocol) серверы расширяют OpenCode внеш
 ---
 
 **См. также:**
-- [Архитектура](../architecture/) — C4-диаграммы и схема модулей
-- [Справочник](../reference/) — CLI и схема opencode.json
-- [Руководство](../user-guide/) — повседневное использование MCP и LSP
-- [Продвинутое](../advanced/) — собственная настройка MCP/LSP
+- [Архитектура](../architecture/index.md) — C4-диаграммы и схема модулей
+- [Справочник](../reference/index.md) — CLI и схема opencode.json
+- [Руководство](../user-guide/index.md) — повседневное использование MCP и LSP
+- [Продвинутое](../advanced/index.md) — собственная настройка MCP/LSP
