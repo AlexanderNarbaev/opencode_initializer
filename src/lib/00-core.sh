@@ -87,6 +87,11 @@ _pkg_list() {
 # ── Mirror system — try primary, then RU-friendly fallbacks ─────────────────
 _set_dns() {
   [ "${DRY_RUN:-false}" = "true" ] && { info "[DRY] skip DNS"; return 0; }
+  # Non-interactive guard: skip sudo tee if no passwordless sudo
+  if [ ! -t 1 ] && ! sudo -n true 2>/dev/null; then
+    info "[NON-INTERACTIVE] skipping DNS write (no sudo password available)"
+    return 0
+  fi
   if [ -f /etc/resolv.conf ] && ! grep -q '77.88.8.8' /etc/resolv.conf 2>/dev/null; then
     echo "nameserver 77.88.8.8" | sudo tee -a /etc/resolv.conf >/dev/null 2>&1 || true
     echo "nameserver 77.88.8.1" | sudo tee -a /etc/resolv.conf >/dev/null 2>&1 || true

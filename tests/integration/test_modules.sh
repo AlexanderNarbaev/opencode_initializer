@@ -47,7 +47,7 @@ for f in "$PROJECT_DIR/src/lib/"*.sh; do
     assert "$fname is helper (no number)" "true"
   else
     assert "$fname follows NN-name pattern" \
-      "echo '$fname' | grep -qE '^[0-9]{2}-.*\.sh$'"
+      "echo '$fname' | grep -qE '^[0-9]{2}[a-z]?(-[a-z0-9-]+)?\.sh$'"
   fi
 done
 
@@ -85,7 +85,7 @@ assert "setup.sh is ~651 lines (+/- 50, v3.0.0 growth)" \
 
 # ── Module count matches AGENTS.md description ────────────────────────
 MODES_COUNT=$(ls "$PROJECT_DIR/src/modes/"*.sh 2>/dev/null | wc -l)
-assert "5 mode scripts" "[ '$MODES_COUNT' -eq 5 ]"
+assert "5+ mode scripts" "[ '$MODES_COUNT' -ge 5 ]"
 
 echo
 echo "=== test_modules.sh: $TESTS_PASS passed, $TESTS_FAIL failed ==="

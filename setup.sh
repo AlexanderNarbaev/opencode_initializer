@@ -390,6 +390,8 @@ info "Testing connectivity to key services..."
 
 if [ "${DRY_RUN:-false}" = "true" ]; then
   info "[DRY] skip WSL2 DNS fix (8.8.8.8/1.1.1.1)"
+elif [ ! -t 1 ] && ! sudo -n true 2>/dev/null; then
+  info "[NON-INTERACTIVE] skipping DNS write (no sudo password available)"
 elif [ -f /etc/resolv.conf ] && ! grep -qE '8\.8\.8\.8|1\.1\.1\.1' /etc/resolv.conf 2>/dev/null; then
   info "WSL2: adding Google/Cloudflare DNS fallback"
   echo "nameserver 8.8.8.8" | sudo tee -a /etc/resolv.conf 2>/dev/null || true
@@ -551,6 +553,9 @@ _run_step() {
   _wal_checkpoint "$step_name" "$step_key"
   log "$step_name — done"
 }
+
+# ── Project-only init mode (--new <dir>) — exits after completion ───────────
+if [ "$MODE" = "new" ]; then source "$SCRIPT_DIR/src/modes/new.sh"; fi
 
 _run_step step_system "System packages" "$SCRIPT_DIR/src/lib/01-system.sh"
 _run_step step_docker "Docker Engine" "$SCRIPT_DIR/src/lib/02-docker.sh"
