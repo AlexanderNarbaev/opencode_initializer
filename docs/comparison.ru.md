@@ -17,7 +17,7 @@ OpenCode Initializer занимает уникальную нишу: ни оди
 | **12 LSP-серверов** | :white_check_mark: авто | :x: (вручную) | :white_check_mark: (nixpkgs) | :x: (на IDE) | :x: (на IDE) | :x: |
 | **Локальные LLM-рантаймы** | :white_check_mark: GPU-aware | :x: | :x: | :x: | :x: | :x: |
 | **SearXNG веб-поиск** | :white_check_mark: | :x: | :x: | :x: | :x: | :x: |
-| **24 LLM-провайдера** | :white_check_mark: динамически | :x: | :x: | :x: | :x: | :x: |
+| **23 LLM-провайдера** | :white_check_mark: динамически | :x: | :x: | :x: | :x: | :x: |
 | **Память AI-агента (Muninn)** | :white_check_mark: | :x: | :x: | :x: | :x: | :x: |
 | **Командные dotfiles (chezmoi)** | :white_check_mark: | :x: | :white_check_mark: (nix home-manager) | :x: | :x: | :x: |
 | **Поддержка дистрибутивов** | :white_check_mark: 6 ПМ | N/A | :white_check_mark: (Nix) | :white_check_mark: (любые) | :white_check_mark: (любые) | Разное |
@@ -87,7 +87,7 @@ OpenCode Initializer делает всё это автоматически од�
 Существует много bootstrap-скриптов (Laptop, thoughtbot/laptop, omakub и др.). Обычно они устанавливают системные пакеты и рантаймы языков.
 
 **Где OpenCode Initializer добавляет ценность:**
-- AI-нативный: MCP-серверы, LSP-серверы, плагины OpenCode, 24 LLM-провайдера
+- AI-нативный: MCP-серверы, LSP-серверы, плагины OpenCode, 23 LLM-провайдера
 - Инфраструктура: Docker, ChromaDB, SearXNG
 - GPU-aware LLM-рантаймы с автоопределением
 - Память AI-агента (Muninn + ChromaDB)

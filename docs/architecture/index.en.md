@@ -9,7 +9,7 @@ C4Context
     title opencode_initializer — System Context
 
     Person(dev, "Developer", "Wants a ready-to-use AI-enhanced dev environment")
-    System(oci, "OpenCode Initializer", "Bootstraps complete dev machine with 8 languages, 38 modules, 21 MCPs, 15 plugins, 24 providers, infrastructure")
+    System(oci, "OpenCode Initializer", "Bootstraps complete dev machine with 8 languages, 38 modules, 21 MCPs, 15 plugins, 23 providers, infrastructure")
 
     System_Ext(gh, "GitHub", "Source code, releases, CI/CD")
     System_Ext(ghp, "GitHub Packages", "npm packages, Docker images")
@@ -92,7 +92,7 @@ C4Container
         Container(webui, "22-webui-service.sh", "Bash", "Open WebUI systemd user service")
         Container(just, "23-just.sh", "Bash", "just task runner")
         Container(websearch, "24-websearch.sh", "Bash", "SearXNG web search + sanitizer")
-        Container(providers, "26-providers.sh", "Bash", "24 LLM provider registry")
+        Container(providers, "26-providers.sh", "Bash", "23 LLM provider registry")
         Container(dotfiles, "27-dotfiles.sh", "Bash", "chezmoi dotfiles manager")
         Container(devbox, "28-devbox.sh", "Bash", "Devbox Nix-based environments")
 
@@ -234,7 +234,7 @@ graph LR
 | **Bun binary paths for MCP** | Absolute paths to `~/.bun/bin/` instead of `npx -y`, instant cold start |
 | **Auto-update via systemd** | topgrade runs weekly (Sun 04:00), unattended-upgrades for daily security |
 | **Hardware auto-detection** | NVIDIA/AMD/Intel GPU, NPU, Apple Silicon — zero-config LLM runtime setup |
-| **Multi-provider** | 24 LLM providers (20 cloud + 4 local) with dynamic registration and session switching |
+| **Multi-provider** | 23 LLM providers (20 cloud + 3 local) with dynamic registration and session switching |
 | **Infrastructure as Code** | PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer via Docker Compose |
 | **Isolated Circuit Mode** | Air-gapped LLM operation with local OpenAI-compatible backends |
 | **Cockpit TUI** | 7-tab terminal UI for server management |

@@ -17,7 +17,7 @@ OpenCode Initializer fills a unique niche: no other tool combines **system-level
 | **12 LSP servers** | :white_check_mark: auto | :x: (manual) | :white_check_mark: (nixpkgs) | :x: (per IDE) | :x: (per IDE) | :x: |
 | **Local LLM runtimes** | :white_check_mark: GPU-aware | :x: | :x: | :x: | :x: | :x: |
 | **SearXNG web search** | :white_check_mark: | :x: | :x: | :x: | :x: | :x: |
-| **24 LLM providers** | :white_check_mark: dynamic | :x: | :x: | :x: | :x: | :x: |
+| **23 LLM providers** | :white_check_mark: dynamic | :x: | :x: | :x: | :x: | :x: |
 | **AI agent memory (Muninn)** | :white_check_mark: | :x: | :x: | :x: | :x: | :x: |
 | **Team dotfiles (chezmoi)** | :white_check_mark: | :x: | :white_check_mark: (nix home-manager) | :x: | :x: | :x: |
 | **multi-distro support** | :white_check_mark: 6 PMs | N/A | :white_check_mark: (Nix) | :white_check_mark: (any) | :white_check_mark: (any) | Varies |
@@ -75,7 +75,7 @@ OpenCode Initializer does all of this automatically in a single command.
 **Where OpenCode Initializer adds value:**
 - MCP and LSP servers are auto-configured (24+12 servers)
 - OpenCode plugins pre-installed and configured (18 plugins)
-- 24 LLM providers (20 cloud + 4 local) with dynamic registration
+- 23 LLM providers (20 cloud + 3 local) with dynamic registration
 - Hardware-aware: GPU auto-detection, optimal backend selection
 - No container overhead: native performance
 - System-level tools: Chrome, ZSH with plugins, system services
@@ -88,7 +88,7 @@ OpenCode Initializer does all of this automatically in a single command.
 Many bootstrap scripts exist (Laptop, thoughtbot/laptop, omakub, etc.). They typically install system packages and language runtimes.
 
 **Where OpenCode Initializer adds value:**
-- AI-native: MCP servers, LSP servers, OpenCode plugins, 24 LLM providers
+- AI-native: MCP servers, LSP servers, OpenCode plugins, 23 LLM providers
 - Infrastructure: Docker, ChromaDB, SearXNG
 - GPU-aware LLM runtimes with auto-detection
 - AI agent memory (Muninn + ChromaDB)

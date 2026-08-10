@@ -9,7 +9,7 @@ C4Context
     title opencode_initializer — Контекст системы
 
     Person(dev, "Разработчик", "Хочет готовое AI-усиленное окружение для разработки")
-    System(oci, "OpenCode Initializer", "Настраивает полную dev-машину: 8 языков, 39 модулей, 21 MCP, 15 плагинов, 24 провайдера, инфраструктура")
+    System(oci, "OpenCode Initializer", "Настраивает полную dev-машину: 8 языков, 39 модулей, 21 MCP, 15 плагинов, 23 провайдера, инфраструктура")
 
     System_Ext(gh, "GitHub", "Исходный код, релизы, CI/CD")
     System_Ext(ghp, "GitHub Packages", "npm пакеты, Docker образы")
@@ -91,7 +91,7 @@ C4Container
         Container(webui, "22-webui-service.sh", "Bash", "Open WebUI systemd сервис")
         Container(just, "23-just.sh", "Bash", "just — таск-раннер")
         Container(websearch, "24-websearch.sh", "Bash", "SearXNG веб-поиск + sanitizer")
-        Container(providers, "26-providers.sh", "Bash", "Реестр 24 LLM-провайдеров")
+        Container(providers, "26-providers.sh", "Bash", "Реестр 23 LLM-провайдеров")
         Container(dotfiles, "27-dotfiles.sh", "Bash", "chezmoi — менеджер dotfiles")
         Container(devbox, "28-devbox.sh", "Bash", "Devbox — Nix-окружения")
         Container(mise, "29-mise.sh", "Bash", "mise-en-place — менеджер версий инструментов")
@@ -235,7 +235,7 @@ graph LR
 | **Bun binary paths для MCP** | Абсолютные пути к `~/.bun/bin/` вместо `npx -y`, мгновенный холодный старт |
 | **Автообновление через systemd** | topgrade еженедельно (Вс 04:00), unattended-upgrades ежедневно для безопасности |
 | **Автоопределение оборудования** | NVIDIA/AMD/Intel GPU, NPU, Apple Silicon — настройка LLM без конфигурации |
-| **Мульти-провайдер** | 24 LLM-провайдера (20 облачных + 4 локальных) с динамической регистрацией и переключением сессий |
+| **Мульти-провайдер** | 23 LLM-провайдера (20 облачных + 3 локальных) с динамической регистрацией и переключением сессий |
 | **Инфраструктура как код** | PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer через Docker Compose |
 | **Изолированный контур** | Автономная работа LLM с локальными OpenAI-совместимыми бэкендами |
 | **Cockpit TUI** | 7-вкладочный терминальный интерфейс управления сервером |

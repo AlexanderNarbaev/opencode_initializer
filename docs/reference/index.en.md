@@ -14,7 +14,7 @@ bash setup.sh [MODE] [OPTIONS]
 
 | Mode | Flag | Description |
 |------|------|-------------|
-| **Full** | *(default)* | Complete bootstrap — all 8 languages, 24 MCP, 18 plugins, 12 LSP, 24 providers, 6 infra services |
+| **Full** | *(default)* | Complete bootstrap — all 8 languages, 24 MCP, 18 plugins, 12 LSP, 23 providers, 6 infra services |
 | **Health** | `--health` | Diagnostics — 115+ checks across 11 sections |
 | **Interactive** | `--interactive` | Component-by-component selection |
 | **Reinit** | `--reinit` | Reinstall tools, keep data |
@@ -243,7 +243,7 @@ During setup, you'll see:
 | .NET | `10-dotnet.sh` | .NET 10 |
 | OpenCode | `11-opencode.sh` | OpenCode CLI + Bun |
 | MCP/LSP | `12-mcp-lsp.sh` | 24 MCP + 18 plugins + 12 LSP + Muninn |
-| Providers | `26-providers.sh` | 24 LLM providers (20 cloud + 4 local) |
+| Providers | `26-providers.sh` | 23 LLM providers (20 cloud + 3 local) |
 | Infrastructure | `30-infra.sh` | PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer |
 | Cockpit | `31-cockpit.sh` | 7-tab TUI server management daemon |
 | Isolated | `32-isolated.sh` | Air-gapped LLM mode (Ollama/vLLM/SGLang) |
