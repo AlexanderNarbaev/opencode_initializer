@@ -101,6 +101,9 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 | `46-offline-bundle.sh` | Air-gap offline bootstrap — tarball bundle, SHA-256 manifest, `dev bundle create` |
 | `47-lynis.sh` | Lynis CIS scanner — system security audit + cron.weekly |
 | `48-auditd.sh` | Linux audit daemon — 18 kernel audit rules (access, mounts, sudo) |
+| `49-deepseek-harness.sh` | DeepSeek Harness (dsh) — agent harness with plugin architecture |
+| `50-sandcastle.sh` | Sandcastle — sandboxed agent orchestration (Docker/Podman/Vercel) |
+| `51-opencode-desktop.sh` | OpenCode Desktop — desktop version installer |
 | `99-upstream-sync.sh` | Upstream sync — providers, MCP, LSP, plugins from OpenCode upstream |
 | `version-check.sh` | Version check: Rust/Go/Node/Python/Bun/OpenCode/Ollama/Zig + npm packages |
 | `pre-session-check.sh` | Pre-session provider/model validation + MCP status |

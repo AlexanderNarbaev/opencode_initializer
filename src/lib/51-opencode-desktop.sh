@@ -141,9 +141,9 @@ _install_opencode_desktop() {
 
 # ── AppImage fallback (no root, no deb/rpm manager) ──────────────────────────
 _install_desktop_appimage() {
-  local ver="$1"
-  local url="$(_desktop_asset_url "$ver" AppImage)"
-  local appimage="$DL_CACHE/opencode-desktop-${ver#v}.AppImage"
+  local ver="$1" url appimage
+  url="$(_desktop_asset_url "$ver" AppImage)"
+  appimage="$DL_CACHE/opencode-desktop-${ver#v}.AppImage"
 
   _progress "OpenCode Desktop" "Installing AppImage ($ver)"
   _spin_start "Downloading opencode-desktop AppImage"

@@ -149,6 +149,9 @@ dev isolated status                 # Check current state
 | **Dotfiles** | chezmoi for team config sharing |
 | **Dev Environments** | Devbox — Nix-based isolated envs |
 | **Cockpit** | 7-tab TUI for server management |
+| **Agent Harness** | DeepSeek Harness (dsh) — plugin-based agent harness |
+| **Sandboxed Agents** | Sandcastle — isolated AI coding agents (Docker/Podman/Vercel) |
+| **Desktop App** | OpenCode Desktop — native GUI (.deb/.rpm/AppImage) |
 
 ## Supported Platforms
 

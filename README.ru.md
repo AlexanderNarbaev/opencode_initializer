@@ -38,7 +38,7 @@ curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializ
 | Категория | Кол-во | Состав |
 |-----------|--------|--------|
 | Языки | 8 | Java 25, Node.js 24, Python 3.14, Go 1.26, Rust 1.97.1, .NET 10, Kotlin, Zig |
-| Модули | 52 | Система, Docker, Chrome, ZSH, 7 языков, OpenCode, MCP/LSP, ChromaDB, LLM, RAG, SearXNG, провайдеры, dotfiles, Devbox, Infra, Cockpit, Isolated Circuit, Services, Observability, GUI, Model Router, WAL, Best Practices, Upstream Sync, Linux Platform, Lynis, auditd и другие |
+| Модули | 52 | Система, Docker, Chrome, ZSH, 7 языков, OpenCode, MCP/LSP, ChromaDB, LLM, RAG, SearXNG, провайдеры, dotfiles, Devbox, Infra, Cockpit, Isolated Circuit, Services, Observability, GUI, Model Router, WAL, Best Practices, Upstream Sync, Linux Platform, Lynis, auditd, DeepSeek Harness, Sandcastle, OpenCode Desktop и другие |
 | MCP-серверы | 24 | GitHub, GitLab, Filesystem, Playwright, Chrome DevTools, Postgres, SQLite, Memory, Excalidraw, Brave Search, Context7, Google Maps и другие |
 | LSP-серверы | 13 | gopls, rust-analyzer, tsserver, pyright, omnisharp, yaml, marksman, taplo, lua, zls, bash, dockerfile, css/html/json |
 | Плагины | 15 | token-tracker, dcp, swarm, goal-mode, vibeguard, orchestrator, auto-fallback, notify, pty, snip, snippets, envsitter-guard, command-inject, ignore |
@@ -49,6 +49,13 @@ curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializ
 | Наблюдаемость | Полный стек | Метрики Prometheus, дашборды Grafana, экспортёр метрик OpenCode, системные метрики Node Exporter |
 | GUI | Веб | Статус провайдеров, менеджер моделей, model router, управление MCP/LSP, мониторинг инфраструктуры, Grafana iframe, бэкап, переключатель Isolated Circuit |
 | Пакетные менеджеры | 6 | apt, dnf, pacman, apk, zypper, brew |
+
+### Новые интеграции
+
+- **DeepSeek Harness** (`49-deepseek-harness.sh`): agent-харнесс `dsh` — «всё — плагин» (Cordis), Web UI на порту 3080
+- **Sandcastle** (`50-sandcastle.sh`): изолированные AI-агенты кодинга (Docker/Podman/Vercel) через API `sandcastle.run()`
+- **OpenCode Desktop** (`51-opencode-desktop.sh`): десктопный GUI для OpenCode (.deb/.rpm/AppImage)
+- **Навыки Matt Pocock**: 17 инженерных навыков (TDD, code review, проектирование кодовой базы, доменное моделирование, отладка, wayfinder, wizard и другие) в `.opencode/skills/matt-pocock/`
 
 ### v2.0.0 — Инфраструктура как код + Isolated Circuit + Наблюдаемость
 

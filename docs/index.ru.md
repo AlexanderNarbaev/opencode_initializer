@@ -147,6 +147,9 @@ dev isolated status                 # Проверить текущее сост
 | **Dotfiles** | chezmoi для командного шеринга конфигов |
 | **Dev-окружения** | Devbox — изолированные Nix-окружения |
 | **Cockpit** | 7-вкладочный TUI для управления сервером |
+| **Agent Harness** | DeepSeek Harness (dsh) — плагинный agent-харнесс |
+| **Песочницы агентов** | Sandcastle — изолированные AI-агенты (Docker/Podman/Vercel) |
+| **Десктоп-приложение** | OpenCode Desktop — нативный GUI (.deb/.rpm/AppImage) |
 
 ## :fontawesome-solid-globe: Поддерживаемые платформы
 

@@ -662,6 +662,9 @@ _run_step step_upstream_sync "Upstream Sync (submodules + pins)" "$SCRIPT_DIR/sr
 [ -f "$SCRIPT_DIR/src/lib/46-offline-bundle.sh" ] && source "$SCRIPT_DIR/src/lib/46-offline-bundle.sh" || true
 [ -f "$SCRIPT_DIR/src/lib/47-lynis.sh" ] && source "$SCRIPT_DIR/src/lib/47-lynis.sh" || true
 [ -f "$SCRIPT_DIR/src/lib/48-auditd.sh" ] && source "$SCRIPT_DIR/src/lib/48-auditd.sh" || true
+[ -f "$SCRIPT_DIR/src/lib/49-deepseek-harness.sh" ] && source "$SCRIPT_DIR/src/lib/49-deepseek-harness.sh" || true
+[ -f "$SCRIPT_DIR/src/lib/50-sandcastle.sh" ] && source "$SCRIPT_DIR/src/lib/50-sandcastle.sh" || true
+[ -f "$SCRIPT_DIR/src/lib/51-opencode-desktop.sh" ] && source "$SCRIPT_DIR/src/lib/51-opencode-desktop.sh" || true
 
 # ── Air-gap mode: trigger offline bundle if available ────────────────────────
 if [ "$MODE" = "airgap" ]; then

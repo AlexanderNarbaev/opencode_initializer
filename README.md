@@ -38,7 +38,7 @@ One command installs everything: 8 languages, 52 infrastructure modules, 24 MCP 
 | Category | Count | Details |
 |----------|-------|---------|
 | Languages | 8 | Java 25, Node.js 24, Python 3.14, Go 1.26, Rust 1.97.1, .NET 10, Kotlin, Zig |
-| Modules | 52 | System, Docker, Chrome, ZSH, 7 languages, OpenCode, MCP/LSP, ChromaDB, LLM, RAG, SearXNG, providers, dotfiles, Devbox, Infra, Cockpit, Isolated Circuit, Services, Observability, GUI, Model Router, WAL, Best Practices, Upstream Sync, Linux Platform, Lynis, auditd, and more |
+| Modules | 52 | System, Docker, Chrome, ZSH, 7 languages, OpenCode, MCP/LSP, ChromaDB, LLM, RAG, SearXNG, providers, dotfiles, Devbox, Infra, Cockpit, Isolated Circuit, Services, Observability, GUI, Model Router, WAL, Best Practices, Upstream Sync, Linux Platform, Lynis, auditd, DeepSeek Harness, Sandcastle, OpenCode Desktop, and more |
 | MCP Servers | 24 | GitHub, GitLab, Filesystem, Playwright, Chrome DevTools, Postgres, SQLite, Memory, Excalidraw, Brave Search, Context7, Google Maps, and more |
 | LSP Servers | 13 | gopls, rust-analyzer, tsserver, pyright, omnisharp, yaml, marksman, taplo, lua, zls, bash, dockerfile, css/html/json |
 | Plugins | 15 | token-tracker, dcp, swarm, goal-mode, vibeguard, orchestrator, auto-fallback, notify, pty, snip, snippets, envsitter-guard, command-inject, ignore |
@@ -49,6 +49,13 @@ One command installs everything: 8 languages, 52 infrastructure modules, 24 MCP 
 | Observability | Full stack | Prometheus metrics, Grafana dashboards, OpenCode metrics exporter, Node Exporter system metrics |
 | GUI | Web | Provider status, model manager, model router, MCP/LSP management, infra monitoring, Grafana iframe, backup, Isolated Circuit toggle |
 | Package Managers | 6 | apt, dnf, pacman, apk, zypper, brew |
+
+### New Integrations
+
+- **DeepSeek Harness** (`49-deepseek-harness.sh`): `dsh` agent harness — "everything is a plugin" (Cordis), Web UI on port 3080
+- **Sandcastle** (`50-sandcastle.sh`): sandboxed AI coding agents (Docker/Podman/Vercel) via the `sandcastle.run()` API
+- **OpenCode Desktop** (`51-opencode-desktop.sh`): desktop GUI for OpenCode (.deb/.rpm/AppImage)
+- **Matt Pocock Skills**: 17 engineering skills (TDD, code review, codebase design, domain modeling, debugging, wayfinder, wizard, and more) under `.opencode/skills/matt-pocock/`
 
 ### v2.0.0 — Infrastructure as Code + Isolated Circuit + Observability
 
