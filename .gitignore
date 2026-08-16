@@ -47,6 +47,11 @@ sqlite_mcp_server.db
 /ai-router.json
 docs/changelog/index.md
 .opencode/state/
+.opencode/goals/
+.opencode/work-log.md
+.opencode/context.md
+.opencode/.unit_out.tmp
+.opencode/run-unit-suite.sh
 # Test/local node_modules
 node_modules/
 
