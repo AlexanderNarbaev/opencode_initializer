@@ -71,8 +71,8 @@
 - [x] S4.5.5: Update AGENTS.md with new modules
 - [x] S4.5.6: Update README.md/README.ru.md
 
-## M5: Final Verification | status: in_progress
+## M5: Final Verification | status: completed
 ### T5.1: Full test suite verification | agent:Reviewer
-- [ ] S5.1.1: Run all 63 unit tests
-- [ ] S5.1.2: Verify all tests pass
-- [ ] S5.1.3: Verify git clean + pushed
+- [x] S5.1.1: Run all 63 unit tests
+- [x] S5.1.2: Verify all tests pass
+- [x] S5.1.3: Verify git clean + pushed
