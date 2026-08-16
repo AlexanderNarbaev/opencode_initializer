@@ -48,7 +48,7 @@ opencode_initializer/
 ### Orchestrator (685 lines)
 Minimal entry point that sources modules from `src/lib/` and dispatches modes from `src/modes/`.
 
-### Module Layout (src/lib/ — 46 numbered + 3 helpers)
+### Module Layout (src/lib/ — 52 numbered + 3 helpers)
 | Module | Responsibility |
 |--------|---------------|
 | `helpers.sh` | `_curl()`, `_retry()`, `_npm_install()`, `_sudo()` — shared infrastructure |
