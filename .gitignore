@@ -57,3 +57,4 @@ node_modules/
 
 # Build artifacts
 dist/
+.opencode/status.md
