@@ -1,0 +1,135 @@
+#!/usr/bin/env bash
+# ============================================================================
+# ISOLATED Unit Test for 53-auto-skills.sh — Auto-Triggering Skill System
+# Session: ses_auto_skills_test   (temporary — deleted after run)
+# ============================================================================
+set -euo pipefail
+
+REPO="/home/alexandr-narbaev/Projects/opencode_initializer"
+A="$REPO/src/lib/53-auto-skills.sh"
+TESTS_PASS=0; TESTS_FAIL=0
+
+assert() {
+  local d="$1" c="$2"
+  if (eval "$c") >/dev/null 2>&1; then
+    TESTS_PASS=$((TESTS_PASS + 1))
+  else
+    TESTS_FAIL=$((TESTS_FAIL + 1))
+    echo "    FAIL: $d" >&2
+  fi
+}
+
+echo "=== Testing 53-auto-skills.sh ==="
+
+# ── 1. File existence & syntax ───────────────────────────────────────────
+assert "53-auto-skills.sh exists" "[ -f '$A' ]"
+assert "53-auto-skills.sh syntax clean" "bash -n '$A'"
+
+# ── 2. Core functions present ────────────────────────────────────────────
+assert "has _detect_task_type()" "grep -q '_detect_task_type()' '$A'"
+assert "has _auto_load_skills()" "grep -q '_auto_load_skills()' '$A'"
+assert "has _skill_suggest()" "grep -q '_skill_suggest()' '$A'"
+assert "has _skills_for_type()" "grep -q '_skills_for_type()' '$A'"
+assert "has _detect_file_skills()" "grep -q '_detect_file_skills()' '$A'"
+assert "has _skill_path()" "grep -q '_skill_path()' '$A'"
+assert "has _dedupe()" "grep -q '_dedupe()' '$A'"
+assert "has _keyword_match()" "grep -q '_keyword_match()' '$A'"
+
+# ── 3. Structure & conventions ───────────────────────────────────────────
+assert "has shebang" "head -1 '$A' | grep -q '#!/usr/bin/env bash'"
+assert "has set -euo pipefail" "grep -q 'set -euo pipefail' '$A'"
+assert "has step_auto_skills skip check" "grep -q '_step_skip step_auto_skills' '$A'"
+assert "has _step_done step_auto_skills" "grep -q '_step_done step_auto_skills' '$A'"
+assert "has section header" "grep -q 'section.*Auto-Triggering Skills' '$A'"
+assert "has opt-out SKIP_AUTO_SKILLS" "grep -q 'SKIP_AUTO_SKILLS' '$A'"
+assert "config dir is ~/.config/opencode/auto-skills" "grep -q 'opencode/auto-skills' '$A'"
+assert "writes config.json" "grep -q 'config.json' '$A'"
+
+# ── 4. macOS bash 3.2 compat — NO associative arrays ─────────────────────
+assert "no declare -A (associative arrays)" "! grep -q 'declare -A' '$A'"
+
+# ── 5. Trigger keyword coverage (from task spec) ─────────────────────────
+for kw in specify define plan design test verify debug fix review refactor research; do
+  assert "keyword '$kw' present in module" "grep -q '$kw' '$A'"
+done
+for ext in '.ts' '.js' '.py' '.sh'; do
+  assert "file pattern '$ext' present" "grep -qF '$ext' '$A'"
+done
+
+# ── 6. Skill slugs referenced exist on disk ──────────────────────────────
+for slug in specify plan brainstorm clarify running-tests writing-tests deep-research codebase-review-swarm; do
+  assert "skill '$slug' exists" "[ -f '$REPO/.opencode/skills/$slug/SKILL.md' ]"
+done
+for slug in matt-pocock/tdd matt-pocock/diagnosing-bugs matt-pocock/code-review matt-pocock/improve-codebase-architecture matt-pocock/research matt-pocock/implement matt-pocock/codebase-design coprocessor; do
+  assert "skill '$slug' exists" "[ -f '$REPO/.opencode/skills/$slug/SKILL.md' ]"
+done
+
+# ── 7. Functional: source with stubs, capture function outputs ───────────
+FUNC_OUT=$(bash -c '
+_step_skip() { return 1; }
+_step_done() { :; }
+section() { :; }
+log() { :; }
+info() { :; }
+warn() { :; }
+export PROJECT_DIR="'"$REPO"'"
+source "'"$A"'"
+
+echo "t_specify=$(_detect_task_type \"define the contract\")"
+echo "t_plan=$(_detect_task_type \"design the module\")"
+echo "t_debug=$(_detect_task_type \"fix the login bug\")"
+echo "t_review=$(_detect_task_type \"review the PR\")"
+echo "t_refactor=$(_detect_task_type \"refactor utils\")"
+echo "t_research=$(_detect_task_type \"research providers\")"
+echo "t_test=$(_detect_task_type \"write tests and verify\")"
+echo "t_coding=$(_detect_task_type \"implement a feature\")"
+echo "f_ts=$(_detect_file_skills src/a.ts)"
+echo "f_py=$(_detect_file_skills app.py)"
+echo "f_sh=$(_detect_file_skills setup.sh)"
+echo "f_mix=$(_detect_file_skills a.py b.sh c.py)"
+echo "dedupe=$(_dedupe a b a c b)"
+echo "sft_debug=$(_skills_for_type debug)"
+echo "sft_plan=$(_skills_for_type plan)"
+echo "sft_unknown=$(_skills_for_type nope)"
+echo "sp_specify=$(_skill_path specify)"
+echo "sp_missing=$(_skill_path does-not-exist)"
+echo "als=$(_auto_load_skills \"fix the bug\")"
+echo "suggest=$(_skill_suggest \"review this\")"
+')
+
+assert "detect specify" "echo '$FUNC_OUT' | grep -q 't_specify=specify'"
+assert "detect plan" "echo '$FUNC_OUT' | grep -q 't_plan=plan'"
+assert "detect debug" "echo '$FUNC_OUT' | grep -q 't_debug=debug'"
+assert "detect review" "echo '$FUNC_OUT' | grep -q 't_review=review'"
+assert "detect refactor" "echo '$FUNC_OUT' | grep -q 't_refactor=refactor'"
+assert "detect research" "echo '$FUNC_OUT' | grep -q 't_research=research'"
+assert "detect test" "echo '$FUNC_OUT' | grep -q 't_test=test'"
+assert "detect coding (default)" "echo '$FUNC_OUT' | grep -q 't_coding=coding'"
+
+assert "file skills ts" "echo '$FUNC_OUT' | grep -q 'f_ts=.*matt-pocock/tdd'"
+assert "file skills py" "echo '$FUNC_OUT' | grep -q 'f_py=.*running-tests'"
+assert "file skills sh" "echo '$FUNC_OUT' | grep -q 'f_sh=running-tests'"
+assert "file skills dedup mix" "echo '$FUNC_OUT' | grep -q 'f_mix=matt-pocock/implement running-tests'"
+
+assert "dedupe preserves order" "echo '$FUNC_OUT' | grep -q 'dedupe=a b c'"
+
+assert "skills_for_type debug" "echo '$FUNC_OUT' | grep -q 'sft_debug=matt-pocock/diagnosing-bugs'"
+assert "skills_for_type plan has brainstorm" "echo '$FUNC_OUT' | grep -q 'sft_plan=.*brainstorm'"
+assert "skills_for_type unknown fallback" "echo '$FUNC_OUT' | grep -q 'sft_unknown=coprocessor'"
+
+assert "skill_path resolves" "echo '$FUNC_OUT' | grep -q 'sp_specify=.*SKILL.md'"
+assert "skill_path missing empty" "echo '$FUNC_OUT' | grep -q 'sp_missing=$'"
+
+assert "auto_load_skills resolves paths" "echo '$FUNC_OUT' | grep -q 'als=.*diagnosing-bugs/SKILL.md'"
+assert "skill_suggest prints task type" "echo '$FUNC_OUT' | grep -q 'suggest=.*Task type: review'"
+
+# ── 8. Config.json generated + valid ─────────────────────────────────────
+CFG="$HOME/.config/opencode/auto-skills/config.json"
+assert "config.json generated" "[ -f '$CFG' ]"
+assert "config.json has task_triggers" "grep -q 'task_triggers' '$CFG'"
+assert "config.json has file_triggers" "grep -q 'file_triggers' '$CFG'"
+assert "config.json has 8 task categories" "[ \"\$(grep -cE '^    \"(specify|plan|test|debug|review|refactor|research|coding)\"' '$CFG')\" -eq 8 ]"
+
+# ── Report ───────────────────────────────────────────────────────────────
+echo "test_auto_skills: $TESTS_PASS passed, $TESTS_FAIL failed"
+[ "$TESTS_FAIL" -eq 0 ] || exit 1

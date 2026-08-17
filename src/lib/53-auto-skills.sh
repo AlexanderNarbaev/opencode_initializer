@@ -80,7 +80,7 @@ _skill_path() {
 _detect_task_type() {
   local text="${*:-}"
   [ -z "$text" ] && text="${AUTO_SKILLS_CTX:-}"
-  [ -z "$text" ] && text="$(git status --short 2>/dev/null | tr '\n' ' ')"
+  [ -z "$text" ] && text="$(git status --short 2>/dev/null | tr '\n' ' ' || true)"
   [ -z "$text" ] && { echo "coding"; return 0; }
 
   _keyword_match "$text" "specify specification requirements define"  && { echo "specify";   return 0; }
@@ -101,7 +101,7 @@ _detect_task_type() {
 _detect_file_skills() {
   local files="${*:-}"
   [ -z "$files" ] && files="${AUTO_SKILLS_FILES:-}"
-  [ -z "$files" ] && files="$(git diff --name-only --diff-filter=ACMRT 2>/dev/null | tr '\n' ' ')"
+  [ -z "$files" ] && files="$(git diff --name-only --diff-filter=ACMRT 2>/dev/null | tr '\n' ' ' || true)"
 
   local out="" f ext
   for f in $files; do

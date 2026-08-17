@@ -44,15 +44,35 @@ _configure_deepseek_harness() {
   mkdir -p "$DSH_CONFIG_DIR"
 
   # Default plugin profile (cordis.yml). dsh loads plugins from this file.
-  # Plugin keys are intentionally minimal — extend per the generated config
-  # catalog in the upstream repo: docs/config-catalog.md.
+  # Plugin keys are intentionally left as commented stubs — the exact keys are
+  # defined in the upstream config catalog (developer preview, breaking changes):
+  #   https://github.com/deepseek-ai/deepseek-harness (docs/config-catalog.md)
+  # Do NOT invent keys here; uncomment + fill exact keys once the catalog documents them.
   if [ ! -f "$DSH_CONFIG_DIR/cordis.yml" ]; then
     cat > "$DSH_CONFIG_DIR/cordis.yml" << 'CORDIS'
 # DeepSeek Harness — default plugin profile (managed by opencode_initializer)
-# dsh is "everything is a plugin" (Cordis). Mount additional plugins here.
-# Reference: https://github.com/deepseek-ai/deepseek-harness (docs/config-catalog.md)
-#
+# dsh is "everything is a plugin" (Cordis). Plugins are mounted in this file.
 # Web UI is served at http://127.0.0.1:3080 by default.
+#
+# Plugin keys are defined in the upstream config catalog — do NOT invent keys:
+#   https://github.com/deepseek-ai/deepseek-harness (docs/config-catalog.md)
+#
+# Starter plugin stubs (uncomment + set the exact key once the catalog documents it):
+#
+# ── pre-session-check ──────────────────────────────────────────────────────
+#   Wires provider + model + MCP validation into the harness lifecycle.
+#   Mirrors src/lib/pre-session-check.sh (see opencode_initializer repo).
+#   # pre-session-check: { enabled: true }
+#
+# ── pii-guard ─────────────────────────────────────────────────────────────
+#   Pre-request PII sanitizer (9 detectors: email, phone, INN, SNILS, passport,
+#   credit card, IP, API key). Mirrors scripts/pii-guard.py + 45-pii-guard.sh.
+#   # pii-guard: { enabled: true }
+#
+# ── wal-checkpoint ────────────────────────────────────────────────────────
+#   Checkpoints consequential decisions to the agent journal
+#   (~/.cache/opencode/wal.jsonl, SHA-256 hash-chain). Mirrors 37-wal.sh.
+#   # wal-checkpoint: { enabled: true }
 CORDIS
     log "Created default plugin profile: $DSH_CONFIG_DIR/cordis.yml"
   else

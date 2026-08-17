@@ -48,6 +48,8 @@ usage() {
   echo "  dev bundle create       Create offline installation bundle"
   echo "  dev bundle list          List bundle contents"
   echo "  dev bundle verify        Verify bundle SHA-256 integrity"
+  echo "  dev sandcastle review   Run Sandcastle implement→review on current branch"
+  echo "  dev sandcastle status   Show Sandcastle install/provider status"
 }
 
 cmd_list() {
@@ -605,6 +607,138 @@ cmd_backup() {
   esac
 }
 
+# ── Sandcastle — sandboxed implement→review flow (wires 50-sandcastle.sh) ────
+# R3 (report §5): wire the installed-but-inert Sandcastle harness into the
+# lifecycle. Runs a createSandbox() implement→review pipeline on the current
+# git branch with lifecycle hooks + timeouts (documented API — see
+# .opencode/docs/github_com_mattpocock_sandcastle.md).
+
+_sandcastle_provider_detect() {
+  # Returns docker | podman | no-sandbox (mirrors 50-sandcastle.sh).
+  if command -v docker &>/dev/null && docker info &>/dev/null 2>&1; then
+    echo "docker"
+  elif command -v podman &>/dev/null; then
+    echo "podman"
+  else
+    echo "no-sandbox"
+  fi
+}
+
+_sandcastle_status() {
+  section "Sandcastle Status"
+  local installed="not installed" provider
+  if [ -d ".sandcastle" ] || grep -q '"@ai-hero/sandcastle"' package.json 2>/dev/null; then
+    installed="installed"
+  fi
+  provider="$(_sandcastle_provider_detect)"
+  echo "  package:  $installed"
+  echo "  provider: $provider"
+  echo "  run:      dev sandcastle review"
+}
+
+_sandcastle_review() {
+  section "Sandcastle Review (implement → review)"
+
+  # ── Defensive guards: never hard-fail when a dependency is absent ────────
+  if ! command -v node &>/dev/null; then
+    warn "Node.js not found — Sandcastle review requires Node.js. Skipping."
+    return 0
+  fi
+  if ! command -v git &>/dev/null; then
+    warn "git not found — Sandcastle review requires git. Skipping."
+    return 0
+  fi
+  if ! grep -q '"@ai-hero/sandcastle"' package.json 2>/dev/null && [ ! -d "node_modules/@ai-hero/sandcastle" ]; then
+    warn "@ai-hero/sandcastle not installed — run 'npm install --save-dev @ai-hero/sandcastle' first. Skipping."
+    return 0
+  fi
+
+  local provider
+  provider="$(_sandcastle_provider_detect)"
+  if [ "$provider" = "no-sandbox" ]; then
+    warn "Neither Docker nor Podman available — Sandcastle review skipped (container isolation required)."
+    return 0
+  fi
+
+  local branch
+  branch="$(git branch --show-current 2>/dev/null || true)"
+  [ -n "$branch" ] || branch="agent/review"
+
+  info "Provider: $provider | Branch: $branch | implement → review on a sandboxed worktree"
+
+  mkdir -p ".sandcastle"
+
+  # Implement prompt (static; branch is passed to createSandbox, not templated).
+  cat > ".sandcastle/review.prompt.md" << 'PROMPT'
+# Task
+
+Implement the changes described in the pull request / issue, then verify your
+work. Follow the repository's contribution guide and existing code style.
+PROMPT
+
+  # Implement→review runner (documented Sandcastle API — no invented keys).
+  cat > ".sandcastle/review-main.ts" << 'TS'
+import { createSandbox, claudeCode } from "@ai-hero/sandcastle";
+import { docker } from "@ai-hero/sandcastle/sandboxes/docker";
+import { podman } from "@ai-hero/sandcastle/sandboxes/podman";
+import { noSandbox } from "@ai-hero/sandcastle/sandboxes/no-sandbox";
+
+const provider = process.env.SANDCASTLE_PROVIDER ?? "docker";
+const branch = process.env.SANDCASTLE_BRANCH ?? "agent/review";
+const sandbox =
+  provider === "podman" ? podman() :
+  provider === "docker" ? docker() : noSandbox();
+
+await using sb = await createSandbox({
+  branch,
+  sandbox,
+  hooks: {
+    host: { onWorktreeReady: [{ command: "cp .sandcastle/.env.example .sandcastle/.env 2>/dev/null || true" }] },
+    sandbox: { onSandboxReady: [{ command: "npm install 2>/dev/null || true" }] },
+  },
+  timeouts: {
+    gitSetupMs: 30_000,
+    commitCollectionMs: 60_000,
+    mergeToHostMs: 60_000,
+  },
+});
+
+// Step 1: implement
+await sb.run({
+  agent: claudeCode("claude-opus-4-8"),
+  promptFile: ".sandcastle/review.prompt.md",
+  maxIterations: 5,
+});
+
+// Step 2: review on the same branch, same container
+await sb.run({
+  agent: claudeCode("claude-sonnet-4-6"),
+  prompt: "Review the changes on this branch and fix any issues found.",
+});
+TS
+
+  if ! SANDCASTLE_PROVIDER="$provider" SANDCASTLE_BRANCH="$branch" npx --yes tsx ".sandcastle/review-main.ts"; then
+    warn "Sandcastle review failed — check .sandcastle/logs/ and credentials in .sandcastle/.env."
+    return 0
+  fi
+  log "Sandcastle review complete — review the worktree and merge when satisfied."
+}
+
+cmd_sandcastle() {
+  local action="${2:-status}"
+  case "$action" in
+    review)
+      _sandcastle_review
+      ;;
+    status | "")
+      _sandcastle_status
+      ;;
+    *)
+      err "Unknown: dev sandcastle $action. Use: review|status"
+      ;;
+  esac
+}
+
 case "${1:-}" in
   install) cmd_install "${2:-}" ;;
   remove) cmd_remove "${2:-}" ;;
@@ -625,6 +759,7 @@ case "${1:-}" in
   doctor) cmd_doctor ;;
   backup) cmd_backup "${@}" ;;
   bundle) cmd_bundle "${@}" ;;
+  sandcastle) cmd_sandcastle "${@}" ;;
   -h | --help | help | "") usage ;;
-  *) err "Unknown: $1. Use: dev install|remove|update|health|list|config|self-update|version-check|autoupdate|infra|plugins|observability|models|doctor|backup|bundle" ;;
+  *) err "Unknown: $1. Use: dev install|remove|update|health|list|config|self-update|version-check|autoupdate|infra|plugins|observability|models|doctor|backup|bundle|sandcastle" ;;
 esac

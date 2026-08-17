@@ -1,0 +1,43 @@
+name: Sandcastle Review
+# R3 (report §5): wire Sandcastle into CI reproducibility — a manual or
+# PR-gated implement→review run on a sandboxed worktree (hooks + timeouts).
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to review (defaults to the checked-out branch)'
+        required: false
+        default: ''
+  pull_request:
+    branches: [main]
+    paths:
+      - '**'
+      - '!docs/**'
+      - '!*.md'
+permissions:
+  contents: read
+jobs:
+  sandcastle-review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install Sandcastle
+        run: npm install --save-dev @ai-hero/sandcastle
+      - name: Run Sandcastle review
+        run: bash dev.sh sandcastle review
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - name: Upload sandcastle logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sandcastle-logs
+          path: .sandcastle/logs/
+          if-no-files-found: ignore

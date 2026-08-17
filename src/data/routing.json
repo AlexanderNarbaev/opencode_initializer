@@ -1,0 +1,181 @@
+{
+  "$schema": "https://opencode.ai/routing.json",
+  "version": "1.0.0",
+  "description": "Single Source of Truth (SSOT) for task→model routing. Consolidates the three formerly divergent tables: 36-model-router.sh task-profiles.json, scripts/ai-router.json, and .opencode/opencode-swarm.json agent map. See src/data/README.md.",
+
+  "defaults": {
+    "default_provider": "deepseek",
+    "default_model": "deepseek/deepseek-v4-pro",
+    "fast_model": "deepseek/deepseek-v4-flash",
+    "fallback_chain": ["deepseek", "zai", "minimax"]
+  },
+
+  "complexity_rules": {
+    "simple": {
+      "max_tokens": 2000,
+      "provider": "deepseek",
+      "model": "deepseek/deepseek-v4-flash",
+      "cost_per_1k": 0.00014,
+      "examples": ["fix typo", "add comment", "rename variable", "format code"]
+    },
+    "medium": {
+      "max_tokens": 8000,
+      "provider": "deepseek",
+      "model": "deepseek/deepseek-v4-pro",
+      "cost_per_1k": 0.00055,
+      "examples": ["implement feature", "refactor module", "add tests", "write docs"]
+    },
+    "complex": {
+      "max_tokens": 64000,
+      "provider": "deepseek",
+      "model": "deepseek/deepseek-v4-pro",
+      "thinking": true,
+      "cost_per_1k": 0.00219,
+      "examples": ["system design", "architecture review", "debug complex bug", "security audit"]
+    }
+  },
+
+  "task_routing": {
+    "code_generation": {"provider": "deepseek", "model": "deepseek-v4-pro"},
+    "code_review": {"provider": "deepseek", "model": "deepseek-v4-flash"},
+    "testing": {"provider": "deepseek", "model": "deepseek-v4-flash"},
+    "documentation": {"provider": "deepseek", "model": "deepseek-v4-flash"},
+    "architecture": {"provider": "deepseek", "model": "deepseek-v4-pro", "thinking": true},
+    "security_audit": {"provider": "deepseek", "model": "deepseek-v4-pro", "thinking": true},
+    "devops": {"provider": "deepseek", "model": "deepseek-v4-flash"},
+    "ui_design": {"provider": "xai", "model": "grok-4.3"},
+    "research": {"provider": "deepseek", "model": "deepseek-v4-pro", "thinking": true},
+    "refactoring": {"provider": "deepseek", "model": "deepseek-v4-pro"},
+    "debugging": {"provider": "deepseek", "model": "deepseek-v4-pro"},
+    "data_analysis": {"provider": "deepseek", "model": "deepseek-v4-pro"}
+  },
+
+  "task_profiles": {
+    "coding": {
+      "description": "Primary coding, implementation, refactoring",
+      "model": "deepseek/deepseek-v4-pro",
+      "small_model": "deepseek/deepseek-v4-flash",
+      "fallback": ["zai/glm-5.2", "anthropic/claude-opus-4-8"],
+      "rationale": "DeepSeek V4 Pro: best price/performance for coding, 1M context, free tier"
+    },
+    "reasoning": {
+      "description": "Complex reasoning, architecture, planning",
+      "model": "anthropic/claude-opus-4-8",
+      "small_model": "anthropic/claude-sonnet-4-6",
+      "fallback": ["zai/glm-5.2", "openai/gpt-5.5", "deepseek/deepseek-v4-pro"],
+      "rationale": "Claude Opus 4.8: deepest reasoning, 1M context, tool use"
+    },
+    "fast": {
+      "description": "Quick answers, exploration, compaction",
+      "model": "deepseek/deepseek-v4-flash",
+      "small_model": "deepseek/deepseek-v4-flash",
+      "fallback": ["zai/glm-5-turbo", "google/gemini-3.5-flash", "groq/llama-4-maverick"],
+      "rationale": "DeepSeek Flash: fastest, cheapest, 1M context, free tier"
+    },
+    "agentic": {
+      "description": "Tool use, multi-step workflows, autonomous agents",
+      "model": "deepseek/deepseek-v4-pro",
+      "small_model": "deepseek/deepseek-v4-flash",
+      "fallback": ["zai/glm-5.2", "anthropic/claude-opus-4-8"],
+      "rationale": "DeepSeek V4 Pro: best agentic tool use, 1M context, free tier"
+    },
+    "budget": {
+      "description": "Cost-sensitive tasks, bulk operations",
+      "model": "zai/glm-5.2",
+      "small_model": "zai/glm-5-turbo",
+      "fallback": ["deepseek/deepseek-v4-flash", "google/gemini-3.5-flash", "groq/llama-4-maverick"],
+      "rationale": "GLM-5.2: free tier, 1M context, open weights, strong coding"
+    },
+    "vision": {
+      "description": "Image analysis, multimodal tasks",
+      "model": "google/gemini-3.5-flash",
+      "small_model": "google/gemini-3.1-flash-lite",
+      "fallback": ["anthropic/claude-opus-4-8", "openai/gpt-5.5"],
+      "rationale": "Gemini 3.5 Flash: best multimodal, 1M context, free tier"
+    },
+    "isolated": {
+      "description": "Air-gapped operation (Isolated Circuit Mode)",
+      "model": "ollama/qwen3:32b",
+      "small_model": "ollama/qwen3:14b",
+      "fallback": ["ollama/qwen3:14b", "ollama/qwen3:1.8b"],
+      "rationale": "Qwen3 32B: best local coding model, fits in 20GB VRAM"
+    },
+    "ru_cn": {
+      "description": "Optimized for Russian/Chinese language tasks",
+      "model": "zai/glm-5.2",
+      "small_model": "zai/glm-5-turbo",
+      "fallback": ["deepseek/deepseek-v4-pro", "alibaba/qwen3.7-plus"],
+      "rationale": "GLM-5.2: best RU/CN language support, free tier, open weights"
+    },
+    "testing": {
+      "description": "Test generation, QA, verification, coverage",
+      "model": "deepseek/deepseek-v4-flash",
+      "small_model": "deepseek/deepseek-v4-flash",
+      "fallback": ["zai/glm-5.2", "groq/llama-4-maverick"],
+      "rationale": "RECONCILED 2026-08-17: ai-router.json routed testing→xai/grok-4.3 and swarm mapped test_engineer→opencode/gpt-5-nano. Unified to deepseek-v4-flash (free tier, high-volume/low-complexity, matches repo cost posture)."
+    }
+  },
+
+  "cost_table": {
+    "deepseek/deepseek-v4-pro": {"input": 0.00, "output": 0.00, "context": 1000000, "free": true},
+    "deepseek/deepseek-v4-flash": {"input": 0.00, "output": 0.00, "context": 1000000, "free": true},
+    "zai/glm-5.2": {"input": 0.00, "output": 0.00, "context": 1000000, "free": true},
+    "zai/glm-5-turbo": {"input": 1.20, "output": 4.00, "context": 200000, "free": false},
+    "anthropic/claude-opus-4-8": {"input": 0.00, "output": 0.00, "context": 1000000, "free": true},
+    "anthropic/claude-sonnet-4-6": {"input": 0.00, "output": 0.00, "context": 1000000, "free": true},
+    "openai/gpt-5.5": {"input": 0.00, "output": 0.00, "context": 1050000, "free": true},
+    "openai/gpt-5.4-mini": {"input": 0.00, "output": 0.00, "context": 400000, "free": true},
+    "google/gemini-3.5-flash": {"input": 1.50, "output": 9.00, "context": 1048576, "free": false},
+    "google/gemini-3.1-flash-lite": {"input": 0.25, "output": 1.50, "context": 1048576, "free": false},
+    "xai/grok-4.3": {"input": 0.00, "output": 0.00, "context": 1000000, "free": true},
+    "alibaba/qwen3.7-plus": {"input": 0.00, "output": 0.00, "context": 1000000, "free": true},
+    "minimax/MiniMax-M3": {"input": 0.00, "output": 0.00, "context": 512000, "free": true},
+    "groq/llama-4-maverick": {"input": 0.00, "output": 0.00, "context": 1000000, "free": true},
+    "ollama/qwen3:32b": {"input": 0.00, "output": 0.00, "context": 131072, "free": true, "local": true},
+    "ollama/qwen3:14b": {"input": 0.00, "output": 0.00, "context": 131072, "free": true, "local": true}
+  },
+
+  "agents": {
+    "developer": {"model": "deepseek/deepseek-v4-pro", "temperature": 0.2},
+    "architect": {"model": "deepseek/deepseek-v4-pro", "temperature": 0.1},
+    "analyst": {"model": "deepseek/deepseek-v4-pro", "temperature": 0.1},
+    "researcher": {"model": "deepseek/deepseek-v4-pro", "temperature": 0.3},
+    "security": {"model": "deepseek/deepseek-v4-pro", "temperature": 0.1},
+    "pm": {"model": "deepseek/deepseek-v4-flash", "temperature": 0.2},
+    "devops": {"model": "deepseek/deepseek-v4-flash", "temperature": 0.2},
+    "reviewer": {"model": "deepseek/deepseek-v4-flash", "temperature": 0.1},
+    "qa": {"model": "deepseek/deepseek-v4-flash", "temperature": 0.2},
+    "designer": {"model": "xai/grok-4.3", "temperature": 0.5}
+  },
+
+  "providers": {
+    "_comment": "Mirror of src/data/providers.json (routing-relevant fields only). Regenerate on provider changes — see src/data/README.md.",
+    "deepseek":    {"model": "deepseek-v4-pro", "small_model": "deepseek-v4-flash", "api_key_env": "DEEPSEEK_API_KEY",     "free": true},
+    "opencode":    {"model": "opencode-go",     "small_model": "",                  "api_key_env": "OPENCODE_API_KEY",     "free": true},
+    "zai":         {"model": "glm-5.2",        "small_model": "glm-4-flash",       "api_key_env": "ZAI_API_KEY",          "free": true},
+    "openrouter":  {"model": "auto",           "small_model": "",                  "api_key_env": "OPENROUTER_API_KEY",   "free": true},
+    "xai":         {"model": "grok-4.3",       "small_model": "",                  "api_key_env": "XAI_API_KEY",          "free": false},
+    "mimo":        {"model": "mimo-v2.5",      "small_model": "",                  "api_key_env": "MIMO_API_KEY",         "free": true},
+    "minimax":     {"model": "MiniMax-M3",     "small_model": "",                  "api_key_env": "MINIMAX_API_KEY",      "free": false},
+    "openai":      {"model": "gpt-5.5",        "small_model": "gpt-5.4-mini",      "api_key_env": "OPENAI_API_KEY",       "free": false},
+    "anthropic":   {"model": "claude-opus-4.8","small_model": "claude-sonnet-4.6", "api_key_env": "ANTHROPIC_API_KEY",    "free": false},
+    "google":      {"model": "gemini-3.5-flash","small_model": "",                 "api_key_env": "GOOGLE_API_KEY",       "free": true},
+    "mistral":     {"model": "mistral-large-3","small_model": "",                  "api_key_env": "MISTRAL_API_KEY",      "free": false},
+    "groq":        {"model": "llama-4-maverick","small_model": "",                 "api_key_env": "GROQ_API_KEY",         "free": true},
+    "together":    {"model": "llama-4",        "small_model": "",                  "api_key_env": "TOGETHER_API_KEY",     "free": true},
+    "cohere":      {"model": "command-r-plus", "small_model": "",                  "api_key_env": "COHERE_API_KEY",       "free": true},
+    "fireworks":   {"model": "auto",           "small_model": "",                  "api_key_env": "FIREWORKS_API_KEY",    "free": false},
+    "cerebras":    {"model": "auto",           "small_model": "",                  "api_key_env": "CEREBRAS_API_KEY",     "free": false},
+    "perplexity":  {"model": "sonar-pro",      "small_model": "",                  "api_key_env": "PERPLEXITY_API_KEY",   "free": false},
+    "alibaba":     {"model": "qwen3.7-plus",   "small_model": "",                  "api_key_env": "ALIBABA_API_KEY",      "free": true},
+    "deepinfra":   {"model": "llama-4",        "small_model": "",                  "api_key_env": "DEEPINFRA_API_KEY",    "free": true},
+    "ollama":      {"model": "auto",           "small_model": "",                  "api_key_env": "OPENCODE_LOCAL_ENDPOINT","free": true},
+    "vllm":        {"model": "auto",           "small_model": "",                  "api_key_env": "OPENCODE_LOCAL_ENDPOINT","free": true},
+    "sglang":      {"model": "auto",           "small_model": "",                  "api_key_env": "OPENCODE_LOCAL_ENDPOINT","free": true}
+  },
+
+  "rate_limits": {
+    "max_requests_per_hour": 0,
+    "source": ".opencode/model-policy.json"
+  }
+}

@@ -11,10 +11,34 @@ ROUTER_DIR="$HOME/.config/opencode/model-router"
 mkdir -p "$ROUTER_DIR"
 
 # ── Task profiles ────────────────────────────────────────────────────────────
-# Each profile maps a task type to the best model + fallback chain
-# Models verified against models.dev (2026-07-03)
+# Each profile maps a task type to the best model + fallback chain.
+# SSOT: src/data/routing.json → task_profiles (see src/data/README.md).
+# The embedded heredoc below is the backward-compat offline fallback (used only
+# when routing.json or jq/python3 are unavailable), so the module never hard-fails.
 
-cat >"$ROUTER_DIR/task-profiles.json" <<'PROFILES'
+[ -z "${SCRIPT_DIR:-}" ] && SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." 2>/dev/null && pwd)"
+ROUTING_SSOT="${ROUTING_SSOT:-$SCRIPT_DIR/src/data/routing.json}"
+
+# _routing_extract <top-level-key> <out-file>
+# Extract one top-level object from routing.json into <out-file>.
+# Tier order: jq (primary) → python3 (fallback — more robust than sed/grep for
+# nested JSON) → embedded heredoc (final offline fallback).
+_routing_extract() {
+  local key="$1" out="$2"
+  if [ -f "$ROUTING_SSOT" ] && command -v jq &>/dev/null; then
+    jq -e ".$key" "$ROUTING_SSOT" > "$out" 2>/dev/null && return 0
+  fi
+  if [ -f "$ROUTING_SSOT" ] && command -v python3 &>/dev/null; then
+    python3 -c 'import json,sys; json.dump(json.load(open(sys.argv[1]))[sys.argv[2]], open(sys.argv[3],"w"), indent=2)' "$ROUTING_SSOT" "$key" "$out" 2>/dev/null && return 0
+  fi
+  return 1
+}
+
+if _routing_extract task_profiles "$ROUTER_DIR/task-profiles.json"; then
+  log "Task profiles: loaded from $ROUTING_SSOT (SSOT)"
+else
+  warn "routing.json unavailable — using embedded fallback for task profiles"
+  cat >"$ROUTER_DIR/task-profiles.json" <<'PROFILES'
 {
   "coding": {
     "description": "Primary coding, implementation, refactoring",
@@ -71,15 +95,27 @@ cat >"$ROUTER_DIR/task-profiles.json" <<'PROFILES'
     "small_model": "zai/glm-5-turbo",
     "fallback": ["deepseek/deepseek-v4-pro", "alibaba/qwen3.7-plus"],
     "rationale": "GLM-5.2: best RU/CN language support, free tier, open weights"
+  },
+  "testing": {
+    "description": "Test generation, QA, verification, coverage",
+    "model": "deepseek/deepseek-v4-flash",
+    "small_model": "deepseek/deepseek-v4-flash",
+    "fallback": ["zai/glm-5.2", "groq/llama-4-maverick"],
+    "rationale": "RECONCILED 2026-08-17: ai-router.json routed testing→xai/grok-4.3, swarm mapped test_engineer→opencode/gpt-5-nano. Unified to deepseek-v4-flash (free tier, matches repo cost posture)."
   }
 }
 PROFILES
+  log "Task profiles written (embedded offline fallback)"
+fi
 
-log "Task profiles written to $ROUTER_DIR/task-profiles.json"
+# ── Cost table (per 1M tokens) ──────────────────────────────────────────────
+# SSOT: src/data/routing.json → cost_table. Heredoc below is the offline fallback.
 
-# ── Cost table (per 1M tokens, from models.dev 2026-07) ─────────────────────
-
-cat >"$ROUTER_DIR/cost-table.json" <<'COSTS'
+if _routing_extract cost_table "$ROUTER_DIR/cost-table.json"; then
+  log "Cost table: loaded from $ROUTING_SSOT (SSOT)"
+else
+  warn "routing.json unavailable — using embedded fallback for cost table"
+  cat >"$ROUTER_DIR/cost-table.json" <<'COSTS'
 {
   "deepseek/deepseek-v4-pro": {"input": 0.00, "output": 0.00, "context": 1000000, "free": true},
   "deepseek/deepseek-v4-flash": {"input": 0.00, "output": 0.00, "context": 1000000, "free": true},
@@ -99,8 +135,8 @@ cat >"$ROUTER_DIR/cost-table.json" <<'COSTS'
   "ollama/qwen3:14b": {"input": 0.00, "output": 0.00, "context": 131072, "free": true, "local": true}
 }
 COSTS
-
-log "Cost table written to $ROUTER_DIR/cost-table.json"
+  log "Cost table written (embedded offline fallback)"
+fi
 
 # ── Model recommendation script ─────────────────────────────────────────────
 
@@ -108,7 +144,7 @@ cat >"$ROUTER_DIR/recommend.sh" <<'RECOMMEND'
 #!/usr/bin/env bash
 # recommend.sh — Recommend best model for a task type
 # Usage: recommend.sh <task-type> [--json]
-# Task types: coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn
+# Task types: coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn, testing
 
 set -euo pipefail
 ROUTER_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -212,7 +248,7 @@ log "Team preferences written to $ROUTER_DIR/team-prefs.json"
 
 # ── Add dev CLI command ─────────────────────────────────────────────────────
 info "Model routing configured. Use: $ROUTER_DIR/recommend.sh <task-type>"
-info "Task types: coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn"
+info "Task types: coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn, testing"
 info "Example: $ROUTER_DIR/recommend.sh coding"
 
 _step_done step_model_router

@@ -117,6 +117,15 @@ assert "wal/state.yaml protects secrets.env" "grep -q 'secrets.env' '$TEST_PROJE
 assert "INDEX.md created" "[ -f '$TEST_PROJECT/docs/INDEX.md' ]"
 assert "INDEX.md has table header" "grep -q 'Knowledge Base Map' '$TEST_PROJECT/docs/INDEX.md'"
 
+# ── CONTEXT.md (shared-language domain glossary) ────────────────────────────
+assert "CONTEXT.md created" "[ -f '$TEST_PROJECT/CONTEXT.md' ]"
+assert "CONTEXT.md has Project Context header" "grep -q '^# Project Context' '$TEST_PROJECT/CONTEXT.md'"
+assert "CONTEXT.md has Domain Glossary section" "grep -q 'Domain Glossary' '$TEST_PROJECT/CONTEXT.md'"
+assert "CONTEXT.md has Conventions section" "grep -q '## Conventions' '$TEST_PROJECT/CONTEXT.md'"
+assert "CONTEXT.md has Non-Goals section" "grep -q 'Non-Goals' '$TEST_PROJECT/CONTEXT.md'"
+assert "CONTEXT.md references domain-modeling flow" "grep -q 'domain-modeling' '$TEST_PROJECT/CONTEXT.md'"
+assert "CONTEXT.md has glossary table stub" "grep -q '| Term | Definition | Notes |' '$TEST_PROJECT/CONTEXT.md'"
+
 # ── docker-compose.yml ───────────────────────────────────────────────────────
 assert "docker-compose.yml created" "[ -f '$TEST_PROJECT/infra/docker-compose.yml' ]"
 assert "docker-compose has zookeeper" "grep -q 'zookeeper' '$TEST_PROJECT/infra/docker-compose.yml'"
@@ -193,6 +202,7 @@ assert "sdd generate commands stub exists" "declare -f _sdd_generate_commands >/
 AGENTS_MD_BEFORE=$(wc -c < "$TEST_PROJECT/AGENTS.md")
 WAL_BEFORE=$(wc -c < "$TEST_PROJECT/wal/state.yaml")
 DOCKER_BEFORE=$(wc -c < "$TEST_PROJECT/infra/docker-compose.yml")
+CONTEXT_MD_BEFORE=$(wc -c < "$TEST_PROJECT/CONTEXT.md")
 
 # Re-source (should be idempotent — artifacts preserved, not overwritten)
 source "$S" 2>/dev/null || true
@@ -200,10 +210,12 @@ source "$S" 2>/dev/null || true
 AGENTS_MD_AFTER=$(wc -c < "$TEST_PROJECT/AGENTS.md")
 WAL_AFTER=$(wc -c < "$TEST_PROJECT/wal/state.yaml")
 DOCKER_AFTER=$(wc -c < "$TEST_PROJECT/infra/docker-compose.yml")
+CONTEXT_MD_AFTER=$(wc -c < "$TEST_PROJECT/CONTEXT.md")
 
 assert "AGENTS.md unchanged on re-run" "[ '$AGENTS_MD_BEFORE' = '$AGENTS_MD_AFTER' ]"
 assert "WAL unchanged on re-run" "[ '$WAL_BEFORE' = '$WAL_AFTER' ]"
 assert "docker-compose unchanged on re-run" "[ '$DOCKER_BEFORE' = '$DOCKER_AFTER' ]"
+assert "CONTEXT.md unchanged on re-run" "[ '$CONTEXT_MD_BEFORE' = '$CONTEXT_MD_AFTER' ]"
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # PHASE 5: setup.sh integration

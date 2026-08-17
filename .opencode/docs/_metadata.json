@@ -1,4 +1,26 @@
 {
-  "documents": {},
-  "lastUpdated": "2026-08-16T17:34:43.436Z"
+  "documents": {
+    "github_com_deepseek-ai_deepseek-harness.md": {
+      "url": "https://github.com/deepseek-ai/deepseek-harness",
+      "title": "GitHub - deepseek-ai/deepseek-harness: DeepSeek Harness: Everything is a Plugin. · GitHub",
+      "fetchedAt": "2026-08-17T08:27:28.559Z",
+      "expiresAt": "2026-08-18T08:27:28.559Z",
+      "size": 2372
+    },
+    "github_com_mattpocock_sandcastle.md": {
+      "url": "https://github.com/mattpocock/sandcastle",
+      "title": "GitHub - mattpocock/sandcastle: Orchestrate sandboxed coding agents in TypeScript with sandcastle.run() · GitHub",
+      "fetchedAt": "2026-08-17T08:27:28.875Z",
+      "expiresAt": "2026-08-18T08:27:28.875Z",
+      "size": 15233
+    },
+    "github_com_mattpocock_skills.md": {
+      "url": "https://github.com/mattpocock/skills",
+      "title": "GitHub - mattpocock/skills: Skills for Real Engineers. Straight from my .agents directory. · GitHub",
+      "fetchedAt": "2026-08-17T08:27:29.055Z",
+      "expiresAt": "2026-08-18T08:27:29.055Z",
+      "size": 15216
+    }
+  },
+  "lastUpdated": "2026-08-17T08:27:29.055Z"
 }

@@ -112,6 +112,47 @@ PLUGINSEOF
 |----|------|-------|-------|--------|--------------|
 EOF
 
+  # CONTEXT.md — shared-language domain glossary (matt-pocock token-reduction layer)
+  # One concise vocabulary every agent/session uses. A *feeding* layer for memory,
+  # NOT a source of truth — authoritative hierarchy in .opencode/docs/memory-hierarchy.md.
+  # Grown via the grill-with-docs / domain-modeling flow (see .opencode/skills/matt-pocock/).
+  if [ ! -f "$PROJECT_DIR/CONTEXT.md" ]; then
+    cat > "$PROJECT_DIR/CONTEXT.md" << 'CONTEXTEOF'
+# Project Context
+
+> Shared-language layer: one concise domain vocabulary that every agent and
+> session uses. This is the single highest token-efficiency lever (matt-pocock
+> "shared language" technique) — fewer thinking tokens, consistent names,
+> faster navigation.
+>
+> This file is a *feeding* layer for memory, not a source of truth. The
+> authoritative hierarchy is documented in `docs/memory-hierarchy.md` (or the
+> repo's `.opencode/docs/memory-hierarchy.md`).
+
+## Domain Glossary
+
+| Term | Definition | Notes |
+|------|-----------|-------|
+| (term) | (one-line definition) | (aliases / usage) |
+
+## Conventions
+
+- (naming / structure / workflow convention)
+
+## Non-Goals
+
+- (what this project deliberately does NOT do)
+
+---
+
+**How to grow this file:** run the `grill-with-docs` or `domain-modeling` flow
+(matt-pocock skills) to interview the design and record new terms + ADRs. Add
+entries lazily — only when a term is actually resolved. Create `docs/adr/` the
+first time an architectural decision needs recording.
+CONTEXTEOF
+    log "CONTEXT.md created"
+  fi
+
   # GLOBAL_WAL (YAML-structured for automated processing)
   if [ ! -f "$PROJECT_DIR/wal/state.yaml" ]; then
     cat > "$PROJECT_DIR/wal/state.yaml" << WALEOF

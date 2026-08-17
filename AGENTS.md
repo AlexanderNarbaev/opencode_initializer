@@ -25,7 +25,7 @@ Universal Dev Machine Bootstrap — AI-Native SDD Harness для WSL2/Linux. 4 d
 opencode_initializer/
 ├── setup.sh          ← оркестратор (685 строк, source модули из src/lib/)
 ├── src/
-│   ├── lib/          ← 52 модуля (00-core.sh … 48-auditd.sh + 99-upstream-sync.sh + helpers.sh + version-check.sh + pre-session-check.sh)
+│   ├── lib/          ← 53 модуля (00-core.sh … 52-context-selector.sh + 99-upstream-sync.sh + helpers.sh + version-check.sh + pre-session-check.sh)
 │   └── modes/            ← 5 режимных скриптов (+ 6 встроенных режимов)
 ├── dev.sh            ← CLI (dev install|metrics|observability|infra|...)
 ├── .env.example      ← шаблон переменных окружения (API ключи)
@@ -48,7 +48,7 @@ opencode_initializer/
 ### Orchestrator (685 lines)
 Minimal entry point that sources modules from `src/lib/` and dispatches modes from `src/modes/`.
 
-### Module Layout (src/lib/ — 52 numbered + 3 helpers)
+### Module Layout (src/lib/ — 53 numbered + 3 helpers)
 | Module | Responsibility |
 |--------|---------------|
 | `helpers.sh` | `_curl()`, `_retry()`, `_npm_install()`, `_sudo()` — shared infrastructure |
@@ -104,6 +104,7 @@ Minimal entry point that sources modules from `src/lib/` and dispatches modes fr
 | `49-deepseek-harness.sh` | DeepSeek Harness (dsh) — agent harness with plugin architecture |
 | `50-sandcastle.sh` | Sandcastle — sandboxed agent orchestration (Docker/Podman/Vercel) |
 | `51-opencode-desktop.sh` | OpenCode Desktop — desktop version installer |
+| `52-context-selector.sh` | Context-Aware MCP/LSP Selector — task-scoped MCP/LSP selection, `select.sh` CLI |
 | `99-upstream-sync.sh` | Upstream sync — providers, MCP, LSP, plugins from OpenCode upstream |
 | `version-check.sh` | Version check: Rust/Go/Node/Python/Bun/OpenCode/Ollama/Zig + npm packages |
 | `pre-session-check.sh` | Pre-session provider/model validation + MCP status |
