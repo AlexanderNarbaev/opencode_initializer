@@ -5,7 +5,7 @@
 set -euo pipefail
 
 PASS=0; FAIL=0
-PROJECT_DIR="/home/alexandr-narbaev/Projects/opencode_initializer"
+PROJECT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 HOOKS_MODULE="$PROJECT_DIR/src/lib/42-hooks.sh"
 
 echo "=== Testing 42-hooks.sh ==="

@@ -6,7 +6,7 @@ set -euo pipefail
 
 PASS=0; FAIL=0
 
-PROJECT_DIR="/home/alexandr-narbaev/Projects/opencode_initializer"
+PROJECT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 CORE="$PROJECT_DIR/src/lib/00-core.sh"
 SETUP_SH="$PROJECT_DIR/setup.sh"
 

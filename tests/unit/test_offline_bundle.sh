@@ -6,7 +6,7 @@
 set -euo pipefail
 
 PASS=0; FAIL=0
-PROJECT_DIR="/home/alexandr-narbaev/Projects/opencode_initializer"
+PROJECT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 MODULE="$PROJECT_DIR/src/lib/46-offline-bundle.sh"
 
 echo "=== Testing S5.1.4.1: Offline Bundle Module ==="
