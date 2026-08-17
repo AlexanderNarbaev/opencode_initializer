@@ -652,6 +652,10 @@ _run_step step_context_selector "Context-Aware MCP/LSP Selector" "$SCRIPT_DIR/sr
 _run_step step_auto_skills "Auto-Triggering Skills" "$SCRIPT_DIR/src/lib/53-auto-skills.sh"
 _run_step step_task_distributor "Task Distribution Intelligence" "$SCRIPT_DIR/src/lib/54-task-distributor.sh"
 _run_step step_context_bundle "Context & Token Bundle" "$SCRIPT_DIR/src/lib/55-context-bundle.sh"
+_run_step step_caching "Prompt Caching Stack" "$SCRIPT_DIR/src/lib/56-caching.sh"
+_run_step step_context_guard "Context Guard (compression)" "$SCRIPT_DIR/src/lib/57-context-guard.sh"
+_run_step step_provider_discovery "Provider Auto-Discovery" "$SCRIPT_DIR/src/lib/58-provider-discovery.sh"
+_run_step step_local_memory "Local Memory (opencode-mem, opt-in)" "$SCRIPT_DIR/src/lib/59-local-memory.sh"
 [ "${BEST_PRACTICES_ENABLED:-true}" != "false" ] && _run_step step_best_practices "Best Practices Skills (smixs)" "$SCRIPT_DIR/src/lib/40-best-practices.sh"
 _run_step step_upstream_sync "Upstream Sync (submodules + pins)" "$SCRIPT_DIR/src/lib/99-upstream-sync.sh"
 

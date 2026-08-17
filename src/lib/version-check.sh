@@ -134,7 +134,7 @@ _check_versions() {
 
   # ── NPM global packages (key tools only) ──
   if command -v npm &>/dev/null; then
-    for pkg in opencode-codegraph opencode-token-tracker opencode-orchestrator opencode-auto-fallback opencode-swarm chrome-devtools-mcp opencode-daytona opencode-background-agents opencode-scheduler opencode-supermemory @lyculs/opencode-firecrawl opencode-goal-plugin opencode-conductor @devtheops/opencode-plugin-otel @upstash/context7-mcp @notionhq/notion-mcp-server; do
+    for pkg in opencode-codegraph opencode-token-tracker opencode-orchestrator opencode-auto-fallback opencode-swarm chrome-devtools-mcp opencode-daytona opencode-background-agents opencode-scheduler opencode-supermemory @lyculs/opencode-firecrawl opencode-goal-plugin opencode-conductor @devtheops/opencode-plugin-otel @upstash/context7-mcp @notionhq/notion-mcp-server opencode-cache-injector opencode-cache-switch opencode-cache-ttl @vikrant82/opencode-cache-keepalive opencode-cache-hit @skybluejacket/opencode-context-compress opencode-context-guard opencode-context-watch opencode-models-discovery opencode-provider-manager; do
       current=$(npm list -g "$pkg" 2>/dev/null | grep "$pkg" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1 || echo "?")
       latest=$(npm view "$pkg" version 2>/dev/null || echo "$current")
       if [ "$current" != "$latest" ] && [ -n "$latest" ] && [ "$current" != "?" ]; then

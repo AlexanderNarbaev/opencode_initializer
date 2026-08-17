@@ -73,6 +73,18 @@ _configure_deepseek_harness() {
 #   Checkpoints consequential decisions to the agent journal
 #   (~/.cache/opencode/wal.jsonl, SHA-256 hash-chain). Mirrors 37-wal.sh.
 #   # wal-checkpoint: { enabled: true }
+#
+# ── prompt-cache ──────────────────────────────────────────────────────────
+#   Provider-side prompt caching (opencode-cache-injector / opencode-cache-ttl).
+#   # prompt-cache: { enabled: true }
+#
+# ── context-compress ──────────────────────────────────────────────────────
+#   Model-directed context compression (opencode-context-compress).
+#   # context-compress: { enabled: true }
+#
+# ── context-watch ─────────────────────────────────────────────────────────
+#   Warns when context crosses threshold (opencode-context-watch).
+#   # context-watch: { enabled: true }
 CORDIS
     log "Created default plugin profile: $DSH_CONFIG_DIR/cordis.yml"
   else

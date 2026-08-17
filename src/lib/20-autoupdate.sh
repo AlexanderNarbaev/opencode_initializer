@@ -85,5 +85,12 @@ TMR
     fi
   fi
 
+  # ── token-costs — daily LLM pricing data (feeds cost dashboard) ────────
+  if command -v npm &>/dev/null; then
+    npm install -g token-costs@latest --prefer-offline 2>/dev/null && log "token-costs updated (daily LLM pricing)" || warn "token-costs install failed"
+  else
+    warn "token-costs skipped (npm not available)"
+  fi
+
   _step_done step_autoupdate
 fi

@@ -334,6 +334,69 @@ def collect_system():
     return metrics
 
 
+def collect_cost_cache():
+    """Cost + cache metrics: per-model $/1M prices, cache hit rate, token estimate."""
+    metrics = []
+
+    # ── Per-model pricing (input/output USD per 1M tokens) ─────────────────
+    cost_table = {}
+    repo_routing = Path(__file__).resolve().parent.parent / "src" / "data" / "routing.json"
+    for p in (CONFIG_DIR / "model-router" / "cost-table.json", repo_routing):
+        data = safe_read_json(p)
+        if not data:
+            continue
+        table = data.get("cost_table", data) if isinstance(data, dict) else {}
+        if isinstance(table, dict) and table:
+            cost_table = table
+            break
+
+    for model, entry in cost_table.items():
+        if not isinstance(entry, dict):
+            continue
+        try:
+            metrics.append(prom_metric(
+                "opencode_model_cost_per_1m_input",
+                float(entry.get("input", 0.0)),
+                {"model": str(model)},
+                "Cost per 1M input tokens (USD)"))
+            metrics.append(prom_metric(
+                "opencode_model_cost_per_1m_output",
+                float(entry.get("output", 0.0)),
+                {"model": str(model)},
+                "Cost per 1M output tokens (USD)"))
+        except (TypeError, ValueError):
+            continue
+
+    # ── Cache hit rate + token estimate from JSONL logs ────────────────────
+    hits = 0
+    total = 0
+    token_estimate = 0.0
+    for f in glob.glob(str(CACHE_DIR / "*.jsonl")):
+        for line in safe_read_lines(f):
+            try:
+                rec = json.loads(line.strip())
+            except Exception:
+                continue
+            if not isinstance(rec, dict):
+                continue
+            if "cache_hit" in rec or "hit" in rec:
+                total += 1
+                if rec.get("cache_hit", rec.get("hit", False)):
+                    hits += 1
+            for key in ("tokens", "total_tokens", "token_usage"):
+                if key in rec:
+                    try:
+                        token_estimate += float(rec[key])
+                    except (TypeError, ValueError):
+                        pass
+                    break
+
+    hit_rate = (hits / total) if total else 0.0
+    metrics.append(prom_metric("opencode_cache_hit_rate", hit_rate, {}, "Cache hit rate (0-1)"))
+    metrics.append(prom_metric("opencode_token_usage_estimate", token_estimate, {}, "Estimated token usage from JSONL logs"))
+    return metrics
+
+
 # ── HTTP Handler ────────────────────────────────────────────────────────
 
 class MetricsHandler(http.server.BaseHTTPRequestHandler):
@@ -389,6 +452,10 @@ class MetricsHandler(http.server.BaseHTTPRequestHandler):
             output.extend(collect_system())
         except Exception as e:
             output.append(f"# ERROR system: {e}\n")
+        try:
+            output.extend(collect_cost_cache())
+        except Exception as e:
+            output.append(f"# ERROR cost_cache: {e}\n")
 
         # Health and deployment profile gauges
         output.append(prom_metric("opencode_metrics_up", 1, {}, "Metrics exporter health"))

@@ -117,6 +117,10 @@ _configure_sandcastle() {
   local provider
   provider="$(_sandcastle_provider)"
 
+  # Cache/context plugins share config via ~/.config/opencode/ (cache-config.json,
+  # discovery.json, context_token_cost from 55-context-bundle / 56-caching), so
+  # sandcastle agents inherit the same prompt-caching + discovery map as the host.
+
   # Create .env.example template if the init CLI did not provide one
   if [ ! -f "$env_example" ]; then
     cat > "$env_example" << 'ENV_EXAMPLE'
@@ -141,6 +145,11 @@ ENV_EXAMPLE
   if ! grep -qE 'CLAUDE_CODE_OAUTH_TOKEN=.+|ANTHROPIC_API_KEY=.+' "$env_file" 2>/dev/null; then
     info "Sandcastle auth not yet configured — run 'claude setup-token' and set CLAUDE_CODE_OAUTH_TOKEN in $SANSCASTLE_DIR/.env"
   fi
+
+  # Shared context/token/cost config — read from ~/.config/opencode/bundle.json
+  # (written by 55-context-bundle.sh). Sandcastle agents read the same bundle
+  # so CACHE_TTL / CONTEXT_COMPRESS / LOCAL_BACKENDS stay consistent.
+  info "Sandcastle shares bundle.json: CACHE_TTL=1h CONTEXT_COMPRESS=true LOCAL_BACKENDS=ollama,lmstudio,localai"
 
   log "Sandcastle provider: $provider (configure in $SANSCASTLE_DIR/main.ts to override)"
 }

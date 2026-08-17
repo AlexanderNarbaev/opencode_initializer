@@ -18,6 +18,16 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then
     rm -f /tmp/qodana-install.sh
   fi
 
+  # ── opencode-landstrip: Landlock-based AI command sandbox ─────────────────
+  # Non-fatal: best-effort install (Landlock requires Linux kernel >= 5.13).
+  if npm list -g opencode-landstrip >/dev/null 2>&1; then
+    log "opencode-landstrip already present"
+  elif npm install -g opencode-landstrip@latest --prefer-offline 2>/dev/null; then
+    log "opencode-landstrip installed (Landlock sandbox)"
+  else
+    warn "opencode-landstrip not installed (Landlock requires kernel >= 5.13)"
+  fi
+
   # ── Systemd timer for daily Trivy scan (S5.4.1.1) ───────────────────────
   if command -v trivy &>/dev/null && command -v systemctl &>/dev/null; then
     TIMER_DIR="$HOME/.config/systemd/user"

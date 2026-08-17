@@ -472,7 +472,10 @@
     "opencode-supermemory",
     "opencode-websearch-cited",
     "opencode-firecrawl",
-    "opencode-plugin-otel"
+    "opencode-plugin-otel",
+    "opencode-token-tracker",
+    "opencode-orchestrator",
+    "opencode-daytona"
   ],
   "mcp": {
     "context7": {

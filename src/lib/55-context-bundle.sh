@@ -68,6 +68,11 @@ _write_bundle_config() {
     "context": "opencode-context",
     "router":  "opencode-router"
   },
+  "context_token_cost": {
+    "cache": { "enabled": true, "ttl": "1h", "providers": {} },
+    "compress": { "enabled": true, "auto": true },
+    "discovery": { "auto_discover": true, "local_backends": ["ollama", "lmstudio", "localai"] }
+  },
   "principles": [
     "all-harnesses-share-config",
     "plugins-complement-core",

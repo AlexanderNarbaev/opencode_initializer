@@ -465,6 +465,7 @@ _DEFAULT_ALL_PLUGINS = [
     "opencode-vibeguard",
     "opencode-supermemory",
     "opencode-notify",
+    "opencode-orchestrator",
     "opencode-pty",
     "opencode-ignore",
     "opencode-snip",
@@ -479,6 +480,16 @@ _DEFAULT_ALL_PLUGINS = [
     "@lyculs/opencode-firecrawl",
     "opencode-websearch-cited",
     "@devtheops/opencode-plugin-otel",
+    "opencode-cache-injector",
+    "opencode-cache-switch",
+    "opencode-cache-ttl",
+    "@vikrant82/opencode-cache-keepalive",
+    "opencode-cache-hit",
+    "@skybluejacket/opencode-context-compress",
+    "opencode-context-guard",
+    "opencode-context-watch",
+    "opencode-models-discovery",
+    "opencode-provider-manager",
 ]
 
 def load_plugin_registry():
