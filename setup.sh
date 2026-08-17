@@ -651,6 +651,7 @@ _run_step step_model_router "Model Routing Intelligence" "$SCRIPT_DIR/src/lib/36
 _run_step step_context_selector "Context-Aware MCP/LSP Selector" "$SCRIPT_DIR/src/lib/52-context-selector.sh"
 _run_step step_auto_skills "Auto-Triggering Skills" "$SCRIPT_DIR/src/lib/53-auto-skills.sh"
 _run_step step_task_distributor "Task Distribution Intelligence" "$SCRIPT_DIR/src/lib/54-task-distributor.sh"
+_run_step step_context_bundle "Context & Token Bundle" "$SCRIPT_DIR/src/lib/55-context-bundle.sh"
 [ "${BEST_PRACTICES_ENABLED:-true}" != "false" ] && _run_step step_best_practices "Best Practices Skills (smixs)" "$SCRIPT_DIR/src/lib/40-best-practices.sh"
 _run_step step_upstream_sync "Upstream Sync (submodules + pins)" "$SCRIPT_DIR/src/lib/99-upstream-sync.sh"
 
