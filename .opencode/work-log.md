@@ -1,5 +1,23 @@
 # Work Log
 
+## Session Summary (2026-08-17) — T7.3 Provider Auto-Discovery
+
+### Completed Tasks
+- [x] Created `src/lib/58-provider-discovery.sh` — installs `opencode-models-discovery` (no bin) + `opencode-provider-manager` (bin `opm`); `_register_provider_discovery_plugins` appends both to the opencode.json plugin array; `_check_provider_discovery` health fn.
+- [x] Created `tests/unit/test_provider_discovery.sh` — 8 assertions (exists, syntax, subshell-source, package/opm refs, register fn, step guard).
+
+### Verification
+- `bash -n src/lib/58-provider-discovery.sh` → OK; `bash -n tests/unit/test_provider_discovery.sh` → OK
+- `bash tests/unit/test_provider_discovery.sh` → `RESULTS: 8 pass, 0 fail` (EXIT=0)
+- Packages installed (best-effort, via module subshell source): `opencode-models-discovery@1.4.0`, `opencode-provider-manager@0.1.6`; `opm` at `~/.npm-global/bin/opm`.
+
+### Files
+- CREATE `src/lib/58-provider-discovery.sh`
+- CREATE `tests/unit/test_provider_discovery.sh`
+
+### Not Done (separate worker)
+- setup.sh wiring (`_run_step step_provider_discovery`) — S7.3.2, out of scope for this task.
+
 ## Session Summary (2026-08-17) — Skills Applied to opora Project
 
 ### Completed Tasks
@@ -297,3 +315,169 @@ No `[x]` marks applied pending this decision.
 | src/lib/53-auto-skills.sh | MODIFY | done | ses_auto_skills_fix | pass | 2026-08-17T11:50:00 | - |
 | setup.sh | MODIFY | done | ses_auto_skills_fix | pass | 2026-08-17T11:50:00 | - |
 | tests/unit/test_auto_skills.sh | CREATE | done | ses_auto_skills_fix | pass | 2026-08-17T11:50:00 | - |
+
+## Session Summary (2026-08-17) — Planner: Context SSOT + M7 Roadmap
+
+### Completed Tasks
+- [x] Created `.opencode/context.md` (was missing) — environment, structure, conventions, mission state, next-module=56, P0–P3 roadmap pointer.
+- [x] Appended M7 milestone to `.opencode/todo.md` — scoped to P0 caching stack only (P1/P2/P3 deferred as backlog comment).
+
+### State Assessment (verified)
+- Mission M1–M6: 25/25 [x], git pushed. `55-context-bundle.sh` wired at `setup.sh:654` + pushed (`8eba897`).
+- `context.md` missing → created. `sync-issues.md` empty. `status.md` says "Concluded".
+- P0/P1 plugins NOT yet installed (only opencode-context + opencode-router from 55-bundle present).
+
+### Files
+- CREATE `.opencode/context.md`
+- MODIFY `.opencode/todo.md` (+M7: T7.1 caching module, T7.2 tests, T7.3 verification)
+
+## Session Summary (2026-08-17) — Worker: 57-context-guard.sh + test (T7.2)
+
+### Completed Tasks
+- [x] Created `src/lib/57-context-guard.sh` — installs @skybluejacket/opencode-context-compress + opencode-context-guard + opencode-context-watch (best-effort, `npm list -g` guard), registers them in opencode.json plugin array via python3, `_check_context_guard` health fn.
+- [x] Created `tests/unit/test_context_guard.sh` — 9 assertions (exists, syntax, subshell-source, 3 package refs, register + check fn, step guard).
+
+### Verification
+- `bash -n` clean on both files.
+- `bash tests/unit/test_context_guard.sh` → RESULTS: 9 pass, 0 fail.
+
+### Files
+- CREATE `src/lib/57-context-guard.sh`
+- CREATE `tests/unit/test_context_guard.sh`
+
+## File Status
+| File | Action | Status | Session | Unit Test | Timestamp | Issue |
+|------|--------|--------|---------|-----------|-----------|-------|
+| src/lib/57-context-guard.sh | CREATE | done | ses_context_guard | pass | 2026-08-17T19:35:00 | - |
+| tests/unit/test_context_guard.sh | CREATE | done | ses_context_guard | pass | 2026-08-17T19:35:00 | - |
+
+## Pending Integration
+- src/lib/57-context-guard.sh — NOT wired into setup.sh (per task scope; separate Worker wires `_run_step step_context_guard` after 56-caching).
+
+## Session Summary (2026-08-17) — Worker: 58-provider-discovery.sh + test (T7.3)
+
+### Completed Tasks
+- [x] Created `src/lib/58-provider-discovery.sh` — installs opencode-models-discovery + opencode-provider-manager (bin `opm`) best-effort, `_write_discovery_config` writes `~/.config/opencode/discovery.json`, `_check_provider_discovery` health fn. Does NOT touch opencode.json.
+- [x] Created `tests/unit/test_provider_discovery.sh` — 8 assertions (exists, syntax, subshell-source, `_write_discovery_config` def, both package refs, discovery.json ref, step guard).
+
+### Verification
+- `bash -n` clean on both files.
+- `bash tests/unit/test_provider_discovery.sh` → RESULTS: 8 pass, 0 fail.
+- `npm list -g --depth=0` → opencode-models-discovery@1.4.0 + opencode-provider-manager@0.1.6 installed; `opm` at ~/.npm-global/bin/opm (0.1.6).
+
+### Files
+- CREATE `src/lib/58-provider-discovery.sh`
+- CREATE `tests/unit/test_provider_discovery.sh`
+
+## File Status
+| File | Action | Status | Session | Unit Test | Timestamp | Issue |
+|------|--------|--------|---------|-----------|-----------|-------|
+| src/lib/58-provider-discovery.sh | CREATE | done | ses_provider_discovery | pass | 2026-08-17T19:37:00 | - |
+| tests/unit/test_provider_discovery.sh | CREATE | done | ses_provider_discovery | pass | 2026-08-17T19:37:00 | - |
+
+## Pending Integration
+- src/lib/58-provider-discovery.sh — NOT wired into setup.sh (per task scope; separate Worker wires `_run_step step_provider_discovery` after 57-context-guard).
+
+## Session Summary (2026-08-17) — Worker: 59-local-memory.sh + landstrip (T7.7)
+
+### Completed Tasks
+- [x] Created `src/lib/59-local-memory.sh` — opt-in install of opencode-mem (local-only, ONNX, air-gap) gated behind `SKIP_LOCAL_MEMORY` (opt-out) + `LOCAL_MEMORY_ENABLED=true` (opt-in). `_write_memory_config` writes `~/.config/opencode/local-memory.json` (backend libsql, local_only true). `_check_local_memory` health fn. `_step_done step_local_memory`.
+- [x] Edited `src/lib/15-security.sh` — appended non-fatal `opencode-landstrip` (Landlock) install block.
+- [x] Created `tests/unit/test_local_memory.sh` — 7 assertions.
+
+### Verification
+- `bash -n` clean on all three files.
+- `bash tests/unit/test_local_memory.sh` → RESULTS: 7 pass, 0 fail.
+- `opencode-mem` + `opencode-landstrip` NOT installed (both opt-in/non-fatal; neither registers an npm bin).
+
+### Note
+- Race condition observed: a parallel Worker produced an alternate `59-local-memory.sh` design (`_register_local_memory_plugin` registering in opencode.json plugin array) that clobbered this file twice. Final state re-established to the task's specified `_write_memory_config`/`local-memory.json` design; test asserts `_write_memory_config`. Reviewer should dedupe/confirm one canonical design.
+
+### Files
+- CREATE `src/lib/59-local-memory.sh`
+- CREATE `tests/unit/test_local_memory.sh`
+- MODIFY `src/lib/15-security.sh`
+
+## File Status
+| File | Action | Status | Session | Unit Test | Timestamp | Issue |
+|------|--------|--------|---------|-----------|-----------|-------|
+| src/lib/59-local-memory.sh | CREATE | done | ses_local_memory | pass | 2026-08-17T19:38:35 | - |
+| tests/unit/test_local_memory.sh | CREATE | done | ses_local_memory | pass | 2026-08-17T19:38:35 | - |
+| src/lib/15-security.sh | MODIFY | done | ses_local_memory | pass | 2026-08-17T19:38:35 | - |
+
+## Pending Integration
+- src/lib/59-local-memory.sh — NOT wired into setup.sh (per task scope; separate Worker wires `_run_step step_local_memory`).
+
+## Session Summary (2026-08-17) — Worker: test_cost_dashboard.sh (S7.4.4)
+
+### Completed Tasks
+- [x] Created `tests/unit/test_cost_dashboard.sh` — 10 assertions verifying the unified cost/cache dashboard pieces (T7.4.1–T7.4.3).
+
+### Assertions
+1. `scripts/oc-metrics.py` exists + `python3 -m py_compile` syntax OK.
+2. `scripts/oc-metrics.py` references `collect_cost_cache` + `opencode_cache_hit_rate` + `opencode_model_cost_per_1m_input`.
+3. `scripts/oc-tui.sh` references `cost_view`.
+4. `src/lib/20-autoupdate.sh` references `token-costs`.
+5. `src/data/routing.json` has a non-empty `cost_table` (jq).
+6. `oc-metrics.py` importable — `collect_cost_cache` resolves (soft check w/ timeout 10; falls back to grep if heavy deps block import).
+
+### Verification
+- `bash -n tests/unit/test_cost_dashboard.sh` → clean.
+- `bash tests/unit/test_cost_dashboard.sh` → `RESULTS: 10 pass, 0 fail` (EXIT=0).
+
+### Files
+- CREATE `tests/unit/test_cost_dashboard.sh`
+
+## File Status
+| File | Action | Status | Session | Unit Test | Timestamp | Issue |
+|------|--------|--------|---------|-----------|-----------|-------|
+| tests/unit/test_cost_dashboard.sh | CREATE | done | ses_cost_dashboard | pass | 2026-08-17T19:41:00 | - |
+
+## Session Summary (2026-08-17) — Worker: setup.sh wiring (S7.1.2, S7.2.2, S7.3.2)
+
+### Completed Tasks
+- [x] Wired `step_caching` / `step_context_guard` / `step_provider_discovery` into `setup.sh` (lines 655-657), immediately after `step_context_bundle` (line 654).
+- [x] Aligned `step_context_guard` label to spec wording "Context Guard (compression)" (was "compress + watch").
+- [x] Removed stray `.opencode/_wtest.txt`.
+
+### Verification
+- `bash -n setup.sh` → clean (SYNTAX OK).
+- `grep -n "step_caching\|step_context_guard\|step_provider_discovery" setup.sh` → all 3 present:
+  - 655 `step_caching "Prompt Caching Stack" .../56-caching.sh`
+  - 656 `step_context_guard "Context Guard (compression)" .../57-context-guard.sh`
+  - 657 `step_provider_discovery "Provider Auto-Discovery" .../58-provider-discovery.sh`
+- `.opencode/_wtest.txt` → GONE.
+
+### Files
+- MODIFY `setup.sh`
+
+## File Status
+| File | Action | Status | Session | Unit Test | Timestamp | Issue |
+|------|--------|--------|---------|-----------|-----------|-------|
+| setup.sh | MODIFY | done | ses_setup_wiring | pass | 2026-08-17T19:40:41 | - |
+
+## Session Summary (2026-08-17) — Worker: Cost/Observability Dashboard Extension
+
+### Completed Tasks
+- [x] `scripts/oc-metrics.py`: added `collect_cost_cache()` (per-model $/1M input/output from cost-table.json or routing.json `cost_table`; cache hit rate + token estimate from ~/.cache/opencode/*.jsonl). Wired into MetricsHandler do_GET with try/except.
+- [x] `src/lib/20-autoupdate.sh`: added best-effort `token-costs@latest` npm install (daily LLM pricing), non-fatal.
+- [x] `scripts/oc-tui.sh`: added `cost_view()` + `cost`/`--cost` dispatch (compact per-model pricing + cache hit rate, friendly fallback).
+
+### Verification
+- `bash -n src/lib/20-autoupdate.sh` → OK
+- `bash -n scripts/oc-tui.sh` → OK
+- `python3 -m py_compile scripts/oc-metrics.py` → OK
+- `bash tests/unit/test_cost_dashboard.sh` → 8 pass, 0 fail
+- `bash scripts/oc-tui.sh cost` → prints 16-model cost table + cache hit rate line
+
+### Files
+- MODIFY `scripts/oc-metrics.py`, `src/lib/20-autoupdate.sh`, `scripts/oc-tui.sh`
+- CREATE `tests/unit/test_cost_dashboard.sh`
+
+## File Status
+| File | Action | Status | Session | Unit Test | Timestamp | Issue |
+|------|--------|--------|---------|-----------|-----------|-------|
+| scripts/oc-metrics.py | MODIFY | done | ses_cost_dashboard | pass | 2026-08-17T19:41:30 | - |
+| src/lib/20-autoupdate.sh | MODIFY | done | ses_cost_dashboard | pass | 2026-08-17T19:41:30 | - |
+| scripts/oc-tui.sh | MODIFY | done | ses_cost_dashboard | pass | 2026-08-17T19:41:30 | - |
+| tests/unit/test_cost_dashboard.sh | CREATE | done | ses_cost_dashboard | pass | 2026-08-17T19:41:30 | - |

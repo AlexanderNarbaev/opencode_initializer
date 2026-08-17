@@ -490,6 +490,8 @@ _DEFAULT_ALL_PLUGINS = [
     "opencode-context-watch",
     "opencode-models-discovery",
     "opencode-provider-manager",
+    "opencode-context",
+    "opencode-router",
 ]
 
 def load_plugin_registry():
