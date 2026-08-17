@@ -27,6 +27,11 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then
   else
     warn "opencode-landstrip not installed (Landlock requires kernel >= 5.13)"
   fi
+
+  # ── Systemd timer for daily Trivy scan (S5.4.1.1) ───────────────────────
+  if command -v trivy &>/dev/null && command -v systemctl &>/dev/null; then
+    TIMER_DIR="$HOME/.config/systemd/user"
+    mkdir -p "$TIMER_DIR"
     cat > "$TIMER_DIR/opencode-trivy-scan.service" << 'SVC'
 [Unit]
 Description=Daily Trivy vulnerability scan for OpenCode dev machine
