@@ -257,6 +257,113 @@ har_apply() {
   [ -d "$src" ] && rsync -a --update "$src/" "$target/.opencode/skills/" && ok "Skills synced"
 }
 
+# ── GRACE: semantic contracts + clarity metrics ───────────────────────────
+har_grace() {
+  local sub="${1:-help}"; shift || true
+  case "$sub" in
+    contract)  har_grace_contract "$@" ;;
+    clarity)   har_grace_clarity  "$@" ;;
+    position)  har_grace_position "$@" ;;
+    focus)     har_grace_focus    "$@" ;;
+    normalize) har_grace_normalize "$@" ;;
+    hallucination) har_grace_hallucination "$@" ;;
+    help|*)
+      cat <<EOF
+har grace <cmd> [args] — GRACE semantic contracts & clarity
+
+Subcommands:
+  contract <file>         Emit <file>.grace.yaml sidecar with intent/invariants
+  clarity <file>          Score a prompt 0..100 for clarity
+  position <file>         Print positional context: imports, size, dependents
+  focus <file> <q> [N]    Pick lines matching query + N lines of context
+  normalize <file>        Compact JSON for LLM consumption
+  hallucination <ctx> <out>  Find names in output missing from context
+EOF
+      ;;
+  esac
+}
+
+har_grace_contract() {
+  local file="${1:?file}"; local contract="$file.grace.yaml"
+  cat > "$contract" <<EOF
+file: $file
+generated: $(date -u +%FT%TZ)
+intent: $(basename "$file")
+human_review_required: true
+invariants: []
+dependencies: []
+EOF
+  log "Wrote $contract"
+}
+
+har_grace_clarity() {
+  local file="${1:?file}"
+  python3 -c "
+import re, pathlib
+t = pathlib.Path('$file').read_text(errors='ignore')
+s = 50 + (10 if len(t)<200 else -15 if len(t)>4000 else -5 if len(t)>2000 else 0)
+s += 18 if re.search(r'acceptance|criteria|must|verify', t, re.I) else 0
+s += 12 if re.search(r'constraint|invariant|never|always', t, re.I) else 0
+s += 8  if re.search(r'example|e\.g\.', t, re.I) else 0
+s -= min(15, len(re.findall(r'\b(just|maybe|something|somehow)\b', t, re.I))*2)
+print(f'clarity: {max(0, min(100, s))}/100  (len={len(t)})')
+"
+}
+
+har_grace_position() {
+  local file="${1:?file}"
+  python3 -c "
+import re, pathlib
+c = pathlib.Path('$file').read_text(errors='ignore')
+imp = sorted(set(re.findall(r'^(?:import |from |require\(|use )([\w./-]+)', c, re.M)))
+print(f'position: {len(c)} chars, {len(imp)} imports')
+for i in imp[:6]: print(f'  - {i}')
+"
+}
+
+har_grace_focus() {
+  local file="${1:?file}"; local q="${2:?query}"; local ctx="${3:-3}"
+  python3 -c "
+import re, pathlib
+ls = pathlib.Path('$file').read_text(errors='ignore').splitlines()
+hit = False
+for i, l in enumerate(ls, 1):
+    if re.search(r'$q', l, re.I):
+        if not hit: print(f'--- $file ---'); hit = True
+        for j in range(max(0, i-1-$ctx), min(len(ls), i-1+$ctx+1)):
+            print(f'{j+1:4d}| {ls[j]}')
+        print()
+if not hit: print('(no matches)')
+"
+}
+
+har_grace_normalize() {
+  local file="${1:?file}"
+  python3 -c "
+import json, pathlib
+d = json.loads(pathlib.Path('$file').read_text())
+def w(x, n=0):
+    if n>6: return '<deep>'
+    if isinstance(x, dict):  return {k: w(v, n+1) for k, v in sorted(x.items())}
+    if isinstance(x, list):  return [w(v, n+1) for v in x[:50]]
+    if isinstance(x, str) and len(x)>200: return x[:200]+'…'
+    return x
+print(json.dumps(w(d), indent=2, ensure_ascii=False))
+"
+}
+
+har_grace_hallucination() {
+  local ctx="${1:?context}"; local out="${2:?output}"
+  python3 -c "
+import re, pathlib
+def n(s): return set(re.findall(r'\b[A-Z][a-zA-Z0-9_-]{3,}\b', s))
+c, o = n(pathlib.Path('$ctx').read_text(errors='ignore')), n(pathlib.Path('$out').read_text(errors='ignore'))
+m = o - c
+print(f'ctx={len(c)} out={len(o)} miss={len(m)}')
+for n in sorted(m)[:20]: print(f'  - {n}')
+"
+}
+
 har_apply_all() {
   for d in "$HAR_PROJECTS_DIR"/*/; do
     [ -d "$d" ] || continue
@@ -287,6 +394,7 @@ case "$cmd" in
   update) har_update ;;
   apply-all|apply_all) har_apply_all ;;
   apply) har_apply "$@" ;;
+  grace) har_grace "$@" ;;
   version|--version|-v) echo "har ${HAR_VERSION}" ;;
   *) err "Unknown command: $cmd"; har_help; exit 2 ;;
 esac
