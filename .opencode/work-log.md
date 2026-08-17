@@ -133,3 +133,25 @@
 
 ## Pending Integration
 - (none — 54-task-distributor.sh wired into setup.sh via `_run_step step_task_distributor` at line 652)
+
+## Session Summary (2026-08-17) — M5: Apply Improvements to All Projects
+
+### Completed Tasks
+- [x] Copied 3 new modules to 8 projects' `src/lib/`: `52-context-selector.sh`, `53-auto-skills.sh`, `54-task-distributor.sh`
+- [x] Created 3 config snapshots per project: `.opencode/context-selector/config.json`, `.opencode/auto-skills/config.json`, `.opencode/task-distributor/config.json` (byte-exact via sed extraction of the module heredocs)
+- [x] Appended an "AI-Native Modules" reference section to each project's `AGENTS.md`
+
+### Projects Updated (8)
+agi, AlexandrNarbaev, DeepSeek, expert_profile, opora, opora-landing, rag-system, ThePath
+
+### Verification
+- Per project: 3 modules present, 3/3 config.json valid JSON (python3 json.load), AGENTS.md referenced
+- Result: 8 passed, 0 failed
+
+### Files (per project)
+- CREATE `src/lib/52-context-selector.sh`, `src/lib/53-auto-skills.sh`, `src/lib/54-task-distributor.sh`
+- CREATE `.opencode/context-selector/config.json`, `.opencode/auto-skills/config.json`, `.opencode/task-distributor/config.json`
+- MODIFY `AGENTS.md` (appended reference section)
+
+### Note
+- Files are uncommitted in the 6 git-backed projects (agi, AlexandrNarbaev, opora, opora-landing, rag-system, ThePath). DeepSeek + expert_profile are not git repos. Commit/push left to Commander decision.

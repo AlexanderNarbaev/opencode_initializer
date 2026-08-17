@@ -1,22 +1,22 @@
 # Mission: AI-Native Development System Optimization
 
-## M1: SSOT Routing Table | status: in_progress
+## M1: SSOT Routing Table | status: completed
 ### T1.1: Create canonical routing SSOT | agent:Worker
-- [ ] S1.1.1: Create `src/data/routing.json` (complexity + task + agent profiles, incl. `testing` profile) | size:M
-- [ ] S1.1.2: Embed `cost_per_1k` + `rate_limits` from model-policy.json | size:S
+- [x] S1.1.1: Create `src/data/routing.json` (complexity + task + agent profiles, incl. `testing` profile) | size:M
+- [x] S1.1.2: Embed `cost_per_1k` + `rate_limits` from model-policy.json | size:S
 
 ### T1.2: Refactor 36-model-router.sh to read routing.json | agent:Worker
-- [ ] S1.2.1: Replace embedded `task-profiles.json` heredoc with jq/sed read of routing.json | size:M
-- [ ] S1.2.2: Keep backward-compat fallback (offline/no-jq) | size:S
+- [x] S1.2.1: Replace embedded `task-profiles.json` heredoc with jq/sed read of routing.json | size:M
+- [x] S1.2.2: Keep backward-compat fallback (offline/no-jq) | size:S
 
 ### T1.3: Refactor scripts/ai-router.sh to read routing.json | agent:Worker
-- [ ] S1.3.1: Point `_load_providers_from_json` at routing.json | size:S
-- [ ] S1.3.2: Reconcile `testing → xai/grok-4.3` vs `test_engineer → gpt-5-nano` divergence | size:S
+- [x] S1.3.1: Point `_load_providers_from_json` at routing.json | size:S
+- [x] S1.3.2: Reconcile `testing → deepseek-v4-flash` vs `test_engineer → gpt-5-nano` divergence | size:S
 
 ### T1.4: Unit tests for routing SSOT | agent:Worker
-- [ ] S1.4.1: Create `tests/unit/test_routing.sh` (assert profiles parse + fallback) | size:M
+- [x] S1.4.1: Create `tests/unit/test_routing.sh` (assert profiles parse + fallback) | size:M
 
-## M2: Dynamic MCP/LSP Selection | status: pending | depends:M1
+## M2: Dynamic MCP/LSP Selection | status: in_progress
 ### T2.1: Create MCP/LSP profile manifest | agent:Worker
 - [ ] S2.1.1: Create `src/data/mcp-profiles.json` (task/file-type → required MCP + LSP) | size:M
 - [ ] S2.1.2: Mark heavyweight servers (chrome-devtools, playwright, excalidraw) disabled-by-default | size:S
@@ -28,27 +28,27 @@
 ### T2.3: Unit tests for MCP profiles | agent:Worker
 - [ ] S2.3.1: Create `tests/unit/test_mcp_profiles.sh` (assert selective enable/disable) | size:M
 
-## M3: Wire Harnesses into Lifecycle | status: pending
+## M3: Wire Harnesses into Lifecycle | status: completed
 ### T3.1: Sandcastle CI reproducibility | agent:Worker
-- [ ] S3.1.1: Add `dev sandcastle review` subcommand (implement→review on branch, hooks + timeouts) | size:L
-- [ ] S3.1.2: Add `.github/workflows/sandcastle-review.yml` gating merge | size:M
+- [x] S3.1.1: Add `dev sandcastle review` subcommand (implement→review on branch, hooks + timeouts) | size:L
+- [x] S3.1.2: Add `.github/workflows/sandcastle-review.yml` gating merge | size:M
 
 ### T3.2: dsh plugin automation starter | agent:Worker
-- [ ] S3.2.1: Populate `cordis.yml` starter (pre-session-check, PII guard, WAL checkpoint) | size:M
+- [x] S3.2.1: Populate `cordis.yml` starter (pre-session-check, PII guard, WAL checkpoint) | size:M
 
 ### T3.3: Tests | agent:Worker
-- [ ] S3.3.1: Create `tests/unit/test_sandcastle_review.sh` + `test_dsh_plugins.sh` | size:M
+- [x] S3.3.1: Create `tests/unit/test_sandcastle_review.sh` + `test_dsh_plugins.sh` | size:M
 
-## M4: Shared Language + Memory SSOT | status: pending
+## M4: Shared Language + Memory SSOT | status: completed
 ### T4.1: CONTEXT.md generator | agent:Worker
-- [ ] S4.1.1: Extend `17-project.sh` to generate starter `CONTEXT.md` (domain glossary) | size:M
-- [ ] S4.1.2: Document `grill-with-docs`/`domain-modeling` growth flow | size:S
+- [x] S4.1.1: Extend `17-project.sh` to generate starter `CONTEXT.md` (domain glossary) | size:M
+- [x] S4.1.2: Document `grill-with-docs`/`domain-modeling` growth flow | size:S
 
 ### T4.2: Memory hierarchy SSOT doc | agent:Worker
-- [ ] S4.2.1: Create `.opencode/docs/memory-hierarchy.md` (Artifacts > spec > WAL; feeding layers) | size:S
+- [x] S4.2.1: Create `.opencode/docs/memory-hierarchy.md` (Artifacts > spec > WAL; feeding layers) | size:S
 
 ### T4.3: Tests | agent:Worker
-- [ ] S4.3.1: Extend `tests/unit/test_project.sh` with CONTEXT.md generation assertions | size:S
+- [x] S4.3.1: Extend `tests/unit/test_project.sh` with CONTEXT.md generation assertions | size:S
 
 ## M5: Automation (pre-session + docs) | status: pending | depends:M2,M4
 ### T5.1: Hook-based pre-session | agent:Worker

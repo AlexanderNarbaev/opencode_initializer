@@ -4,14 +4,20 @@
 set -euo pipefail
 
 ORCHESTRATOR="$HOME/Projects/.opencode-orchestrator.json"
-PROVIDERS_JSON="${PROVIDERS_JSON:-src/data/providers.json}"
+# SSOT: src/data/routing.json — single source of truth for task→model routing.
+# RECONCILED 2026-08-17: ai-router.json routed testing→xai/grok-4.3 and swarm
+# mapped test_engineer→opencode/gpt-5-nano; the SSOT settles both on
+# deepseek/deepseek-v4-flash for testing (routing.json task_profiles.testing).
+PROVIDERS_JSON="${PROVIDERS_JSON:-src/data/routing.json}"
+ROUTING_JSON="${ROUTING_JSON:-src/data/routing.json}"
 
 # ── Load providers from SSOT JSON ──────────────────────────────────────────
-# Returns: space-separated provider names; falls back to embedded list
+# Returns: space-separated provider names; falls back to embedded list.
+# Filters "_"-prefixed meta keys (e.g. _comment) so only real providers remain.
 _load_providers_from_json() {
   local json_file="$1"
   [ -f "$json_file" ] && command -v jq &>/dev/null && {
-    jq -r '.providers | keys[]' "$json_file" 2>/dev/null | tr '\n' ' '
+    jq -r '.providers | keys[] | select(startswith("_") | not)' "$json_file" 2>/dev/null | tr '\n' ' '
     return 0
   }
   # Embedded fallback (19 cloud providers from providers.json as of v3.0)
