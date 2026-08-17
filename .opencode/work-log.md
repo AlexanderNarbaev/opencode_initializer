@@ -1,5 +1,18 @@
 # Work Log
 
+## Session Summary (2026-08-17) — Skills Applied to opora Project
+
+### Completed Tasks
+- [x] Copy all skills from `opencode_initializer/.opencode/skills/` → `opora/.opencode/skills/` (43 SKILL.md, 81 files, md5 parity verified).
+- [x] AGENTS.md coprocessor section already present (lines 447, 692 — no change needed).
+- [x] Create `opora/.opencode/todo.md` (`# Mission Tasks`).
+
+### Verification
+- `find opora/.opencode/skills/ -name SKILL.md | wc -l` → 43
+- `find opora/.opencode/skills/ -type f | wc -l` → 81 (matches source)
+- md5sum parity: coprocessor, brainstorm, matt-pocock/tdd, running-tests → all OK
+- `grep -c "Universal AI Coprocessor" opora/AGENTS.md` → 2
+
 ## Session Summary (2026-08-17) — CI/CD Test Failures Fixed
 
 ### Completed Tasks
