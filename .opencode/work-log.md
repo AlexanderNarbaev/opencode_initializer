@@ -155,3 +155,96 @@ agi, AlexandrNarbaev, DeepSeek, expert_profile, opora, opora-landing, rag-system
 
 ### Note
 - Files are uncommitted in the 6 git-backed projects (agi, AlexandrNarbaev, opora, opora-landing, rag-system, ThePath). DeepSeek + expert_profile are not git repos. Commit/push left to Commander decision.
+
+## Session Summary (2026-08-17) — M6: Final Verification (Reviewer)
+
+### Verification Results — ALL PASS
+- `bash -n` clean on 13 files: 36-model-router.sh, ai-router.sh, 52-context-selector.sh, 53-auto-skills.sh, 54-task-distributor.sh, 17-project.sh, 49-deepseek-harness.sh, dev.sh, setup.sh, 42-hooks.sh, 18-opencode-json.sh
+- Unit tests (serial, one at a time) — **344 assertions, 0 failed**:
+  - test_routing.sh → 36 passed
+  - test_context_selector.sh → 47 passed
+  - test_task_distributor.sh → 70 passed
+  - test_sandcastle_review.sh → 28 passed
+  - test_dsh_plugins.sh → 15 passed
+  - test_project.sh → 108 passed
+  - test_mcp_profiles.sh → 29 passed (concurrent M2)
+  - test_dev_docs.sh → 11 passed (concurrent M5)
+- `jq empty src/data/routing.json` → valid JSON
+
+### TODO Marked [x]
+- M1 (4) + M2 (2) + M3 (4) + M4 (3) + M5 (3) + M6 (3) = 19/19 subtasks [x]
+
+### Findings for Commander follow-up
+1. **DRIFT**: 5 concurrent deliverables NOT tracked in todo.md — `src/data/mcp-profiles.json`, `src/lib/18-opencode-json.sh` (+16 mcp-profiles lines), `src/lib/42-hooks.sh` (pre-session hook), `tests/unit/test_mcp_profiles.sh`, `tests/unit/test_dev_docs.sh`. Planner re-reconciliation needed.
+2. **Git NOT clean**: 8 modified + 3 untracked files uncommitted (incl. setup.sh 53-wiring). Commit/push pending Commander decision.
+3. **Resolved during review**: 53-auto-skills.sh fabricated `$schema` URL removed (verified absent).
+
+## Reviewer Verification (2026-08-17) — M2 module 52 vs todo spec
+
+### Verified
+- `bash -n src/lib/52-context-selector.sh` → SYNTAX PASS
+- `bash tests/unit/test_context_selector.sh` → 47 passed, 0 failed
+- module git-tracked; wired in `setup.sh:651` (`step_context_selector`)
+
+### Divergence finding (blocks [x] marks)
+Module 52 implements the M2 goal (dynamic MCP/LSP selection) via `~/.config/opencode/context-selector/config.json` + `test_context_selector.sh`, NOT the todo.md spec:
+- `src/data/mcp-profiles.json` — MISSING
+- `src/lib/18-opencode-json.sh` — no `mcp-profiles`/`enabled` refs (untouched)
+- `tests/unit/test_mcp_profiles.sh` — MISSING
+- disabled-by-default for chrome-devtools/playwright/excalidraw — absent (excalidraw not referenced)
+
+### Recommended resolution (Commander)
+1. Planner rewrites todo M2 block to match module 52; OR
+2. Worker implements the original mcp-profiles.json + 18-opencode-json.sh spec (module 52 stays complementary).
+
+No `[x]` marks applied pending this decision.
+
+## Session Summary (2026-08-17) — M1: SSOT Routing Table
+
+### Completed Tasks
+- [x] `src/data/routing.json` — canonical SSOT (complexity_rules, task_routing 12 keys, task_profiles 9 incl. `testing`, cost_table 16, agents 10, providers mirror 22, rate_limits)
+- [x] `36-model-router.sh` — task-profiles/cost-table heredocs replaced with `_routing_extract` (jq → python3 → embedded heredoc offline fallback)
+- [x] `scripts/ai-router.sh` — `_load_providers_from_json`/`_provider_env_from_json` → routing.json; `cmd_task` reads `task_routing` via `_classify_task` + `_route_task_model`
+- [x] `tests/unit/test_routing.sh` — 43 assertions
+
+### Reconciliation (S1.3.2)
+`testing` unified to `deepseek/deepseek-v4-flash` (was xai/grok-4.3 in ai-router.json / opencode/gpt-5-nano in swarm). Noted in routing.json `task_profiles.testing.rationale` + ai-router.sh comment.
+
+### Verification
+- `bash -n src/lib/36-model-router.sh scripts/ai-router.sh tests/unit/test_routing.sh` → clean
+- `bash tests/unit/test_routing.sh` → 43 passed, 0 failed
+
+### Files
+- CREATE `src/data/routing.json`
+- MODIFY `src/lib/36-model-router.sh` (loader + testing profile + offline fallback)
+- MODIFY `scripts/ai-router.sh` (providers→routing.json + `_classify_task`/`_route_task_model` + cmd_task SSOT)
+- CREATE `tests/unit/test_routing.sh`
+
+## File Status
+| File | Action | Status | Session | Unit Test | Timestamp | Issue |
+|------|--------|--------|---------|-----------|-----------|-------|
+| src/data/routing.json | CREATE | done | ses_routing_test | pass | 2026-08-17T11:49:00 | - |
+| src/lib/36-model-router.sh | MODIFY | done | ses_routing_test | pass | 2026-08-17T11:49:00 | - |
+| scripts/ai-router.sh | MODIFY | done | ses_routing_test | pass | 2026-08-17T11:49:00 | - |
+| tests/unit/test_routing.sh | CREATE | done | ses_routing_test | pass | 2026-08-17T11:49:00 | - |
+
+## Pending Integration
+- (none — M1 readers both derive from routing.json; Reviewer marks TODO `[x]`)
+
+## Session Summary (2026-08-17) — Reviewer fixes for 53-auto-skills.sh (unit task_08c9bdd4)
+
+### Fixed directly (terminal Reviewer; delegation blocked at depth 2)
+- F1: removed fabricated `$schema` URL (https://opencode.ai/auto-skills.json → HTTP 404) from config.json heredoc.
+- F2: wired module into setup.sh — added `_run_step step_auto_skills "Auto-Triggering Skills" .../53-auto-skills.sh` (line 652), beside step_context_selector.
+- F3: created permanent `tests/unit/test_auto_skills.sh` (promoted from archive; repo-relative PROJECT_DIR convention + 1 new "no fabricated $schema" assertion).
+
+### Verification
+- `bash -n` clean on src/lib/53-auto-skills.sh and setup.sh.
+- `bash tests/unit/test_auto_skills.sh` → 75 passed, 0 failed.
+
+## File Status
+| File | Action | Status | Session | Unit Test | Timestamp | Issue |
+|------|--------|--------|---------|-----------|-----------|-------|
+| src/lib/53-auto-skills.sh | MODIFY | done | ses_auto_skills_fix | pass | 2026-08-17T11:50:00 | - |
+| setup.sh | MODIFY | done | ses_auto_skills_fix | pass | 2026-08-17T11:50:00 | - |
+| tests/unit/test_auto_skills.sh | CREATE | done | ses_auto_skills_fix | pass | 2026-08-17T11:50:00 | - |

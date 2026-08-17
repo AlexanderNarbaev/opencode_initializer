@@ -109,27 +109,67 @@ cmd_cost() {
   echo "Savings tip: use /model deepseek/deepseek-v4-flash for simple edits"
 }
 
+# ── Task routing (SSOT: src/data/routing.json → task_routing) ───────────────
+# _classify_task maps a free-text description to one of the 12 task_routing keys.
+_classify_task() {
+  local desc
+  desc="$(echo "$1" | tr '[:upper:]' '[:lower:]')"
+  case "$desc" in
+    *test*|*assert*|*verify*|*coverage*|*qa*) echo "testing" ;;
+    *review*|*inspect*|*critique*)           echo "code_review" ;;
+    *security*|*vuln*|*cve*|*secret*)        echo "security_audit" ;;
+    *architect*)                             echo "architecture" ;;
+    *ui*|*frontend*|*css*|*visual*)          echo "ui_design" ;;
+    *research*|*investigat*|*survey*)        echo "research" ;;
+    *debug*|*fix*|*bug*|*error*|*crash*|*broken*|*failing*) echo "debugging" ;;
+    *refactor*|*cleanup*|*simplify*)         echo "refactoring" ;;
+    *deploy*|*docker*|*infra*|*pipeline*|*kubernetes*) echo "devops" ;;
+    *readme*|*guide*|*document*|*comment*)   echo "documentation" ;;
+    *data*|*sql*|*query*|*metric*)           echo "data_analysis" ;;
+    *)                                        echo "code_generation" ;;
+  esac
+}
+
+# _route_task_model <task-type> → "<provider>/<model>" (full model ID), or empty
+_route_task_model() {
+  local task_type="$1" out=""
+  if [ -f "$ROUTING_JSON" ] && command -v jq &>/dev/null; then
+    out="$(jq -r --arg t "$task_type" '.task_routing[$t] | .provider + "/" + .model' "$ROUTING_JSON" 2>/dev/null)" || return 1
+    echo "$out"
+    return 0
+  fi
+  return 1
+}
+
 cmd_task() {
-  local task="$*"
+  local task="$*" task_type model
   echo "Task: $task"
   echo ""
-  # Simple heuristic routing
-  if echo "$task" | grep -qiE 'fix|typo|comment|rename|format|simple|small|minor'; then
-    echo "→ Router: SIMPLE"
-    echo "→ Model: deepseek/deepseek-v4-flash"
-    echo "→ Command: /model deepseek/deepseek-v4-flash"
-  elif echo "$task" | grep -qiE 'architect|design system|security|audit|complex|hard|deep|research'; then
-    echo "→ Router: COMPLEX (with thinking)"
-    echo "→ Model: deepseek/deepseek-v4-pro"
-    echo "→ Command: /model deepseek/deepseek-v4-pro"
-  elif echo "$task" | grep -qiE 'ui|design|creative|visual|frontend|css|style'; then
-    echo "→ Router: UI/CREATIVE"
-    echo "→ Model: xai/grok-4.3"
-    echo "→ Command: /model xai/grok-4.3"
+  task_type="$(_classify_task "$task")"
+  model="$(_route_task_model "$task_type")" || model=""
+  if [ -n "$model" ]; then
+    echo "→ Router: $task_type (SSOT: src/data/routing.json)"
+    echo "→ Model: $model"
+    echo "→ Command: /model $model"
   else
-    echo "→ Router: MEDIUM (default)"
-    echo "→ Model: deepseek/deepseek-v4-pro"
-    echo "→ Command: /model deepseek/deepseek-v4-pro"
+    # Fallback heuristic (routing.json/jq unavailable — never hard-fail)
+    if echo "$task" | grep -qiE 'fix|typo|comment|rename|format|simple|small|minor'; then
+      echo "→ Router: SIMPLE"
+      echo "→ Model: deepseek/deepseek-v4-flash"
+      echo "→ Command: /model deepseek/deepseek-v4-flash"
+    elif echo "$task" | grep -qiE 'architect|design system|security|audit|complex|hard|deep|research'; then
+      echo "→ Router: COMPLEX (with thinking)"
+      echo "→ Model: deepseek/deepseek-v4-pro"
+      echo "→ Command: /model deepseek/deepseek-v4-pro"
+    elif echo "$task" | grep -qiE 'ui|design|creative|visual|frontend|css|style'; then
+      echo "→ Router: UI/CREATIVE"
+      echo "→ Model: xai/grok-4.3"
+      echo "→ Command: /model xai/grok-4.3"
+    else
+      echo "→ Router: MEDIUM (default)"
+      echo "→ Model: deepseek/deepseek-v4-pro"
+      echo "→ Command: /model deepseek/deepseek-v4-pro"
+    fi
   fi
 }
 

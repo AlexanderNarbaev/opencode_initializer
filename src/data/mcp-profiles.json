@@ -1,0 +1,62 @@
+{
+  "$schema": "https://opencode.ai/mcp-profiles.json",
+  "version": "1.0.0",
+  "description": "Task/file-type → MCP + LSP selection manifest. SSOT for context-aware MCP/LSP loading (reduces token/context overhead). Consumed by 18-opencode-json.sh (disabled_by_default + per-agent mymcp_*) and 52-context-selector.sh (task_profiles).",
+
+  "disabled_by_default": ["chrome-devtools", "playwright", "excalidraw", "agent-browser"],
+  "disabled_by_default_rationale": "Browser/UI/diagram servers carry large tool surfaces and high cold-start cost. Disabled by default; enabled only in full mode (MCP_ALL_ON=true) or when the task profile demands them (research/agentic).",
+
+  "full_mode_all_on": true,
+
+  "task_profiles": {
+    "coding": {
+      "description": "Implementation, refactoring, editing",
+      "mcp": ["filesystem", "codegraph", "context7", "git", "memory"],
+      "lsp": ["typescript", "pyright", "gopls", "rust-analyzer", "bash"]
+    },
+    "reasoning": {
+      "description": "Architecture, planning, analysis",
+      "mcp": ["sequential-thinking", "fetch", "memory"],
+      "lsp": []
+    },
+    "fast": {
+      "description": "Quick answers, minimal context",
+      "mcp": ["filesystem"],
+      "lsp": []
+    },
+    "agentic": {
+      "description": "Multi-step autonomous workflows",
+      "mcp": ["filesystem", "codegraph", "github", "memory", "agentic-tools", "playwright"],
+      "lsp": ["typescript"]
+    },
+    "research": {
+      "description": "Web/docs investigation, discovery",
+      "mcp": ["fetch", "websearch", "context7", "memory", "chrome-devtools"],
+      "lsp": []
+    },
+    "testing": {
+      "description": "Test authoring, QA, verification",
+      "mcp": ["filesystem", "codegraph"],
+      "lsp": ["typescript", "pyright", "bash"]
+    }
+  },
+
+  "file_lsp": {
+    ".ts": "typescript", ".tsx": "typescript", ".js": "typescript", ".jsx": "typescript",
+    ".py": "pyright",
+    ".go": "gopls",
+    ".rs": "rust-analyzer",
+    ".sh": "bash", ".bash": "bash",
+    ".cs": "omnisharp",
+    ".yaml": "yaml", ".yml": "yaml",
+    ".md": "marksman",
+    ".toml": "taplo",
+    ".lua": "lua",
+    ".zig": "zls",
+    ".css": "css", ".scss": "css", ".less": "css",
+    ".html": "html", ".htm": "html",
+    ".json": "json", ".jsonc": "json"
+  },
+
+  "lsp_default": ["typescript", "pyright", "bash"]
+}

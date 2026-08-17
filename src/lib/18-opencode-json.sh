@@ -403,6 +403,22 @@ if pkg_installed("@notionhq/notion-mcp-server"):
 mcps["sentry"] = {"type": "remote", "url": "https://mcp.sentry.dev/mcp", "enabled": existing_mcp.get("sentry", {}).get("enabled", False), "timeout": 30000}
 mcps["grep"] = {"type": "remote", "url": "https://mcp.grep.app", "enabled": existing_mcp.get("grep", {}).get("enabled", False), "timeout": 30000}
 
+# ── Dynamic MCP/LSP selection (mcp-profiles.json, closes GAP-1) ─────────────
+# Honor src/data/mcp-profiles.json: heavyweight servers (chrome-devtools,
+# playwright, excalidraw, agent-browser) are disabled-by-default and enabled
+# only for UI/diagram/browser tasks. Set MCP_ALL_ON=true (or run `full` mode)
+# to preserve the all-on baseline (R2: leave heavyweight servers disabled).
+mcp_profiles_path = "src/data/mcp-profiles.json"
+if os.path.exists(mcp_profiles_path) and os.environ.get("MCP_ALL_ON", "").lower() not in ("true", "1", "yes"):
+    try:
+        with open(mcp_profiles_path) as mpf:
+            mp = json.load(mpf)
+        for _mcp_name in mp.get("disabled_by_default", []):
+            if _mcp_name in mcps:
+                mcps[_mcp_name]["enabled"] = False
+    except Exception:
+        pass
+
 # LSP servers — detect installed, configure in opencode.json
 lsp_config = {}
 
@@ -778,6 +794,51 @@ config = {
         "show_tool_usage": True
     }
 }
+
+# ── Per-agent MCP permissions (src/data/mcp-profiles.json) ─────────────────
+# Emits `mymcp_*` permission keys per agent derived from the agent→task-profile
+# mapping. Complements the disabled-by-default handling above (lines ~406-421)
+# by gating each agent to its profile's MCP allowlist. Full mode (MCP_ALL_ON)
+# skips the deny list so every server stays reachable.
+def apply_mcp_profiles(config):
+    profiles_path = os.path.join(os.environ.get("SCRIPT_DIR", "."), "src", "data", "mcp-profiles.json")
+    if not os.path.exists(profiles_path):
+        profiles_path = "src/data/mcp-profiles.json"  # CWD fallback (repo root)
+    if not os.path.exists(profiles_path):
+        return
+    try:
+        with open(profiles_path) as f:
+            profiles = json.load(f)
+    except Exception:
+        return
+
+    disabled = set(profiles.get("disabled_by_default", []))
+    full_mode = os.environ.get("MCP_ALL_ON", "").lower() in ("true", "1", "yes")
+    task_profiles = profiles.get("task_profiles", {})
+
+    # Agent → task profile (drives which MCP servers each agent may use)
+    agent_profile_map = {
+        "build": "coding", "general": "coding", "code-reviewer": "coding",
+        "reviewer": "coding", "critic": "coding", "security-auditor": "coding",
+        "plan": "reasoning", "explore": "fast", "scout": "fast",
+        "researcher": "research", "sme": "research",
+        "test-engineer": "testing",
+        "orchestrator": "agentic",
+    }
+
+    for agent_name, agent_cfg in config.get("agent", {}).items():
+        profile_key = agent_profile_map.get(agent_name, "coding")
+        profile = task_profiles.get(profile_key, {})
+        allowed = set(profile.get("mcp", []))
+        perm = agent_cfg.setdefault("permission", {})
+        for server in allowed:
+            perm["mymcp_" + server] = "allow"
+        if not full_mode:
+            for hw in disabled:
+                if hw not in allowed:
+                    perm["mymcp_" + hw] = "deny"
+
+apply_mcp_profiles(config)
 
 os.makedirs(os.path.dirname(config_path), exist_ok=True)
 

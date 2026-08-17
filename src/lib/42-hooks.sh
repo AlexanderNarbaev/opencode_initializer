@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # src/lib/42-hooks.sh — Lifecycle Hooks Framework
-# Creates and manages ~/.config/opencode/hooks/ with 4 hook types:
-#   pre-request  — runs before LLM call; exit 1 = reject
+# Creates and manages ~/.config/opencode/hooks/ with 5 hook types:
+#   pre-session   — runs once at session start; provider/model validation
+#   pre-request   — runs before LLM call; exit 1 = reject
 #   post-response — runs after LLM call; for logging/audit
-#   pre-commit   — runs before git commit; exit 1 = block
-#   on-error     — runs on error; for cleanup/notifications
+#   pre-commit    — runs before git commit; exit 1 = block
+#   on-error      — runs on error; for cleanup/notifications
 # v3.0.0
 # Sources: helpers.sh + 00-core.sh must be sourced before this module
 set -euo pipefail
@@ -53,10 +54,55 @@ exit 0
 STUBEOF
 }
 
+_hooks_stub_presession() {
+  cat << 'STUBEOF'
+#!/usr/bin/env bash
+# pre-session: provider & model validation (wraps pre-session-check.sh)
+# Sources src/lib/pre-session-check.sh and runs _pre_session (auto, not manual).
+set -euo pipefail
+PS_CHECK="$HOME/opencode_initializer/src/lib/pre-session-check.sh"
+if [ -f "$PS_CHECK" ]; then
+  # shellcheck disable=SC1090
+  source "$PS_CHECK"
+  if declare -f _pre_session &>/dev/null; then
+    _pre_session
+  else
+    echo "[hooks] pre-session: _pre_session not found" >&2
+  fi
+else
+  echo "[hooks] pre-session: pre-session-check.sh not found — skipping" >&2
+fi
+exit 0
+STUBEOF
+}
+
+_hooks_stub_presession() {
+  cat << 'STUBEOF'
+#!/usr/bin/env bash
+# pre-session: provider/model validation at session start
+# Sources pre-session-check.sh and runs _pre_session (non-blocking).
+# Dependencies: pre-session-check.sh (_pre_session)
+set -euo pipefail
+if [ -f "$HOME/opencode_initializer/src/lib/pre-session-check.sh" ]; then
+  # shellcheck disable=SC1090
+  source "$HOME/opencode_initializer/src/lib/pre-session-check.sh" 2>/dev/null
+  command -v _pre_session >/dev/null 2>&1 && _pre_session || true
+fi
+exit 0
+STUBEOF
+}
+
 # ── Initialize hooks directory with default stubs ─────────────────────────────
 # Idempotent: skips existing files, does not overwrite user hooks.
 _hooks_init() {
   mkdir -p "$HOOKS_DIR"
+
+  if [ ! -f "$HOOKS_DIR/pre-session/00-pre-session.sh" ]; then
+    mkdir -p "$HOOKS_DIR/pre-session"
+    _hooks_stub_presession > "$HOOKS_DIR/pre-session/00-pre-session.sh"
+    chmod +x "$HOOKS_DIR/pre-session/00-pre-session.sh"
+    log "Created pre-session hook: pre-session/00-pre-session.sh"
+  fi
 
   if [ ! -f "$HOOKS_DIR/10-pii-check.sh" ]; then
     _hooks_stub_pii > "$HOOKS_DIR/10-pii-check.sh"
@@ -75,11 +121,17 @@ _hooks_init() {
     chmod +x "$HOOKS_DIR/50-audit-log.sh"
     log "Created post-response hook: 50-audit-log.sh"
   fi
+
+  if [ ! -f "$HOOKS_DIR/00-pre-session.sh" ]; then
+    _hooks_stub_presession > "$HOOKS_DIR/00-pre-session.sh"
+    chmod +x "$HOOKS_DIR/00-pre-session.sh"
+    log "Created pre-session hook: 00-pre-session.sh"
+  fi
 }
 
 # ── Run all hooks of a given type ─────────────────────────────────────────────
 # Usage: _hooks_run <hook_type> [args...]
-#   hook_type: pre-request | post-response | pre-commit | on-error
+#   hook_type: pre-session | pre-request | post-response | pre-commit | on-error
 #   Returns: 0 if all hooks pass, 1 if any hook rejects
 #   Hooks are executed in numeric filename order within the type subdirectory.
 _hooks_run() {
@@ -110,6 +162,7 @@ _hooks_run() {
 }
 
 # ── Convenience wrappers ──────────────────────────────────────────────────────
+_hooks_pre_session()  { _hooks_run "pre-session" "$@"; }
 _hooks_pre_request()  { _hooks_run "pre-request" "$@"; }
 _hooks_post_response() { _hooks_run "post-response" "$@"; }
 _hooks_pre_commit()   { _hooks_run "pre-commit" "$@"; }
@@ -117,7 +170,7 @@ _hooks_on_error()     { _hooks_run "on-error" "$@"; }
 
 # ── Create hook type directories ──────────────────────────────────────────────
 _hooks_setup_dirs() {
-  for htype in pre-request post-response pre-commit on-error; do
+  for htype in pre-session pre-request post-response pre-commit on-error; do
     mkdir -p "${HOOKS_DIR}/${htype}"
   done
 }
@@ -131,4 +184,4 @@ _step_done step_hooks
 # ── Exports ──────────────────────────────────────────────────────────────────
 export HOOKS_DIR
 export -f _hooks_init _hooks_run _hooks_setup_dirs
-export -f _hooks_pre_request _hooks_post_response _hooks_pre_commit _hooks_on_error
+export -f _hooks_pre_session _hooks_pre_request _hooks_post_response _hooks_pre_commit _hooks_on_error
