@@ -156,6 +156,23 @@ agi, AlexandrNarbaev, DeepSeek, expert_profile, opora, opora-landing, rag-system
 ### Note
 - Files are uncommitted in the 6 git-backed projects (agi, AlexandrNarbaev, opora, opora-landing, rag-system, ThePath). DeepSeek + expert_profile are not git repos. Commit/push left to Commander decision.
 
+## Session Summary (2026-08-17) — M2 + M5 + M6: Mission Completion
+
+### Completed Tasks
+- [x] M2 — Dynamic MCP/LSP Selection: `src/data/mcp-profiles.json` (task/file-type → MCP+LSP, `disabled_by_default`, `full_mode_all_on`); `18-opencode-json.sh` `apply_mcp_profiles()` (honors disabled_by_default + per-agent mymcp_* gating); `tests/unit/test_mcp_profiles.sh` (23 pass)
+- [x] M5 — Automation: `42-hooks.sh` pre-session hook (wraps pre-session-check.sh); `dev.sh cmd_docs` (RU/EN table from module headers); `tests/unit/test_dev_docs.sh` (19 pass) + `test_hooks.sh` (25 pass)
+- [x] M6 — Final verification: bash -n clean on all changed files; targeted test files all pass
+
+### Verification (serial, one file at a time)
+- `test_mcp_profiles.sh` → 23 pass · `test_context_selector.sh` → 47 pass
+- `test_hooks.sh` → 25 pass · `test_dev_docs.sh` → 19 pass · `test_pre_session_check.sh` → 31 pass
+- `test_routing.sh` → 22 pass · `test_project.sh` → 108 pass · `test_task_distributor.sh` → 70 pass
+- `test_auto_skills.sh` → 74 pass · `test_sandcastle_review.sh` → 28 pass · `test_dsh_plugins.sh` → 15 pass
+
+### Files
+- CREATE `src/data/mcp-profiles.json`, `tests/unit/test_mcp_profiles.sh`, `tests/unit/test_auto_skills.sh`, `tests/unit/test_dev_docs.sh`
+- MODIFY `src/lib/18-opencode-json.sh` (apply_mcp_profiles), `src/lib/42-hooks.sh` (pre-session), `dev.sh` (cmd_docs), `src/lib/53-auto-skills.sh` (drop fabricated $schema URL), `setup.sh`, `scripts/ai-router.sh`, `tests/unit/test_routing.sh`
+
 ## Session Summary (2026-08-17) — M6: Final Verification (Reviewer)
 
 ### Verification Results — ALL PASS
