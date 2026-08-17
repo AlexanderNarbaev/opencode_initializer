@@ -1,5 +1,24 @@
 # Work Log
 
+## Session Summary (2026-08-17) — CI/CD Test Failures Fixed
+
+### Completed Tasks
+- [x] Fix 6 test files hardcoding `PROJECT_DIR="/home/alexandr-narbaev/..."` → `$(cd "$(dirname "$0")/../.." && pwd)` (test_download_verify, test_dryrun_dns, test_hooks, test_offline_bundle, test_wal_race, test_opencode_desktop). Commit `321525a`.
+- [x] test_cockpit.sh: build src/cockpit binary from source when not installed (CI doesn't run 31-cockpit.sh). Commit `e6dc478`.
+- [x] test_opencode_desktop.sh: `unset XDG_CONFIG_HOME` in run_isolated (CI sets XDG_CONFIG_HOME → config-path mismatch). Commit `e6dc478`.
+- [x] Security: bump golang.org/x/text v0.3.8→v0.39.0 (CVE-2026-56852 HIGH DoS). go directive 1.24.2→1.25.0. Commit `cc5c7f6`.
+- [x] Remove stray `.opencode/debug_desktop.sh` artifact. Commit `834903c`.
+
+### Verification (CI)
+- Tests workflow: GREEN — 237 passed, 0 failed (run 32015918368: syntax ✓, unit-tests ✓, cross-distro ×3 ✓).
+- Security Scan (Trivy): GREEN (run 32015918293) — x/text CVE fixed.
+- ShellCheck + shfmt: GREEN. CodeQL: GREEN.
+
+### Files
+- MODIFY `tests/unit/test_download_verify.sh`, `test_dryrun_dns.sh`, `test_hooks.sh`, `test_offline_bundle.sh`, `test_wal_race.sh`, `test_opencode_desktop.sh`, `test_cockpit.sh`
+- MODIFY `src/cockpit/go.mod`, `src/cockpit/go.sum`
+- DELETE `.opencode/debug_desktop.sh`
+
 ## Session Summary (2026-08-16)
 
 ### Completed Tasks
