@@ -109,6 +109,14 @@ _install_opencode_desktop() {
           log "OpenCode Desktop installed (dpkg)"
           return 0
         else
+          # No root / no terminal — extract the .deb into a user-owned prefix.
+          _spin_stop "✓"
+          info "dpkg unavailable (no root) — extracting .deb to user space"
+          if _install_desktop_from_deb_user "$deb_file"; then
+            rm -f "$deb_file"
+            log "OpenCode Desktop installed (user-space .deb)"
+            return 0
+          fi
           _spin_stop "✗"
           warn "dpkg install failed — try: sudo dpkg -i $deb_file"
           return 1
@@ -137,6 +145,59 @@ _install_opencode_desktop() {
       _install_desktop_appimage "$ver"
       ;;
   esac
+}
+
+# ── User-space .deb extraction (no root / no terminal) ───────────────────────
+# Fallback when `dpkg -i` fails (no sudo, or no TTY for password auth): unpack
+# the .deb with `ar` + `tar` into a user-owned prefix, symlink the binary into
+# ~/.local/bin, and write a desktop entry that launches with --no-sandbox (the
+# SUID chrome-sandbox helper can't be root-owned in a user install).
+_install_desktop_from_deb_user() {
+  local deb="$1"
+  [ -f "$deb" ] || return 1
+
+  local dest="$HOME/.local/share/opencode-desktop"
+  local tmp=""
+  tmp="$(mktemp -d /tmp/opencode-desktop-deb.XXXXXX)" || return 1
+
+  # 1. Unpack the .deb (ar → control.tar.xz + data.tar.xz; tar → opt/OpenCode/*).
+  if ! ( cd "$tmp" && ar x "$deb" 2>/dev/null ) || ! ( cd "$tmp" && tar -xJf data.tar.xz 2>/dev/null ); then
+    warn "Failed to extract .deb (ar/tar) — is binutils + xz installed?"
+    rm -rf "$tmp"
+    return 1
+  fi
+
+  # 2. Copy the payload into the user-owned prefix.
+  if [ ! -d "$tmp/opt/OpenCode" ]; then
+    warn "Unexpected .deb layout — expected opt/OpenCode/"
+    rm -rf "$tmp"
+    return 1
+  fi
+  mkdir -p "$dest"
+  if ! cp -r "$tmp/opt/OpenCode/." "$dest/" 2>/dev/null; then
+    warn "Failed to copy OpenCode Desktop into $dest"
+    rm -rf "$tmp"
+    return 1
+  fi
+
+  # 3. Executable binary + symlink into ~/.local/bin.
+  chmod +x "$OCD_APPDIR_BIN" 2>/dev/null || true
+  mkdir -p "$HOME/.local/bin"
+  ln -sf "$OCD_APPDIR_BIN" "$HOME/.local/bin/opencode-desktop"
+
+  # 4. Desktop entry (--no-sandbox: the SUID chrome-sandbox helper can't be
+  #    root-owned in a user install).
+  local entry_dir="${XDG_DATA_HOME:-$HOME/.local/share}/applications"
+  mkdir -p "$entry_dir"
+  printf '[Desktop Entry]\nName=OpenCode Desktop\nComment=OpenCode AI coding agent desktop\nExec=%s --no-sandbox\nIcon=opencode\nTerminal=false\nType=Application\nCategories=Development;IDE;\nStartupWMClass=OpenCode\n' \
+    "$OCD_APPDIR_BIN" > "$entry_dir/opencode-desktop.desktop"
+  command -v update-desktop-database &>/dev/null && update-desktop-database "$entry_dir" 2>/dev/null || true
+
+  # 5. Cleanup.
+  rm -rf "$tmp"
+  log "OpenCode Desktop installed (user-space .deb) → $dest"
+  log "Desktop entry written: $entry_dir/opencode-desktop.desktop"
+  return 0
 }
 
 # ── AppImage fallback (no root, no deb/rpm manager) ──────────────────────────
