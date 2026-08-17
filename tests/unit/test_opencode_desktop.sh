@@ -32,6 +32,7 @@ run_isolated() {
     _step_skip(){ return 1; }; _step_done(){ :; }
     opencode(){ echo '1.17.0'; }
     export HOME='$TESTHOME' ARCH=amd64 PKG_MANAGER=apt DL_CACHE='$TESTHOME/dl'
+    unset XDG_CONFIG_HOME
     mkdir -p \"\$HOME/.local/share/opencode-desktop\"
     touch \"\$HOME/.local/share/opencode-desktop/ai.opencode.desktop\"
     chmod +x \"\$HOME/.local/share/opencode-desktop/ai.opencode.desktop\"
