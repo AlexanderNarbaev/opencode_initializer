@@ -25,20 +25,8 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then
   elif npm install -g opencode-landstrip@latest --prefer-offline 2>/dev/null; then
     log "opencode-landstrip installed (Landlock sandbox)"
   else
-  # ── opencode-landstrip: Landlock sandbox ─────────────────────────────────
-  if npm list -g opencode-landstrip >/dev/null 2>&1; then
-    log "opencode-landstrip already present"
-  elif npm install -g opencode-landstrip@latest --prefer-offline 2>/dev/null; then
-    log "opencode-landstrip installed"
-  else
     warn "opencode-landstrip not installed (Landlock requires kernel >= 5.13)"
   fi
-
-  # ── Systemd timer for daily Trivy scan (S5.4.1.1) ───────────────────────
-  if command -v trivy &>/dev/null && command -v systemctl &>/dev/null; then
-    TIMER_DIR="$HOME/.config/systemd/user"
-    mkdir -p "$TIMER_DIR"
-
     cat > "$TIMER_DIR/opencode-trivy-scan.service" << 'SVC'
 [Unit]
 Description=Daily Trivy vulnerability scan for OpenCode dev machine
