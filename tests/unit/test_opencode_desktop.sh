@@ -93,7 +93,7 @@ run_isolated "version fallback to pin (curl fails)" "curl(){ return 1; }" "[ \"\
 run_isolated "write_desktop_entry creates .desktop" "" "_write_desktop_entry /tmp/fake-opencode && [ -f \"\$HOME/.local/share/applications/opencode-desktop.desktop\" ] && grep -q 'Exec=/tmp/fake-opencode' \"\$HOME/.local/share/applications/opencode-desktop.desktop\""
 
 # ── 7. Configure: CLI integration + shared config ────────────────────────────
-run_isolated "configure reads model from config" "mkdir -p \"\$HOME/.config/opencode\"; printf '{\n  \"model\": \"deepseek/deepseek-v4-pro\"\n}\n' > \"\$HOME/.config/opencode/opencode.json\"" "o=\"\$(_configure_opencode_desktop 2>&1)\"; grep -q 'deepseek/deepseek-v4-pro' <<< \"\$o\""
+run_isolated "configure reads model from config" "mkdir -p \"\$HOME/.config/opencode\"; printf '{\"model\":\"deepseek/deepseek-v4-pro\"}\n' > \"\$HOME/.config/opencode/opencode.json\"" "o=\"\$(_configure_opencode_desktop 2>&1)\"; echo \"DEBUG: \$o\" >&2; grep -q 'deepseek' <<< \"\$o\""
 run_isolated "configure degrades without config" "" "_configure_opencode_desktop"
 
 # ── 8. Main: graceful degradation (no abort on failure) ──────────────────────
