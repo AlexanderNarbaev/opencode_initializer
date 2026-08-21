@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# test_caching.sh — test 56-caching.sh module
+# test_caching.sh — test 60-caching.sh module
 set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -9,9 +9,9 @@ PASS=0; FAIL=0
 pass() { echo "PASS: $1"; PASS=$((PASS+1)); }
 fail() { echo "FAIL: $1"; FAIL=$((FAIL+1)); }
 
-MODULE="$PROJECT_DIR/src/lib/56-caching.sh"
-[ -f "$MODULE" ] && pass "56-caching.sh exists" || { fail "56-caching.sh missing"; exit 1; }
-bash -n "$MODULE" 2>/dev/null && pass "56-caching.sh syntax OK" || fail "56-caching.sh syntax FAIL"
+MODULE="$PROJECT_DIR/src/lib/60-caching.sh"
+[ -f "$MODULE" ] && pass "60-caching.sh exists" || { fail "60-caching.sh missing"; exit 1; }
+bash -n "$MODULE" 2>/dev/null && pass "60-caching.sh syntax OK" || fail "60-caching.sh syntax FAIL"
 
 # Required stubs (mimic other tests' isolated-subshell pattern)
 warn()  { :; }; log()  { :; }; info() { :; }; err() { :; }; section() { :; }
@@ -27,7 +27,7 @@ npm() { :; }
   # Module proceeds past the _step_skip guard (stub returns 1) and past the
   # SKIP_CACHING opt-out (unset); install/check helpers no-op via npm stub.
   source "$MODULE" 2>/dev/null
-) && pass "56-caching.sh sources in subshell" || fail "56-caching.sh subshell source FAIL"
+) && pass "60-caching.sh sources in subshell" || fail "60-caching.sh subshell source FAIL"
 
 # Test module references each of the 5 cache packages
 grep -q 'opencode-cache-injector' "$MODULE" && pass "opencode-cache-injector referenced" || fail "opencode-cache-injector NOT referenced"

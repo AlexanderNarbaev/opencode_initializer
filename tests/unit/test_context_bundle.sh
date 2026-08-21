@@ -30,12 +30,21 @@ _spin_start() { :; }; _spin_stop() { :; }
 command -v opencode-context >/dev/null 2>&1 && pass "opencode-context binary installed" || fail "opencode-context binary missing"
 command -v opencode-router  >/dev/null 2>&1 && pass "opencode-router binary installed"  || fail "opencode-router binary missing"
 
-# Test opencode.json registers both
+# Test opencode.json does NOT have opencode-context/router in plugin array
+# (they hang agent list in current versions — installed as CLI binaries only)
 CFG="${XDG_CONFIG_HOME:-$HOME/.config/opencode/opencode.json}"
 [ -f "$CFG" ] || CFG="/home/alexandr-narbaev/.config/opencode/opencode.json"
 if [ -f "$CFG" ]; then
-  grep -q '"opencode-context"' "$CFG" && pass "opencode-context in plugin array" || fail "opencode-context NOT in plugin array"
-  grep -q '"opencode-router"'  "$CFG" && pass "opencode-router in plugin array"  || fail "opencode-router NOT in plugin array"
+  if grep -qE '"opencode-context"[\s,]' "$CFG"; then
+    fail "opencode-context SHOULD NOT be in plugin[] (hangs agent list)"
+  else
+    pass "opencode-context correctly absent from plugin[]"
+  fi
+  if grep -qE '"opencode-router"[\s,]' "$CFG"; then
+    fail "opencode-router SHOULD NOT be in plugin[] (hangs agent list)"
+  else
+    pass "opencode-router correctly absent from plugin[]"
+  fi
 else
   fail "opencode.json not found"
 fi
