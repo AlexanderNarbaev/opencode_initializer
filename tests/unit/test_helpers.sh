@@ -88,7 +88,7 @@ assert "00-core.sh has _spin"        'grep -q "_spin()" "'"$C"'"'
 assert "00-core.sh has _gate"        'grep -q "_gate()" "'"$C"'"'
 assert "00-core.sh has _dry"         'grep -q "_dry()" "'"$C"'"'
 assert "00-core.sh has MCP registry" 'grep -q "_mcp_add" "'"$C"'"'
-assert "00-core.sh has v3.0.0"         'grep -q "v3.0.0" "'"$C"'"'
+assert "00-core.sh has v3.2.0"         'grep -q "v3.2.0" "'"$C"'"'
 
 # ── Verify MCP registry contents ────────────────────────────────────────
 for mcp in context7 filesystem agentic-tools codegraph playwright agent-browser loopsense github postgres gitlab google-maps sequential-thinking memorylayer; do

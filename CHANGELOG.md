@@ -1,5 +1,31 @@
 # Changelog
 
+## [3.2.0] — 2026-08-22
+
+### Context, Token & Cost Management (M7)
+- 55-context-bundle.sh: context/token/cost bundle — opencode-context + opencode-router integration (installed via npm, loaded on explicit invocation)
+- 56-grace-semantics.sh: GRACE semantic contracts, wired into the orchestrator as `step_grace_semantics`
+- 57-context-guard.sh: context guard (compression)
+- 58-provider-discovery.sh: provider auto-discovery
+- 59-local-memory.sh: local memory layer
+- 60-caching.sh: prompt caching stack (renumbered from 56-caching.sh to resolve the duplicate module number)
+
+### Added
+- scripts/har: meta-harness CLI v1.0.1 unifying opencode + dsh (DeepSeek Harness) + sandcastle + opencode-* plugins, incl. `har grace` subcommand
+- `setup.sh --skip-caching` flag (SKIP_CACHING)
+- Full macOS support: `_service_install/_service_start/_service_stop/_service_status` dispatch (systemd user units on Linux, LaunchAgents on macOS) across GUI, metrics, ChromaDB, WebUI, Ollama and DeepSeek Harness modules; `dev gui`/`dev metrics`/`dev isolated status` work on macOS; brew branches for previously apt-only fallbacks (Docker, Chrome, ZSH, Java, Node, Go, .NET, Trivy, Ollama, ...)
+
+### Fixed
+- Orchestrator: `step_caching` pointed to removed `56-caching.sh` (failed on every run); `56-grace-semantics.sh` was never sourced or step-executed; `TOTAL_STEPS` corrected 41 → 48
+- Idempotency: `_step_done` added to 55-context-bundle, 58-provider-discovery, 60-caching; `_run_step` key unified with `38-ide-plugins.sh` (`step_ide_plugins`)
+- opencode.json: stray `opencode-go` key removed — 22 providers, aligned with the `src/data/providers.json` SSOT
+- macOS blockers eliminated: portable `_md5`/`_sha256`/`_timeout`/`_sed_i`/`_file_mtime`/`_file_size`/`_readlink_f` wrappers in helpers.sh; GNU-only sed expressions rewritten (00-core, 24-websearch, 34-observability); `${var,,}` replaced (dev.sh, oc-rpc.sh); `grep -oP` removed; OS guards in 47-lynis/48-auditd
+- Canonical version aligned: README, CHANGELOG, package.json and `SCRIPT_VERSION` now all read 3.2.0 (git ground truth: latest tag was v2.0.0, 3.x line untagged)
+
+### Docs
+- All module/provider/MCP/plugin/LSP/test counts synchronized across README (EN/RU), docs site (EN/RU) and mkdocs.yml (64 modules, 726-line orchestrator, 22 providers, 24 MCPs, 21 plugins, 13 LSPs, 93 test files / 257 checks)
+- Legacy `docs/ru/` pages (contradicting numbers, broken links) removed; stale `docs/comparison.md` duplicate removed; `mcpServers` → `mcp` in reference docs
+
 ## [3.1.0] — 2026-08-08
 
 ### Core Hardening (Wave A)
