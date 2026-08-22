@@ -28,5 +28,8 @@
     "llm",
     "setup"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@ai-hero/sandcastle": "^0.12.0"
+  }
 }

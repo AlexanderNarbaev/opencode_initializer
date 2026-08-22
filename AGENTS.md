@@ -122,7 +122,7 @@ Post-install management: `install/remove <component>`, `update`, `health`, `doct
 
 ### `har` meta-harness (scripts/har)
 
-Single entrypoint unifying `opencode` + `dsh` (DeepSeek Harness) + `sandcastle` + opencode-* plugins. Note: `opencode-context` and `opencode-router` are installed via npm but loaded only on explicit invocation (they hang `opencode agent list`).
+Single entrypoint unifying `opencode` + `dsh` (DeepSeek Harness) + `sandcastle` + opencode-* plugins. Note: `opencode-context` and `opencode-router` are installed via npm and registered in the default plugin tier (the historical `opencode agent list` hang is fixed in current versions — verified 2026-08-22).
 
 ## Testing Strategy
 

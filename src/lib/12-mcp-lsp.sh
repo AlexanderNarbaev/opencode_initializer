@@ -268,10 +268,10 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
   _curl "$ZLS_URL" "$ZLS_TMP/zls.tar.gz" && tar xzf "$ZLS_TMP/zls.tar.gz" -C "$ZLS_TMP" && cp "$ZLS_TMP/zls" "$HOME/.local/bin/zls" && chmod +x "$HOME/.local/bin/zls" && log "zls ${ZLS_VER}" || warn "zls failed"
   rm -rf "$ZLS_TMP"
 
-  command -v go &>/dev/null && timeout 60 go install golang.org/x/tools/gopls@latest 2>/dev/null || true
-  command -v rustup &>/dev/null && timeout 60 rustup component add rust-analyzer 2>/dev/null || true
-  command -v dotnet &>/dev/null && timeout 60 dotnet tool install -g csharp-ls 2>/dev/null || true
-  command -v dotnet &>/dev/null && timeout 10 dotnet tool list -g 2>/dev/null || true
+  command -v go &>/dev/null && _timeout 60 go install golang.org/x/tools/gopls@latest 2>/dev/null || true
+  command -v rustup &>/dev/null && _timeout 60 rustup component add rust-analyzer 2>/dev/null || true
+  command -v dotnet &>/dev/null && _timeout 60 dotnet tool install -g csharp-ls 2>/dev/null || true
+  command -v dotnet &>/dev/null && _timeout 10 dotnet tool list -g 2>/dev/null || true
   log "LSP servers staged (installed if toolchains present)"
   set -e # restore strict mode
 

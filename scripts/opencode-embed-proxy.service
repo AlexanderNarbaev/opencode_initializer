@@ -5,7 +5,9 @@ Wants=network-online.target ollama.service
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/python3 /home/alexandr-narbaev/Projects/opencode_initializer/scripts/embed-proxy.py
+# Reference template for embed-proxy.py — the real unit is generated per-user
+# by 16-llm.sh via _service_install (systemd user unit or LaunchAgent).
+ExecStart=/usr/bin/python3 %h/.local/bin/embed-proxy
 Restart=always
 RestartSec=5
 

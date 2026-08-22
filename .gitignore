@@ -61,3 +61,9 @@ dist/
 
 # Lynis (47-lynis.sh) keyring artifact when run from repo root
 cisofy-archive-keyring-*.gpg
+
+# Runtime artifacts when the configured PROJECT_DIR is this repo itself
+.sandcastle/
+*.grace.yaml
+.npmrc
+src/cockpit/opencode-cockpit

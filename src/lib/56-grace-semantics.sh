@@ -169,7 +169,12 @@ PYEOF
 }
 
 # ── Main ─────────────────────────────────────────────────────────────────────
-_grace_contract_emit  "${1:-README.md}" 2>/dev/null || true
-_grace_contract_verify "${1:-README.md}" 2>/dev/null || true
-_grace_clarity_score "${1:-README.md}" 2>/dev/null || true
+# Demo/self-check runs only when executed directly. When sourced by the
+# orchestrator (_run_step), positional params leak from the caller ($1 is the
+# step key), which used to write "<step>.grace.yaml" into the CWD.
+if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+  _grace_contract_emit  "${1:-README.md}" 2>/dev/null || true
+  _grace_contract_verify "${1:-README.md}" 2>/dev/null || true
+  _grace_clarity_score "${1:-README.md}" 2>/dev/null || true
+fi
 log "GRACE module ready — invoke via: har grace <cmd> <file> [query]"

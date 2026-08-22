@@ -95,8 +95,11 @@ if dk or ak or xk or mk or msk or mmk or ghk or glk or gmk:
         src_tgt="$SCRIPT_DIR/scripts/${script}.py"
       fi
       if [ -n "$src_tgt" ]; then
-        cp "$src_tgt" "$HOME/.local/bin/${script}" 2>/dev/null || true
-        chmod +x "$HOME/.local/bin/${script}" 2>/dev/null || true
+        if cp "$src_tgt" "$HOME/.local/bin/${script}" 2>/dev/null && chmod +x "$HOME/.local/bin/${script}" 2>/dev/null; then
+          :
+        else
+          warn "Failed to install wrapper: ${script}"
+        fi
       fi
     done
     log "Interaction mode wrappers installed (~/.local/bin/oc-*)"

@@ -92,10 +92,12 @@ _check "json-lsp"       "which vscode-json-language-server"
 
 section "Services"
 _check "Muninn skills"      "[ -f ~/.config/opencode/skills/memory-read/SKILL.md ]"
-_check "Skill: code-review"    "[ -f \"$HOME/projects/.opencode/skills/code-review-checklist/SKILL.md\" ] || [ -f \"$HOME/agi/.opencode/skills/code-review-checklist/SKILL.md\" ]"
-_check "Skill: deployment"     "[ -f \"$HOME/projects/.opencode/skills/deployment-checklist/SKILL.md\" ] || [ -f \"$HOME/agi/.opencode/skills/deployment-checklist/SKILL.md\" ]"
-_check "Skill: testing"        "[ -f \"$HOME/projects/.opencode/skills/testing-strategy/SKILL.md\" ] || [ -f \"$HOME/agi/.opencode/skills/testing-strategy/SKILL.md\" ]"
-_check "Skill: context-switch"  "[ -f \"$HOME/projects/.opencode/skills/context-switching/SKILL.md\" ] || [ -f \"$HOME/agi/.opencode/skills/context-switching/SKILL.md\" ]"
+# Per-project skills (code-review-checklist etc.) are scaffolded by 17-project.sh
+# into each new project; global curated skills live in ~/.config/opencode/skills.
+_check "Skill: disruptor write-spec"  "[ -f ~/.config/opencode/skills/smixs/disruptor-skills/skills/write-spec/SKILL.md ]"
+_check "Skill: superpowers"           "[ -d ~/.config/opencode/skills/superpowers ]"
+_check "Skill: symbol-search"         "[ -f ~/.config/opencode/skills/symbol-search/SKILL.md ]"
+_check "Skill: humanizer-ru"          "[ -f ~/.config/opencode/skills/humanizer-ru/SKILL.md ]"
 
 section "Config"
 _check "opencode.json"      "[ -f ~/.config/opencode/opencode.json ]"
@@ -141,7 +143,12 @@ fi
 
 section "Infrastructure & Platform"
 _check "cockpit binary"      "[ -x ~/.local/bin/cockpit ]"
-_check "Isolated Circuit"    "grep -q 'ISOLATED_CIRCUIT=true' ~/.config/opencode-setup/setup.conf 2>/dev/null"
+# Isolated Circuit is opt-in (setup.sh --airgap / dev isolated on) — report, don't fail
+if grep -q 'ISOLATED_CIRCUIT=true' ~/.config/opencode-setup/setup.conf 2>/dev/null; then
+  _check "Isolated Circuit"  "true"
+else
+  echo -e "  ${BLUE:-}- Isolated Circuit (off — optional, enable: dev isolated on)"
+fi
 _check "Services config"     "[ -f ~/.config/opencode-setup/setup.conf ]"
 if [ "$(uname -s)" = "Darwin" ]; then
   _check "GUI service"         "launchctl print gui/\$(id -u)/com.opencode.opencode-gui &>/dev/null || lsof -nP -iTCP:4200 -sTCP:LISTEN &>/dev/null"

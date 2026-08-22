@@ -74,6 +74,23 @@ Canonical numbers (verified against code): 64 shell files in src/lib (61 numbere
 
 `bash tests/run_tests.sh` — 257 passed, 0 failed (syntax + unit + integration + e2e). MkDocs build clean.
 
+## Full install run (2026-08-22, this machine)
+
+`bash setup.sh --full` — exit 0, "Bootstrap complete (v3.2.0), Steps: 40/48" (8 not run = optional infra/feature steps not requested: 7 infra toggles + local memory opt-in). One environmental hiccup: Sandcastle `init` needs a TTY (fell back to a minimal scaffold; auth pending `claude setup-token`).
+
+Post-install health (`setup.sh --health`) went from **117 passed / 11 failed → 127 passed / 0 failed** after fixing the following defects the run exposed:
+
+| Defect | Root cause | Fix |
+|---|---|---|
+| 4 skill checks failing | health.sh checked hardcoded personal paths (`~/projects`, `~/agi`) for per-project skills that `17-project.sh` scaffolds only into new projects | health.sh now checks the real global skills under `~/.config/opencode/skills/` |
+| `oc-tui/oc-json/oc-sdk/oc-rpc` wrappers missing | step_opencode was marked done in the progress file from an earlier run; the installer's `cp ... \|\| true` masked the failure and re-runs skipped the step | wrappers installed; installer now warns on failure instead of silently swallowing it |
+| whisper.cpp check failing | module used the legacy `make` + `cp main` flow; current whisper.cpp is cmake-only and builds `build/bin/whisper-cli`; also `cmake` was missing from every `_pkg_list` | module switched to cmake + static build (`-DBUILD_SHARED_LIBS=OFF`, otherwise whisper-cli exits 127 on missing libwhisper.so.1/libggml.so.0); `cmake` added to all package lists |
+| Embed proxy check failing | nothing ever installed `scripts/embed-proxy.py` to `~/.local/bin/embed-proxy`; `scripts/opencode-embed-proxy.service` had a hardcoded maintainer-machine path | embed-proxy.py gained a shebang, is installed by `16-llm.sh` and registered via `_service_install` (systemd user unit / LaunchAgent); service template now uses `%h`; verified live: `/health` and real `/v1/embeddings` calls return embeddings |
+| Isolated Circuit "failure" | opt-in feature treated as a hard check | health.sh reports it as informational when off |
+| test_context_bundle failing after install | test asserted opencode-context/router must NOT be in `plugin[]` (historical "hangs agent list" issue) while `18-opencode-json.sh` deliberately registers them since fe04857 | verified empirically: `opencode agent list` exits 0 with both plugins — the hang is fixed upstream; test updated to assert registration, AGENTS.md note corrected |
+
+Meta-finding: the progress-file skip logic means a step that once failed silently (under `|| true`) is never retried — health-mode is the net that catches it. Worth a follow-up: `dev doctor` could diff progress-file claims against artifact existence.
+
 ## Remaining known limitations (updated)
 
 - `01b-linux-platform.sh` unwired (see 1).

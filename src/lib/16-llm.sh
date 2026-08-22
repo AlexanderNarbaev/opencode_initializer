@@ -174,13 +174,29 @@ with open(os.path.join(home, '.config/opencode/hardware.json'), 'w') as f:
   # ── Multimodal: Speech Recognition (whisper.cpp) ─────────────────────────
   if ! command -v whisper-cli &>/dev/null; then
     info "Installing whisper.cpp (speech-to-text)..."
+    _jobs="$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)"
     git clone --depth 1 https://github.com/ggerganov/whisper.cpp /tmp/whisper.cpp-build 2>/dev/null && \
       (cd /tmp/whisper.cpp-build && bash ./models/download-ggml-model.sh base 2>/dev/null && \
-       make -j"$(nproc)" 2>/dev/null && cp main ~/.local/bin/whisper-cli) && \
+       cmake -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF >/dev/null 2>&1 && \
+       cmake --build build --config Release -j"$_jobs" >/dev/null 2>&1 && \
+       cp build/bin/whisper-cli ~/.local/bin/whisper-cli) && \
       log "whisper.cpp installed (base model)" || warn "whisper.cpp build failed"
     rm -rf /tmp/whisper.cpp-build
   else
     log "whisper.cpp already installed"
+  fi
+
+  # ── Embed proxy (Ollama -> MemoryLayer bridge, port 61051) ───────────────
+  if [ -f "$SCRIPT_DIR/scripts/embed-proxy.py" ]; then
+    if cp "$SCRIPT_DIR/scripts/embed-proxy.py" "$HOME/.local/bin/embed-proxy" 2>/dev/null && chmod +x "$HOME/.local/bin/embed-proxy" 2>/dev/null; then
+      log "Embed proxy installed (~/.local/bin/embed-proxy)"
+      if command -v ollama &>/dev/null; then
+        _service_install embed-proxy "$HOME/.local/bin/embed-proxy" "OpenCode Embed Proxy (Ollama -> MemoryLayer)" || \
+          warn "Embed proxy service registration failed (non-fatal)"
+      fi
+    else
+      warn "Embed proxy install failed (non-fatal)"
+    fi
   fi
 
   # ── Multimodal: Image Generation (stable-diffusion.cpp) ──────────────────
