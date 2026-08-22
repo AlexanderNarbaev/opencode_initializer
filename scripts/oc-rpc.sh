@@ -23,7 +23,10 @@ handle_request() {
   while IFS= read -r line; do
     line="${line%%$'\r'}"
     [ -z "$line" ] && break
-    if [[ "${line,,}" =~ ^content-length:[[:space:]]*([0-9]+) ]]; then
+    # bash 3.2 compat: no ${var,,} — lowercase via tr
+    local line_lc
+    line_lc="$(printf '%s' "$line" | tr '[:upper:]' '[:lower:]')"
+    if [[ "$line_lc" =~ ^content-length:[[:space:]]*([0-9]+) ]]; then
       content_length="${BASH_REMATCH[1]}"
     fi
   done

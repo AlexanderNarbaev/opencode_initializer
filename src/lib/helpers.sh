@@ -108,9 +108,9 @@ trap cleanup EXIT INT TERM
 
 _curl() {
   local url="$1" out="${2:-}" attempt=1 max=5 cache_key cache_file
-  cache_key=$(echo "$url" | md5sum | awk '{print $1}')
+  cache_key=$(echo "$url" | _md5 | awk '{print $1}')
   cache_file="$DL_CACHE/${cache_key}.dl"
-  [ -n "$out" ] && [ -f "$cache_file" ] && [ $(($(date +%s) - $(stat -c %Y "$cache_file" 2>/dev/null || echo 0))) -lt 86400 ] && cp "$cache_file" "$out" 2>/dev/null && return 0
+  [ -n "$out" ] && [ -f "$cache_file" ] && [ $(($(date +%s) - $(_file_mtime "$cache_file" 2>/dev/null || echo 0))) -lt 86400 ] && cp "$cache_file" "$out" 2>/dev/null && return 0
   # Corporate proxy support: HTTP_PROXY, HTTPS_PROXY, NO_PROXY env vars
   local proxy_opts=""
   [ -n "${HTTPS_PROXY:-${https_proxy:-}}" ] && proxy_opts="$proxy_opts --proxy ${HTTPS_PROXY:-${https_proxy}}"
@@ -162,27 +162,257 @@ _retry() {
 MCP_CACHE="$DL_CACHE/mcp-offline"
 mkdir -p "$MCP_CACHE"
 
+# ── GNU/BSD portability wrappers (macOS support) ─────────────────────────────
+# md5 of stdin: GNU md5sum or BSD md5 -q
+_md5() {
+  if command -v md5sum >/dev/null 2>&1; then
+    md5sum
+  else
+    md5 -q
+  fi
+}
+
+# sha256 of file args or stdin: GNU sha256sum or BSD shasum -a 256
+# Interface-compatible with sha256sum (including -c/--quiet/--status forms).
+_sha256() {
+  if command -v sha256sum >/dev/null 2>&1; then
+    sha256sum "$@"
+  else
+    shasum -a 256 "$@"
+  fi
+}
+
+# Run a command with a time limit: GNU timeout, coreutils gtimeout (macOS brew),
+# or no-op fallback that just runs the command without a limit.
+_timeout() {
+  if command -v timeout >/dev/null 2>&1; then
+    timeout "$@"
+  elif command -v gtimeout >/dev/null 2>&1; then
+    gtimeout "$@"
+  else
+    local _t="$1"
+    shift
+    "$@"
+  fi
+}
+
+# In-place sed: GNU sed -i vs BSD sed -i ''
+# BSD sed exits non-zero on --version — that is the detection signal.
+_sed_i() {
+  if sed --version >/dev/null 2>&1; then
+    sed -i "$@"
+  else
+    sed -i '' "$@"
+  fi
+}
+
+# File mtime (epoch): GNU stat -c %Y or BSD stat -f %m
+_file_mtime() {
+  if stat -c %Y "$1" >/dev/null 2>&1; then
+    stat -c %Y "$1"
+  else
+    stat -f %m "$1"
+  fi
+}
+
+# File size (bytes): GNU stat -c %s or BSD stat -f %z
+_file_size() {
+  if stat -c %s "$1" >/dev/null 2>&1; then
+    stat -c %s "$1"
+  else
+    stat -f %z "$1"
+  fi
+}
+
+# Canonical path resolution: GNU readlink -f, else a portable symlink loop.
+_readlink_f() {
+  local target="$1"
+  if readlink -f "$target" >/dev/null 2>&1; then
+    readlink -f "$target"
+    return 0
+  fi
+  # BSD fallback: follow the symlink chain manually
+  local dir link
+  while [ -L "$target" ]; do
+    dir="$(cd "$(dirname "$target")" 2>/dev/null && pwd)"
+    link="$(readlink "$target")"
+    case "$link" in
+      /*) target="$link" ;;
+      *)  target="$dir/$link" ;;
+    esac
+  done
+  if [ -d "$target" ]; then
+    (cd "$target" 2>/dev/null && pwd)
+  else
+    echo "$(cd "$(dirname "$target")" 2>/dev/null && pwd)/$(basename "$target")"
+  fi
+}
+
+# ── Cross-platform user services: systemd --user (Linux) / launchd (macOS) ───
+# LaunchAgent label for a service name.
+_service_label() { echo "com.opencode.$1"; }
+
+# Escape a string for embedding in XML text nodes.
+_service_xml_escape() {
+  printf '%s' "$1" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g'
+}
+
+# _service_install <name> <exec_start> [description] [KEY=VALUE ...]
+# Writes a systemd user unit (Linux) or a launchd LaunchAgent (macOS),
+# then enables and starts the service. Returns non-zero if no supported
+# service manager is available.
+_service_install() {
+  local name="$1" exec_start="$2" desc="${3:-$1}"
+  shift 2; [ $# -gt 0 ] && shift
+  local pair
+  if [ "$(uname -s)" = "Darwin" ]; then
+    local uid plist_dir log_dir plist label
+    uid="$(id -u)"
+    label="$(_service_label "$name")"
+    plist_dir="$HOME/Library/LaunchAgents"
+    log_dir="$HOME/.cache/opencode-setup/logs"
+    plist="$plist_dir/$label.plist"
+    mkdir -p "$plist_dir" "$log_dir"
+    {
+      echo '<?xml version="1.0" encoding="UTF-8"?>'
+      echo '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">'
+      echo '<plist version="1.0">'
+      echo '<dict>'
+      echo '  <key>Label</key>'
+      echo "  <string>$label</string>"
+      echo '  <key>ProgramArguments</key>'
+      echo '  <array>'
+      echo '    <string>/bin/sh</string>'
+      echo '    <string>-c</string>'
+      echo "    <string>exec $(_service_xml_escape "$exec_start")</string>"
+      echo '  </array>'
+      if [ $# -gt 0 ]; then
+        echo '  <key>EnvironmentVariables</key>'
+        echo '  <dict>'
+        for pair in "$@"; do
+          echo "    <key>${pair%%=*}</key>"
+          echo "    <string>$(_service_xml_escape "${pair#*=}")</string>"
+        done
+        echo '  </dict>'
+      fi
+      echo '  <key>RunAtLoad</key>'
+      echo '  <true/>'
+      echo '  <key>KeepAlive</key>'
+      echo '  <true/>'
+      echo '  <key>StandardOutPath</key>'
+      echo "  <string>$log_dir/$name.log</string>"
+      echo '  <key>StandardErrorPath</key>'
+      echo "  <string>$log_dir/$name.err.log</string>"
+      echo '</dict>'
+      echo '</plist>'
+    } > "$plist"
+    # Reload if the agent was already bootstrapped (idempotent re-runs)
+    launchctl bootout "gui/$uid/$label" 2>/dev/null || launchctl unload "$plist" 2>/dev/null || true
+    # launchctl bootstrap (macOS 10.10+), fallback to legacy load -w
+    if launchctl bootstrap "gui/$uid" "$plist" 2>/dev/null || launchctl load -w "$plist" 2>/dev/null; then
+      log "Service '$name' installed (launchd agent)"
+    else
+      warn "Service '$name': launchctl bootstrap failed"
+      return 1
+    fi
+  elif command -v systemctl &>/dev/null; then
+    local unit_dir="$HOME/.config/systemd/user"
+    mkdir -p "$unit_dir"
+    {
+      echo '[Unit]'
+      echo "Description=$desc"
+      echo 'After=network.target'
+      echo 'Wants=network.target'
+      echo ''
+      echo '[Service]'
+      echo 'Type=simple'
+      for pair in "$@"; do
+        echo "Environment=\"$pair\""
+      done
+      echo "ExecStart=$exec_start"
+      echo 'Restart=on-failure'
+      echo 'RestartSec=5'
+      echo ''
+      echo '[Install]'
+      echo 'WantedBy=default.target'
+    } > "$unit_dir/$name.service"
+    systemctl --user daemon-reload 2>/dev/null || true
+    systemctl --user enable "$name.service" 2>/dev/null || true
+    if systemctl --user start "$name.service" 2>/dev/null; then
+      log "Service '$name' installed (systemd user unit)"
+    else
+      warn "Service '$name': systemctl start failed"
+    fi
+  else
+    warn "No supported service manager (systemd/launchd) — '$name' not installed"
+    return 1
+  fi
+}
+
+# _service_start <name> — start an installed user service
+_service_start() {
+  local name="$1"
+  if [ "$(uname -s)" = "Darwin" ]; then
+    local uid label plist
+    uid="$(id -u)"
+    label="$(_service_label "$name")"
+    if launchctl print "gui/$uid/$label" &>/dev/null; then
+      launchctl kickstart -k "gui/$uid/$label" 2>/dev/null
+    else
+      plist="$HOME/Library/LaunchAgents/$label.plist"
+      [ -f "$plist" ] || return 1
+      launchctl bootstrap "gui/$uid" "$plist" 2>/dev/null || launchctl load -w "$plist" 2>/dev/null
+    fi
+  else
+    systemctl --user start "$name.service" 2>/dev/null
+  fi
+}
+
+# _service_stop <name> — stop a user service (keeps the unit/plist on disk)
+_service_stop() {
+  local name="$1"
+  if [ "$(uname -s)" = "Darwin" ]; then
+    local uid label
+    uid="$(id -u)"
+    label="$(_service_label "$name")"
+    launchctl bootout "gui/$uid/$label" 2>/dev/null || \
+      launchctl unload "$HOME/Library/LaunchAgents/$label.plist" 2>/dev/null
+  else
+    systemctl --user stop "$name.service" 2>/dev/null
+  fi
+}
+
+# _service_status <name> — returns 0 if the service is active/running
+_service_status() {
+  local name="$1"
+  if [ "$(uname -s)" = "Darwin" ]; then
+    launchctl print "gui/$(id -u)/$(_service_label "$name")" 2>/dev/null | grep -q 'state = running'
+  else
+    systemctl --user is-active --quiet "$name.service" 2>/dev/null
+  fi
+}
+
 _npm_install() {
   local pkg="$1" name="$2" pkg_name
   pkg_name=$(echo "$pkg" | sed 's|@.*/||;s|@.*||')
   local tgz="$MCP_CACHE/${pkg_name}-latest.tgz"
-  [ -f "$tgz" ] && timeout 120 npm install -g "$tgz" --prefer-offline 2>/dev/null && {
+  [ -f "$tgz" ] && _timeout 120 npm install -g "$tgz" --prefer-offline 2>/dev/null && {
     log "MCP: $name (cached)"
     return 0
   }
-  if timeout 120 npm pack "$pkg@latest" --pack-destination "$MCP_CACHE" 2>/dev/null; then
+  if _timeout 120 npm pack "$pkg@latest" --pack-destination "$MCP_CACHE" 2>/dev/null; then
     local downloaded
     downloaded=$(ls -t "$MCP_CACHE/${pkg_name}-"*.tgz 2>/dev/null | head -1)
-    [ -n "$downloaded" ] && timeout 120 npm install -g "$downloaded" --prefer-offline 2>/dev/null && {
+    [ -n "$downloaded" ] && _timeout 120 npm install -g "$downloaded" --prefer-offline 2>/dev/null && {
       log "MCP: $name (npm pack)"
       return 0
     }
   fi
-  timeout 120 npm install -g "${pkg}@latest" --prefer-offline 2>/dev/null && {
+  _timeout 120 npm install -g "${pkg}@latest" --prefer-offline 2>/dev/null && {
     log "MCP: $name (npm)"
     return 0
   }
-  command -v bun &>/dev/null && timeout 120 bun install -g "${pkg}@latest" --prefer-offline 2>/dev/null && {
+  command -v bun &>/dev/null && _timeout 120 bun install -g "${pkg}@latest" --prefer-offline 2>/dev/null && {
     log "MCP: $name (bun)"
     return 0
   }
@@ -216,10 +446,12 @@ _download_verify() {
   _curl "$url" "$tmp" || { warn "Download failed: $url"; rm -f "$tmp"; return 1; }
 
   if [ -n "$sha256" ]; then
-    if echo "$sha256  $tmp" | sha256sum -c - --status 2>/dev/null; then
+    local actual_sha
+    actual_sha=$(_sha256 "$tmp" | awk '{print $1}')
+    if [ "$actual_sha" = "$sha256" ]; then
       log "SHA256 verified: $dest"
     else
-      err "SHA256 mismatch for $url — expected $sha256, got $(sha256sum "$tmp" | awk '{print $1}')"
+      err "SHA256 mismatch for $url — expected $sha256, got $actual_sha"
       rm -f "$tmp"
       return 1
     fi

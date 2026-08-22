@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# lib/22-webui-service.sh — Open WebUI systemd user service
+# lib/22-webui-service.sh — Open WebUI user service (systemd / launchd)
 # Requires: MODE
 set -euo pipefail
 
 if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]) && _gate "INTERACTIVE_DO_LLM"; then
-  section "Open WebUI: systemd service"
+  section "Open WebUI: user service"
 
   if ! command -v open-webui &>/dev/null; then
     _progress "open-webui" "Installing Open WebUI..."
@@ -41,29 +41,10 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]) && _gate "INTERACTIVE_DO_LLM
     return 0
   fi
 
-  mkdir -p ~/.config/systemd/user
+  _service_install "open-webui" "$(command -v open-webui) serve --host 127.0.0.1 --port 3000" \
+    "Open WebUI — LLM Chat Interface" \
+    "OLLAMA_BASE_URL=http://127.0.0.1:11434" || warn "Open WebUI service install failed"
 
-  cat > ~/.config/systemd/user/open-webui.service << 'SVC'
-[Unit]
-Description=Open WebUI — LLM Chat Interface
-After=network.target
-Wants=network.target
-
-[Service]
-Type=simple
-Environment=OLLAMA_BASE_URL=http://127.0.0.1:11434
-ExecStart=%h/.local/bin/open-webui serve --host 127.0.0.1 --port 3000
-Restart=on-failure
-RestartSec=5
-
-[Install]
-WantedBy=default.target
-SVC
-
-  systemctl --user daemon-reload 2>/dev/null || true
-  systemctl --user enable open-webui.service 2>/dev/null || true
-  systemctl --user start open-webui.service 2>/dev/null || true
-
-  log "Open WebUI systemd service installed and started"
+  log "Open WebUI service installed and started"
   _step_done step_webui
 fi

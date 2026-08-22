@@ -32,7 +32,7 @@ echo "=== E2E: Deployment Profiles (S5.1) ==="
 # Test profile simulation: write expected policy per profile
 for profile in PERSONAL CORPORATE AIRGAPPED HYBRID; do
   policy_file="$TMPD/${profile}-policy.json"
-  lc="${profile,,}"
+  lc="$(printf '%s' "$profile" | tr '[:upper:]' '[:lower:]')"
 
   case "$profile" in
     PERSONAL)

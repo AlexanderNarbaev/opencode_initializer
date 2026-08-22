@@ -5,7 +5,7 @@
 set -euo pipefail
 
 # ── Version ──────────────────────────────────────────────────────────────────
-SCRIPT_VERSION="${SCRIPT_VERSION:-v3.0.0}"
+SCRIPT_VERSION="${SCRIPT_VERSION:-v3.2.0}"
 
 # ── Bash version compatibility check ──────────────────────────────────────────
 _BASH_CHECK_DONE="${_BASH_CHECK_DONE:-}"
@@ -187,10 +187,13 @@ _wal_checkpoint() {
   if [ -f "$WAL_FILE" ]; then
     local now
     now=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-    sed -i "s|_Updated:.*|_Updated: ${now}|" "$WAL_FILE" 2>/dev/null || true
-    sed -i "s|DONE: [0-9]\+/${_WAL_TOTAL}|DONE: ${WAL_MODULE_COUNT}/${_WAL_TOTAL}|" "$WAL_FILE" 2>/dev/null || true
+    _sed_i "s|_Updated:.*|_Updated: ${now}|" "$WAL_FILE" 2>/dev/null || true
+    _sed_i "s|DONE: [0-9][0-9]*/${_WAL_TOTAL}|DONE: ${WAL_MODULE_COUNT}/${_WAL_TOTAL}|" "$WAL_FILE" 2>/dev/null || true
     if [ -n "$step_name" ]; then
-      sed -i "/^## Next Step/,/^$/{s|^- .*|- ${step_name}|}" "$WAL_FILE" 2>/dev/null || true
+      # Portable range+group form: BSD sed requires '{' at end of line
+      _sed_i "/^## Next Step/,/^$/{
+s|^- .*|- ${step_name}|
+}" "$WAL_FILE" 2>/dev/null || true
     fi
     # Mirror legacy progress for resume compatibility
     echo "$module_key" >> "$PROGRESS" 2>/dev/null || true
@@ -207,7 +210,9 @@ _wal_decide() {
     else
       entry="- ${decision}"
     fi
-    sed -i "/^## Recent Decisions/a ${entry}" "$WAL_FILE" 2>/dev/null || true
+    # Portable append form: 'a\' + newline works in both GNU and BSD sed
+    _sed_i "/^## Recent Decisions/a\\
+${entry}" "$WAL_FILE" 2>/dev/null || true
   fi
   log "Decision: $decision"
 }
@@ -379,7 +384,7 @@ _set_config() {
   local key="$1" value="$2"
   mkdir -p "$(dirname "$SETUP_CONF")"
   if [ -f "$SETUP_CONF" ] && grep -q "^${key}=" "$SETUP_CONF" 2>/dev/null; then
-    sed -i "s|^${key}=.*|${key}=${value}|" "$SETUP_CONF"
+    _sed_i "s|^${key}=.*|${key}=${value}|" "$SETUP_CONF"
   else
     echo "${key}=${value}" >> "$SETUP_CONF"
   fi

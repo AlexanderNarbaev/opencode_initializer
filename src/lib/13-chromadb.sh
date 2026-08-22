@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# lib/13-chromadb.sh — ChromaDB server + systemd service (STEP 10)
+# lib/13-chromadb.sh — ChromaDB server + user service (STEP 10)
 # Requires: MODE
 set -euo pipefail
 
@@ -25,34 +25,18 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]) && _gate "INTERACTIVE_DO_CHR
   fi
   _step_done step_chromadb
 
-  # Install systemd user service for ChromaDB auto-start (with token auth + RAG)
-  mkdir -p "$HOME/.config/systemd/user"
-  cat > "$HOME/.config/systemd/user/chromadb.service" << 'CHROMSVC'
-[Unit]
-Description=ChromaDB vector database for Muninn memory + codebase RAG
-After=network.target
-
-[Service]
-Type=simple
-Environment=CHROMA_SERVER_NOFILE=65536
-Environment=CHROMA_SERVER_CORS_ALLOW_ORIGINS=["*"]
-Environment=CHROMA_SERVER_AUTHN_PROVIDER="chromadb.auth.token_authn.TokenAuthServerProvider"
-Environment=CHROMA_SERVER_AUTHN_CREDENTIALS="local-dev-token"
-Environment=CHROMA_SERVER_AUTHZ_PROVIDER="chromadb.auth.simple_rbac.SimpleRBACAuthorizationProvider"
-ExecStart=%h/.local/bin/chroma run --path %h/.local/share/chroma --port 8000 --host 127.0.0.1
-ExecStartPost=/bin/bash -c 'for i in $(seq 1 30); do curl -sf http://127.0.0.1:8000/api/v2/heartbeat 2>/dev/null && exit 0; sleep 1; done; exit 1'
-Restart=on-failure
-RestartSec=5
-
-[Install]
-WantedBy=default.target
-CHROMSVC
-  systemctl --user daemon-reload 2>/dev/null || true
-  systemctl --user enable chromadb.service 2>/dev/null || true
-  if systemctl --user is-active chromadb.service &>/dev/null; then
-    log "ChromaDB systemd service active"
+  # Install user service for ChromaDB auto-start (with token auth + RAG)
+  # Note: the readiness wait is covered by the inline start + heartbeat check above.
+  _service_install "chromadb" "$HOME/.local/bin/chroma run --path $HOME/.local/share/chroma --port 8000 --host 127.0.0.1" \
+    "ChromaDB vector database for Muninn memory + codebase RAG" \
+    "CHROMA_SERVER_NOFILE=65536" \
+    'CHROMA_SERVER_CORS_ALLOW_ORIGINS=["*"]' \
+    "CHROMA_SERVER_AUTHN_PROVIDER=chromadb.auth.token_authn.TokenAuthServerProvider" \
+    "CHROMA_SERVER_AUTHN_CREDENTIALS=local-dev-token" \
+    "CHROMA_SERVER_AUTHZ_PROVIDER=chromadb.auth.simple_rbac.SimpleRBACAuthorizationProvider" || warn "ChromaDB service install failed"
+  if _service_status chromadb; then
+    log "ChromaDB service active"
   else
-    systemctl --user start chromadb.service 2>/dev/null || true
-    log "ChromaDB systemd service installed"
+    log "ChromaDB service installed"
   fi
 fi

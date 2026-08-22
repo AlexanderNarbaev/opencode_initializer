@@ -76,7 +76,7 @@ PYFIX
 SHOKUNIN_PROFILE="$HOME/.shokunin/scripts/linux/profile.sh"
 if [ -f "$SHOKUNIN_PROFILE" ]; then
   if grep -q 'echo "Shokunin AI Ecosystem loaded"' "$SHOKUNIN_PROFILE" 2>/dev/null; then
-    sed -i 's/echo "Shokunin AI Ecosystem loaded"/# echo "Shokunin AI Ecosystem loaded"/' "$SHOKUNIN_PROFILE" 2>/dev/null || true
+    _sed_i 's/echo "Shokunin AI Ecosystem loaded"/# echo "Shokunin AI Ecosystem loaded"/' "$SHOKUNIN_PROFILE" 2>/dev/null || true
     log "Shokunin profile.sh: disabled console echo (P10k compat)"
   fi
 fi
@@ -84,7 +84,7 @@ fi
 # Fix P10k instant prompt — set to quiet
 P10K_FILE="$HOME/.p10k.zsh"
 if [ -f "$P10K_FILE" ]; then
-  sed -i 's/POWERLEVEL9K_INSTANT_PROMPT=verbose/POWERLEVEL9K_INSTANT_PROMPT=quiet/' "$P10K_FILE" 2>/dev/null || true
+  _sed_i 's/POWERLEVEL9K_INSTANT_PROMPT=verbose/POWERLEVEL9K_INSTANT_PROMPT=quiet/' "$P10K_FILE" 2>/dev/null || true
   log "P10k instant prompt: verbose → quiet"
 fi
 

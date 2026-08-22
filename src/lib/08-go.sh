@@ -6,6 +6,10 @@ trap '_trap_cleanup "08-go"' ERR
 if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) && _gate "INTERACTIVE_DO_GO"; then
   section "Go"
   if ! command -v go &>/dev/null; then
+    if [ "$PKG_MANAGER" = "brew" ]; then
+      # macOS: Go via brew (go.dev tarballs below are linux-only)
+      brew install go 2>/dev/null && log "Go $(go version 2>/dev/null | cut -d' ' -f3) installed (brew)" || warn "Go install failed"
+    else
     GO_LATEST=$(curl -s --connect-timeout 10 --retry 3 --retry-delay 2 https://go.dev/VERSION?m=text 2>/dev/null | head -1 | tr -d 'go \n' || echo "1.26.5")
     info "Latest Go: ${GO_LATEST}"
     GO_ARCH="${GO_ARCH:-linux-amd64}"
@@ -19,10 +23,15 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
       warn "Go download failed — trying apt fallback"
       sudo apt-get install -y -qq golang-go 2>/dev/null && log "Go from apt" || warn "Go unavailable — install manually from https://go.dev/dl/"
     fi
+    fi
   else
     GO_CURRENT=$(go version 2>/dev/null | grep -oE 'go[0-9]+\.[0-9]+' | sed 's/^go//' | head -1 || echo "0")
     GO_MINOR=$(echo "$GO_CURRENT" | cut -d. -f2)
     if [ "$GO_MINOR" -lt 26 ] 2>/dev/null; then
+      if [ "$PKG_MANAGER" = "brew" ]; then
+        brew upgrade go 2>/dev/null || brew install go 2>/dev/null || true
+        log "Go $(go version 2>/dev/null | cut -d' ' -f3) via brew"
+      else
       GO_LATEST=$(curl -s --connect-timeout 10 --retry 3 --retry-delay 2 https://go.dev/VERSION?m=text 2>/dev/null | head -1 | tr -d 'go \n' || echo "1.26.5")
       info "Go ${GO_CURRENT} is outdated, upgrading to ${GO_LATEST}..."
       GO_ARCH="${GO_ARCH:-linux-amd64}"
@@ -40,6 +49,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
         _sudo apt-get install -y -qq golang-go 2>/dev/null && log "Go upgraded via apt" || true
         export PATH="/usr/local/go/bin:$HOME/go/bin:$PATH"
         hash -r 2>/dev/null || true
+      fi
       fi
     else
       log "Go $(go version 2>/dev/null | cut -d' ' -f3) already installed"

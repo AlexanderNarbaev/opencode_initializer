@@ -16,7 +16,7 @@ for f in "$CONST" "$SPEC" "$TODO"; do
   fi
 done
 if [ -f "$SPEC" ] && [ -f "$TODO" ]; then
-  spec_frs=$(grep -oP 'FR-\d+' "$SPEC" 2>/dev/null | sort -u)
+  spec_frs=$(grep -oE 'FR-[0-9]+' "$SPEC" 2>/dev/null | sort -u)
   for fr in $spec_frs; do
     if ! grep -q "$fr" "$TODO" 2>/dev/null; then
       echo "  [DIVERGENCE] $fr in spec but not in todo"

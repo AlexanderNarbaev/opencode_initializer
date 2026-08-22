@@ -6,6 +6,12 @@ set -euo pipefail
 
 _step_skip step_lynis && return 0
 
+# Linux-only module: apt repo + cron.weekly are not applicable on macOS/other OS
+if [ "$(uname -s)" != "Linux" ]; then
+  info "Lynis module skipped: Linux-only (detected $(uname -s))"
+  return 0
+fi
+
 section "Lynis — Security Audit Scanner"
 
 _lynis_install() {

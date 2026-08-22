@@ -5,6 +5,12 @@ set -euo pipefail
 
 _step_skip step_auditd && return 0
 
+# Linux-only module: auditd is a Linux kernel audit daemon, unavailable on macOS
+if [ "$(uname -s)" != "Linux" ]; then
+  info "auditd module skipped: Linux-only (detected $(uname -s))"
+  return 0
+fi
+
 section "auditd — Kernel Audit Daemon"
 
 _auditd_install() {

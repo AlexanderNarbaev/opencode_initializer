@@ -9,7 +9,13 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then
   _gate "INTERACTIVE_DO_TRIVY" || { log "Security skipped (interactive)"; return 0; }
 
   # ── Trivy — vulnerability scanner ────────────────────────────────────────
-  command -v trivy &>/dev/null || sudo snap install trivy 2>/dev/null || sudo apt install -y -qq trivy 2>/dev/null || warn "trivy not installed"
+  if ! command -v trivy &>/dev/null; then
+    if [ "$PKG_MANAGER" = "brew" ]; then
+      brew install trivy 2>/dev/null || warn "trivy not installed"
+    else
+      sudo snap install trivy 2>/dev/null || sudo apt install -y -qq trivy 2>/dev/null || warn "trivy not installed"
+    fi
+  fi
   command -v trivy &>/dev/null && log "trivy $(trivy --version 2>/dev/null | head -1)"
 
   # ── Qodana — code quality (supply-chain hardened: download→verify) ──────

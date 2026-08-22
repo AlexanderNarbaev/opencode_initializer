@@ -17,16 +17,20 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
   # ── topgrade — universal package updater ──────────────────────────────────
   if ! command -v topgrade &>/dev/null; then
     if command -v cargo &>/dev/null; then
-      timeout 300 cargo install topgrade 2>/dev/null && log "topgrade installed (cargo)" || warn "topgrade cargo install failed"
+      _timeout 300 cargo install topgrade 2>/dev/null && log "topgrade installed (cargo)" || warn "topgrade cargo install failed"
     fi
-    command -v topgrade &>/dev/null || { _sudo apt-get install -y -qq topgrade 2>/dev/null && log "topgrade installed (apt)"; } || warn "topgrade not installed"
+    if [ "$PKG_MANAGER" = "brew" ]; then
+      command -v topgrade &>/dev/null || { brew install topgrade 2>/dev/null && log "topgrade installed (brew)"; } || warn "topgrade not installed"
+    else
+      command -v topgrade &>/dev/null || { _sudo apt-get install -y -qq topgrade 2>/dev/null && log "topgrade installed (apt)"; } || warn "topgrade not installed"
+    fi
   else
     log "topgrade $(topgrade --version 2>/dev/null || echo 'installed')"
   fi
 
   # ── abtop — AI session monitor (htop for AI agents) ─────────────────────
   if ! command -v abtop &>/dev/null; then
-    command -v cargo &>/dev/null && timeout 180 cargo install abtop 2>/dev/null && log "abtop installed" || warn "abtop install skipped"
+    command -v cargo &>/dev/null && _timeout 180 cargo install abtop 2>/dev/null && log "abtop installed" || warn "abtop install skipped"
   else
     log "abtop $(abtop --version 2>/dev/null || echo 'installed')"
   fi

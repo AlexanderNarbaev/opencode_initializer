@@ -7,10 +7,10 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
   section "OpenCode CLI"
   if ! command -v opencode &>/dev/null; then
     info "Installing OpenCode CLI ($OPENCODE_VER)..."
-    if timeout 120 npm install -g "opencode-ai@${OPENCODE_VER}" --prefer-offline 2>/dev/null; then
+    if _timeout 120 npm install -g "opencode-ai@${OPENCODE_VER}" --prefer-offline 2>/dev/null; then
       log "OpenCode $(opencode --version 2>/dev/null || echo 'installed')"
     elif _curl "https://opencode.ai/install" /tmp/opencode-install.sh 2>/dev/null; then
-      timeout 60 bash /tmp/opencode-install.sh 2>/dev/null && log "OpenCode installed (curl)" || warn "opencode install script failed"
+      _timeout 60 bash /tmp/opencode-install.sh 2>/dev/null && log "OpenCode installed (curl)" || warn "opencode install script failed"
       rm -f /tmp/opencode-install.sh
     else
       warn "OpenCode install failed — install manually: npm install -g opencode-ai@latest"
@@ -63,7 +63,14 @@ if dk or ak or xk or mk or msk or mmk or ghk or glk or gmk:
   [ -f "$AUTH_FILE" ] && chmod 600 "$AUTH_FILE" 2>/dev/null || true
 
   if ! command -v bun &>/dev/null; then
-    if command -v unzip &>/dev/null || sudo apt-get install -y unzip &>/dev/null; then
+    if ! command -v unzip &>/dev/null; then
+      if [ "$PKG_MANAGER" = "brew" ]; then
+        brew install unzip &>/dev/null || true
+      else
+        sudo apt-get install -y unzip &>/dev/null || true
+      fi
+    fi
+    if command -v unzip &>/dev/null; then
       BUN_SCRIPT=$(mktemp /tmp/bun-install.XXXXXX.sh)
       if _curl "https://bun.sh/install" "$BUN_SCRIPT" 2>/dev/null; then
         bash "$BUN_SCRIPT" && export PATH="$HOME/.bun/bin:$PATH" && log "Bun installed" || warn "Bun install failed"

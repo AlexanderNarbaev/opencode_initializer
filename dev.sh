@@ -8,12 +8,36 @@
 #   dev list                 — list installed components
 
 # ── Resolve script directory (supports symlinks and copies) ───
+# Portable readlink -f (helpers.sh is not sourced yet — keep in sync with it)
+_readlink_f() {
+  local target="$1"
+  if readlink -f "$target" >/dev/null 2>&1; then
+    readlink -f "$target"
+    return 0
+  fi
+  # BSD fallback: follow the symlink chain manually
+  local dir link
+  while [ -L "$target" ]; do
+    dir="$(cd "$(dirname "$target")" 2>/dev/null && pwd)"
+    link="$(readlink "$target")"
+    case "$link" in
+      /*) target="$link" ;;
+      *)  target="$dir/$link" ;;
+    esac
+  done
+  if [ -d "$target" ]; then
+    (cd "$target" 2>/dev/null && pwd)
+  else
+    echo "$(cd "$(dirname "$target")" 2>/dev/null && pwd)/$(basename "$target")"
+  fi
+}
+
 if [ -f "$(cd "$(dirname "$0")" 2>/dev/null && pwd)/src/lib/helpers.sh" ]; then
   SCRIPTS_DIR="$(cd "$(dirname "$0")" && pwd)"
 elif [ -f "$HOME/opencode_initializer/src/lib/helpers.sh" ]; then
   SCRIPTS_DIR="$HOME/opencode_initializer"
 else
-  SCRIPTS_DIR="$(dirname "$(readlink -f "$0" 2>/dev/null || echo "$0")")"
+  SCRIPTS_DIR="$(dirname "$(_readlink_f "$0")")"
 fi
 source "$SCRIPTS_DIR/src/lib/helpers.sh"
 source "$SCRIPTS_DIR/src/lib/00-core.sh"
@@ -123,6 +147,40 @@ cmd_install() {
 cmd_remove() {
   local pkg="$1"
   section "Removing $pkg"
+  if [ "$PKG_MANAGER" = "brew" ]; then
+    case "$pkg" in
+      docker) brew uninstall --cask docker 2>/dev/null && log "docker removed" || warn "not found" ;;
+      java)
+        brew uninstall --cask temurin 2>/dev/null || true
+        log "Java removed"
+        ;;
+      node)
+        brew uninstall node 2>/dev/null || true
+        _safe_rm ~/.n ~/.npm-global 2>/dev/null
+        log "Node.js removed"
+        ;;
+      python)
+        brew uninstall python 2>/dev/null || brew uninstall python3 2>/dev/null || true
+        log "Python removed"
+        ;;
+      go)
+        brew uninstall go 2>/dev/null || true
+        log "Go removed"
+        ;;
+      rust)
+        brew uninstall rust 2>/dev/null || true
+        _safe_rm ~/.cargo 2>/dev/null
+        log "Rust removed"
+        ;;
+      dotnet)
+        brew uninstall --cask dotnet-sdk 2>/dev/null || true
+        _safe_rm ~/.dotnet 2>/dev/null
+        log ".NET removed"
+        ;;
+      *) warn "Unknown: $pkg (remove manually)" ;;
+    esac
+    return 0
+  fi
   case "$pkg" in
     docker) _sudo apt-get remove -y docker.io docker-compose-v2 2>/dev/null && log "docker removed" || warn "not found" ;;
     java)
@@ -340,9 +398,9 @@ scrape_configs:
       - targets: ['DOCKER_HOST:METRICS_PORT']
     metrics_path: /metrics
 PROMCONF
-      sed -i "s|DOCKER_HOST|$DOCKER_HOST|g" "$PROM_YML"
-      sed -i "s|NODE_PORT|$NODE_PORT|g" "$PROM_YML"
-      sed -i "s|METRICS_PORT|$METRICS_PORT|g" "$PROM_YML"
+      _sed_i "s|DOCKER_HOST|$DOCKER_HOST|g" "$PROM_YML"
+      _sed_i "s|NODE_PORT|$NODE_PORT|g" "$PROM_YML"
+      _sed_i "s|METRICS_PORT|$METRICS_PORT|g" "$PROM_YML"
       log "prometheus.yml regenerated (host=$DOCKER_HOST node:$NODE_PORT opencode:$METRICS_PORT)"
       docker restart opencode-prometheus 2>/dev/null && log "Prometheus restarted" || warn "Failed to restart prometheus"
       ;;
@@ -355,14 +413,18 @@ cmd_gui() {
   case "$action" in
     start)
       section "Starting OpenCode GUI"
-      systemctl --user start opencode-gui.service 2>/dev/null && log "GUI started on port 4200" || err "Failed to start GUI. Check: systemctl --user status opencode-gui"
+      _service_start opencode-gui && log "GUI started on port 4200" || err "Failed to start GUI. Check service 'opencode-gui' (systemd user unit / launchd agent)"
       ;;
     stop)
       section "Stopping OpenCode GUI"
-      systemctl --user stop opencode-gui.service 2>/dev/null && log "GUI stopped" || warn "GUI not running"
+      _service_stop opencode-gui && log "GUI stopped" || warn "GUI not running"
       ;;
     status | "")
-      systemctl --user status opencode-gui.service 2>/dev/null || warn "GUI service not installed. Run: setup.sh --full"
+      if _service_status opencode-gui; then
+        log "GUI service is running (port ${GUI_PORT:-4200})"
+      else
+        warn "GUI service not running. Run: setup.sh --full (install) or dev gui start"
+      fi
       ;;
     *) err "Unknown: dev gui $action. Use: start|stop|status" ;;
   esac
@@ -373,15 +435,15 @@ cmd_metrics() {
   case "$action" in
     start)
       section "Starting OpenCode Metrics Exporter"
-      systemctl --user start opencode-metrics.service 2>/dev/null && log "Metrics exporter started on port ${METRICS_EXPORTER_PORT:-9464}" || err "Failed to start metrics exporter"
+      _service_start opencode-metrics && log "Metrics exporter started on port ${METRICS_EXPORTER_PORT:-9464}" || err "Failed to start metrics exporter"
       ;;
     stop)
       section "Stopping OpenCode Metrics Exporter"
-      systemctl --user stop opencode-metrics.service 2>/dev/null && log "Metrics exporter stopped" || warn "Metrics exporter not running"
+      _service_stop opencode-metrics && log "Metrics exporter stopped" || warn "Metrics exporter not running"
       ;;
     status | "")
       section "Metrics Exporter Status"
-      if systemctl --user is-active opencode-metrics.service &>/dev/null; then
+      if _service_status opencode-metrics; then
         log "Metrics exporter is running"
         curl -s http://localhost:${METRICS_EXPORTER_PORT:-9464}/metrics 2>/dev/null | head -20 || warn "Metrics endpoint not reachable"
       else
@@ -401,7 +463,7 @@ cmd_isolated() {
     on | enable)
       section "Enabling Isolated Circuit Mode"
       if grep -q "^ISOLATED_CIRCUIT=" "$CONFIG" 2>/dev/null; then
-        sed -i 's/^ISOLATED_CIRCUIT=.*/ISOLATED_CIRCUIT=true/' "$CONFIG"
+        _sed_i 's/^ISOLATED_CIRCUIT=.*/ISOLATED_CIRCUIT=true/' "$CONFIG"
       else
         echo "ISOLATED_CIRCUIT=true" >>"$CONFIG"
       fi
@@ -419,7 +481,7 @@ cmd_isolated() {
     off | disable)
       section "Disabling Isolated Circuit Mode"
       if grep -q "^ISOLATED_CIRCUIT=" "$CONFIG" 2>/dev/null; then
-        sed -i 's/^ISOLATED_CIRCUIT=.*/ISOLATED_CIRCUIT=false/' "$CONFIG"
+        _sed_i 's/^ISOLATED_CIRCUIT=.*/ISOLATED_CIRCUIT=false/' "$CONFIG"
       else
         echo "ISOLATED_CIRCUIT=false" >>"$CONFIG"
       fi
@@ -439,7 +501,7 @@ cmd_isolated() {
       local current="${ISOLATED_CIRCUIT:-false}"
       # shellcheck disable=SC1090
       [ -z "$current" ] && [ -f "$CONFIG" ] && . "$CONFIG" 2>/dev/null && current="${ISOLATED_CIRCUIT:-false}"
-      case "${current,,}" in true | 1 | yes | on | enabled) current="true" ;; *) current="false" ;; esac
+      case "$(printf '%s' "$current" | tr '[:upper:]' '[:lower:]')" in true | 1 | yes | on | enabled) current="true" ;; *) current="false" ;; esac
 
       if [ "$current" = "true" ]; then
         echo "  Isolated Circuit: ${GREEN}ENABLED${NC}"
@@ -450,7 +512,12 @@ cmd_isolated() {
         for backend in ollama:11434 vllm:8000 sglang:30000; do
           name="${backend%%:*}"
           port="${backend##*:}"
-          if ss -tlnp 2>/dev/null | grep -q ":$port "; then
+          if [ "$(uname -s)" = "Darwin" ]; then
+            lsof -nP -iTCP:"$port" -sTCP:LISTEN &>/dev/null && port_open=true || port_open=false
+          else
+            ss -tlnp 2>/dev/null | grep -q ":$port " && port_open=true || port_open=false
+          fi
+          if [ "$port_open" = "true" ]; then
             echo "    ${GREEN}●${NC} $name (port $port) — running"
           else
             echo "    ○ $name (port $port) — not running"

@@ -12,8 +12,12 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
       rm -f "$RUSTUP_SCRIPT"
       export PATH="$HOME/.cargo/bin:$PATH"
     else
-      warn "Rust download failed — trying apt fallback"
-      sudo apt-get install -y -qq cargo rustc 2>/dev/null && log "Rust from apt" || warn "Rust unavailable — install manually"
+      warn "Rust download failed — trying package manager fallback"
+      if [ "$PKG_MANAGER" = "brew" ]; then
+        brew install rust 2>/dev/null && log "Rust from brew" || warn "Rust unavailable — install manually"
+      else
+        sudo apt-get install -y -qq cargo rustc 2>/dev/null && log "Rust from apt" || warn "Rust unavailable — install manually"
+      fi
     fi
   else
     log "Rust $(rustc --version 2>/dev/null | cut -d' ' -f2) already installed"

@@ -4,6 +4,15 @@ set -euo pipefail
 
 if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]) && _gate "INTERACTIVE_DO_DOCKER"; then
   section "Docker"
+  if [ "$PKG_MANAGER" = "brew" ]; then
+    # macOS: Docker Desktop via brew cask (manages its own VM; no systemd)
+    if ! command -v docker &>/dev/null; then
+      brew install --cask docker 2>/dev/null && log "Docker Desktop installed (brew cask)" || warn "Docker install failed"
+      info "Launch Docker Desktop once to complete setup: open -a Docker"
+    else
+      log "Docker already installed"
+    fi
+  else
   if ! command -v docker &>/dev/null; then
     DOCKER_SCRIPT=$(mktemp /tmp/docker-install.XXXXXX.sh)
     if _curl "https://get.docker.com" "$DOCKER_SCRIPT" &>/dev/null && sudo sh "$DOCKER_SCRIPT" 2>/dev/null; then
@@ -32,6 +41,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]) && _gate "INTERACTIVE_DO_DOC
 }' | sudo tee /etc/docker/daemon.json >/dev/null && \
       sudo systemctl restart docker 2>/dev/null && \
       log "Docker mirror configured" || true
+  fi
   fi
   _step_done step_docker
 fi

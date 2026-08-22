@@ -12,7 +12,7 @@ a "has SGLang" "grep -q sglang $L"
 a "has Open WebUI" "grep -q webui $L"
 a "has GPU detection" "grep -qi nvidia $L"
 a "has WasmEdge" "grep -q wasmedge $L"
-a "has service setup" "grep -q systemd $L"
+a "has service setup" "grep -q '_service_install \"ollama\"' $L"
 a "has model pull" "grep -q ollama pull $L"
 echo "test_llm: $TP passed, $TF failed"
 [ "$TF" -eq 0 ] || exit 1

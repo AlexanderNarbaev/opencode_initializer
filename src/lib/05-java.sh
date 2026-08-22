@@ -8,6 +8,10 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
 
   if ! command -v java &>/dev/null; then
     JAVA_MAJOR=25
+    if [ "$PKG_MANAGER" = "brew" ]; then
+      # macOS: Temurin JDK via brew cask (Adoptium tarballs below are linux-only)
+      brew install --cask temurin 2>/dev/null && log "Java (Temurin) installed via brew" || warn "Java install failed"
+    else
     ADOPTIUM_URL="${JAVA_MIRROR}/v3/binary/latest/${JAVA_MAJOR}/ga/linux/${ARCH_TYPE:-x64}/jdk/hotspot/normal/eclipse"
     JAVA_TAR="/tmp/jdk${JAVA_MAJOR}.tar.gz"
     info "Downloading Java ${JAVA_MAJOR} from Adoptium..."
@@ -21,13 +25,19 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
     else
       warn "Adoptium download failed — trying apt fallback"
     fi
+    fi
   else
     log "Java $(java -version 2>&1 | head -1) already installed"
   fi
 
   if [ ! -d "$HOME/.sdkman" ]; then
-    command -v zip &>/dev/null || _sudo apt-get install -y zip 2>/dev/null || true
-    command -v unzip &>/dev/null || _sudo apt-get install -y unzip 2>/dev/null || true
+    if [ "$PKG_MANAGER" = "brew" ]; then
+      command -v zip &>/dev/null || brew install zip 2>/dev/null || true
+      command -v unzip &>/dev/null || brew install unzip 2>/dev/null || true
+    else
+      command -v zip &>/dev/null || _sudo apt-get install -y zip 2>/dev/null || true
+      command -v unzip &>/dev/null || _sudo apt-get install -y unzip 2>/dev/null || true
+    fi
     _curl "https://get.sdkman.io" /tmp/sdkman-install.sh 2>/dev/null && \
       bash /tmp/sdkman-install.sh 2>/dev/null; rm -f /tmp/sdkman-install.sh || \
       warn "SDKMAN install failed — using apt fallback for build tools"
@@ -49,6 +59,9 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
   _sdk kotlin
 
   if ! command -v zig &>/dev/null; then
+    if [ "$PKG_MANAGER" = "brew" ]; then
+      brew install zig 2>/dev/null && log "Zig via brew" || warn "Zig unavailable"
+    else
     if command -v snap &>/dev/null; then
       sudo snap install zig --classic 2>/dev/null && log "Zig from snap"
     fi
@@ -72,10 +85,16 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
         log "Zig $ZIG_VER already installed"
       fi
     fi
+    fi
   fi
 
   if ! command -v java &>/dev/null; then
-    sudo apt-get install -y -qq openjdk-25-jdk gradle maven 2>/dev/null && log "Java/Gradle/Maven from apt (JDK 25 LTS)" || warn "Java unavailable"
+    if [ "$PKG_MANAGER" = "brew" ]; then
+      brew install --cask temurin 2>/dev/null || true
+      brew install gradle maven 2>/dev/null && log "Gradle/Maven from brew" || warn "Java unavailable"
+    else
+      sudo apt-get install -y -qq openjdk-25-jdk gradle maven 2>/dev/null && log "Java/Gradle/Maven from apt (JDK 25 LTS)" || warn "Java unavailable"
+    fi
   fi
   _step_done step_java
 fi

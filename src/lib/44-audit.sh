@@ -49,7 +49,7 @@ _audit_event() {
 
   # Compute event hash: SHA-256(prev_hash + ts + event_type + details)
   local event_hash
-  event_hash=$(echo -n "${prev_hash}${ts}${event_type}${details}" | sha256sum | awk '{print $1}')
+  event_hash=$(echo -n "${prev_hash}${ts}${event_type}${details}" | _sha256 | awk '{print $1}')
 
   # Write event as JSON line (printf avoids heredoc injection)
   local entry_line
@@ -61,7 +61,7 @@ _audit_event() {
 # ── Rotation: compress and archive when >10MB ────────────────────────────────
 _audit_rotate() {
   local size
-  size=$(stat -c %s "$AUDIT_WAL" 2>/dev/null || echo 0)
+  size=$(_file_size "$AUDIT_WAL" 2>/dev/null || echo 0)
 
   local max_bytes=$((AUDIT_MAX_SIZE_MB * 1024 * 1024))
   if [ "$size" -gt "$max_bytes" ]; then
@@ -96,7 +96,7 @@ _audit_verify_chain() {
 
     # Verify hash
     local computed
-    computed=$(echo -n "${prev}${ts}${type}${details}" | sha256sum | awk '{print $1}')
+    computed=$(echo -n "${prev}${ts}${type}${details}" | _sha256 | awk '{print $1}')
     if [ "$computed" != "$event_hash" ]; then
       failures=$((failures + 1))
     fi
@@ -139,7 +139,7 @@ _audit_stats() {
 
 # ── Log initial event (only if WAL is empty — idempotent) ────────────────────
 if [ ! -s "$AUDIT_WAL" ]; then
-  _audit_event "session_boundary" "{\"event\":\"audit_module_initialized\",\"version\":\"${SCRIPT_VERSION:-v3.0.0}\"}"
+  _audit_event "session_boundary" "{\"event\":\"audit_module_initialized\",\"version\":\"${SCRIPT_VERSION:-v3.2.0}\"}"
 fi
 
 # ── Run rotation check ──────────────────────────────────────────────────────

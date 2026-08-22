@@ -28,15 +28,15 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then
 
   # Store API keys in secrets.env (chmod 600), NOT in .bashrc/.zshrc
   touch "$SECRETS_FILE" && chmod 600 "$SECRETS_FILE"
-  sed -i "/DEEPSEEK_API_KEY=/d" "$SECRETS_FILE" 2>/dev/null || true
-  sed -i "/OPENCODE_API_KEY=/d" "$SECRETS_FILE" 2>/dev/null || true
-  sed -i "/XAI_API_KEY=/d" "$SECRETS_FILE" 2>/dev/null || true
-  sed -i "/MIMO_API_KEY=/d" "$SECRETS_FILE" 2>/dev/null || true
-  sed -i "/MINIMAX_API_KEY=/d" "$SECRETS_FILE" 2>/dev/null || true
-  sed -i "/GITHUB_TOKEN=/d" "$SECRETS_FILE" 2>/dev/null || true
-  sed -i "/GITLAB_TOKEN=/d" "$SECRETS_FILE" 2>/dev/null || true
-  sed -i "/GITVERSE_TOKEN=/d" "$SECRETS_FILE" 2>/dev/null || true
-  sed -i "/GOOGLE_MAPS_API_KEY=/d" "$SECRETS_FILE" 2>/dev/null || true
+  _sed_i "/DEEPSEEK_API_KEY=/d" "$SECRETS_FILE" 2>/dev/null || true
+  _sed_i "/OPENCODE_API_KEY=/d" "$SECRETS_FILE" 2>/dev/null || true
+  _sed_i "/XAI_API_KEY=/d" "$SECRETS_FILE" 2>/dev/null || true
+  _sed_i "/MIMO_API_KEY=/d" "$SECRETS_FILE" 2>/dev/null || true
+  _sed_i "/MINIMAX_API_KEY=/d" "$SECRETS_FILE" 2>/dev/null || true
+  _sed_i "/GITHUB_TOKEN=/d" "$SECRETS_FILE" 2>/dev/null || true
+  _sed_i "/GITLAB_TOKEN=/d" "$SECRETS_FILE" 2>/dev/null || true
+  _sed_i "/GITVERSE_TOKEN=/d" "$SECRETS_FILE" 2>/dev/null || true
+  _sed_i "/GOOGLE_MAPS_API_KEY=/d" "$SECRETS_FILE" 2>/dev/null || true
   [ -n "${DEEPSEEK_KEY:-}" ] && echo "export DEEPSEEK_API_KEY=\"$DEEPSEEK_KEY\"" >> "$SECRETS_FILE"
   [ -n "${API_KEY:-}" ] && echo "export OPENCODE_API_KEY=\"$API_KEY\"" >> "$SECRETS_FILE"
   [ -n "${XAI_KEY:-}" ] && echo "export XAI_API_KEY=\"$XAI_KEY\"" >> "$SECRETS_FILE"
@@ -59,14 +59,14 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then
 
   for rc in ~/.bashrc ~/.zshrc; do
     [ ! -f "$rc" ] && continue
-    sed -i "\|export PATH=.*\.npm-global|d" "$rc" 2>/dev/null || true
-    sed -i "\|export N_PREFIX=|d" "$rc" 2>/dev/null || true
-    sed -i "\|export SDKMAN_DIR=|d" "$rc" 2>/dev/null || true
-    sed -i "\|shokunin.*profile\.sh|d" "$rc" 2>/dev/null || true
-    sed -i "\|export BUN_INSTALL=|d" "$rc" 2>/dev/null || true
-    sed -i "\|export DEEPSEEK_API_KEY=|d" "$rc" 2>/dev/null || true
-    sed -i "\|export DOTNET_ROOT=|d" "$rc" 2>/dev/null || true
-    sed -i "\|secrets\.env|d" "$rc" 2>/dev/null || true
+    _sed_i "\|export PATH=.*\.npm-global|d" "$rc" 2>/dev/null || true
+    _sed_i "\|export N_PREFIX=|d" "$rc" 2>/dev/null || true
+    _sed_i "\|export SDKMAN_DIR=|d" "$rc" 2>/dev/null || true
+    _sed_i "\|shokunin.*profile\.sh|d" "$rc" 2>/dev/null || true
+    _sed_i "\|export BUN_INSTALL=|d" "$rc" 2>/dev/null || true
+    _sed_i "\|export DEEPSEEK_API_KEY=|d" "$rc" 2>/dev/null || true
+    _sed_i "\|export DOTNET_ROOT=|d" "$rc" 2>/dev/null || true
+    _sed_i "\|secrets\.env|d" "$rc" 2>/dev/null || true
     {
       echo "$PATH_LINE"
       echo "$N_PREFIX_LINE"
@@ -86,13 +86,13 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]; then
 
   P10K_FILE="$HOME/.p10k.zsh"
   if [ -f "$P10K_FILE" ]; then
-    sed -i 's/POWERLEVEL9K_INSTANT_PROMPT=verbose/POWERLEVEL9K_INSTANT_PROMPT=quiet/' "$P10K_FILE" 2>/dev/null || true
+    _sed_i 's/POWERLEVEL9K_INSTANT_PROMPT=verbose/POWERLEVEL9K_INSTANT_PROMPT=quiet/' "$P10K_FILE" 2>/dev/null || true
     log "P10k: instant prompt set to quiet"
   fi
 
   SHOKUNIN_PROFILE="$HOME/.shokunin/scripts/linux/profile.sh"
   if [ -f "$SHOKUNIN_PROFILE" ] && grep -q 'echo "Shokunin' "$SHOKUNIN_PROFILE" 2>/dev/null; then
-    sed -i 's/echo "Shokunin AI Ecosystem loaded"/# echo "Shokunin AI Ecosystem loaded"/' "$SHOKUNIN_PROFILE" 2>/dev/null || true
+    _sed_i 's/echo "Shokunin AI Ecosystem loaded"/# echo "Shokunin AI Ecosystem loaded"/' "$SHOKUNIN_PROFILE" 2>/dev/null || true
     log "Shokunin: console echo suppressed (P10k compat)"
   fi
 fi

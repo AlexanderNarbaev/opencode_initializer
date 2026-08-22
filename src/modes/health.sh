@@ -122,6 +122,14 @@ _check "oc-rpc wrapper"  "[ -x ~/.local/bin/oc-rpc ]"
 _check "dialog (TUI)"    "command -v dialog &>/dev/null || command -v whiptail &>/dev/null"
 _check "socat (RPC)"     "command -v socat &>/dev/null || command -v nc &>/dev/null"
 
+if [ "$(uname -s)" = "Darwin" ]; then
+section "Services (launchd / ports)"
+_check "chromadb"           "launchctl print gui/\$(id -u)/com.opencode.chromadb &>/dev/null || lsof -nP -iTCP:8000 -sTCP:LISTEN &>/dev/null"
+_check "ollama"             "pgrep -f '[o]llama' &>/dev/null || lsof -nP -iTCP:11434 -sTCP:LISTEN &>/dev/null"
+_check "open-webui"         "docker ps --format '{{.Names}}' 2>/dev/null | grep -q open-webui || lsof -nP -iTCP:3000 -sTCP:LISTEN &>/dev/null"
+_check "docker (Desktop)"   "docker info &>/dev/null"
+_check "deepseek-harness"   "launchctl print gui/\$(id -u)/com.opencode.deepseek-harness &>/dev/null"
+else
 section "Systemd Services"
 _check "chromadb.service"   "systemctl --user is-active chromadb.service &>/dev/null"
 _check "ollama (snap)"      "snap services ollama 2>/dev/null | grep -q active || systemctl --user is-active ollama.service &>/dev/null"
@@ -129,12 +137,17 @@ _check "open-webui (docker)" "docker ps --format '{{.Names}}' 2>/dev/null | grep
 _check "opencode-update.timer" "systemctl --user is-active opencode-update.timer &>/dev/null"
 _check "docker.service"     "systemctl is-active docker &>/dev/null"
 _check "search-sanitizer.service" "systemctl --user is-active search-sanitizer.service &>/dev/null"
+fi
 
 section "Infrastructure & Platform"
 _check "cockpit binary"      "[ -x ~/.local/bin/cockpit ]"
 _check "Isolated Circuit"    "grep -q 'ISOLATED_CIRCUIT=true' ~/.config/opencode-setup/setup.conf 2>/dev/null"
 _check "Services config"     "[ -f ~/.config/opencode-setup/setup.conf ]"
-_check "GUI service"         "systemctl --user is-active opencode-gui.service &>/dev/null"
+if [ "$(uname -s)" = "Darwin" ]; then
+  _check "GUI service"         "launchctl print gui/\$(id -u)/com.opencode.opencode-gui &>/dev/null || lsof -nP -iTCP:4200 -sTCP:LISTEN &>/dev/null"
+else
+  _check "GUI service"         "systemctl --user is-active opencode-gui.service &>/dev/null"
+fi
 _check "plugins.json registry" "[ -f ~/.config/opencode/plugins.json ]"
 _check "Infra compose"        "[ -f ~/.config/opencode/infra.yml ]"
 _check "Grafana container"    "docker ps --format '{{.Names}}' 2>/dev/null | grep -q grafana"

@@ -48,7 +48,7 @@ _install_sandcastle() {
   fi
 
   _spin_start "Installing @ai-hero/sandcastle"
-  if (cd "$PROJECT_DIR" && timeout 180 npm install --save-dev @ai-hero/sandcastle 2>/dev/null); then
+  if (cd "$PROJECT_DIR" && _timeout 180 npm install --save-dev @ai-hero/sandcastle 2>/dev/null); then
     _spin_stop "✓"
     log "Sandcastle installed (provider: $provider)"
   else
@@ -62,7 +62,7 @@ _install_sandcastle() {
     log "Sandcastle scaffold already present in $PROJECT_DIR/$SANSCASTLE_DIR"
   else
     _spin_start "Scaffolding .sandcastle/"
-    if (cd "$PROJECT_DIR" && timeout 90 npx --yes @ai-hero/sandcastle init 2>/dev/null); then
+    if (cd "$PROJECT_DIR" && _timeout 90 npx --yes @ai-hero/sandcastle init 2>/dev/null); then
       _spin_stop "✓"
       log "Sandcastle scaffolded in $PROJECT_DIR/$SANSCASTLE_DIR"
     else

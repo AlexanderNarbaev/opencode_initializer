@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"strconv"
 	"strings"
@@ -521,26 +522,50 @@ func fetchServices() []table.Row {
 		}
 	}
 
-	out, err = exec.Command("systemctl", "--user", "list-units", "--type=service", "--no-legend").Output()
-	if err == nil {
-		for _, line := range strings.Split(strings.TrimSpace(string(out)), "\n") {
-			fields := strings.Fields(line)
-			if len(fields) < 4 {
-				continue
-			}
-			name := fields[0]
-			if strings.Contains(name, "opencode") || strings.Contains(name, "chroma") ||
-				strings.Contains(name, "webui") ||
-				strings.Contains(name, "ollama") || strings.Contains(name, "cockpit") ||
-				strings.Contains(name, "searxng") || strings.Contains(name, "qdrant") {
-				state := fields[3]
-				stateStyled := styleGreen.Render(state)
-				if state == "failed" || state == "inactive" {
-					stateStyled = styleRed.Render(state)
-				} else if state == "activating" {
-					stateStyled = styleYellow.Render(state)
+	if runtime.GOOS == "darwin" {
+		// macOS: user services live in launchd (com.opencode.* LaunchAgents)
+		out, err = exec.Command("launchctl", "list").Output()
+		if err == nil {
+			for _, line := range strings.Split(strings.TrimSpace(string(out)), "\n") {
+				fields := strings.Fields(line)
+				if len(fields) < 3 {
+					continue
 				}
-				rows = append(rows, table.Row{"systemd:" + name, stateStyled, ""})
+				label := fields[2]
+				if !strings.Contains(label, "com.opencode.") {
+					continue
+				}
+				state := "running"
+				stateStyled := styleGreen.Render(state)
+				if fields[0] == "-" {
+					state = "not running"
+					stateStyled = styleRed.Render(state)
+				}
+				rows = append(rows, table.Row{"launchd:" + strings.TrimPrefix(label, "com.opencode."), stateStyled, ""})
+			}
+		}
+	} else {
+		out, err = exec.Command("systemctl", "--user", "list-units", "--type=service", "--no-legend").Output()
+		if err == nil {
+			for _, line := range strings.Split(strings.TrimSpace(string(out)), "\n") {
+				fields := strings.Fields(line)
+				if len(fields) < 4 {
+					continue
+				}
+				name := fields[0]
+				if strings.Contains(name, "opencode") || strings.Contains(name, "chroma") ||
+					strings.Contains(name, "webui") ||
+					strings.Contains(name, "ollama") || strings.Contains(name, "cockpit") ||
+					strings.Contains(name, "searxng") || strings.Contains(name, "qdrant") {
+					state := fields[3]
+					stateStyled := styleGreen.Render(state)
+					if state == "failed" || state == "inactive" {
+						stateStyled = styleRed.Render(state)
+					} else if state == "activating" {
+						stateStyled = styleYellow.Render(state)
+					}
+					rows = append(rows, table.Row{"systemd:" + name, stateStyled, ""})
+				}
 			}
 		}
 	}

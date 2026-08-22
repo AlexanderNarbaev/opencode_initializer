@@ -5,7 +5,15 @@ set -euo pipefail
 if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) && _gate "INTERACTIVE_DO_CHROME"; then
   section "Google Chrome"
 
-  if command -v google-chrome-stable &>/dev/null; then
+  if [ "$PKG_MANAGER" = "brew" ]; then
+    # macOS: Chrome + chromedriver via brew (casks)
+    if [ -d "/Applications/Google Chrome.app" ] || command -v google-chrome &>/dev/null; then
+      log "Google Chrome already installed"
+    else
+      brew install --cask google-chrome 2>/dev/null && log "Google Chrome installed" || warn "Chrome install failed"
+    fi
+    command -v chromedriver &>/dev/null || { brew install --cask chromedriver 2>/dev/null || brew install chromedriver 2>/dev/null || true; }
+  elif command -v google-chrome-stable &>/dev/null; then
     log "Google Chrome $(google-chrome-stable --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' || true) already installed"
   else
     CHROME_KEY_URL="https://dl.google.com/linux/linux_signing_key.pub"

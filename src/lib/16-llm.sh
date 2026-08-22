@@ -90,24 +90,32 @@ with open(os.path.join(home, '.config/opencode/hardware.json'), 'w') as f:
   # Ollama — universal (NVIDIA CUDA, AMD ROCm, Intel OneAPI, CPU)
   if ! command -v ollama &>/dev/null; then
     info "Installing Ollama..."
-    command -v zstd &>/dev/null || sudo apt-get install -y zstd 2>/dev/null || true
-    _curl "https://ollama.ai/install.sh" /tmp/ollama-install.sh 2>/dev/null && bash /tmp/ollama-install.sh 2>/dev/null && log "Ollama installed" || warn "Ollama install failed"
-    rm -f /tmp/ollama-install.sh
+    if [ "$PKG_MANAGER" = "brew" ]; then
+      brew install --cask ollama 2>/dev/null || brew install ollama 2>/dev/null || true
+    else
+      command -v zstd &>/dev/null || sudo apt-get install -y zstd 2>/dev/null || true
+      _curl "https://ollama.ai/install.sh" /tmp/ollama-install.sh 2>/dev/null && bash /tmp/ollama-install.sh 2>/dev/null || true
+      rm -f /tmp/ollama-install.sh
+    fi
     if command -v ollama &>/dev/null; then
+      log "Ollama installed"
       if $HAS_GPU; then
         ollama pull qwen3:14b 2>/dev/null || warn "Ollama: qwen3:14b pull failed (retry manually)"
       else
         ollama pull qwen3:1.7b 2>/dev/null && log "Ollama: qwen3:1.7b pulled" || warn "Ollama: qwen3:1.7b pull failed"
       fi
+    else
+      warn "Ollama install failed"
     fi
   else
     log "Ollama already installed"
   fi
 
-  # ── Ollama user-level systemd service ────────────────────────────────────
-  if command -v ollama &>/dev/null; then
-    mkdir -p ~/.config/systemd/user
-
+  # ── Ollama user-level service ────────────────────────────────────────────
+  # macOS: Ollama is installed as a .app/brew cask and manages its own daemon.
+  if [ "$(uname -s)" = "Darwin" ]; then
+    info "Ollama on macOS self-manages (Ollama.app / brew services) — skipping service setup"
+  elif command -v ollama &>/dev/null; then
     OLLAMA_BIN=""
     if snap list ollama &>/dev/null 2>&1; then
       OLLAMA_BIN="/snap/bin/ollama"
@@ -116,27 +124,9 @@ with open(os.path.join(home, '.config/opencode/hardware.json'), 'w') as f:
     fi
 
     if [ -n "$OLLAMA_BIN" ]; then
-      cat > ~/.config/systemd/user/ollama.service << 'SVC'
-[Unit]
-Description=Ollama — Local LLM Runtime
-After=network.target
-
-[Service]
-Type=simple
-Environment=OLLAMA_HOST=127.0.0.1:11434
-ExecStart=OLLAMA_BIN_PLACEHOLDER serve
-Restart=on-failure
-RestartSec=5
-
-[Install]
-WantedBy=default.target
-SVC
-      sed -i "s|OLLAMA_BIN_PLACEHOLDER|$OLLAMA_BIN|g" ~/.config/systemd/user/ollama.service
-
-      systemctl --user daemon-reload 2>/dev/null || true
-      systemctl --user enable ollama.service 2>/dev/null || true
-      systemctl --user start ollama.service 2>/dev/null || true
-      log "Ollama user systemd service installed"
+      _service_install "ollama" "$OLLAMA_BIN serve" \
+        "Ollama — Local LLM Runtime" \
+        "OLLAMA_HOST=127.0.0.1:11434" || warn "Ollama service install failed"
     fi
   fi
 

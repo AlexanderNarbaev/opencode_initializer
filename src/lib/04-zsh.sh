@@ -9,8 +9,12 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]) && _gate "INTERACTIVE_DO_ZSH
   ZSH_MAJOR=$(echo "$ZSH_VER" | cut -d. -f1)
   ZSH_MINOR=$(echo "$ZSH_VER" | cut -d. -f2)
   if [ "$ZSH_MAJOR" -lt 5 ] || { [ "$ZSH_MAJOR" -eq 5 ] && [ "$ZSH_MINOR" -lt 8 ]; }; then
-    warn "zsh $ZSH_VER < 5.8 — upgrading via apt"
-    sudo apt-get install -y -qq zsh 2>/dev/null || true
+    warn "zsh $ZSH_VER < 5.8 — upgrading"
+    if [ "$PKG_MANAGER" = "brew" ]; then
+      brew install zsh 2>/dev/null || true
+    else
+      sudo apt-get install -y -qq zsh 2>/dev/null || true
+    fi
   fi
   log "zsh $(zsh --version 2>/dev/null | awk '{print $2}')"
 

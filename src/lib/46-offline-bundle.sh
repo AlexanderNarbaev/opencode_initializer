@@ -15,7 +15,7 @@ section "Offline Bundle — Air-Gap Bootstrap"
 # ── Bundle directory ─────────────────────────────────────────────────────────
 BUNDLE_DIR="${BUNDLE_DIR:-${HOME}/.cache/opencode-setup/offline-bundle}"
 BUNDLE_MANIFEST="$BUNDLE_DIR/manifest.sha256"
-BUNDLE_TARBALL="${BUNDLE_DIR}/opencode-offline-${SCRIPT_VERSION:-v3.0.0}.tar.gz"
+BUNDLE_TARBALL="${BUNDLE_DIR}/opencode-offline-${SCRIPT_VERSION:-v3.2.0}.tar.gz"
 
 # ── Create offline bundle: collects all dependencies for air-gap install ────
 _offline_bundle_create() {
@@ -49,9 +49,10 @@ _offline_bundle_create() {
 
   # ── Generate SHA256 manifest ──────────────────────────────────────────────
   cd "$tmpdir/bundle"
-  find . -type f -exec sha256sum {} \; | sort -k2 > "$tmpdir/bundle/manifest.sha256"
+  # Portable: find -exec cannot call shell functions, so loop instead
+  find . -type f | while IFS= read -r f; do _sha256 "$f"; done | sort -k2 > "$tmpdir/bundle/manifest.sha256"
   echo "# Offline Bundle Manifest — $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$tmpdir/bundle/manifest.sha256"
-  echo "# Version: ${SCRIPT_VERSION:-v3.0.0}" >> "$tmpdir/bundle/manifest.sha256"
+  echo "# Version: ${SCRIPT_VERSION:-v3.2.0}" >> "$tmpdir/bundle/manifest.sha256"
   echo "# Files: $(find . -type f | wc -l)" >> "$tmpdir/bundle/manifest.sha256"
 
   # ── Create tarball ────────────────────────────────────────────────────────
@@ -97,7 +98,7 @@ _offline_bundle_run() {
   local manifest="$bundle_path/bundle/manifest.sha256"
   if [ -f "$manifest" ]; then
     _spin_start "Verifying bundle integrity"
-    if (cd "$bundle_path/bundle" && sha256sum -c "$manifest" --quiet 2>/dev/null); then
+    if (cd "$bundle_path/bundle" && _sha256 -c "$manifest" --quiet 2>/dev/null); then
       _spin_stop "✓"
       log "Bundle integrity: VERIFIED"
     else
@@ -128,12 +129,12 @@ _offline_bundle_verify() {
   echo "Files in manifest: $(grep -c '^[a-f0-9]' "$manifest")"
 
   cd "$bundle_path/bundle"
-  if sha256sum -c "$manifest" --quiet 2>/dev/null; then
+  if _sha256 -c "$manifest" --quiet 2>/dev/null; then
     echo "Status: ALL FILES VERIFIED ✅"
     return 0
   else
     echo "Status: CORRUPTION DETECTED ❌"
-    sha256sum -c "$manifest" 2>/dev/null | grep -v ': OK$' || true
+    _sha256 -c "$manifest" 2>/dev/null | grep -v ': OK$' || true
     return 1
   fi
 }

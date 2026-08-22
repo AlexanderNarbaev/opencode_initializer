@@ -15,8 +15,12 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
       export PATH="$HOME/.dotnet:$PATH"
       export DOTNET_ROOT="$HOME/.dotnet"
     else
-      warn ".NET download failed — trying apt fallback"
-      sudo apt-get install -y -qq dotnet-sdk-10.0 2>/dev/null && log ".NET 10.0.302 SDK from apt" || warn ".NET unavailable — install manually from https://dotnet.microsoft.com/"
+      warn ".NET download failed — trying package manager fallback"
+      if [ "$PKG_MANAGER" = "brew" ]; then
+        brew install --cask dotnet-sdk 2>/dev/null && log ".NET SDK from brew" || warn ".NET unavailable — install manually from https://dotnet.microsoft.com/"
+      else
+        sudo apt-get install -y -qq dotnet-sdk-10.0 2>/dev/null && log ".NET 10.0.302 SDK from apt" || warn ".NET unavailable — install manually from https://dotnet.microsoft.com/"
+      fi
     fi
   else
     log ".NET $(dotnet --version 2>/dev/null) already installed"

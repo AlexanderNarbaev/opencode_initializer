@@ -8,6 +8,15 @@
 # and stale opencode.json with moonshot provider.
 set -euo pipefail
 
+# Portable in-place sed (standalone script — helpers.sh is not sourced here)
+_sed_i() {
+  if sed --version >/dev/null 2>&1; then
+    sed -i "$@"
+  else
+    sed -i '' "$@"
+  fi
+}
+
 # ── Stop & disable systemd user services ──────────────────────────────────────
 for svc in kimi-proxy litellm; do
   if systemctl --user is-enabled "$svc.service" &>/dev/null 2>&1; then
@@ -54,7 +63,7 @@ if [ -f "$CONFIG_FILE" ]; then
     # Backup before modification
     cp "$CONFIG_FILE" "$CONFIG_FILE.bak-$(date +%Y%m%d-%H%M%S)"
     # Remove all MOONSHOT_* and KIMI_* env lines
-    sed -i '/^MOONSHOT_/d; /^KIMI_/d' "$CONFIG_FILE"
+    _sed_i '/^MOONSHOT_/d; /^KIMI_/d' "$CONFIG_FILE"
     echo "[migrate] Removed MOONSHOT_*/KIMI_* entries from setup.conf (backup saved)"
   fi
 fi

@@ -10,7 +10,7 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ]) && _gate "INTERACTIVE_DO_SHO
     rm -f /tmp/shokunin-install.sh
     log "Shokunin installed"
     SHOKUNIN_PROFILE="$HOME/.shokunin/scripts/linux/profile.sh"
-    [ -f "$SHOKUNIN_PROFILE" ] && sed -i 's/echo "Shokunin AI Ecosystem loaded"/# echo "Shokunin AI Ecosystem loaded"/' "$SHOKUNIN_PROFILE" 2>/dev/null || true
+    [ -f "$SHOKUNIN_PROFILE" ] && _sed_i 's/echo "Shokunin AI Ecosystem loaded"/# echo "Shokunin AI Ecosystem loaded"/' "$SHOKUNIN_PROFILE" 2>/dev/null || true
   fi
   _step_done step_shokunin
 

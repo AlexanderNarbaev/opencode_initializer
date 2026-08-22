@@ -85,7 +85,19 @@ RULESEOF
       docker exec searxng cat /etc/searxng/settings.yml 2>/dev/null > "$SEARXNG_SETTINGS" || true
       if [ -f "$SEARXNG_SETTINGS" ]; then
         # Disable search logging for privacy
-        sed -i 's/search:\s*\(\.*\)/search:\n    safe_search: 0\n    autocomplete: ""\n    default_lang: ""/' "$SEARXNG_SETTINGS" 2>/dev/null || true
+        # Portable awk rewrite (GNU sed used \s and \n in replacement — not BSD-safe):
+        # any line containing "search:" is replaced by a privacy-hardened block
+        awk '{
+          if ($0 ~ /search:/) {
+            print "search:"
+            print "    safe_search: 0"
+            print "    autocomplete: \"\""
+            print "    default_lang: \"\""
+          } else {
+            print
+          }
+        }' "$SEARXNG_SETTINGS" > "$SEARXNG_SETTINGS.tmp" 2>/dev/null && \
+          mv "$SEARXNG_SETTINGS.tmp" "$SEARXNG_SETTINGS" || rm -f "$SEARXNG_SETTINGS.tmp"
         # Copy back into container
         docker cp "$SEARXNG_SETTINGS" searxng:/etc/searxng/settings.yml 2>/dev/null || true
         docker restart searxng 2>/dev/null || true

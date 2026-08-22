@@ -7,9 +7,9 @@ a() { local d="$1" c="$2"; if (eval "$c") &>/dev/null; then TP=$((TP+1)); else T
 a "exists" "[ -f $W ]"
 a "syntax" "bash -n $W"
 a "has ChromaDB" "grep -qi chromadb $W"
-a "has systemd" "grep -q systemd $W"
+a "has user service" "grep -q _service_install $W"
 a "has CHROMA auth config" "grep -q 'CHROMA_SERVER_AUTH' $W"
-a "has chromadb.service unit" "grep -q 'chromadb.service' $W"
+a "has chromadb service name" "grep -q '_service_install \"chromadb\"' $W"
 a "has port 8000" "grep -q '8000' $W"
 echo "test_chromadb: $TP passed, $TF failed"
 [ "$TF" -eq 0 ] || exit 1

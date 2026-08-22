@@ -260,33 +260,14 @@ else
     warn "Some services failed to start — check: docker compose -f $INFRA_CONFIG ps"
 fi
 
-# ── Metrics exporter systemd service ──────────────────────────────────────
+# ── Metrics exporter user service (systemd / launchd) ───────────────────────
 if [ -f "$SCRIPT_DIR/scripts/oc-metrics.py" ]; then
-  mkdir -p ~/.config/systemd/user
   METRICS_PORT="${METRICS_EXPORTER_PORT:-9464}"
-  cat > ~/.config/systemd/user/opencode-metrics.service << SVC
-[Unit]
-Description=OpenCode Metrics Exporter (Prometheus)
-After=network.target opencode-infra.service
-Wants=network.target opencode-infra.service
-
-[Service]
-Type=simple
-Environment=PATH=%h/.local/bin:%h/.n/bin:%h/.bun/bin:/usr/local/bin:/usr/bin:/bin
-Environment=METRICS_EXPORTER_PORT=$METRICS_PORT
-Environment=DEPLOYMENT_PROFILE=${DEPLOYMENT_PROFILE:-personal}
-ExecStart=python3 $SCRIPT_DIR/scripts/oc-metrics.py
-Restart=on-failure
-RestartSec=10
-StandardOutput=journal
-StandardError=journal
-
-[Install]
-WantedBy=default.target
-SVC
-  systemctl --user daemon-reload 2>/dev/null || true
-  systemctl --user enable opencode-metrics.service 2>/dev/null || true
-  systemctl --user start opencode-metrics.service 2>/dev/null || true
+  _service_install "opencode-metrics" "$(command -v python3 || echo python3) $SCRIPT_DIR/scripts/oc-metrics.py" \
+    "OpenCode Metrics Exporter (Prometheus)" \
+    "PATH=$HOME/.local/bin:$HOME/.n/bin:$HOME/.bun/bin:/usr/local/bin:/usr/bin:/bin" \
+    "METRICS_EXPORTER_PORT=$METRICS_PORT" \
+    "DEPLOYMENT_PROFILE=${DEPLOYMENT_PROFILE:-personal}" || warn "Metrics exporter service install failed"
   log "Metrics exporter installed on port $METRICS_PORT"
 fi
 

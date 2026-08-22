@@ -14,7 +14,14 @@ if ([ "$MODE" = "full" ] || [ "$MODE" = "reinit" ] || [ "$MODE" = "update" ]) &&
   fi
   if [ ! -f "$N_PREFIX/bin/node" ] || ! node --version 2>/dev/null | grep -q "v24"; then
     npm install -g n@latest --prefix "$N_PREFIX" 2>/dev/null || true
-    N_PREFIX="$N_PREFIX" n 24 2>/dev/null && log "Node.js 24 installed" || { warn "n 24 failed — trying apt"; sudo apt-get install -y -qq nodejs npm 2>/dev/null && log "Node.js from apt" || warn "Node.js unavailable"; }
+    N_PREFIX="$N_PREFIX" n 24 2>/dev/null && log "Node.js 24 installed" || {
+      warn "n 24 failed — trying package manager"
+      if [ "$PKG_MANAGER" = "brew" ]; then
+        brew install node 2>/dev/null && log "Node.js from brew" || warn "Node.js unavailable"
+      else
+        sudo apt-get install -y -qq nodejs npm 2>/dev/null && log "Node.js from apt" || warn "Node.js unavailable"
+      fi
+    }
   else
     log "Node.js 24 already installed"
   fi

@@ -55,9 +55,9 @@ assert "targets @deepseek-ai/dsh package" "grep -q '@deepseek-ai/dsh' '$A'"
 assert "checks Node.js prerequisite" "grep -q 'command -v node' '$A'"
 assert "runs dsh web (Web UI)" "grep -q 'dsh web' '$A'"
 
-# ── 7. systemd user service ──────────────────────────────────────────────
-assert "has deepseek-harness.service" "grep -q 'deepseek-harness.service' '$A'"
-assert "uses systemctl --user" "grep -q 'systemctl --user' '$A'"
+# ── 7. user service (systemd / launchd via _service_install) ──────────────
+assert "uses _service_install" "grep -q '_service_install \"deepseek-harness\"' '$A'"
+assert "service has DSH_WEB_PORT env" "grep -q 'DSH_WEB_PORT=\$DSH_WEB_PORT' '$A'"
 
 # ── 8. Health check ──────────────────────────────────────────────────────
 assert "health check curls Web UI" "grep -q 'curl -fsS' '$A'"

@@ -60,7 +60,7 @@ _wal_agent_log() {
   fi
 
   # Compute entry hash: SHA-256(prev + ts + domain + decision + confidence)
-  entry_hash=$(echo -n "${prev_hash}${now}${domain}${decision}${confidence}" | sha256sum | awk '{print $1}')
+  entry_hash=$(echo -n "${prev_hash}${now}${domain}${decision}${confidence}" | _sha256 | awk '{print $1}')
 
   local entry_line
   entry_line=$(printf '{"ts":"%s","domain":"%s","decision":"%s","rationale":"%s","impact":%s,"confidence":%s,"mode":"%s","prev_hash":"%s","hash":"%s"}' \
@@ -76,7 +76,7 @@ _wal_rotate() {
   local wal="${1:-$WAL_AGENT_FILE}"
   [ ! -f "$wal" ] && return 0
   local size
-  size=$(stat -c %s "$wal" 2>/dev/null || echo 0)
+  size=$(_file_size "$wal" 2>/dev/null || echo 0)
   local max_bytes=$((WAL_MAX_SIZE_MB * 1024 * 1024))
   if [ "$size" -gt "$max_bytes" ]; then
     local archive_name

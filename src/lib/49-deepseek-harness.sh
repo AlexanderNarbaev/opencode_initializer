@@ -30,7 +30,7 @@ _install_deepseek_harness() {
 
   _progress "dsh" "Installing DeepSeek Harness (@deepseek-ai/dsh)..."
   _spin_start "Installing @deepseek-ai/dsh"
-  if timeout 180 npm install -g "@deepseek-ai/dsh@latest" --prefer-offline 2>/dev/null; then
+  if _timeout 180 npm install -g "@deepseek-ai/dsh@latest" --prefer-offline 2>/dev/null; then
     _spin_stop "✓"
     log "DeepSeek Harness installed: $(dsh --version 2>/dev/null | head -1 || echo 'latest')"
   else
@@ -91,39 +91,21 @@ CORDIS
     log "DeepSeek Harness config already present: $DSH_CONFIG_DIR/cordis.yml"
   fi
 
-  # Web UI port default (env-overridable, baked into the systemd service)
+  # Web UI port default (env-overridable, baked into the user service)
   info "DeepSeek Harness Web UI port: $DSH_WEB_PORT (override via DSH_WEB_PORT)"
 }
 
 _deepseek_harness_service() {
-  # Optional systemd user service for the Web UI (pattern: 22-webui-service.sh)
+  # Optional user service for the Web UI (systemd user unit / launchd agent)
   local dsh_bin
   dsh_bin="$(command -v dsh 2>/dev/null || true)"
-  [ -z "$dsh_bin" ] && { warn "dsh binary not found — skipping systemd service"; return 0; }
+  [ -z "$dsh_bin" ] && { warn "dsh binary not found — skipping service setup"; return 0; }
 
-  mkdir -p "$HOME/.config/systemd/user"
   # Absolute binary path baked in (instant cold start — mirrors Bun bin path decision)
-  cat > "$HOME/.config/systemd/user/deepseek-harness.service" << SVC
-[Unit]
-Description=DeepSeek Harness — Agent Harness Web UI
-After=network.target
-Wants=network.target
-
-[Service]
-Type=simple
-Environment=DSH_WEB_PORT=$DSH_WEB_PORT
-ExecStart=$dsh_bin web --host 127.0.0.1 --port $DSH_WEB_PORT
-Restart=on-failure
-RestartSec=5
-
-[Install]
-WantedBy=default.target
-SVC
-
-  systemctl --user daemon-reload 2>/dev/null || true
-  systemctl --user enable deepseek-harness.service 2>/dev/null || true
-  systemctl --user start deepseek-harness.service 2>/dev/null || true
-  log "DeepSeek Harness systemd user service installed (port $DSH_WEB_PORT)"
+  _service_install "deepseek-harness" "$dsh_bin web --host 127.0.0.1 --port $DSH_WEB_PORT" \
+    "DeepSeek Harness — Agent Harness Web UI" \
+    "DSH_WEB_PORT=$DSH_WEB_PORT" || warn "DeepSeek Harness service install failed"
+  log "DeepSeek Harness user service installed (port $DSH_WEB_PORT)"
 }
 
 _check_deepseek_harness() {
@@ -136,7 +118,7 @@ _check_deepseek_harness() {
   if curl -fsS --max-time 3 "http://127.0.0.1:${DSH_WEB_PORT}" >/dev/null 2>&1; then
     log "DeepSeek Harness Web UI: http://127.0.0.1:${DSH_WEB_PORT} (up)"
   else
-    info "DeepSeek Harness Web UI not running on port ${DSH_WEB_PORT} (start: systemctl --user start deepseek-harness)"
+    info "DeepSeek Harness Web UI not running on port ${DSH_WEB_PORT} (start: _service_start deepseek-harness)"
   fi
   return 0
 }
@@ -150,4 +132,4 @@ if command -v dsh &>/dev/null; then
 fi
 
 _step_done step_deepseek_harness
-log "DeepSeek Harness configured — run 'npx @deepseek-ai/dsh web' or the systemd service"
+log "DeepSeek Harness configured — run 'npx @deepseek-ai/dsh web' or the user service"
