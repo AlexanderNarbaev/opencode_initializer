@@ -37,7 +37,7 @@
 | Provider | Base URL | Notes |
 |----------|----------|-------|
 | MiniMax | `https://api.minimax.io/v1` | OpenAI-compatible |
-| MiMo | `https://api.mimo.run/v1` | OpenAI-compatible |
+| MiMo | `https://api.mimo.run/v1` | OpenAI-compatible — **unverified**: endpoint not pinned in `opencode.json`/`providers.json` |
 | DeepSeek | `https://api.deepseek.com/v1` | OpenAI-compatible |
 | xAI Grok | `https://api.x.ai/v1` | OpenAI-compatible |
 | z.ai GLM | `https://api.z.ai/api/paas/v4` | OpenAI-compatible |

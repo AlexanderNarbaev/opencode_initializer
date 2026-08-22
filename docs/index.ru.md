@@ -16,19 +16,19 @@
 
 | Метрика | Значение |
 |---------|----------|
-| Модулей | 52 |
+| Модулей | 64 |
 | Новое в v3.2 | Lynis CIS-сканер + auditd kernel-правила + AI Gateway proxy + pre-commit hook |
-| Оркестратор | 685 строк Bash |
-| Режимов CLI | 11 (full, health, interactive, ci и другие) |
+| Оркестратор | 726 строк Bash |
+| Режимов CLI | 12 (full, health, interactive, ci, airgap и другие) |
 | Языков | 8 |
 | MCP-серверов | 24 |
 | LSP-серверов | 13 |
-| Плагинов OpenCode | 15 |
-| AI-провайдеров | 23 (20 облачных + 3 локальных) |
-| Model Router | 8 профилей (coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn) |
+| Плагинов OpenCode | 21 |
+| AI-провайдеров | 23 (19 облачных + 3 локальных) |
+| Model Router | 9 профилей (coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn, testing) |
 | Инфраструктура | 7 сервисов (PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer) |
 | Web GUI | 9 разделов управления (порт 4200) |
-| Тестов | 480+ проверок (40 unit + 5 integration + 4 e2e) |
+| Тестов | 257 проверок (82 unit + 6 integration + 5 e2e) |
 | Пакетных менеджеров | apt, dnf, pacman, apk, zypper, brew |
 | Архитектур | amd64, arm64 |
 
@@ -36,14 +36,14 @@
 
 Один скрипт, который превращает свежую машину на Linux/WSL2 в готовое к работе окружение:
 
-- :fontawesome-solid-code: **8 языков программирования** — Java 25, Node.js 24, Python 3.14, Go 1.26, Rust 1.97.1, .NET 10, Kotlin, Zig
+- :fontawesome-solid-code: **8 языков программирования** — Java 25, Node.js 24, Python 3.14, Go 1.26, Rust (stable), .NET 10, Kotlin, Zig
 - :fontawesome-solid-robot: **24 MCP-серверов** — GitHub, GitLab, Filesystem, Playwright, Chrome DevTools, SQLite, Postgres, Memory, Excalidraw, Brave Search, Context7, Google Maps и другие
-- :fontawesome-solid-puzzle-piece: **15 плагинов OpenCode** — codegraph, dcp, auto-fallback, goal-mode, swarm, vibeguard, devcontainers, worktree, scheduler, background-agents, goal-plugin, conductor, zellij-namer, morph-plugin, supermemory
+- :fontawesome-solid-puzzle-piece: **21 плагин OpenCode** — codegraph, dcp, auto-fallback, goal-mode, swarm, vibeguard, devcontainers, worktree, scheduler, background-agents, goal-plugin, conductor, zellij-namer, morph-plugin, supermemory, websearch-cited, firecrawl, plugin-otel, token-tracker, orchestrator, daytona
 - :fontawesome-solid-gears: **13 LSP-серверов** — gopls, rust-analyzer, tsserver, pyright, omnisharp, yaml, marksman, taplo, lua, zls, bash, dockerfile, css/html/json
 - :fontawesome-solid-box: **Infrastructure as Code** — PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer через Docker Compose
-- :fontawesome-solid-display: **Cockpit TUI** — 7-вкладочный терминальный UI для управления сервером
+- :fontawesome-solid-display: **Cockpit TUI** — 8-вкладочный терминальный UI для управления сервером
 - :fontawesome-solid-shield-halved: **Isolated Circuit Mode** — air-gapped LLM с локальными бэкендами
-- :fontawesome-solid-cloud: **23 AI-провайдера** — DeepSeek, z.ai GLM-5.2, OpenRouter, OpenAI, Anthropic, Google, xAI, Alibaba Qwen3 и другие
+- :fontawesome-solid-cloud: **22 AI-провайдера** — DeepSeek, z.ai GLM-5.2, OpenRouter, OpenAI, Anthropic, Google, xAI, Alibaba Qwen3 и другие
 - :fontawesome-solid-microchip: **GPU/LLM** — Ollama, vLLM, SGLang, Open WebUI, WasmEdge (автоопределение GPU)
 - :fontawesome-solid-terminal: **ZSH** — Oh My Zsh + Powerlevel10k с 14 плагинами
 - :fontawesome-solid-globe: **Chrome** — Google Chrome + ChromeDriver (оптимизирован для WSL2)
@@ -76,7 +76,7 @@
 | Возможность | Описание |
 |-------------|----------|
 | Infrastructure as Code | PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer через Docker Compose |
-| Cockpit TUI | 7-вкладочный терминальный UI — System, Plugins, GPU/Models, Sessions, Tasks, Logs, Infra |
+| Cockpit TUI | 8-вкладочный терминальный UI — Services, Plugins, GPU/Models, Sessions, Tasks, Logs, Infra, Grafana |
 | Isolated Circuit Mode | Air-gapped LLM с Ollama, vLLM, SGLang |
 | Model Routing Intelligence | 8 профилей: coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn |
 | Web GUI | 9-разделочный интерфейс управления: провайдеры, модели, MCP/LSP, инфраструктура, backup, логи |
@@ -89,8 +89,8 @@
 | Corporate Proxy | Поддержка HTTP_PROXY, HTTPS_PROXY, CURL_CA_BUNDLE |
 | Config Backup | `dev backup create\|list\|restore` для disaster recovery |
 | Model Download | `dev models install <model>` для локальных Ollama моделей |
-| 23 провайдера | 20 облачных + 3 локальных (было 16 в v1.1.0) |
-| 39 модулей | Было 29 в v1.1.0 |
+| 22 провайдера | 19 облачных + 3 локальных (было 16 в v1.1.0) |
+| 64 модуля | Было 29 в v1.1.0, 39 в v2.0.0 |
 
 ## :fontawesome-solid-download: Быстрая установка
 
@@ -132,7 +132,7 @@ dev isolated status                 # Проверить текущее сост
 
 | Категория | Инструменты |
 |-----------|-------------|
-| **Языки** | Java 25, Node.js 24, Python 3.14 + uv, Go 1.26, Rust 1.97.1, .NET 10, Kotlin, Zig |
+| **Языки** | Java 25, Node.js 24, Python 3.14 + uv, Go 1.26, Rust (stable), .NET 10, Kotlin, Zig |
 | **Оболочка** | Zsh 5.8+, Oh My Zsh, Powerlevel10k, 14 плагинов |
 | **Браузер** | Google Chrome, ChromeDriver (оптимизирован для WSL2) |
 | **Контейнеры** | Docker Engine |
@@ -141,12 +141,12 @@ dev isolated status                 # Проверить текущее сост
 | **Веб-поиск** | SearXNG self-hosted поиск + sanitizer proxy |
 | **MCP-серверы** | 24 сервера для AI-ассистированной разработки |
 | **LSP-серверы** | 13 языковых серверов |
-| **Плагины** | 15 плагинов продуктивности OpenCode |
+| **Плагины** | 21 плагин продуктивности OpenCode |
 | **Безопасность** | Trivy, Qodana |
 | **Утилиты** | bat, btm, fd, ripgrep, sd, typos, topgrade, just, mise |
 | **Dotfiles** | chezmoi для командного шеринга конфигов |
 | **Dev-окружения** | Devbox — изолированные Nix-окружения |
-| **Cockpit** | 7-вкладочный TUI для управления сервером |
+| **Cockpit** | 8-вкладочный TUI для управления сервером |
 | **Agent Harness** | DeepSeek Harness (dsh) — плагинный agent-харнесс |
 | **Песочницы агентов** | Sandcastle — изолированные AI-агенты (Docker/Podman/Vercel) |
 | **Десктоп-приложение** | OpenCode Desktop — нативный GUI (.deb/.rpm/AppImage) |
@@ -172,7 +172,7 @@ dev isolated status                 # Проверить текущее сост
 | Переустановка | `--reinit` | Переустановить инструменты, сохранить данные |
 | Новый проект | `--new <dir>` | Только инициализация проекта |
 | CI/CD | `--ci` | Headless установка для пайплайнов |
-| Диагностика | `--health` | Полная диагностика (65+ проверок) |
+| Диагностика | `--health` | Полная диагностика (128+ проверок) |
 | Обновление | `--update` | Обновить установленные инструменты |
 | Апгрейд | `--upgrade` | Полная цепочка обновления системы |
 | Интерактивный | `--interactive` | Выбор компонентов по одному |

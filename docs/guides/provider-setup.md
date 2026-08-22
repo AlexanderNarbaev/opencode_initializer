@@ -1,7 +1,7 @@
 # Provider Setup Guide — opencode_initializer v2.0
 
 ## Overview
-23 AI providers: 20 cloud + 3 local. All configured via `src/lib/26-providers.sh` and `src/lib/18-opencode-json.sh`.
+22 AI providers: 19 cloud + 3 local. All configured via `src/lib/26-providers.sh` and `src/lib/18-opencode-json.sh`.
 
 ## Provider Endpoints (verified 2026-07-18)
 

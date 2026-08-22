@@ -18,7 +18,7 @@
 curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializer/main/setup.sh | bash -s -- --full
 ```
 
-Эта единственная команда устанавливает **всё**: 8 языков программирования, 21 MCP-сервер, 15 плагинов OpenCode, 13 LSP-серверов, Docker, GPU/LLM-рантаймы, SearXNG веб-поиск, ZSH с Powerlevel10k и CLI-инструмент `dev`.
+Эта единственная команда устанавливает **всё**: 8 языков программирования, 24 MCP-сервера, 21 плагин OpenCode, 13 LSP-серверов, Docker, GPU/LLM-рантаймы, SearXNG веб-поиск, ZSH с Powerlevel10k и CLI-инструмент `dev`.
 
 ## Типовые конфигурации для команды
 
@@ -229,10 +229,10 @@ bash setup.sh --fix-config --deepseek-key "sk-..."
 
 | Категория | Компоненты |
 |-----------|------------|
-| **Языки** | Java 25, Node.js 24, Python 3.14 + uv, Go 1.26, Rust 1.97.1, .NET 10, Kotlin, Zig |
-| **MCP-серверы** | 21 — context7, filesystem, github, gitlab, playwright, chrome-devtools, postgres, sqlite, memory, excalidraw, brave-search, google-maps и другие |
+| **Языки** | Java 25, Node.js 24, Python 3.14 + uv, Go 1.26, Rust (stable), .NET 10, Kotlin, Zig |
+| **MCP-серверы** | 24 — context7, filesystem, github, gitlab, playwright, chrome-devtools, postgres, sqlite, memory, excalidraw, brave-search, google-maps и другие |
 | **LSP-серверы** | 13 — gopls, rust-analyzer, tsserver, pyright, omnisharp, yaml, marksman, bash, dockerfile, css/html/json и другие |
-| **Плагины** | 15 — token-tracker, dcp, swarm, auto-fallback, goal-mode, vibeguard, orchestrator и другие |
+| **Плагины** | 21 — token-tracker, dcp, swarm, auto-fallback, goal-mode, vibeguard, orchestrator и другие |
 | **Инфраструктура** | Docker, ChromaDB, SearXNG, Muninn, Ollama, vLLM, SGLang, Open WebUI |
 | **Веб-поиск** | SearXNG self-hosted + sanitizer-прокси (внутренние хосты/IP/PII) |
 | **Оболочка** | ZSH + Oh My Zsh + Powerlevel10k + 14 плагинов |

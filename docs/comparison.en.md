@@ -13,8 +13,8 @@ OpenCode Initializer fills a unique niche: no other tool combines **system-level
 | **Time to working env** | 15-20 min | 2-3 days | 30-60 min | 10-15 min | 20-40 min | 10-30 min |
 | **8 languages auto-installed** | :white_check_mark: | :x: | :white_check_mark: (via nixpkgs) | :x: (manual per project) | :x: (manual Dockerfile) | :white_check_mark: |
 | **24 MCP servers** | :white_check_mark: auto | :x: | :x: | :x: | :x: (manual config) | :x: |
-| **18 OpenCode plugins** | :white_check_mark: auto | :x: | :x: | :x: | :x: | :x: |
-| **12 LSP servers** | :white_check_mark: auto | :x: (manual) | :white_check_mark: (nixpkgs) | :x: (per IDE) | :x: (per IDE) | :x: |
+| **21 OpenCode plugins** | :white_check_mark: auto | :x: | :x: | :x: | :x: | :x: |
+| **13 LSP servers** | :white_check_mark: auto | :x: (manual) | :white_check_mark: (nixpkgs) | :x: (per IDE) | :x: (per IDE) | :x: |
 | **Local LLM runtimes** | :white_check_mark: GPU-aware | :x: | :x: | :x: | :x: | :x: |
 | **SearXNG web search** | :white_check_mark: | :x: | :x: | :x: | :x: | :x: |
 | **23 LLM providers** | :white_check_mark: dynamic | :x: | :x: | :x: | :x: | :x: |

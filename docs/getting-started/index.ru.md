@@ -168,7 +168,7 @@ chrome-open https://github.com  # Открыть конкретный URL
 | 5 | **ZSH** | Zsh + Oh My Zsh + P10k + плагины | 2м |
 | 6 | **Языки** | Java, Node, Python, Go, Rust, .NET, Zig | 10м |
 | 7 | **OpenCode CLI** | OpenCode + Bun | 1м |
-| 8 | **MCP + LSP** | 24 MCP-серверов + 12 LSP-серверов | 5м |
+| 8 | **MCP + LSP** | 24 MCP-серверов + 13 LSP-серверов | 5м |
 | 9 | **ChromaDB** | Векторная БД + Muninn | 1м |
 | 10 | **LLM** | Ollama, vLLM, SGLang, Open WebUI | 5м |
 | 11 | **Проект** | AGENTS.md, структура проекта | 1с |

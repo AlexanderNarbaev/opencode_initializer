@@ -9,7 +9,7 @@ C4Context
     title opencode_initializer — Контекст системы
 
     Person(dev, "Разработчик", "Хочет готовое AI-усиленное окружение для разработки")
-    System(oci, "OpenCode Initializer", "Настраивает полную dev-машину: 8 языков, 39 модулей, 21 MCP, 15 плагинов, 23 провайдера, инфраструктура")
+    System(oci, "OpenCode Initializer", "Настраивает полную dev-машину: 8 языков, 64 модуля, 24 MCP, 21 плагин, 22 провайдера, инфраструктура")
 
     System_Ext(gh, "GitHub", "Исходный код, релизы, CI/CD")
     System_Ext(ghp, "GitHub Packages", "npm пакеты, Docker образы")
@@ -34,11 +34,11 @@ C4Container
     title opencode_initializer — Контейнеры
 
     Container_Boundary(oci, "OpenCode Initializer") {
-        Container(setup, "setup.sh", "Bash", "Оркестратор — запускает 11 режимов, подключает 39 модулей, отслеживает прогресс")
+        Container(setup, "setup.sh", "Bash", "Оркестратор — запускает 12 режимов, подключает 64 модуля, отслеживает прогресс")
         Container(dev_cli, "dev CLI", "Bash", "Управление после установки: install, remove, update, health, config, isolated")
-        Container(lib, "src/lib/ (39 модулей)", "Bash", "Основные модули: система, языки, инструменты, MCP, LSP, LLM, провайдеры, инфраструктура, cockpit, изолированный режим")
-        Container(modes, "src/modes/ (5 скриптов)", "Bash", "Режимы: ci, health, fix-zshrc, upgrade, interactive")
-        Container(tests, "tests/", "Bash + Bats", "Юнит, интеграционные, E2E тесты (350+ утверждений)")
+        Container(lib, "src/lib/ (64 модуля)", "Bash", "Основные модули: система, языки, инструменты, MCP, LSP, LLM, провайдеры, инфраструктура, cockpit, изолированный режим")
+        Container(modes, "src/modes/ (6 скриптов)", "Bash", "Режимы: ci, fix-zshrc, health, interactive, new, upgrade")
+        Container(tests, "tests/", "Bash + Bats", "Юнит, интеграционные, E2E тесты (257 проверок)")
         Container(docs_site, "Сайт документации", "MkDocs Material", "Документация (эта страница)")
     }
 
@@ -57,7 +57,7 @@ C4Container
 
 ```mermaid
 C4Container
-    title src/lib/ — 39 модулей
+    title src/lib/ — 64 модуля
 
     Container_Boundary(modules, "src/lib/") {
         Container(helpers, "helpers.sh", "Bash", "_curl, _retry, _npm_install — общая инфраструктура")
@@ -72,11 +72,11 @@ C4Container
         Container(node, "06-node.sh", "Bash", "Node.js 24 (n)")
         Container(python, "07-python.sh", "Bash", "Python 3.14 + uv")
         Container(go, "08-go.sh", "Bash", "Go 1.26")
-        Container(rust, "09-rust.sh", "Bash", "Rust 1.97.1 (rustup)")
+        Container(rust, "09-rust.sh", "Bash", "Rust stable (rustup)")
         Container(dotnet, "10-dotnet.sh", "Bash", ".NET 10")
 
         Container(opencode, "11-opencode.sh", "Bash", "OpenCode CLI + Bun")
-        Container(mcp, "12-mcp-lsp.sh", "Bash", "21 MCP + 15 плагинов + 13 LSP")
+        Container(mcp, "12-mcp-lsp.sh", "Bash", "24 MCP + 21 плагин + 13 LSP")
         Container(chromadb, "13-chromadb.sh", "Bash", "ChromaDB + systemd")
         Container(shokunin, "14-shokunin.sh", "Bash", "Shokunin + Superpowers + Caveman")
         Container(sec, "15-security.sh", "Bash", "Trivy, Qodana")
@@ -238,7 +238,7 @@ graph LR
 | **Мульти-провайдер** | 23 LLM-провайдера (20 облачных + 3 локальных) с динамической регистрацией и переключением сессий |
 | **Инфраструктура как код** | PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer через Docker Compose |
 | **Изолированный контур** | Автономная работа LLM с локальными OpenAI-совместимыми бэкендами |
-| **Cockpit TUI** | 7-вкладочный терминальный интерфейс управления сервером |
+| **Cockpit TUI** | 8-вкладочный терминальный интерфейс управления сервером |
 | **z.ai GLM-5.2 интеграция** | Основной провайдер для RU/CN рынка, OpenAI-совместимый API |
 | **OpenRouter агрегатор** | Единый API-ключ для 100+ моделей |
 | **Model Router** | Подбор модели под задачу по 8 профилям (coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn) |

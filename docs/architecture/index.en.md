@@ -9,7 +9,7 @@ C4Context
     title opencode_initializer — System Context
 
     Person(dev, "Developer", "Wants a ready-to-use AI-enhanced dev environment")
-    System(oci, "OpenCode Initializer", "Bootstraps complete dev machine with 8 languages, 38 modules, 21 MCPs, 15 plugins, 23 providers, infrastructure")
+    System(oci, "OpenCode Initializer", "Bootstraps complete dev machine with 8 languages, 64 modules, 24 MCPs, 21 plugins, 22 providers, infrastructure")
 
     System_Ext(gh, "GitHub", "Source code, releases, CI/CD")
     System_Ext(ghp, "GitHub Packages", "npm packages, Docker images")
@@ -34,11 +34,11 @@ C4Container
     title opencode_initializer — Containers
 
     Container_Boundary(oci, "OpenCode Initializer") {
-        Container(setup, "setup.sh", "Bash", "Orchestrator — dispatches 11 modes, loads 38 modules, tracks progress")
+        Container(setup, "setup.sh", "Bash", "Orchestrator — dispatches 12 modes, loads 64 modules, tracks progress")
         Container(dev_cli, "dev CLI", "Bash", "Post-install management: install, remove, update, health, config, isolated")
-        Container(lib, "src/lib/ (38 modules)", "Bash", "Core modules: system, languages, tools, MCP, LSP, LLM, providers, infra, cockpit, isolated")
-        Container(modes, "src/modes/ (5 scripts)", "Bash", "Runtime modes: ci, health, fix-zshrc, upgrade, interactive")
-        Container(tests, "tests/", "Bash + Bats", "Unit, integration, E2E test suite (350+ assertions)")
+        Container(lib, "src/lib/ (64 modules)", "Bash", "Core modules: system, languages, tools, MCP, LSP, LLM, providers, infra, cockpit, isolated")
+        Container(modes, "src/modes/ (6 scripts)", "Bash", "Runtime modes: ci, fix-zshrc, health, interactive, new, upgrade")
+        Container(tests, "tests/", "Bash + Bats", "Unit, integration, E2E test suite (257 checks)")
         Container(docs_site, "Docs Site", "MkDocs Material", "Documentation site (this page)")
     }
 
@@ -57,7 +57,7 @@ C4Container
 
 ```mermaid
 C4Container
-    title src/lib/ — 38 Module Layout
+    title src/lib/ — 64 Module Layout
 
     Container_Boundary(modules, "src/lib/") {
         Container(helpers, "helpers.sh", "Bash", "_curl, _retry, _npm_install — shared infrastructure")
@@ -72,11 +72,11 @@ C4Container
         Container(node, "06-node.sh", "Bash", "Node.js 24 (n)")
         Container(python, "07-python.sh", "Bash", "Python 3.14 + uv")
         Container(go, "08-go.sh", "Bash", "Go 1.26")
-        Container(rust, "09-rust.sh", "Bash", "Rust 1.97.1 (rustup)")
+        Container(rust, "09-rust.sh", "Bash", "Rust stable (rustup)")
         Container(dotnet, "10-dotnet.sh", "Bash", ".NET 10")
 
         Container(opencode, "11-opencode.sh", "Bash", "OpenCode CLI + Bun")
-        Container(mcp, "12-mcp-lsp.sh", "Bash", "21 MCP servers + 15 plugins + 13 LSP")
+        Container(mcp, "12-mcp-lsp.sh", "Bash", "24 MCP servers + 21 plugins + 13 LSP")
         Container(chromadb, "13-chromadb.sh", "Bash", "ChromaDB + systemd")
         Container(shokunin, "14-shokunin.sh", "Bash", "Shokunin + Superpowers + Caveman")
         Container(sec, "15-security.sh", "Bash", "Trivy, Qodana")
@@ -237,7 +237,7 @@ graph LR
 | **Multi-provider** | 23 LLM providers (20 cloud + 3 local) with dynamic registration and session switching |
 | **Infrastructure as Code** | PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer via Docker Compose |
 | **Isolated Circuit Mode** | Air-gapped LLM operation with local OpenAI-compatible backends |
-| **Cockpit TUI** | 7-tab terminal UI for server management |
+| **Cockpit TUI** | 8-tab terminal UI for server management |
 
 ---
 

@@ -42,11 +42,11 @@ MCP (Model Context Protocol) servers extend OpenCode with external tools and dat
 
 ### Enabling/Disabling MCP Servers
 
-MCP servers are defined in `opencode.json` under `mcpServers`. Each server can be:
+MCP servers are defined in `opencode.json` under `mcp`. Each server can be:
 
 ```json
 {
-  "mcpServers": {
+  "mcp": {
     "filesystem": {
       "type": "local",
       "command": ["/home/user/.bun/bin/mcp-server-filesystem", "/path/to/project"],
@@ -66,7 +66,7 @@ Most MCP servers use **absolute Bun binary paths** (`~/.bun/bin/mcp-server-*`) i
 - No network required after install
 - Survives npm cache clears
 
-## LSP Servers (12)
+## LSP Servers (13)
 
 LSP (Language Server Protocol) servers provide intelligent code analysis for OpenCode.
 
@@ -84,6 +84,7 @@ LSP (Language Server Protocol) servers provide intelligent code analysis for Ope
 | **zls** | Zig | Full Zig language support |
 | **bash-ls** | Bash/Shell | Shell script analysis, diagnostics |
 | **dockerfile-ls** | Dockerfile | Syntax highlighting, validation, autocomplete |
+| **vscode-langservers** | CSS/HTML/JSON | Validation, autocomplete, formatting |
 
 ### Architecture-dependent LSPs
 
@@ -96,7 +97,7 @@ LSP (Language Server Protocol) servers provide intelligent code analysis for Ope
 
 The installer auto-detects CPU architecture and downloads the correct binary.
 
-## Plugins (18)
+## Plugins (21)
 
 OpenCode plugins extend the assistant's capabilities.
 
@@ -120,6 +121,9 @@ OpenCode plugins extend the assistant's capabilities.
 | **websearch-cited** | Grounded web search with inline citations |
 | **firecrawl** | Web page crawling and content extraction |
 | **plugin-otel** | OpenTelemetry observability and tracing |
+| **token-tracker** | Token usage and cost tracking per session |
+| **orchestrator** | Multi-step task orchestration |
+| **daytona** | Daytona workspace integration for sandboxed dev envs |
 
 ## Configuration Reference
 
@@ -159,7 +163,7 @@ OpenCode plugins extend the assistant's capabilities.
 
 ### Adding Custom MCP/LSP/Plugin
 
-1. **MCP Server**: Add to `opencode.json` -> `mcpServers`
+1. **MCP Server**: Add to `opencode.json` -> `mcp`
 2. **LSP Server**: Add to `opencode.json` -> `lsp`
 3. **Plugin**: Add to `opencode.json` -> `plugin` array
 

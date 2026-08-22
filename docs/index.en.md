@@ -16,19 +16,19 @@
 
 | Metric | Value |
 |--------|-------|
-| Modules | 52 |
+| Modules | 64 |
 | New in v3.2 | Lynis CIS scanner + auditd kernel rules + AI Gateway proxy + pre-commit hook |
-| Orchestrator | 685 lines of Bash |
-| CLI modes | 11 (full, health, interactive, ci, and more) |
+| Orchestrator | 726 lines of Bash |
+| CLI modes | 12 (full, health, interactive, ci, airgap, and more) |
 | Languages | 8 |
 | MCP servers | 24 |
 | LSP servers | 13 |
-| OpenCode plugins | 15 |
-| AI providers | 23 (20 cloud + 3 local) |
-| Model Router | 8 task profiles (coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn) |
+| OpenCode plugins | 21 |
+| AI providers | 23 (19 cloud + 3 local) |
+| Model Router | 9 task profiles (coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn, testing) |
 | Infrastructure | 7 services (PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer) |
 | Web GUI | 9 management sections (port 4200) |
-| Test suite | 480+ assertions (40 unit + 5 integration + 4 e2e) |
+| Test suite | 257 checks (82 unit + 6 integration + 5 e2e) |
 | Package managers | apt, dnf, pacman, apk, zypper, brew |
 | Architectures | amd64, arm64 |
 
@@ -36,14 +36,14 @@
 
 A single script that turns a fresh Linux/WSL2 machine into a production-ready development environment:
 
-- **8 programming languages** — Java 25, Node.js 24, Python 3.14, Go 1.26, Rust 1.97.1, .NET 10, Kotlin, Zig
+- **8 programming languages** — Java 25, Node.js 24, Python 3.14, Go 1.26, Rust (stable), .NET 10, Kotlin, Zig
 - **24 MCP servers** — GitHub, GitLab, Filesystem, Playwright, Chrome DevTools, SQLite, Postgres, Memory, Excalidraw, Brave Search, Context7, Google Maps, and more
-- **15 OpenCode plugins** — codegraph, dcp, auto-fallback, goal-mode, swarm, vibeguard, devcontainers, worktree, scheduler, background-agents, goal-plugin, conductor, zellij-namer, morph-plugin, supermemory
+- **21 OpenCode plugins** — codegraph, dcp, auto-fallback, goal-mode, swarm, vibeguard, devcontainers, worktree, scheduler, background-agents, goal-plugin, conductor, zellij-namer, morph-plugin, supermemory, websearch-cited, firecrawl, plugin-otel, token-tracker, orchestrator, daytona
 - **13 LSP servers** — gopls, rust-analyzer, tsserver, pyright, omnisharp, yaml, marksman, taplo, lua, zls, bash, dockerfile, css/html/json
 - **Infrastructure as Code** — PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer via Docker Compose
-- **Cockpit TUI** — 7-tab terminal UI for server management
+- **Cockpit TUI** — 8-tab terminal UI for server management
 - **Isolated Circuit Mode** — air-gapped LLM operation with local backends
-- **23 AI providers** — DeepSeek, z.ai GLM-5.2, OpenRouter, OpenAI, Anthropic, Google, xAI, MiniMax M3, Alibaba Qwen3, and more
+- **22 AI providers** — DeepSeek, z.ai GLM-5.2, OpenRouter, OpenAI, Anthropic, Google, xAI, MiniMax M3, Alibaba Qwen3, and more
 - **GPU/LLM** — Ollama, vLLM, SGLang, Open WebUI, WasmEdge (multi-vendor GPU auto-detection)
 - **ZSH** — Oh My Zsh + Powerlevel10k with 14 plugins
 - **Chrome** — Google Chrome + ChromeDriver (WSL2-optimized)
@@ -76,7 +76,7 @@ A single script that turns a fresh Linux/WSL2 machine into a production-ready de
 | Feature | Description |
 |---------|-------------|
 | Infrastructure as Code | PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer via Docker Compose |
-| Cockpit TUI | 7-tab terminal UI — System, Plugins, GPU/Models, Sessions, Tasks, Logs, Infra |
+| Cockpit TUI | 8-tab terminal UI — Services, Plugins, GPU/Models, Sessions, Tasks, Logs, Infra, Grafana |
 | Isolated Circuit Mode | Air-gapped LLM operation with Ollama, vLLM, SGLang |
 | Model Routing Intelligence | 8 task profiles: coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn |
 | Web GUI | 9-section management interface: providers, models, MCP/LSP, infra, backup, logs |
@@ -89,10 +89,10 @@ A single script that turns a fresh Linux/WSL2 machine into a production-ready de
 | Corporate Proxy | HTTP_PROXY, HTTPS_PROXY, CURL_CA_BUNDLE support |
 | Config Backup | `dev backup create\|list\|restore` for disaster recovery |
 | Model Download | `dev models install <model>` for local Ollama models |
-| 23 providers | 20 cloud + 3 local (was 16 in v1.1.0) |
+| 22 providers | 19 cloud + 3 local (was 16 in v1.1.0) |
 | Provider Check | \`bash scripts/provider-check.sh\` to verify provider connectivity |
 | .env.example | Template with all 20 API key variables |
-| 42 modules | Was 29 in v1.1.0 |
+| 64 modules | Was 29 in v1.1.0, 42 in v2.0.0 |
 
 ## Quick Install
 
@@ -134,7 +134,7 @@ dev isolated status                 # Check current state
 
 | Category | Tools |
 |----------|-------|
-| **Languages** | Java 25, Node.js 24, Python 3.14 + uv, Go 1.26, Rust 1.97.1, .NET 10, Kotlin, Zig |
+| **Languages** | Java 25, Node.js 24, Python 3.14 + uv, Go 1.26, Rust (stable), .NET 10, Kotlin, Zig |
 | **Shell** | Zsh 5.8+, Oh My Zsh, Powerlevel10k, 14 plugins |
 | **Browser** | Google Chrome, ChromeDriver (WSL2-aware) |
 | **Containers** | Docker Engine |
@@ -143,12 +143,12 @@ dev isolated status                 # Check current state
 | **Web Search** | SearXNG self-hosted search + sanitizer proxy |
 | **MCP Servers** | 24 servers for AI-assisted development |
 | **LSP Servers** | 13 language servers |
-| **Plugins** | 15 OpenCode productivity plugins |
+| **Plugins** | 21 OpenCode productivity plugins |
 | **Security** | Trivy, Qodana |
 | **Utilities** | bat, btm, fd, ripgrep, sd, typos, topgrade, just, mise |
 | **Dotfiles** | chezmoi for team config sharing |
 | **Dev Environments** | Devbox — Nix-based isolated envs |
-| **Cockpit** | 7-tab TUI for server management |
+| **Cockpit** | 8-tab TUI for server management |
 | **Agent Harness** | DeepSeek Harness (dsh) — plugin-based agent harness |
 | **Sandboxed Agents** | Sandcastle — isolated AI coding agents (Docker/Podman/Vercel) |
 | **Desktop App** | OpenCode Desktop — native GUI (.deb/.rpm/AppImage) |
@@ -174,7 +174,7 @@ dev isolated status                 # Check current state
 | Reinit | `--reinit` | Reinstall tools, keep data |
 | New Project | `--new <dir>` | Project initialization only |
 | CI/CD | `--ci` | Headless pipeline setup |
-| Health | `--health` | Full diagnostics (65+ checks) |
+| Health | `--health` | Full diagnostics (128+ checks) |
 | Update | `--update` | Update installed tools |
 | Upgrade | `--upgrade` | Full system upgrade chain |
 | Interactive | `--interactive` | Pick components individually |

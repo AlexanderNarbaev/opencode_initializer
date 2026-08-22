@@ -14,8 +14,8 @@ bash setup.sh [РЕЖИМ] [ОПЦИИ]
 
 | Режим | Флаг | Описание |
 |-------|------|----------|
-| **Полный** | *(по умолчанию)* | Полная установка — все 8 языков, 24 MCP, 18 плагинов, 12 LSP |
-| **Диагностика** | `--health` | Диагностика — 115+ проверок в 11 разделах |
+| **Полный** | *(по умолчанию)* | Полная установка — все 8 языков, 24 MCP, 21 плагин, 13 LSP |
+| **Диагностика** | `--health` | Диагностика — 128+ проверок в 12 разделах |
 | **Интерактивный** | `--interactive` | Выбор компонентов по одному |
 | **Переустановка** | `--reinit` | Переустановить инструменты, сохранить данные |
 | **Новый проект** | `--new <папка>` | Только инициализация нового проекта |
@@ -123,12 +123,12 @@ dev self-update
     "opencode": {}
   },
   "instructions": ["AGENTS.md"],
-  "mcpServers": {
+  "mcp": {
     "github": { "type": "local", "command": ["node", "..."] },
     "filesystem": { "type": "local", "command": ["node", "..."] },
     "...": "..."
   },
-  "plugins": [
+  "plugin": [
     ["token-tracker@latest"],
     ["dcp@latest"],
     ["swarm@latest"],
@@ -238,10 +238,10 @@ step_mark "01-system"      # Отметить как сделанное
 | Node | `06-node.sh` | Node.js 24 (n) |
 | Python | `07-python.sh` | Python 3.14 + uv |
 | Go | `08-go.sh` | Go 1.26 |
-| Rust | `09-rust.sh` | Rust 1.97.1 (rustup) |
+| Rust | `09-rust.sh` | Rust stable (rustup) |
 | .NET | `10-dotnet.sh` | .NET 10 |
 | OpenCode | `11-opencode.sh` | OpenCode CLI + Bun |
-| MCP/LSP | `12-mcp-lsp.sh` | 24 MCP + 18 плагинов + 12 LSP + Muninn |
+| MCP/LSP | `12-mcp-lsp.sh` | 24 MCP + 21 плагин + 13 LSP + Muninn |
 | ChromaDB | `13-chromadb.sh` | ChromaDB + systemd сервис |
 | Shokunin | `14-shokunin.sh` | Shokunin + Superpowers + Caveman |
 | Security | `15-security.sh` | Trivy, Qodana |

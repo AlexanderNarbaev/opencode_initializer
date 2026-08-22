@@ -13,8 +13,8 @@ OpenCode Initializer занимает уникальную нишу: ни оди
 | **Время до готового окружения** | 15-20 мин | 2-3 дня | 30-60 мин | 10-15 мин | 20-40 мин | 10-30 мин |
 | **8 языков автоустановка** | :white_check_mark: | :x: | :white_check_mark: (nixpkgs) | :x: (вручную на проект) | :x: (вручную Dockerfile) | :white_check_mark: |
 | **24 MCP-сервера** | :white_check_mark: авто | :x: | :x: | :x: | :x: (ручная настройка) | :x: |
-| **18 плагинов OpenCode** | :white_check_mark: авто | :x: | :x: | :x: | :x: | :x: |
-| **12 LSP-серверов** | :white_check_mark: авто | :x: (вручную) | :white_check_mark: (nixpkgs) | :x: (на IDE) | :x: (на IDE) | :x: |
+| **21 плагин OpenCode** | :white_check_mark: авто | :x: | :x: | :x: | :x: | :x: |
+| **13 LSP-серверов** | :white_check_mark: авто | :x: (вручную) | :white_check_mark: (nixpkgs) | :x: (на IDE) | :x: (на IDE) | :x: |
 | **Локальные LLM-рантаймы** | :white_check_mark: GPU-aware | :x: | :x: | :x: | :x: | :x: |
 | **SearXNG веб-поиск** | :white_check_mark: | :x: | :x: | :x: | :x: | :x: |
 | **23 LLM-провайдера** | :white_check_mark: динамически | :x: | :x: | :x: | :x: | :x: |

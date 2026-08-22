@@ -5,7 +5,7 @@
 > **Operating Model:** Multi-Agent Framework v3.0 | **Wave:** [current_wave.md](./current_wave.md) | **Checkpoint:** [session_checkpoint.json](./session_checkpoint.json)
 <p align="center">
   <b>AI-Native SDD Harness — one-command AI-enhanced development environment for WSL2, Linux, and macOS. 4 deployment profiles.</b><br>
-  <sub>685-line orchestrator · 52 modules · 12 modes · 24 MCPs · 15 plugins · 13 LSPs · 23 providers · air-gap · governance · PII guard · audit trail · offline bundle</sub>
+  <sub>726-line orchestrator · 64 modules · 12 modes · 24 MCPs · 21 plugins · 13 LSPs · 22 providers · air-gap · governance · PII guard · audit trail · offline bundle</sub>
 </p>
 
 <p align="center">
@@ -26,7 +26,7 @@
 curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializer/main/setup.sh | bash -s -- --full
 ```
 
-One command installs everything: 8 languages, 52 infrastructure modules, 24 MCP servers, 15 OpenCode plugins, 13 LSP servers, 23 AI providers, infrastructure as code (PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer), Cockpit TUI (7 tabs), Web GUI, Isolated Circuit Mode, hardware auto-detection, Lynis CIS scanner, auditd kernel rules, and SearXNG web search.
+One command installs everything: 8 languages, 64 shell modules, 24 MCP servers, 21 OpenCode plugins, 13 LSP servers, 22 AI providers, infrastructure as code (PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer), Cockpit TUI (8 tabs), Web GUI, Isolated Circuit Mode, hardware auto-detection, Lynis CIS scanner, auditd kernel rules, and SearXNG web search.
 
 [Full Documentation](https://alexandernarbaev.github.io/opencode_initializer/)
 
@@ -37,14 +37,14 @@ One command installs everything: 8 languages, 52 infrastructure modules, 24 MCP 
 
 | Category | Count | Details |
 |----------|-------|---------|
-| Languages | 8 | Java 25, Node.js 24, Python 3.14, Go 1.26, Rust 1.97.1, .NET 10, Kotlin, Zig |
-| Modules | 52 | System, Docker, Chrome, ZSH, 7 languages, OpenCode, MCP/LSP, ChromaDB, LLM, RAG, SearXNG, providers, dotfiles, Devbox, Infra, Cockpit, Isolated Circuit, Services, Observability, GUI, Model Router, WAL, Best Practices, Upstream Sync, Linux Platform, Lynis, auditd, DeepSeek Harness, Sandcastle, OpenCode Desktop, and more |
+| Languages | 8 | Java 25, Node.js 24, Python 3.14, Go 1.26, Rust (stable), .NET 10, Kotlin, Zig |
+| Modules | 64 | System, Docker, Chrome, ZSH, 7 languages, OpenCode, MCP/LSP, ChromaDB, LLM, RAG, SearXNG, providers, dotfiles, Devbox, Infra, Cockpit, Isolated Circuit, Services, Observability, GUI, Model Router, WAL, Best Practices, Upstream Sync, Linux Platform, Lynis, auditd, DeepSeek Harness, Sandcastle, OpenCode Desktop, and more |
 | MCP Servers | 24 | GitHub, GitLab, Filesystem, Playwright, Chrome DevTools, Postgres, SQLite, Memory, Excalidraw, Brave Search, Context7, Google Maps, and more |
 | LSP Servers | 13 | gopls, rust-analyzer, tsserver, pyright, omnisharp, yaml, marksman, taplo, lua, zls, bash, dockerfile, css/html/json |
-| Plugins | 15 | token-tracker, dcp, swarm, goal-mode, vibeguard, orchestrator, auto-fallback, notify, pty, snip, snippets, envsitter-guard, command-inject, ignore |
-| AI Providers | 22 | DeepSeek, OpenCode, **z.ai GLM-5.2**, **OpenRouter**, OpenAI, Anthropic Claude 4, Google Gemini, xAI Grok 4, MiniMax, MiMo, **Alibaba Qwen3**, **DeepInfra**, Groq, Together, Fireworks, Perplexity, Mistral, Cohere, Cerebras + 3 local (Ollama, vLLM, SGLang) |
-| Model Router | 8 profiles | coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn |
-| CLI Modes | 11 | full, reinit, new, health, update, upgrade, interactive, ci, fix-config, fix-zshrc, dry-run |
+| Plugins | 21 | codegraph, dcp, auto-fallback, goal-mode, swarm, vibeguard, devcontainers, worktree, scheduler, background-agents, goal-plugin, conductor, zellij-namer, morph-plugin, supermemory, websearch-cited, firecrawl, plugin-otel, token-tracker, orchestrator, daytona |
+| AI Providers | 22 | DeepSeek, OpenCode (Go), **z.ai GLM-5.2**, **OpenRouter**, OpenAI, Anthropic Claude 4, Google Gemini, xAI Grok 4, MiniMax, MiMo, **Alibaba Qwen3**, **DeepInfra**, Groq, Together, Fireworks, Perplexity, Mistral, Cohere, Cerebras + 3 local (Ollama, vLLM, SGLang) |
+| Model Router | 9 profiles | coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn, testing |
+| CLI Modes | 12 | full, reinit, new, health, update, upgrade, interactive, ci, fix-config, fix-zshrc, dry-run, airgap |
 | Infrastructure | 7 | PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer |
 | Observability | Full stack | Prometheus metrics, Grafana dashboards, OpenCode metrics exporter, Node Exporter system metrics |
 | GUI | Web | Provider status, model manager, model router, MCP/LSP management, infra monitoring, Grafana iframe, backup, Isolated Circuit toggle |
@@ -60,7 +60,7 @@ One command installs everything: 8 languages, 52 infrastructure modules, 24 MCP 
 ### v2.0.0 — Infrastructure as Code + Isolated Circuit + Observability
 
 - **Infrastructure as Code**: PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer via Docker Compose
-- **Cockpit TUI**: 7-tab terminal UI (Services, Plugins, GPU/Models, Sessions, Tasks, Logs, Infra)
+- **Cockpit TUI**: 8-tab terminal UI (Services, Plugins, GPU/Models, Sessions, Tasks, Logs, Infra, Grafana)
 - **Web GUI**: Full management dashboard on port 4200 with Metrics iframe, model switching, infrastructure control
 - **Isolated Circuit Mode**: Air-gapped LLM operation with local OpenAI-compatible backends (Ollama, vLLM, SGLang)
 - **z.ai GLM-5.2**: Primary provider for RU/CN markets, OpenAI-compatible API, free tier
@@ -82,7 +82,7 @@ One command installs everything: 8 languages, 52 infrastructure modules, 24 MCP 
 - **Constitution + Spec Format** (`41-constitution.sh`): `memory/constitution.md` generator, SDD workflow (constitution→specify→clarify→plan→tasks→implement→verify→converge)
 - **Lifecycle Hooks** (`42-hooks.sh`): pre-request, post-response, pre-commit, on-error hooks framework
 - **Offline Bundle** (`46-offline-bundle.sh`): `dev bundle create` for fully air-gapped installation, SHA-256 manifest
-- **Supply-Chain Hardening**: `curl|sh` → download+verify SHA256 for all 6 affected modules (mise, devbox, WasmEdge, Shokunin, Oh My Zsh)
+- **Supply-Chain Hardening**: `curl|sh` → download+verify SHA256 for all 6 affected modules (mise, devbox, WasmEdge, Shokunin, Oh My Zsh, Qodana)
 - **SOC2/ISO27001 Ready**: Compliance checklists (CC5.2/CC7.2/CC8.2, A.9/A.12/A.14/A.16/A.17/A.18 + GDPR Art.32/35)
 - **Scheduled Security**: Systemd timer for daily Trivy + Qodana scan, SBOM generation (CycloneDX), pre-commit hook
 
@@ -90,22 +90,22 @@ One command installs everything: 8 languages, 52 infrastructure modules, 24 MCP 
 
 ```
 opencode_initializer/
-├── setup.sh                  # Orchestrator (685 lines)
+├── setup.sh                  # Orchestrator (726 lines)
 ├── dev.sh                    # CLI: dev install|remove|update|health|metrics|observability|isolated|...
-├── opencode.json             # Generated OpenCode multi-provider config (23 providers)
+├── opencode.json             # Generated OpenCode multi-provider config (22 providers)
 ├── src/
-│   ├── lib/                  # 42 modules (39 numbered + 3 helpers)
+│   ├── lib/                  # 64 modules (61 numbered + 3 helpers)
 │   │   ├── helpers.sh        # _curl, _retry, _npm_install infrastructure
 │   │   ├── 00-core.sh        # OS/PKG/ARCH detection, mirrors, progress, ISOLATED_CIRCUIT, port resolution
 │   │   ├── 01-system.sh      # System packages (cross-distro: apt/dnf/pacman/apk/zypper/brew)
 │   │   ├── ...               # 02-29: Languages, tools, infrastructure
 │   │   ├── 30-infra.sh       # Infrastructure: PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer
-│   │   ├── 31-cockpit.sh     # Cockpit TUI server management daemon (7-tab)
+│   │   ├── 31-cockpit.sh     # Cockpit TUI server management daemon (8-tab)
 │   │   ├── 32-isolated.sh    # Isolated Circuit Mode — air-gapped LLM
 │   │   ├── 33-services.sh    # Unified Service Layer — port resolution, service modes, deployment profiles
 │   │   ├── 34-observability.sh  # Prometheus + Grafana observability stack + OTel
 │   │   ├── 35-gui.sh         # Web GUI (Node.js, port 4200)
-│   │   ├── 36-model-router.sh   # Model routing intelligence (8 task profiles, cost table)
+│   │   ├── 36-model-router.sh   # Model routing intelligence (9 task profiles, cost table)
 │   │   ├── 37-wal.sh         # Write-Ahead Log — setup + agent session journal
 │   │   ├── version-check.sh  # Version comparison (8+ tools)
 │   │   └── pre-session-check.sh  # Pre-session provider/model validation
@@ -113,13 +113,13 @@ opencode_initializer/
 │   ├── gui/                   # Web GUI (Node.js server + HTML dashboard)
 │   ├── grafana/               # Grafana provisioning (datasources + dashboards)
 │   ├── systemd/               # Systemd user units (opencode-metrics.service)
-│   └── modes/                 # 5 mode scripts (+ 6 built-in)
+│   └── modes/                 # 6 mode scripts (ci, fix-zshrc, health, interactive, new, upgrade)
 ├── scripts/                   # Utilities (provider-check, embed-proxy, ai-router, oc-*)
 │   ├── oc-metrics.py          # OpenCode Prometheus metrics exporter (:9464)
 │   ├── oc-sdk.py              # Python SDK
 │   ├── embed-proxy.py         # Ollama → MemoryLayer embedding bridge
-│   └── ai-router/             # Model routing intelligence
-├── tests/                     # Unit (12), integration (5), E2E (4) — 398+ assertions
+│   └── ai-router.sh           # Model routing intelligence (+ ai-router.json config)
+├── tests/                     # Unit (82), integration (6), E2E (5) — 257 checks
 ├── migrations/                # Timestamped, idempotent migrations
 ├── docs/                      # MkDocs Material documentation site (EN/RU)
 ├── .github/                   # CI workflows (test, shellcheck, build, security, docs)
@@ -134,13 +134,14 @@ opencode_initializer/
 | Reinit | `--reinit` | Reinstall tools, preserve data |
 | New Project | `--new <dir>` | Initialize new project only |
 | CI/CD | `--ci` | Headless CI: OpenCode CLI + essential MCPs |
-| Health | `--health` | Full diagnostics (65+ checks) |
+| Health | `--health` | Full diagnostics (128+ checks) |
 | Update | `--update` | Update installed tools |
 | Upgrade | `--upgrade` | Full system upgrade chain |
 | Interactive | `--interactive` | Component-by-component selection |
 | Fix Config | `--fix-config` | Regenerate opencode.json only |
 | Fix ZSH | `--fix-zshrc` | Repair .zshrc |
 | Dry Run | `--dry-run` | Preview mode, no changes |
+| Air Gap | `--airgap` | Fully offline install from local bundle |
 
 ## Installation
 
@@ -187,7 +188,7 @@ bash setup.sh --dry-run --full  # Preview without changes
 ### Post-Install CLI
 
 ```bash
-dev health              # Full diagnostics (65+ checks)
+dev health              # Full diagnostics (128+ checks)
 dev list                # List installed components
 dev update              # Update everything + migrations
 dev self-update         # Update the installer itself

@@ -18,7 +18,7 @@ Send this command to every team member:
 curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializer/main/setup.sh | bash -s -- --full
 ```
 
-This single command installs **everything**: 8 programming languages, 21 MCP servers, 15 OpenCode plugins, 13 LSPs, Docker, GPU/LLM runtimes, SearXNG web search, ZSH with Powerlevel10k, and the `dev` CLI management tool.
+This single command installs **everything**: 8 programming languages, 24 MCP servers, 21 OpenCode plugins, 13 LSPs, Docker, GPU/LLM runtimes, SearXNG web search, ZSH with Powerlevel10k, and the `dev` CLI management tool.
 
 ## Common Team Configurations
 
@@ -229,10 +229,10 @@ bash setup.sh --fix-config --deepseek-key "sk-..."
 
 | Category | Components |
 |----------|-----------|
-| **Languages** | Java 25, Node.js 24, Python 3.14 + uv, Go 1.26, Rust 1.97.1, .NET 10, Kotlin, Zig |
-| **MCP Servers** | 21 — context7, filesystem, github, gitlab, playwright, chrome-devtools, postgres, sqlite, memory, excalidraw, brave-search, google-maps, and more |
+| **Languages** | Java 25, Node.js 24, Python 3.14 + uv, Go 1.26, Rust (stable), .NET 10, Kotlin, Zig |
+| **MCP Servers** | 24 — context7, filesystem, github, gitlab, playwright, chrome-devtools, postgres, sqlite, memory, excalidraw, brave-search, google-maps, and more |
 | **LSP Servers** | 13 — gopls, rust-analyzer, tsserver, pyright, omnisharp, yaml, marksman, bash, dockerfile, css/html/json, and more |
-| **Plugins** | 15 — token-tracker, dcp, swarm, auto-fallback, goal-mode, vibeguard, orchestrator, and more |
+| **Plugins** | 21 — token-tracker, dcp, swarm, auto-fallback, goal-mode, vibeguard, orchestrator, and more |
 | **Infrastructure** | Docker, ChromaDB, SearXNG, Muninn, Ollama, vLLM, SGLang, Open WebUI |
 | **Web Search** | SearXNG self-hosted + sanitizer proxy (internal hosts/IP/PII) |
 | **Shell** | ZSH + Oh My Zsh + Powerlevel10k + 14 plugins |

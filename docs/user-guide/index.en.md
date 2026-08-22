@@ -159,7 +159,7 @@ Just add an `AGENTS.md` to any project directory. OpenCode will pick it up autom
 ### List Active MCP Servers
 
 ```bash
-cat ~/opencode_initializer/opencode.json | grep -A 3 '"mcpServers"'
+cat ~/opencode_initializer/opencode.json | grep -A 3 '"mcp"'
 ```
 
 ### Add a Custom MCP Server
@@ -168,7 +168,7 @@ Edit `opencode.json` and add:
 
 ```json
 {
-  "mcpServers": {
+  "mcp": {
     "my-server": {
       "type": "local",
       "command": ["node", "/path/to/server.js"]

@@ -159,7 +159,7 @@ bash setup.sh --new ~/my-new-project
 ### Список активных MCP
 
 ```bash
-cat ~/opencode_initializer/opencode.json | grep -A 3 '"mcpServers"'
+cat ~/opencode_initializer/opencode.json | grep -A 3 '"mcp"'
 ```
 
 ### Добавить свой MCP-сервер
@@ -168,7 +168,7 @@ cat ~/opencode_initializer/opencode.json | grep -A 3 '"mcpServers"'
 
 ```json
 {
-  "mcpServers": {
+  "mcp": {
     "my-server": {
       "type": "local",
       "command": ["node", "/path/to/server.js"]

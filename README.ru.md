@@ -5,7 +5,7 @@
 > **Рабочая модель:** Multi-Agent Framework v3.0 | **Волна:** [current_wave.md](./current_wave.md) | **Чекпоинт:** [session_checkpoint.json](./session_checkpoint.json)
 <p align="center">
   <b>AI-Native SDD Harness — среда разработки с ИИ-усилением в одну команду для WSL2, Linux и macOS. 4 профиля развёртывания.</b><br>
-  <sub>Оркестратор на 685 строк · 52 модуля · 12 режимов · 24 MCP · 15 плагинов · 13 LSP · 23 провайдера · air-gap · governance · PII guard · аудит · офлайн-пакет</sub>
+  <sub>Оркестратор на 726 строк · 64 модуля · 12 режимов · 24 MCP · 21 плагин · 13 LSP · 22 провайдера · air-gap · governance · PII guard · аудит · офлайн-пакет</sub>
 </p>
 
 <p align="center">
@@ -26,7 +26,7 @@
 curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializer/main/setup.sh | bash -s -- --full
 ```
 
-Одна команда устанавливает всё: 8 языков, 52 инфраструктурных модуля, 24 MCP-сервера, 15 плагинов OpenCode, 13 LSP-серверов, 23 AI-провайдера, инфраструктуру как код (PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer), Cockpit TUI (7 вкладок), Web GUI, Isolated Circuit Mode, авто-определение оборудования, Lynis CIS scanner, правила auditd для ядра и поиск SearXNG.
+Одна команда устанавливает всё: 8 языков, 64 shell-модуля, 24 MCP-сервера, 21 плагин OpenCode, 13 LSP-серверов, 22 AI-провайдера, инфраструктуру как код (PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer), Cockpit TUI (8 вкладок), Web GUI, Isolated Circuit Mode, авто-определение оборудования, Lynis CIS scanner, правила auditd для ядра и поиск SearXNG.
 
 [Полная документация](https://alexandernarbaev.github.io/opencode_initializer/)
 
@@ -37,14 +37,14 @@ curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializ
 
 | Категория | Кол-во | Состав |
 |-----------|--------|--------|
-| Языки | 8 | Java 25, Node.js 24, Python 3.14, Go 1.26, Rust 1.97.1, .NET 10, Kotlin, Zig |
-| Модули | 52 | Система, Docker, Chrome, ZSH, 7 языков, OpenCode, MCP/LSP, ChromaDB, LLM, RAG, SearXNG, провайдеры, dotfiles, Devbox, Infra, Cockpit, Isolated Circuit, Services, Observability, GUI, Model Router, WAL, Best Practices, Upstream Sync, Linux Platform, Lynis, auditd, DeepSeek Harness, Sandcastle, OpenCode Desktop и другие |
+| Языки | 8 | Java 25, Node.js 24, Python 3.14, Go 1.26, Rust (stable), .NET 10, Kotlin, Zig |
+| Модули | 64 | Система, Docker, Chrome, ZSH, 7 языков, OpenCode, MCP/LSP, ChromaDB, LLM, RAG, SearXNG, провайдеры, dotfiles, Devbox, Infra, Cockpit, Isolated Circuit, Services, Observability, GUI, Model Router, WAL, Best Practices, Upstream Sync, Linux Platform, Lynis, auditd, DeepSeek Harness, Sandcastle, OpenCode Desktop и другие |
 | MCP-серверы | 24 | GitHub, GitLab, Filesystem, Playwright, Chrome DevTools, Postgres, SQLite, Memory, Excalidraw, Brave Search, Context7, Google Maps и другие |
 | LSP-серверы | 13 | gopls, rust-analyzer, tsserver, pyright, omnisharp, yaml, marksman, taplo, lua, zls, bash, dockerfile, css/html/json |
-| Плагины | 15 | token-tracker, dcp, swarm, goal-mode, vibeguard, orchestrator, auto-fallback, notify, pty, snip, snippets, envsitter-guard, command-inject, ignore |
-| AI-провайдеры | 22 | DeepSeek, OpenCode, **z.ai GLM-5.2**, **OpenRouter**, OpenAI, Anthropic Claude 4, Google Gemini, xAI Grok 4, MiniMax, MiMo, **Alibaba Qwen3**, **DeepInfra**, Groq, Together, Fireworks, Perplexity, Mistral, Cohere, Cerebras + 3 локальных (Ollama, vLLM, SGLang) |
-| Model Router | 8 профилей | coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn |
-| Режимы CLI | 11 | full, reinit, new, health, update, upgrade, interactive, ci, fix-config, fix-zshrc, dry-run |
+| Плагины | 21 | codegraph, dcp, auto-fallback, goal-mode, swarm, vibeguard, devcontainers, worktree, scheduler, background-agents, goal-plugin, conductor, zellij-namer, morph-plugin, supermemory, websearch-cited, firecrawl, plugin-otel, token-tracker, orchestrator, daytona |
+| AI-провайдеры | 22 | DeepSeek, OpenCode (Go), **z.ai GLM-5.2**, **OpenRouter**, OpenAI, Anthropic Claude 4, Google Gemini, xAI Grok 4, MiniMax, MiMo, **Alibaba Qwen3**, **DeepInfra**, Groq, Together, Fireworks, Perplexity, Mistral, Cohere, Cerebras + 3 локальных (Ollama, vLLM, SGLang) |
+| Model Router | 9 профилей | coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn, testing |
+| Режимы CLI | 12 | full, reinit, new, health, update, upgrade, interactive, ci, fix-config, fix-zshrc, dry-run, airgap |
 | Инфраструктура | 7 | PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer |
 | Наблюдаемость | Полный стек | Метрики Prometheus, дашборды Grafana, экспортёр метрик OpenCode, системные метрики Node Exporter |
 | GUI | Веб | Статус провайдеров, менеджер моделей, model router, управление MCP/LSP, мониторинг инфраструктуры, Grafana iframe, бэкап, переключатель Isolated Circuit |
@@ -60,7 +60,7 @@ curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializ
 ### v2.0.0 — Инфраструктура как код + Isolated Circuit + Наблюдаемость
 
 - **Инфраструктура как код**: PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer через Docker Compose
-- **Cockpit TUI**: 7-вкладочный терминальный интерфейс (Services, Plugins, GPU/Models, Sessions, Tasks, Logs, Infra)
+- **Cockpit TUI**: 8-вкладочный терминальный интерфейс (Services, Plugins, GPU/Models, Sessions, Tasks, Logs, Infra, Grafana)
 - **Web GUI**: Полная панель управления на порту 4200 с Metrics iframe, переключением моделей, управлением инфраструктурой
 - **Isolated Circuit Mode**: Air-gapped работа LLM с локальными OpenAI-совместимыми бэкендами (Ollama, vLLM, SGLang)
 - **z.ai GLM-5.2**: Основной провайдер для рынков RU/CN, OpenAI-совместимый API, бесплатный тариф
@@ -82,7 +82,7 @@ curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializ
 - **Constitution + Spec Format** (`41-constitution.sh`): Генератор `memory/constitution.md`, SDD-воркфлоу (constitution→specify→clarify→plan→tasks→implement→verify→converge)
 - **Lifecycle Hooks** (`42-hooks.sh`): Фреймворк хуков pre-request, post-response, pre-commit, on-error
 - **Offline Bundle** (`46-offline-bundle.sh`): `dev bundle create` для полностью автономной установки, манифест SHA-256
-- **Укрепление цепочки поставок**: `curl|sh` → загрузка+проверка SHA256 для всех 6 затронутых модулей (mise, devbox, WasmEdge, Shokunin, Oh My Zsh)
+- **Укрепление цепочки поставок**: `curl|sh` → загрузка+проверка SHA256 для всех 6 затронутых модулей (mise, devbox, WasmEdge, Shokunin, Oh My Zsh, Qodana)
 - **SOC2/ISO27001 Ready**: Чек-листы соответствия (CC5.2/CC7.2/CC8.2, A.9/A.12/A.14/A.16/A.17/A.18 + GDPR Art.32/35)
 - **Плановые проверки безопасности**: Systemd-таймер для ежедневного Trivy + Qodana сканирования, генерация SBOM (CycloneDX), pre-commit хук
 
@@ -90,22 +90,22 @@ curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializ
 
 ```
 opencode_initializer/
-├── setup.sh                  # Оркестратор (685 строк)
+├── setup.sh                  # Оркестратор (726 строк)
 ├── dev.sh                    # CLI: dev install|remove|update|health|metrics|observability|isolated|...
-├── opencode.json             # Генерируемый мульти-провайдерный конфиг OpenCode (23 провайдера)
+├── opencode.json             # Генерируемый мульти-провайдерный конфиг OpenCode (22 провайдера)
 ├── src/
-│   ├── lib/                  # 42 модуля (39 номерных + 3 вспомогательных)
+│   ├── lib/                  # 64 модуля (61 номерной + 3 вспомогательных)
 │   │   ├── helpers.sh        # Инфраструктура: _curl, _retry, _npm_install
 │   │   ├── 00-core.sh        # Определение OS/PKG/ARCH, зеркала, прогресс, ISOLATED_CIRCUIT, разрешение портов
 │   │   ├── 01-system.sh      # Системные пакеты (кросс-дистрибутив: apt/dnf/pacman/apk/zypper/brew)
 │   │   ├── ...               # 02-29: Языки, инструменты, инфраструктура
 │   │   ├── 30-infra.sh       # Инфраструктура: PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer
-│   │   ├── 31-cockpit.sh     # Демон управления Cockpit TUI (7 вкладок)
+│   │   ├── 31-cockpit.sh     # Демон управления Cockpit TUI (8 вкладок)
 │   │   ├── 32-isolated.sh    # Isolated Circuit Mode — автономный LLM
 │   │   ├── 33-services.sh    # Unified Service Layer — разрешение портов, режимы сервисов, профили развёртывания
 │   │   ├── 34-observability.sh  # Стек наблюдаемости Prometheus + Grafana + OTel
 │   │   ├── 35-gui.sh         # Web GUI (Node.js, порт 4200)
-│   │   ├── 36-model-router.sh   # Интеллектуальная маршрутизация моделей (8 профилей задач, таблица стоимости)
+│   │   ├── 36-model-router.sh   # Интеллектуальная маршрутизация моделей (9 профилей задач, таблица стоимости)
 │   │   ├── 37-wal.sh         # Write-Ahead Log — журнал установки + сессий агентов
 │   │   ├── version-check.sh  # Сравнение версий (8+ инструментов)
 │   │   └── pre-session-check.sh  # Предсессионная проверка провайдеров/моделей
@@ -113,13 +113,13 @@ opencode_initializer/
 │   ├── gui/                   # Web GUI (сервер Node.js + HTML панель)
 │   ├── grafana/               # Предоставление Grafana (источники данных + дашборды)
 │   ├── systemd/               # Пользовательские unit'ы systemd (opencode-metrics.service)
-│   └── modes/                 # 5 скриптов режимов (+ 6 встроенных)
+│   └── modes/                 # 6 скриптов режимов (ci, fix-zshrc, health, interactive, new, upgrade)
 ├── scripts/                   # Утилиты (provider-check, embed-proxy, ai-router, oc-*)
 │   ├── oc-metrics.py          # Экспортёр метрик OpenCode Prometheus (:9464)
 │   ├── oc-sdk.py              # Python SDK
 │   ├── embed-proxy.py         # Мост Ollama → MemoryLayer embedding
-│   └── ai-router/             # Интеллектуальная маршрутизация моделей
-├── tests/                     # Unit (12), интеграционные (5), E2E (4) — 398+ проверок
+│   └── ai-router.sh           # Интеллектуальная маршрутизация моделей (+ конфиг ai-router.json)
+├── tests/                     # Unit (82), интеграционные (6), E2E (5) — 257 проверок
 ├── migrations/                # Временные метки, идемпотентные миграции
 ├── docs/                      # Сайт документации MkDocs Material (EN/RU)
 ├── .github/                   # CI воркфлоу (test, shellcheck, build, security, docs)
@@ -134,13 +134,14 @@ opencode_initializer/
 | Reinit | `--reinit` | Переустановка инструментов, данные сохраняются |
 | New Project | `--new <dir>` | Только инициализация нового проекта |
 | CI/CD | `--ci` | Headless CI: OpenCode CLI + основные MCP |
-| Health | `--health` | Полная диагностика (65+ проверок) |
+| Health | `--health` | Полная диагностика (128+ проверок) |
 | Update | `--update` | Обновление установленных инструментов |
 | Upgrade | `--upgrade` | Полный цикл обновления системы |
 | Interactive | `--interactive` | Покомпонентный выбор |
 | Fix Config | `--fix-config` | Только перегенерация opencode.json |
 | Fix ZSH | `--fix-zshrc` | Восстановление .zshrc |
 | Dry Run | `--dry-run` | Режим предпросмотра, без изменений |
+| Air Gap | `--airgap` | Полностью автономная установка из локального пакета |
 
 ## Установка
 
@@ -187,7 +188,7 @@ bash setup.sh --dry-run --full  # Предпросмотр без изменен
 ### CLI после установки
 
 ```bash
-dev health              # Полная диагностика (65+ проверок)
+dev health              # Полная диагностика (128+ проверок)
 dev list                # Список установленных компонентов
 dev update              # Обновление всего + миграции
 dev self-update         # Обновление самого установщика

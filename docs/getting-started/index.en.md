@@ -186,7 +186,7 @@ flowchart LR
 | 5 | **ZSH** | Zsh + Oh My Zsh + P10k + plugins | 2m |
 | 6 | **Languages** | Java, Node, Python, Go, Rust, .NET, Zig | 10m |
 | 7 | **OpenCode CLI** | OpenCode + Bun runtime | 1m |
-| 8 | **MCP + LSP** | 24 MCP servers + 12 LSP servers | 5m |
+| 8 | **MCP + LSP** | 24 MCP servers + 13 LSP servers | 5m |
 | 9 | **ChromaDB** | Vector database + Muninn memory | 1m |
 | 10 | **LLM Tools** | Ollama, vLLM, SGLang, Open WebUI | 5m |
 | 11 | **Project Setup** | AGENTS.md, project structure | 1s |
