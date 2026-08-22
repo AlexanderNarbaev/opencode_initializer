@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# lib/56-caching.sh — Prompt Caching Stack (STEP 56)
+# lib/60-caching.sh — Prompt Caching Stack (STEP 60)
 # Installs the P0 prompt-caching plugins that unlock multi-provider prompt
 # caching (metadata.user_id injection), longer cache TTL, cache keepalive,
 # and a live cache hit-rate sidebar. All under opencode_initializer's
@@ -199,3 +199,4 @@ _install_cache_hit       || true
 _configure_cache
 _register_cache_plugins
 _check_caching || true
+_step_done step_caching

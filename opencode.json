@@ -32,14 +32,6 @@
         "minimax"
       ]
     },
-    "opencode-go": {
-      "fallback": [
-        "deepseek",
-        "zai",
-        "openrouter",
-        "minimax"
-      ]
-    },
     "minimax": {
       "options": {
         "timeout": 600000,

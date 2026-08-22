@@ -6,12 +6,36 @@ IFS=$'\n\t'
 shopt -s inherit_errexit 2>/dev/null || true
 
 # ── Bootstrap: resolve script dir (supports curl|bash and local runs) ───────
+# Portable readlink -f (helpers.sh is not sourced yet — keep in sync with it)
+_readlink_f() {
+  local target="$1"
+  if readlink -f "$target" >/dev/null 2>&1; then
+    readlink -f "$target"
+    return 0
+  fi
+  # BSD fallback: follow the symlink chain manually
+  local dir link
+  while [ -L "$target" ]; do
+    dir="$(cd "$(dirname "$target")" 2>/dev/null && pwd)"
+    link="$(readlink "$target")"
+    case "$link" in
+      /*) target="$link" ;;
+      *)  target="$dir/$link" ;;
+    esac
+  done
+  if [ -d "$target" ]; then
+    (cd "$target" 2>/dev/null && pwd)
+  else
+    echo "$(cd "$(dirname "$target")" 2>/dev/null && pwd)/$(basename "$target")"
+  fi
+}
+
 if [ -f "$(cd "$(dirname "$0")" 2>/dev/null && pwd)/src/lib/helpers.sh" ]; then
   SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 elif [ -f "$HOME/opencode_initializer/src/lib/helpers.sh" ]; then
   SCRIPT_DIR="$HOME/opencode_initializer"
-elif [ -f "$HOME/setup.sh" ] && [ -f "$(dirname "$(readlink -f "$HOME/setup.sh" 2>/dev/null || echo "$HOME/setup.sh")")/src/lib/helpers.sh" ]; then
-  SCRIPT_DIR="$(dirname "$(readlink -f "$HOME/setup.sh" 2>/dev/null || echo "$HOME/setup.sh")")"
+elif [ -f "$HOME/setup.sh" ] && [ -f "$(dirname "$(_readlink_f "$HOME/setup.sh")")/src/lib/helpers.sh" ]; then
+  SCRIPT_DIR="$(dirname "$(_readlink_f "$HOME/setup.sh")")"
 else
   # Running from curl|bash — auto-clone the repo
   REPO_URL="https://github.com/AlexanderNarbaev/opencode_initializer.git"
@@ -213,6 +237,10 @@ while [[ $# -gt 0 ]]; do case $1 in
     SKIP_DEVBOX=true
     shift
     ;;
+  --skip-caching)
+    SKIP_CACHING=true
+    shift
+    ;;
   --dotfiles-skip)
     SKIP_DOTFILES=true
     shift
@@ -321,6 +349,7 @@ Options:
   -e, --git-email     Git user email
   --fzf-key           FZF key binding for zsh (default: ^T)
   --devbox-skip       Skip Devbox (Nix-based isolated dev environments)
+  --skip-caching      Skip Prompt Caching Stack (opencode-cache-* plugins)
   --dotfiles-skip     Skip chezmoi dotfiles manager installation
   --with-postgres     Enable PostgreSQL 18 in Docker (needed for memory/plugins)
   --with-qdrant       Enable Qdrant vector DB (needed for code search / RAG)
@@ -558,7 +587,7 @@ echo -e "${GREEN}     Log:  $SETUP_LOG${NC}"
 echo -e "${GREEN}============================================================${NC}"
 
 # ── Execute steps ───────────────────────────────────────────────────────────
-TOTAL_STEPS=41
+TOTAL_STEPS=48
 CURRENT_STEP=0
 
 _run_step() {
@@ -621,7 +650,7 @@ _run_step step_llm "Ollama + vLLM" "$SCRIPT_DIR/src/lib/16-llm.sh"
 _run_step step_project "Project structure" "$SCRIPT_DIR/src/lib/17-project.sh"
 _run_step step_json "opencode.json" "$SCRIPT_DIR/src/lib/18-opencode-json.sh"
 _run_step step_wal "WAL Checkpoint" "$SCRIPT_DIR/src/lib/37-wal.sh"
-_run_step step_ide "IDE AI Plugins" "$SCRIPT_DIR/src/lib/38-ide-plugins.sh"
+_run_step step_ide_plugins "IDE AI Plugins" "$SCRIPT_DIR/src/lib/38-ide-plugins.sh"
 _run_step step_finalize "Finalize + Verify" "$SCRIPT_DIR/src/lib/19-finalize.sh"
 _run_step step_autoupdate "Auto-update system" "$SCRIPT_DIR/src/lib/20-autoupdate.sh"
 # ── Parallel: independent optional modules (R17: Performance) ────────────────
@@ -652,7 +681,8 @@ _run_step step_context_selector "Context-Aware MCP/LSP Selector" "$SCRIPT_DIR/sr
 _run_step step_auto_skills "Auto-Triggering Skills" "$SCRIPT_DIR/src/lib/53-auto-skills.sh"
 _run_step step_task_distributor "Task Distribution Intelligence" "$SCRIPT_DIR/src/lib/54-task-distributor.sh"
 _run_step step_context_bundle "Context & Token Bundle" "$SCRIPT_DIR/src/lib/55-context-bundle.sh"
-_run_step step_caching "Prompt Caching Stack" "$SCRIPT_DIR/src/lib/56-caching.sh"
+_run_step step_grace_semantics "GRACE Semantics" "$SCRIPT_DIR/src/lib/56-grace-semantics.sh"
+_run_step step_caching "Prompt Caching Stack" "$SCRIPT_DIR/src/lib/60-caching.sh"
 _run_step step_context_guard "Context Guard (compression)" "$SCRIPT_DIR/src/lib/57-context-guard.sh"
 _run_step step_provider_discovery "Provider Auto-Discovery" "$SCRIPT_DIR/src/lib/58-provider-discovery.sh"
 _run_step step_local_memory "Local Memory (opencode-mem, opt-in)" "$SCRIPT_DIR/src/lib/59-local-memory.sh"

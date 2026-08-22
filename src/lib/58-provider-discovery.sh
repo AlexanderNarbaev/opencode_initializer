@@ -94,3 +94,4 @@ _install_models_discovery || true
 _install_provider_manager  || true
 _register_provider_discovery_plugins
 _check_provider_discovery || true
+_step_done step_provider_discovery

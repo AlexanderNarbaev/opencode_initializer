@@ -127,3 +127,4 @@ _install_opencode_router  || true
 _write_bundle_config
 _configure_context_bundle
 _check_context_bundle || true
+_step_done step_context_bundle
