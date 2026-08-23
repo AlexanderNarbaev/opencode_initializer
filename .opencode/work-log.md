@@ -505,3 +505,44 @@ No `[x]` marks applied pending this decision.
 |------|--------|--------|---------|-----------|-----------|-------|
 | scripts/har | MODIFY | done | ses_har_ralph | pass | 2026-08-23T15:53:00 | - |
 | tests/unit/test_har_ralph.sh | CREATE | done | ses_har_ralph | pass | 2026-08-23T15:53:00 | - |
+
+## Session Summary (2026-08-23) — Worker: doc-counts drift gate
+
+### Completed Tasks
+- [x] Created `scripts/check-doc-counts.sh` — harness-engineering gate that fails when landing docs drift from code ground truth (lesson from prior waves: docs hit "13 LSP"/"23 providers" vs code 12/22).
+- [x] Counts ground truth from code: `find tests/{unit,integration,e2e}` (.sh/.py), `jq '.providers|length' src/data/providers.json`, `jq '.lsp|length' opencode.json`.
+- [x] Positive checks: README.md `Unit (N)`, AGENTS.md `unit/ (N files)`, docs/index.{en,ru}.md `(N unit + M integration + K e2e)`.
+- [x] Anti-pattern absence (README.md, README.ru.md, AGENTS.md, docs/index.{en,ru}.md): "13 LSP", "23 LLM", "23 provider", "23 AI provider".
+- [x] Output: `COUNT MISMATCH: <file>: expected …, hint: update counts after adding tests/providers` + exit 1; else `doc-counts: OK (unit=.. intg=.. e2e=.. providers=.. lsp=..)` + exit 0.
+
+### Verification
+- `bash -n scripts/check-doc-counts.sh` → clean.
+- `shellcheck -S error scripts/check-doc-counts.sh` → clean.
+- `bash scripts/check-doc-counts.sh` → `doc-counts: OK (unit=81 intg=6 e2e=5 providers=22 lsp=12)`, exit 0.
+- Isolated hermetic test (sandbox mirror): 8 pass / 0 fail — OK path + drift (unit, integration) + both anti-pattern vectors.
+
+### Files
+- CREATE `scripts/check-doc-counts.sh`
+
+## File Status
+| File | Action | Status | Session | Unit Test | Timestamp | Issue |
+|------|--------|--------|---------|-----------|-----------|-------|
+| scripts/check-doc-counts.sh | CREATE | done | ses_check_doc_counts | pass | 2026-08-23T16:18:00 | - |
+
+## Session Summary (2026-08-23) — Worker: wire doc-counts + home-path gates into CI
+
+### Completed Task
+- [x] MODIFY `.github/workflows/test.yml` — inserted two steps in the `syntax` job, between "Syntax check all shell scripts" and "Python syntax check":
+  1. `Docs count-sync gate (harness-engineering)` → `bash scripts/check-doc-counts.sh`.
+  2. `Guard machine-specific paths in tests` → fail if `alexandr-narbaev` appears in `tests/**/*.sh|*.py` (CI portability).
+
+### Verification
+- `python3 -c "import yaml; yaml.safe_load(open('.github/workflows/test.yml'))"` → `YAML OK`.
+- `git diff --stat .github/workflows/test.yml` → 1 file changed, 8 insertions(+).
+- `bash scripts/check-doc-counts.sh` → `doc-counts: OK (unit=82 intg=6 e2e=5 providers=22 lsp=12)`, exit 0.
+- `grep -rn "alexandr-narbaev" tests/ --include='*.sh' --include='*.py'` → exit 1 (empty, clean).
+
+### File Status
+| File | Action | Status | Session | Unit Test | Timestamp | Issue |
+|------|--------|--------|---------|-----------|-----------|-------|
+| .github/workflows/test.yml | MODIFY | done | ses_wire_ci_gates | pass | 2026-08-23T16:31:00 | - |

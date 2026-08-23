@@ -28,7 +28,7 @@
 | Model Router | 9 task profiles (coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn, testing) |
 | Infrastructure | 7 services (PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer) |
 | Web GUI | 9 management sections (port 4200) |
-| Test suite | 259 checks (81 unit + 6 integration + 5 e2e) |
+| Test suite | 261 checks (82 unit + 6 integration + 5 e2e) |
 | Package managers | apt, dnf, pacman, apk, zypper, brew |
 | Architectures | amd64, arm64 |
 

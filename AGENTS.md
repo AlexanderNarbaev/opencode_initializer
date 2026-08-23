@@ -36,7 +36,7 @@ opencode_initializer/
 │   └── systemd/        ← opencode-metrics.service unit
 ├── scripts/            ← utilities: har (meta-harness CLI), ai-router.sh, embed-proxy.py, pii-guard.py,
 │                         provider-check.sh, oc-{json,rpc,sdk,tui,metrics}, sync-{agents,providers,projects}, check-setup-lines.sh, deploy-pages.sh
-├── tests/              ← run_tests.sh + test_lib.sh; unit/ (81 files), integration/ (6), e2e/ (5)
+├── tests/              ← run_tests.sh + test_lib.sh; unit/ (82 files), integration/ (6), e2e/ (5)
 ├── migrations/         ← timestamped, idempotent migration scripts
 ├── upstream/           ← git submodules: opencode, mcp-servers, searxng, superpowers, skill-conductor
 ├── docs/               ← MkDocs source (EN + RU), plans/, research/, architecture/adr/
@@ -173,6 +173,7 @@ The primary agent operates as a **Universal AI Coprocessor** (`.opencode/skills/
 | CO-STAR Output | Context → Objective → Steps → Thinking → Answer → References (skip for trivial outputs) |
 | Memory Anchor | Start responses with `[CTX: domain]` |
 | Source Ladder | Official docs > authoritative secondary > encyclopedias > model knowledge; flag `[L1]`–`[L4]` |
+| Harness Loop | Every agent mistake becomes an AGENTS.md rule or a programmed gate; every repeated success becomes a skill |
 
 **Hard gates:** never emit secrets; never delete code you don't understand (analyze first); never skip WAL; never speculate without a `[speculative]` flag (<80% confidence).
 

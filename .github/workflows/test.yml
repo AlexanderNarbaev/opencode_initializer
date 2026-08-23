@@ -17,6 +17,14 @@ jobs:
             bash -n "$f" || { echo "FAIL: $f"; exit 1; }
           done
           echo "All shell syntax checks passed"
+      - name: Docs count-sync gate (harness-engineering)
+        run: bash scripts/check-doc-counts.sh
+      - name: Guard machine-specific paths in tests
+        run: |
+          if grep -rn "alexandr-narbaev" tests/ --include='*.sh' --include='*.py'; then
+            echo "FAIL: tests must not hardcode personal paths (breaks CI portability)"; exit 1
+          fi
+          echo "No machine-specific paths in tests"
       - name: Python syntax check
         run: |
           for f in scripts/*.py; do
