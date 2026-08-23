@@ -18,7 +18,7 @@ Send this command to every team member:
 curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializer/main/setup.sh | bash -s -- --full
 ```
 
-This single command installs **everything**: 8 programming languages, 24 MCP servers, 21 OpenCode plugins, 13 LSPs, Docker, GPU/LLM runtimes, SearXNG web search, ZSH with Powerlevel10k, and the `dev` CLI management tool.
+This single command installs **everything**: 6 programming languages, 24 MCP servers, 21 OpenCode plugins, 12 LSPs, Docker, GPU/LLM runtimes, SearXNG web search, ZSH with Powerlevel10k, and the `dev` CLI management tool.
 
 ## Common Team Configurations
 
@@ -28,14 +28,14 @@ This single command installs **everything**: 8 programming languages, 24 MCP ser
 bash setup.sh --full -p ~/projects -n "Your Name" -e "you@company.com"
 ```
 
-Installs all 8 languages. Team members can skip unused languages with `--interactive`.
+Installs all 6 languages. Team members can skip unused languages with `--interactive`.
 
 ### Frontend Developer (TypeScript + Python)
 
 ```bash
 bash setup.sh --interactive
 # Select: Node.js, Python, Chrome, Docker, ZSH
-# Deselect: Java, Kotlin, Zig, .NET
+# Deselect: Java, Zig, .NET
 ```
 
 ### Data/ML Engineer (Python + LLM)
@@ -229,9 +229,9 @@ bash setup.sh --fix-config --deepseek-key "sk-..."
 
 | Category | Components |
 |----------|-----------|
-| **Languages** | Java 25, Node.js 24, Python 3.14 + uv, Go 1.26, Rust (stable), .NET 10, Kotlin, Zig |
+| **Languages** | Java 25, Node.js 24, Python 3.14 + uv, Go 1.26, Rust (stable), .NET 10, Zig |
 | **MCP Servers** | 24 — context7, filesystem, github, gitlab, playwright, chrome-devtools, postgres, sqlite, memory, excalidraw, brave-search, google-maps, and more |
-| **LSP Servers** | 13 — gopls, rust-analyzer, tsserver, pyright, omnisharp, yaml, marksman, bash, dockerfile, css/html/json, and more |
+| **LSP Servers** | 12 — gopls, rust-analyzer, typescript, pyright, yaml, marksman, taplo, bash, dockerfile, css, html, json |
 | **Plugins** | 21 — token-tracker, dcp, swarm, auto-fallback, goal-mode, vibeguard, orchestrator, and more |
 | **Infrastructure** | Docker, ChromaDB, SearXNG, Muninn, Ollama, vLLM, SGLang, Open WebUI |
 | **Web Search** | SearXNG self-hosted + sanitizer proxy (internal hosts/IP/PII) |

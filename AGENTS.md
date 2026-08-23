@@ -5,7 +5,7 @@
 
 ## What This Project Is
 
-**OpenCode Initializer** — a one-command, AI-native bootstrap for development machines (WSL2/Linux primary, macOS best-effort). It installs and configures 8 language toolchains, Docker infrastructure, 24 MCP servers, 13 LSP servers, 21 OpenCode plugins, and 23 LLM providers, then wires them into a governed, auditable agent harness. Four deployment profiles: `personal`, `corporate`, `air-gapped`, `hybrid`.
+**OpenCode Initializer** — a one-command, AI-native bootstrap for development machines (WSL2/Linux primary, macOS best-effort). It installs and configures 6 language toolchains, Docker infrastructure, 24 MCP servers, 12 LSP servers, 21 OpenCode plugins, and 22 LLM providers, then wires them into a governed, auditable agent harness. Four deployment profiles: `personal`, `corporate`, `air-gapped`, `hybrid`.
 
 The codebase is overwhelmingly **Bash** (orchestrator + numbered modules), with small amounts of **Go** (Cockpit TUI, `src/cockpit/`), **JavaScript** (Web GUI, `src/gui/`), and **Python** (utility scripts in `scripts/`). There is no traditional build: "build" means syntax checks + tests; the only compiled artifact is the GUI binary (`bun build --compile`).
 
@@ -21,7 +21,7 @@ Current status: **v3.2.0** (canonical version — README, CHANGELOG, `package.js
 opencode_initializer/
 ├── setup.sh            ← orchestrator (~726 lines, 48 steps): parses CLI, sources modules, dispatches modes
 ├── dev.sh              ← post-install CLI (`dev install|health|update|infra|models|bundle|backup|...`)
-├── opencode.json       ← generated OpenCode config template (23 providers, MCP registry)
+├── opencode.json       ← generated OpenCode config template (22 providers, MCP registry)
 ├── package.json        ← only builds the GUI binary; dep: @opencode-ai/plugin
 ├── requirements.txt    ← MkDocs docs-site dependencies only (not runtime)
 ├── mkdocs.yml          ← docs site config (material + i18n, EN/RU)
@@ -36,7 +36,7 @@ opencode_initializer/
 │   └── systemd/        ← opencode-metrics.service unit
 ├── scripts/            ← utilities: har (meta-harness CLI), ai-router.sh, embed-proxy.py, pii-guard.py,
 │                         provider-check.sh, oc-{json,rpc,sdk,tui,metrics}, sync-{agents,providers,projects}, check-setup-lines.sh, deploy-pages.sh
-├── tests/              ← run_tests.sh + test_lib.sh; unit/ (82 files), integration/ (6), e2e/ (5)
+├── tests/              ← run_tests.sh + test_lib.sh; unit/ (80 files), integration/ (6), e2e/ (5)
 ├── migrations/         ← timestamped, idempotent migration scripts
 ├── upstream/           ← git submodules: opencode, mcp-servers, searxng, superpowers, skill-conductor
 ├── docs/               ← MkDocs source (EN + RU), plans/, research/, architecture/adr/

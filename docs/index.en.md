@@ -20,15 +20,15 @@
 | New in v3.2 | Lynis CIS scanner + auditd kernel rules + AI Gateway proxy + pre-commit hook |
 | Orchestrator | 726 lines of Bash |
 | CLI modes | 12 (full, health, interactive, ci, airgap, and more) |
-| Languages | 8 |
+| Languages | 6 |
 | MCP servers | 24 |
-| LSP servers | 13 |
+| LSP servers | 12 |
 | OpenCode plugins | 21 |
-| AI providers | 23 (19 cloud + 3 local) |
+| AI providers | 22 (19 cloud + 3 local) |
 | Model Router | 9 task profiles (coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn, testing) |
 | Infrastructure | 7 services (PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer) |
 | Web GUI | 9 management sections (port 4200) |
-| Test suite | 257 checks (82 unit + 6 integration + 5 e2e) |
+| Test suite | 257 checks (80 unit + 6 integration + 5 e2e) |
 | Package managers | apt, dnf, pacman, apk, zypper, brew |
 | Architectures | amd64, arm64 |
 
@@ -36,10 +36,10 @@
 
 A single script that turns a fresh Linux/WSL2 machine into a production-ready development environment:
 
-- **8 programming languages** — Java 25, Node.js 24, Python 3.14, Go 1.26, Rust (stable), .NET 10, Kotlin, Zig
+- **6 programming languages** — Java 25, Node.js 24, Python 3.14, Go 1.26, Rust (stable), .NET 10
 - **24 MCP servers** — GitHub, GitLab, Filesystem, Playwright, Chrome DevTools, SQLite, Postgres, Memory, Excalidraw, Brave Search, Context7, Google Maps, and more
 - **21 OpenCode plugins** — codegraph, dcp, auto-fallback, goal-mode, swarm, vibeguard, devcontainers, worktree, scheduler, background-agents, goal-plugin, conductor, zellij-namer, morph-plugin, supermemory, websearch-cited, firecrawl, plugin-otel, token-tracker, orchestrator, daytona
-- **13 LSP servers** — gopls, rust-analyzer, tsserver, pyright, omnisharp, yaml, marksman, taplo, lua, zls, bash, dockerfile, css/html/json
+- **12 LSP servers** — gopls, rust-analyzer, typescript, pyright, yaml, marksman, taplo, bash, dockerfile, css, html, json
 - **Infrastructure as Code** — PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer via Docker Compose
 - **Cockpit TUI** — 8-tab terminal UI for server management
 - **Isolated Circuit Mode** — air-gapped LLM operation with local backends
@@ -134,7 +134,7 @@ dev isolated status                 # Check current state
 
 | Category | Tools |
 |----------|-------|
-| **Languages** | Java 25, Node.js 24, Python 3.14 + uv, Go 1.26, Rust (stable), .NET 10, Kotlin, Zig |
+| **Languages** | Java 25, Node.js 24, Python 3.14 + uv, Go 1.26, Rust (stable), .NET 10 |
 | **Shell** | Zsh 5.8+, Oh My Zsh, Powerlevel10k, 14 plugins |
 | **Browser** | Google Chrome, ChromeDriver (WSL2-aware) |
 | **Containers** | Docker Engine |
@@ -142,7 +142,7 @@ dev isolated status                 # Check current state
 | **AI/ML** | Ollama, vLLM, SGLang, Open WebUI, ChromaDB, WasmEdge, ONNX |
 | **Web Search** | SearXNG self-hosted search + sanitizer proxy |
 | **MCP Servers** | 24 servers for AI-assisted development |
-| **LSP Servers** | 13 language servers |
+| **LSP Servers** | 12 language servers |
 | **Plugins** | 21 OpenCode productivity plugins |
 | **Security** | Trivy, Qodana |
 | **Utilities** | bat, btm, fd, ripgrep, sd, typos, topgrade, just, mise |

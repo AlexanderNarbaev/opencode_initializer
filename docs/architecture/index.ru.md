@@ -9,7 +9,7 @@ C4Context
     title opencode_initializer — Контекст системы
 
     Person(dev, "Разработчик", "Хочет готовое AI-усиленное окружение для разработки")
-    System(oci, "OpenCode Initializer", "Настраивает полную dev-машину: 8 языков, 64 модуля, 24 MCP, 21 плагин, 22 провайдера, инфраструктура")
+    System(oci, "OpenCode Initializer", "Настраивает полную dev-машину: 6 языков, 64 модуля, 24 MCP, 21 плагин, 22 провайдера, инфраструктура")
 
     System_Ext(gh, "GitHub", "Исходный код, релизы, CI/CD")
     System_Ext(ghp, "GitHub Packages", "npm пакеты, Docker образы")
@@ -76,7 +76,7 @@ C4Container
         Container(dotnet, "10-dotnet.sh", "Bash", ".NET 10")
 
         Container(opencode, "11-opencode.sh", "Bash", "OpenCode CLI + Bun")
-        Container(mcp, "12-mcp-lsp.sh", "Bash", "24 MCP + 21 плагин + 13 LSP")
+        Container(mcp, "12-mcp-lsp.sh", "Bash", "24 MCP + 21 плагин + 12 LSP")
         Container(chromadb, "13-chromadb.sh", "Bash", "ChromaDB + systemd")
         Container(shokunin, "14-shokunin.sh", "Bash", "Shokunin + Superpowers + Caveman")
         Container(sec, "15-security.sh", "Bash", "Trivy, Qodana")
@@ -91,7 +91,7 @@ C4Container
         Container(webui, "22-webui-service.sh", "Bash", "Open WebUI systemd сервис")
         Container(just, "23-just.sh", "Bash", "just — таск-раннер")
         Container(websearch, "24-websearch.sh", "Bash", "SearXNG веб-поиск + sanitizer")
-        Container(providers, "26-providers.sh", "Bash", "Реестр 23 LLM-провайдеров")
+        Container(providers, "26-providers.sh", "Bash", "Реестр 22 LLM-провайдеров")
         Container(dotfiles, "27-dotfiles.sh", "Bash", "chezmoi — менеджер dotfiles")
         Container(devbox, "28-devbox.sh", "Bash", "Devbox — Nix-окружения")
         Container(mise, "29-mise.sh", "Bash", "mise-en-place — менеджер версий инструментов")
@@ -235,7 +235,7 @@ graph LR
 | **Bun binary paths для MCP** | Абсолютные пути к `~/.bun/bin/` вместо `npx -y`, мгновенный холодный старт |
 | **Автообновление через systemd** | topgrade еженедельно (Вс 04:00), unattended-upgrades ежедневно для безопасности |
 | **Автоопределение оборудования** | NVIDIA/AMD/Intel GPU, NPU, Apple Silicon — настройка LLM без конфигурации |
-| **Мульти-провайдер** | 23 LLM-провайдера (20 облачных + 3 локальных) с динамической регистрацией и переключением сессий |
+| **Мульти-провайдер** | 22 LLM-провайдера (19 облачных + 3 локальных) с динамической регистрацией и переключением сессий |
 | **Инфраструктура как код** | PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer через Docker Compose |
 | **Изолированный контур** | Автономная работа LLM с локальными OpenAI-совместимыми бэкендами |
 | **Cockpit TUI** | 8-вкладочный терминальный интерфейс управления сервером |

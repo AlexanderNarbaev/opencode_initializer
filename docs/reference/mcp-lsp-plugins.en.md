@@ -66,7 +66,7 @@ Most MCP servers use **absolute Bun binary paths** (`~/.bun/bin/mcp-server-*`) i
 - No network required after install
 - Survives npm cache clears
 
-## LSP Servers (13)
+## LSP Servers (12)
 
 LSP (Language Server Protocol) servers provide intelligent code analysis for OpenCode.
 
@@ -74,17 +74,16 @@ LSP (Language Server Protocol) servers provide intelligent code analysis for Ope
 |--------|----------|----------|
 | **gopls** | Go | Autocomplete, jump-to-def, refactor, diagnostics |
 | **rust-analyzer** | Rust | Full IDE experience, borrow checker integration |
-| **tsserver** | TypeScript/JavaScript | Type checking, autocomplete, quick fixes |
+| **typescript** | TypeScript/JavaScript | Type checking, autocomplete, quick fixes |
 | **pyright** | Python | Static type checking, autocomplete, diagnostics |
-| **omnisharp** | C# / .NET | Full C# language support |
-| **yaml-ls** | YAML | Schema validation, autocomplete, formatting |
+| **yaml** | YAML | Schema validation, autocomplete, formatting |
 | **marksman** | Markdown | Link validation, TOC generation, autocomplete |
 | **taplo** | TOML | Formatting, validation, autocomplete |
-| **lua-ls** | Lua | Autocomplete, diagnostics, annotations |
-| **zls** | Zig | Full Zig language support |
-| **bash-ls** | Bash/Shell | Shell script analysis, diagnostics |
-| **dockerfile-ls** | Dockerfile | Syntax highlighting, validation, autocomplete |
-| **vscode-langservers** | CSS/HTML/JSON | Validation, autocomplete, formatting |
+| **bash** | Bash/Shell | Shell script analysis, diagnostics |
+| **dockerfile** | Dockerfile | Syntax highlighting, validation, autocomplete |
+| **css** | CSS | Validation, autocomplete, formatting |
+| **html** | HTML | Validation, autocomplete, formatting |
+| **json** | JSON | Validation, autocomplete, formatting |
 
 ### Architecture-dependent LSPs
 
@@ -92,8 +91,6 @@ LSP (Language Server Protocol) servers provide intelligent code analysis for Ope
 |--------|-------|-------|
 | gopls | :white_check_mark: | :white_check_mark: |
 | rust-analyzer | :white_check_mark: | :white_check_mark: |
-| omnisharp | :white_check_mark: x64 | :white_check_mark: arm64 |
-| zls | :white_check_mark: x86_64 | :white_check_mark: aarch64 |
 
 The installer auto-detects CPU architecture and downloads the correct binary.
 

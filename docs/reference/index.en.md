@@ -14,7 +14,7 @@ bash setup.sh [MODE] [OPTIONS]
 
 | Mode | Flag | Description |
 |------|------|-------------|
-| **Full** | *(default)* | Complete bootstrap — all 8 languages, 24 MCP, 21 plugins, 13 LSP, 22 providers, 7 infra services |
+| **Full** | *(default)* | Complete bootstrap — all 6 languages, 24 MCP, 21 plugins, 12 LSP, 22 providers, 7 infra services |
 | **Health** | `--health` | Diagnostics — 128+ checks across 12 sections |
 | **Interactive** | `--interactive` | Component-by-component selection |
 | **Reinit** | `--reinit` | Reinstall tools, keep data |
@@ -242,8 +242,8 @@ During setup, you'll see:
 | Rust | `09-rust.sh` | Rust stable (rustup) |
 | .NET | `10-dotnet.sh` | .NET 10 |
 | OpenCode | `11-opencode.sh` | OpenCode CLI + Bun |
-| MCP/LSP | `12-mcp-lsp.sh` | 24 MCP + 21 plugins + 13 LSP + Muninn |
-| Providers | `26-providers.sh` | 23 LLM providers (20 cloud + 3 local) |
+| MCP/LSP | `12-mcp-lsp.sh` | 24 MCP + 21 plugins + 12 LSP + Muninn |
+| Providers | `26-providers.sh` | 22 LLM providers (19 cloud + 3 local) |
 | Infrastructure | `30-infra.sh` | PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer |
 | Cockpit | `31-cockpit.sh` | 8-tab TUI server management daemon |
 | Isolated | `32-isolated.sh` | Air-gapped LLM mode (Ollama/vLLM/SGLang) |
@@ -262,7 +262,7 @@ During setup, you'll see:
 | WebUI Service | `22-webui-service.sh` | Open WebUI systemd user service |
 | just | `23-just.sh` | just task runner with default justfile |
 | WebSearch | `24-websearch.sh` | SearXNG web search + sanitizer proxy |
-| Providers | `26-providers.sh` | 23 LLM provider registry with session switching |
+| Providers | `26-providers.sh` | 22 LLM provider registry with session switching |
 | Dotfiles | `27-dotfiles.sh` | chezmoi dotfiles manager for team config sharing |
 | Devbox | `28-devbox.sh` | Devbox — Nix-based isolated dev environments |
 | Version Check | `version-check.sh` | Version comparison (8+ tools, npm packages) |

@@ -23,7 +23,7 @@
 - Canonical version aligned: README, CHANGELOG, package.json and `SCRIPT_VERSION` now all read 3.2.0 (git ground truth: latest tag was v2.0.0, 3.x line untagged)
 
 ### Docs
-- All module/provider/MCP/plugin/LSP/test counts synchronized across README (EN/RU), docs site (EN/RU) and mkdocs.yml (64 modules, 726-line orchestrator, 22 providers, 24 MCPs, 21 plugins, 13 LSPs, 93 test files / 257 checks)
+- All module/provider/MCP/plugin/LSP/test counts synchronized across README (EN/RU), docs site (EN/RU) and mkdocs.yml (64 modules, 726-line orchestrator, 22 providers, 24 MCPs, 21 plugins, 12 LSPs, 91 test files / 257 checks)
 - Legacy `docs/ru/` pages (contradicting numbers, broken links) removed; stale `docs/comparison.md` duplicate removed; `mcpServers` → `mcp` in reference docs
 
 ## [3.1.0] — 2026-08-08

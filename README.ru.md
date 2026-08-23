@@ -5,7 +5,7 @@
 > **Рабочая модель:** Multi-Agent Framework v3.0 | **Волна:** [current_wave.md](./current_wave.md) | **Чекпоинт:** [session_checkpoint.json](./session_checkpoint.json)
 <p align="center">
   <b>AI-Native SDD Harness — среда разработки с ИИ-усилением в одну команду для WSL2, Linux и macOS. 4 профиля развёртывания.</b><br>
-  <sub>Оркестратор на 726 строк · 64 модуля · 12 режимов · 24 MCP · 21 плагин · 13 LSP · 22 провайдера · air-gap · governance · PII guard · аудит · офлайн-пакет</sub>
+  <sub>Оркестратор на 726 строк · 64 модуля · 12 режимов ·   24 MCP · 21 плагин · 12 LSP · 22 провайдера · air-gap · governance · PII guard · аудит · офлайн-пакет</sub>
 </p>
 
 <p align="center">
@@ -26,7 +26,7 @@
 curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializer/main/setup.sh | bash -s -- --full
 ```
 
-Одна команда устанавливает всё: 8 языков, 64 shell-модуля, 24 MCP-сервера, 21 плагин OpenCode, 13 LSP-серверов, 22 AI-провайдера, инфраструктуру как код (PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer), Cockpit TUI (8 вкладок), Web GUI, Isolated Circuit Mode, авто-определение оборудования, Lynis CIS scanner, правила auditd для ядра и поиск SearXNG.
+Одна команда устанавливает всё: 6 языков, 64 shell-модуля, 24 MCP-сервера, 21 плагин OpenCode, 12 LSP-серверов, 22 AI-провайдера, инфраструктуру как код (PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer), Cockpit TUI (8 вкладок), Web GUI, Isolated Circuit Mode, авто-определение оборудования, Lynis CIS scanner, правила auditd для ядра и поиск SearXNG.
 
 [Полная документация](https://alexandernarbaev.github.io/opencode_initializer/)
 
@@ -37,10 +37,10 @@ curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializ
 
 | Категория | Кол-во | Состав |
 |-----------|--------|--------|
-| Языки | 8 | Java 25, Node.js 24, Python 3.14, Go 1.26, Rust (stable), .NET 10, Kotlin, Zig |
-| Модули | 64 | Система, Docker, Chrome, ZSH, 7 языков, OpenCode, MCP/LSP, ChromaDB, LLM, RAG, SearXNG, провайдеры, dotfiles, Devbox, Infra, Cockpit, Isolated Circuit, Services, Observability, GUI, Model Router, WAL, Best Practices, Upstream Sync, Linux Platform, Lynis, auditd, DeepSeek Harness, Sandcastle, OpenCode Desktop и другие |
+| Языки | 6 | Java 25, Node.js 24, Python 3.14, Go 1.26, Rust (stable), .NET 10 |
+| Модули | 64 | Система, Docker, Chrome, ZSH, 6 языков, OpenCode, MCP/LSP, ChromaDB, LLM, RAG, SearXNG, провайдеры, dotfiles, Devbox, Infra, Cockpit, Isolated Circuit, Services, Observability, GUI, Model Router, WAL, Best Practices, Upstream Sync, Linux Platform, Lynis, auditd, DeepSeek Harness, Sandcastle, OpenCode Desktop и другие |
 | MCP-серверы | 24 | GitHub, GitLab, Filesystem, Playwright, Chrome DevTools, Postgres, SQLite, Memory, Excalidraw, Brave Search, Context7, Google Maps и другие |
-| LSP-серверы | 13 | gopls, rust-analyzer, tsserver, pyright, omnisharp, yaml, marksman, taplo, lua, zls, bash, dockerfile, css/html/json |
+| LSP-серверы | 12 | gopls, rust-analyzer, typescript, pyright, yaml, marksman, taplo, bash, dockerfile, css, html, json |
 | Плагины | 21 | codegraph, dcp, auto-fallback, goal-mode, swarm, vibeguard, devcontainers, worktree, scheduler, background-agents, goal-plugin, conductor, zellij-namer, morph-plugin, supermemory, websearch-cited, firecrawl, plugin-otel, token-tracker, orchestrator, daytona |
 | AI-провайдеры | 22 | DeepSeek, OpenCode (Go), **z.ai GLM-5.2**, **OpenRouter**, OpenAI, Anthropic Claude 4, Google Gemini, xAI Grok 4, MiniMax, MiMo, **Alibaba Qwen3**, **DeepInfra**, Groq, Together, Fireworks, Perplexity, Mistral, Cohere, Cerebras + 3 локальных (Ollama, vLLM, SGLang) |
 | Model Router | 9 профилей | coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn, testing |
@@ -119,7 +119,7 @@ opencode_initializer/
 │   ├── oc-sdk.py              # Python SDK
 │   ├── embed-proxy.py         # Мост Ollama → MemoryLayer embedding
 │   └── ai-router.sh           # Интеллектуальная маршрутизация моделей (+ конфиг ai-router.json)
-├── tests/                     # Unit (82), интеграционные (6), E2E (5) — 257 проверок
+├── tests/                     # Unit (80), интеграционные (6), E2E (5) — 257 проверок
 ├── migrations/                # Временные метки, идемпотентные миграции
 ├── docs/                      # Сайт документации MkDocs Material (EN/RU)
 ├── .github/                   # CI воркфлоу (test, shellcheck, build, security, docs)

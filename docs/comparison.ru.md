@@ -11,13 +11,13 @@ OpenCode Initializer занимает уникальную нишу: ни оди
 | Возможность | OpenCode Initializer | Ручная настройка | Devbox/Nix | DevPod/Coder | Docker Dev Containers | Другие bootstrap-скрипты |
 |-------------|:---:|:---:|:---:|:---:|:---:|:---:|
 | **Время до готового окружения** | 15-20 мин | 2-3 дня | 30-60 мин | 10-15 мин | 20-40 мин | 10-30 мин |
-| **8 языков автоустановка** | :white_check_mark: | :x: | :white_check_mark: (nixpkgs) | :x: (вручную на проект) | :x: (вручную Dockerfile) | :white_check_mark: |
+| **6 языков автоустановка** | :white_check_mark: | :x: | :white_check_mark: (nixpkgs) | :x: (вручную на проект) | :x: (вручную Dockerfile) | :white_check_mark: |
 | **24 MCP-сервера** | :white_check_mark: авто | :x: | :x: | :x: | :x: (ручная настройка) | :x: |
 | **21 плагин OpenCode** | :white_check_mark: авто | :x: | :x: | :x: | :x: | :x: |
-| **13 LSP-серверов** | :white_check_mark: авто | :x: (вручную) | :white_check_mark: (nixpkgs) | :x: (на IDE) | :x: (на IDE) | :x: |
+| **12 LSP-серверов** | :white_check_mark: авто | :x: (вручную) | :white_check_mark: (nixpkgs) | :x: (на IDE) | :x: (на IDE) | :x: |
 | **Локальные LLM-рантаймы** | :white_check_mark: GPU-aware | :x: | :x: | :x: | :x: | :x: |
 | **SearXNG веб-поиск** | :white_check_mark: | :x: | :x: | :x: | :x: | :x: |
-| **23 LLM-провайдера** | :white_check_mark: динамически | :x: | :x: | :x: | :x: | :x: |
+| **22 LLM-провайдера** | :white_check_mark: динамически | :x: | :x: | :x: | :x: | :x: |
 | **Память AI-агента (Muninn)** | :white_check_mark: | :x: | :x: | :x: | :x: | :x: |
 | **Командные dotfiles (chezmoi)** | :white_check_mark: | :x: | :white_check_mark: (nix home-manager) | :x: | :x: | :x: |
 | **Поддержка дистрибутивов** | :white_check_mark: 6 ПМ | N/A | :white_check_mark: (Nix) | :white_check_mark: (любые) | :white_check_mark: (любые) | Разное |
@@ -87,7 +87,7 @@ OpenCode Initializer делает всё это автоматически од�
 Существует много bootstrap-скриптов (Laptop, thoughtbot/laptop, omakub и др.). Обычно они устанавливают системные пакеты и рантаймы языков.
 
 **Где OpenCode Initializer добавляет ценность:**
-- AI-нативный: MCP-серверы, LSP-серверы, плагины OpenCode, 23 LLM-провайдера
+- AI-нативный: MCP-серверы, LSP-серверы, плагины OpenCode, 22 LLM-провайдера
 - Инфраструктура: Docker, ChromaDB, SearXNG
 - GPU-aware LLM-рантаймы с автоопределением
 - Память AI-агента (Muninn + ChromaDB)

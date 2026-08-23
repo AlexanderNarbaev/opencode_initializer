@@ -18,7 +18,7 @@
 curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializer/main/setup.sh | bash -s -- --full
 ```
 
-Эта единственная команда устанавливает **всё**: 8 языков программирования, 24 MCP-сервера, 21 плагин OpenCode, 13 LSP-серверов, Docker, GPU/LLM-рантаймы, SearXNG веб-поиск, ZSH с Powerlevel10k и CLI-инструмент `dev`.
+Эта единственная команда устанавливает **всё**: 6 языков программирования, 24 MCP-сервера, 21 плагин OpenCode, 12 LSP-серверов, Docker, GPU/LLM-рантаймы, SearXNG веб-поиск, ZSH с Powerlevel10k и CLI-инструмент `dev`.
 
 ## Типовые конфигурации для команды
 
@@ -28,14 +28,14 @@ curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializ
 bash setup.sh --full -p ~/projects -n "Ваше Имя" -e "you@company.com"
 ```
 
-Устанавливает все 8 языков. Участники команды могут пропустить неиспользуемые языки с помощью `--interactive`.
+Устанавливает все 6 языков. Участники команды могут пропустить неиспользуемые языки с помощью `--interactive`.
 
 ### Фронтенд-разработчик (TypeScript + Python)
 
 ```bash
 bash setup.sh --interactive
 # Выбрать: Node.js, Python, Chrome, Docker, ZSH
-# Снять: Java, Kotlin, Zig, .NET
+# Снять: Java, Zig, .NET
 ```
 
 ### Data/ML-инженер (Python + LLM)
@@ -229,9 +229,9 @@ bash setup.sh --fix-config --deepseek-key "sk-..."
 
 | Категория | Компоненты |
 |-----------|------------|
-| **Языки** | Java 25, Node.js 24, Python 3.14 + uv, Go 1.26, Rust (stable), .NET 10, Kotlin, Zig |
+| **Языки** | Java 25, Node.js 24, Python 3.14 + uv, Go 1.26, Rust (stable), .NET 10, Zig |
 | **MCP-серверы** | 24 — context7, filesystem, github, gitlab, playwright, chrome-devtools, postgres, sqlite, memory, excalidraw, brave-search, google-maps и другие |
-| **LSP-серверы** | 13 — gopls, rust-analyzer, tsserver, pyright, omnisharp, yaml, marksman, bash, dockerfile, css/html/json и другие |
+| **LSP-серверы** | 12 — gopls, rust-analyzer, typescript, pyright, yaml, marksman, taplo, bash, dockerfile, css, html, json |
 | **Плагины** | 21 — token-tracker, dcp, swarm, auto-fallback, goal-mode, vibeguard, orchestrator и другие |
 | **Инфраструктура** | Docker, ChromaDB, SearXNG, Muninn, Ollama, vLLM, SGLang, Open WebUI |
 | **Веб-поиск** | SearXNG self-hosted + sanitizer-прокси (внутренние хосты/IP/PII) |

@@ -20,15 +20,15 @@
 | Новое в v3.2 | Lynis CIS-сканер + auditd kernel-правила + AI Gateway proxy + pre-commit hook |
 | Оркестратор | 726 строк Bash |
 | Режимов CLI | 12 (full, health, interactive, ci, airgap и другие) |
-| Языков | 8 |
+| Языков | 6 |
 | MCP-серверов | 24 |
-| LSP-серверов | 13 |
+| LSP-серверов | 12 |
 | Плагинов OpenCode | 21 |
-| AI-провайдеров | 23 (19 облачных + 3 локальных) |
+| AI-провайдеров | 22 (19 облачных + 3 локальных) |
 | Model Router | 9 профилей (coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn, testing) |
 | Инфраструктура | 7 сервисов (PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer) |
 | Web GUI | 9 разделов управления (порт 4200) |
-| Тестов | 257 проверок (82 unit + 6 integration + 5 e2e) |
+| Тестов | 257 проверок (80 unit + 6 integration + 5 e2e) |
 | Пакетных менеджеров | apt, dnf, pacman, apk, zypper, brew |
 | Архитектур | amd64, arm64 |
 
@@ -36,10 +36,10 @@
 
 Один скрипт, который превращает свежую машину на Linux/WSL2 в готовое к работе окружение:
 
-- :fontawesome-solid-code: **8 языков программирования** — Java 25, Node.js 24, Python 3.14, Go 1.26, Rust (stable), .NET 10, Kotlin, Zig
+- :fontawesome-solid-code: **6 языков программирования** — Java 25, Node.js 24, Python 3.14, Go 1.26, Rust (stable), .NET 10
 - :fontawesome-solid-robot: **24 MCP-серверов** — GitHub, GitLab, Filesystem, Playwright, Chrome DevTools, SQLite, Postgres, Memory, Excalidraw, Brave Search, Context7, Google Maps и другие
 - :fontawesome-solid-puzzle-piece: **21 плагин OpenCode** — codegraph, dcp, auto-fallback, goal-mode, swarm, vibeguard, devcontainers, worktree, scheduler, background-agents, goal-plugin, conductor, zellij-namer, morph-plugin, supermemory, websearch-cited, firecrawl, plugin-otel, token-tracker, orchestrator, daytona
-- :fontawesome-solid-gears: **13 LSP-серверов** — gopls, rust-analyzer, tsserver, pyright, omnisharp, yaml, marksman, taplo, lua, zls, bash, dockerfile, css/html/json
+- :fontawesome-solid-gears: **12 LSP-серверов** — gopls, rust-analyzer, typescript, pyright, yaml, marksman, taplo, bash, dockerfile, css, html, json
 - :fontawesome-solid-box: **Infrastructure as Code** — PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer через Docker Compose
 - :fontawesome-solid-display: **Cockpit TUI** — 8-вкладочный терминальный UI для управления сервером
 - :fontawesome-solid-shield-halved: **Isolated Circuit Mode** — air-gapped LLM с локальными бэкендами
@@ -132,7 +132,7 @@ dev isolated status                 # Проверить текущее сост
 
 | Категория | Инструменты |
 |-----------|-------------|
-| **Языки** | Java 25, Node.js 24, Python 3.14 + uv, Go 1.26, Rust (stable), .NET 10, Kotlin, Zig |
+| **Языки** | Java 25, Node.js 24, Python 3.14 + uv, Go 1.26, Rust (stable), .NET 10 |
 | **Оболочка** | Zsh 5.8+, Oh My Zsh, Powerlevel10k, 14 плагинов |
 | **Браузер** | Google Chrome, ChromeDriver (оптимизирован для WSL2) |
 | **Контейнеры** | Docker Engine |
@@ -140,7 +140,7 @@ dev isolated status                 # Проверить текущее сост
 | **AI/ML** | Ollama, vLLM, SGLang, Open WebUI, ChromaDB, WasmEdge, ONNX |
 | **Веб-поиск** | SearXNG self-hosted поиск + sanitizer proxy |
 | **MCP-серверы** | 24 сервера для AI-ассистированной разработки |
-| **LSP-серверы** | 13 языковых серверов |
+| **LSP-серверы** | 12 языковых серверов |
 | **Плагины** | 21 плагин продуктивности OpenCode |
 | **Безопасность** | Trivy, Qodana |
 | **Утилиты** | bat, btm, fd, ripgrep, sd, typos, topgrade, just, mise |

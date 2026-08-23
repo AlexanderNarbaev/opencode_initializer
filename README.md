@@ -5,7 +5,7 @@
 > **Operating Model:** Multi-Agent Framework v3.0 | **Wave:** [current_wave.md](./current_wave.md) | **Checkpoint:** [session_checkpoint.json](./session_checkpoint.json)
 <p align="center">
   <b>AI-Native SDD Harness — one-command AI-enhanced development environment for WSL2, Linux, and macOS. 4 deployment profiles.</b><br>
-  <sub>726-line orchestrator · 64 modules · 12 modes · 24 MCPs · 21 plugins · 13 LSPs · 22 providers · air-gap · governance · PII guard · audit trail · offline bundle</sub>
+  <sub>726-line orchestrator · 64 modules · 12 modes ·   24 MCPs · 21 plugins · 12 LSPs · 22 providers · air-gap · governance · PII guard · audit trail · offline bundle</sub>
 </p>
 
 <p align="center">
@@ -26,7 +26,7 @@
 curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializer/main/setup.sh | bash -s -- --full
 ```
 
-One command installs everything: 8 languages, 64 shell modules, 24 MCP servers, 21 OpenCode plugins, 13 LSP servers, 22 AI providers, infrastructure as code (PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer), Cockpit TUI (8 tabs), Web GUI, Isolated Circuit Mode, hardware auto-detection, Lynis CIS scanner, auditd kernel rules, and SearXNG web search.
+One command installs everything: 6 languages, 64 shell modules, 24 MCP servers, 21 OpenCode plugins, 12 LSP servers, 22 AI providers, infrastructure as code (PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer), Cockpit TUI (8 tabs), Web GUI, Isolated Circuit Mode, hardware auto-detection, Lynis CIS scanner, auditd kernel rules, and SearXNG web search.
 
 [Full Documentation](https://alexandernarbaev.github.io/opencode_initializer/)
 
@@ -37,10 +37,10 @@ One command installs everything: 8 languages, 64 shell modules, 24 MCP servers, 
 
 | Category | Count | Details |
 |----------|-------|---------|
-| Languages | 8 | Java 25, Node.js 24, Python 3.14, Go 1.26, Rust (stable), .NET 10, Kotlin, Zig |
-| Modules | 64 | System, Docker, Chrome, ZSH, 7 languages, OpenCode, MCP/LSP, ChromaDB, LLM, RAG, SearXNG, providers, dotfiles, Devbox, Infra, Cockpit, Isolated Circuit, Services, Observability, GUI, Model Router, WAL, Best Practices, Upstream Sync, Linux Platform, Lynis, auditd, DeepSeek Harness, Sandcastle, OpenCode Desktop, and more |
+| Languages | 6 | Java 25, Node.js 24, Python 3.14, Go 1.26, Rust (stable), .NET 10 |
+| Modules | 64 | System, Docker, Chrome, ZSH, 6 languages, OpenCode, MCP/LSP, ChromaDB, LLM, RAG, SearXNG, providers, dotfiles, Devbox, Infra, Cockpit, Isolated Circuit, Services, Observability, GUI, Model Router, WAL, Best Practices, Upstream Sync, Linux Platform, Lynis, auditd, DeepSeek Harness, Sandcastle, OpenCode Desktop, and more |
 | MCP Servers | 24 | GitHub, GitLab, Filesystem, Playwright, Chrome DevTools, Postgres, SQLite, Memory, Excalidraw, Brave Search, Context7, Google Maps, and more |
-| LSP Servers | 13 | gopls, rust-analyzer, tsserver, pyright, omnisharp, yaml, marksman, taplo, lua, zls, bash, dockerfile, css/html/json |
+| LSP Servers | 12 | gopls, rust-analyzer, typescript, pyright, yaml, marksman, taplo, bash, dockerfile, css, html, json |
 | Plugins | 21 | codegraph, dcp, auto-fallback, goal-mode, swarm, vibeguard, devcontainers, worktree, scheduler, background-agents, goal-plugin, conductor, zellij-namer, morph-plugin, supermemory, websearch-cited, firecrawl, plugin-otel, token-tracker, orchestrator, daytona |
 | AI Providers | 22 | DeepSeek, OpenCode (Go), **z.ai GLM-5.2**, **OpenRouter**, OpenAI, Anthropic Claude 4, Google Gemini, xAI Grok 4, MiniMax, MiMo, **Alibaba Qwen3**, **DeepInfra**, Groq, Together, Fireworks, Perplexity, Mistral, Cohere, Cerebras + 3 local (Ollama, vLLM, SGLang) |
 | Model Router | 9 profiles | coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn, testing |

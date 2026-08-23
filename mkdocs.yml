@@ -1,5 +1,5 @@
 site_name: OpenCode Initializer
-site_description: Universal Dev Machine Bootstrap v3.2.0 — one-command AI-enhanced development environment with 64 modules, 22 providers, 24 MCPs, 21 plugins, 13 LSPs, SDD-native harness, 4 deployment profiles, Web GUI
+site_description: One-command AI-native bootstrap for development machines — 6 language toolchains, Docker infra, 24 MCP servers, 21 OpenCode plugins, governed agent harness.
 site_author: Alexander Narbaev
 site_url: https://alexandernarbaev.github.io/opencode_initializer/
 copyright: "&copy; 2025-2026 Alexander Narbaev. MIT License."
@@ -148,6 +148,11 @@ nav:
       - Team Setup: guides/team-setup.md
       - Deployment Profiles: guides/deployment-profiles.md
       - Air-Gap & Offline: guides/airgap-offline.md
+      - Provider Setup: guides/provider-setup.md
+      - AI Gateway Proxy: guides/ai-gateway-proxy.md
+      - DeepSeek Harness: guides/deepseek-harness-guide.md
+      - IDE Plugins: guides/ide-plugins-guide.md
+      - Sandcastle: guides/sandcastle-guide.md
   - Comparison: comparison.md
   - Changelog: changelog/index.md
   - Tags: tags.md

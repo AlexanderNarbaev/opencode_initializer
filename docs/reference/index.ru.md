@@ -14,7 +14,7 @@ bash setup.sh [РЕЖИМ] [ОПЦИИ]
 
 | Режим | Флаг | Описание |
 |-------|------|----------|
-| **Полный** | *(по умолчанию)* | Полная установка — все 8 языков, 24 MCP, 21 плагин, 13 LSP |
+| **Полный** | *(по умолчанию)* | Полная установка — все 6 языков, 24 MCP, 21 плагин, 12 LSP |
 | **Диагностика** | `--health` | Диагностика — 128+ проверок в 12 разделах |
 | **Интерактивный** | `--interactive` | Выбор компонентов по одному |
 | **Переустановка** | `--reinit` | Переустановить инструменты, сохранить данные |
@@ -241,7 +241,7 @@ step_mark "01-system"      # Отметить как сделанное
 | Rust | `09-rust.sh` | Rust stable (rustup) |
 | .NET | `10-dotnet.sh` | .NET 10 |
 | OpenCode | `11-opencode.sh` | OpenCode CLI + Bun |
-| MCP/LSP | `12-mcp-lsp.sh` | 24 MCP + 21 плагин + 13 LSP + Muninn |
+| MCP/LSP | `12-mcp-lsp.sh` | 24 MCP + 21 плагин + 12 LSP + Muninn |
 | ChromaDB | `13-chromadb.sh` | ChromaDB + systemd сервис |
 | Shokunin | `14-shokunin.sh` | Shokunin + Superpowers + Caveman |
 | Security | `15-security.sh` | Trivy, Qodana |
@@ -255,7 +255,7 @@ step_mark "01-system"      # Отметить как сделанное
 | WebUI Service | `22-webui-service.sh` | Open WebUI systemd сервис |
 | just | `23-just.sh` | just — таск-раннер с дефолтным justfile |
 | WebSearch | `24-websearch.sh` | SearXNG веб-поиск + sanitizer proxy |
-| Providers | `26-providers.sh` | Реестр 23 LLM-провайдеров с переключением сессий |
+| Providers | `26-providers.sh` | Реестр 22 LLM-провайдеров с переключением сессий |
 | Infrastructure | `30-infra.sh` | PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer |
 | Dotfiles | `27-dotfiles.sh` | chezmoi — менеджер dotfiles для командного шеринга |
 | Devbox | `28-devbox.sh` | Devbox — изолированные Nix-окружения |
