@@ -24,6 +24,8 @@ grep -q "Unit (${UNIT})" README.ru.md     || mismatch "README.ru.md: expected 'U
 grep -q "unit/ (${UNIT} files)" AGENTS.md || mismatch "AGENTS.md: expected 'unit/ (${UNIT} files)'"
 grep -q "(${UNIT} unit + ${INTG} integration + ${E2E} e2e)" docs/index.en.md || mismatch "docs/index.en.md: expected '(${UNIT} unit + ${INTG} integration + ${E2E} e2e)'"
 grep -q "(${UNIT} unit + ${INTG} integration + ${E2E} e2e)" docs/index.ru.md || mismatch "docs/index.ru.md: expected '(${UNIT} unit + ${INTG} integration + ${E2E} e2e)'"
+grep -Eq "${PROVIDERS} (AI |LLM )?providers" README.md AGENTS.md || mismatch "providers claim"
+grep -Eq "${LSP} LSP" README.md AGENTS.md docs/index.en.md       || mismatch "lsp claim"
 
 # ── Stale anti-patterns must never reappear ───────────────────────────────
 for pat in "13 LSP" "23 LLM" "23 provider" "23 AI provider"; do
