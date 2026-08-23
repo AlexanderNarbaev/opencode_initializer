@@ -1,26 +1,12 @@
 {
   "documents": {
-    "github_com_deepseek-ai_deepseek-harness.md": {
-      "url": "https://github.com/deepseek-ai/deepseek-harness",
-      "title": "GitHub - deepseek-ai/deepseek-harness: DeepSeek Harness: Everything is a Plugin. · GitHub",
-      "fetchedAt": "2026-08-17T08:27:28.559Z",
-      "expiresAt": "2026-08-18T08:27:28.559Z",
-      "size": 2372
-    },
-    "github_com_mattpocock_sandcastle.md": {
-      "url": "https://github.com/mattpocock/sandcastle",
-      "title": "GitHub - mattpocock/sandcastle: Orchestrate sandboxed coding agents in TypeScript with sandcastle.run() · GitHub",
-      "fetchedAt": "2026-08-17T08:27:28.875Z",
-      "expiresAt": "2026-08-18T08:27:28.875Z",
-      "size": 15233
-    },
-    "github_com_mattpocock_skills.md": {
-      "url": "https://github.com/mattpocock/skills",
-      "title": "GitHub - mattpocock/skills: Skills for Real Engineers. Straight from my .agents directory. · GitHub",
-      "fetchedAt": "2026-08-17T08:27:29.055Z",
-      "expiresAt": "2026-08-18T08:27:29.055Z",
-      "size": 15216
+    "www_alphaxiv_org_abs_260609498v3.md": {
+      "url": "https://www.alphaxiv.org/abs/2606.09498v3",
+      "title": "Self-Harness: Harnesses That Improve Themselves | alphaXiv",
+      "fetchedAt": "2026-08-21T18:00:21.595Z",
+      "expiresAt": "2026-08-22T18:00:21.595Z",
+      "size": 15180
     }
   },
-  "lastUpdated": "2026-08-17T08:27:29.055Z"
+  "lastUpdated": "2026-08-21T18:00:21.596Z"
 }

@@ -26,29 +26,24 @@ _spin_start() { :; }; _spin_stop() { :; }
   source "$MODULE" 2>/dev/null
 ) && pass "55-context-bundle.sh sources in subshell" || fail "55-context-bundle.sh subshell source FAIL"
 
-# Test opencode-context and opencode-router binaries exist
-command -v opencode-context >/dev/null 2>&1 && pass "opencode-context binary installed" || fail "opencode-context binary missing"
-command -v opencode-router  >/dev/null 2>&1 && pass "opencode-router binary installed"  || fail "opencode-router binary missing"
+# Hermetic assertions: a CI checkout has no user install and no rendered
+# config, so verify the wiring where it actually lives in the repo — the
+# module (install step) and the generator SSOT (18-opencode-json.sh,
+# registering both plugins in the default tier since fe04857).
+grep -q 'opencode-context' "$MODULE" && pass "opencode-context wired by module" || fail "opencode-context NOT wired by module"
+grep -q 'opencode-router' "$MODULE" && pass "opencode-router wired by module" || fail "opencode-router NOT wired by module"
 
-# Test opencode.json HAS opencode-context/router in plugin array
-# (registered in the default tier by 18-opencode-json.sh since fe04857;
-# the historical "hangs agent list" issue is fixed in current versions —
-# verified: `opencode agent list` exits 0 with both plugins loaded)
-CFG="${XDG_CONFIG_HOME:-$HOME/.config/opencode/opencode.json}"
-[ -f "$CFG" ] || CFG="/home/alexandr-narbaev/.config/opencode/opencode.json"
-if [ -f "$CFG" ]; then
-  if grep -qF '"opencode-context"' "$CFG"; then
-    pass "opencode-context registered in plugin[]"
-  else
-    fail "opencode-context missing from plugin[] (expected since fe04857)"
-  fi
-  if grep -qF '"opencode-router"' "$CFG"; then
-    pass "opencode-router registered in plugin[]"
-  else
-    fail "opencode-router missing from plugin[] (expected since fe04857)"
-  fi
+GEN="$PROJECT_DIR/src/lib/18-opencode-json.sh"
+[ -f "$GEN" ] && pass "18-opencode-json.sh exists" || fail "18-opencode-json.sh missing"
+if [ -f "$GEN" ] && grep -qF '"opencode-context"' "$GEN"; then
+  pass "opencode-context registered in generator plugin tier"
 else
-  fail "opencode.json not found"
+  fail "opencode-context missing from generator (expected since fe04857)"
+fi
+if [ -f "$GEN" ] && grep -qF '"opencode-router"' "$GEN"; then
+  pass "opencode-router registered in generator plugin tier"
+else
+  fail "opencode-router missing from generator (expected since fe04857)"
 fi
 
 # Test shared bundle.json is written (or at least the function exists)
