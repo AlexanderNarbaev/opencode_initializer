@@ -546,3 +546,22 @@ No `[x]` marks applied pending this decision.
 | File | Action | Status | Session | Unit Test | Timestamp | Issue |
 |------|--------|--------|---------|-----------|-----------|-------|
 | .github/workflows/test.yml | MODIFY | done | ses_wire_ci_gates | pass | 2026-08-23T16:31:00 | - |
+
+## Session Summary (2026-08-23) — Worker: providers/LSP count checks in doc-counts gate
+
+### Completed Task
+- [x] MODIFY `scripts/check-doc-counts.sh` — added two positive checks (PROVIDERS/LSP were counted but never asserted against docs):
+  1. `grep -Eq "${PROVIDERS} (AI |LLM )?providers" README.md AGENTS.md` → else `COUNT MISMATCH: providers claim`.
+  2. `grep -Eq "${LSP} LSP" README.md AGENTS.md docs/index.en.md` → else `COUNT MISMATCH: lsp claim`.
+
+### Verification
+- `bash -n scripts/check-doc-counts.sh` → OK.
+- `shellcheck -S error scripts/check-doc-counts.sh` → clean (exit 0).
+- `bash scripts/check-doc-counts.sh` → `doc-counts: OK (unit=82 intg=6 e2e=5 providers=22 lsp=12)`, exit 0.
+- Negative proof: wrong values (`99 providers`, `99 LSP`) correctly NOT found → checks would fire.
+- Not committed (left in working tree per instructions).
+
+### File Status
+| File | Action | Status | Session | Unit Test | Timestamp | Issue |
+|------|--------|--------|---------|-----------|-----------|-------|
+| scripts/check-doc-counts.sh | MODIFY | done | ses_doc_counts_prov_lsp | pass | 2026-08-23T16:43:00 | - |
