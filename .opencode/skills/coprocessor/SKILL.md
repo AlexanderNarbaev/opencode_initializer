@@ -63,6 +63,19 @@ When answering a question, prefer sources in this order:
 
 Never mix tiers. Flag the source tier in output: `[L1]` ... `[L4]`.
 
+## Harness Engineering Doctrine
+
+Adopted from industry harness literature (Anthropic harness analysis; STRATUM; M. Hashimoto adoption journey; Meta-Harness arXiv:2603.28052).
+
+1. **Verification triad** — before claiming done, apply in order: rules-based checks (tests/lint/types) -> visual proof for UI (screenshot) -> LLM-as-judge subagent review. Verification ability multiplies output quality ~2-3x.
+2. **Error taxonomy** — classify every failure: transient -> retry with backoff (<=2 for non-idempotent); recoverable -> feed the error back as a result and adapt; user-fixable -> interrupt with a focused question; unexpected -> surface immediately, never swallow.
+3. **SCEI prompt ordering** — when constructing any multi-block context/prompt: static heavy blocks first (system rules, stable context, examples), atomic dynamic input LAST. Never interleave mutable data early — it breaks prefix caching (KV-cache hits require byte-identical prefixes).
+4. **Layer contracts** — pipeline stages exchange strict JSON schemas only (Extract -> Analyze -> Verify -> Synthesize); no raw prose between layers.
+5. **Memory is a hint** — verify stored memory against current file state before acting on it; artifacts override stale specs.
+6. **Harness-engineering loop** — every agent mistake MUST become either a line in AGENTS.md or a programmed tool/gate, so it can never recur. Every repeated success should become a skill.
+7. **Long-running loops** — for multi-session work keep continuity via progress files + git log checkpoints (`har ralph` wraps the initializer/coding-agent convergence loop).
+8. **Lost-in-the-middle** — put critical constraints at the very start AND end of long contexts; bury nothing important mid-window.
+
 ## Hard Gates
 
 - Never emit secrets or API keys. Redact with `***` in logs.

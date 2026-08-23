@@ -481,3 +481,27 @@ No `[x]` marks applied pending this decision.
 | src/lib/20-autoupdate.sh | MODIFY | done | ses_cost_dashboard | pass | 2026-08-17T19:41:30 | - |
 | scripts/oc-tui.sh | MODIFY | done | ses_cost_dashboard | pass | 2026-08-17T19:41:30 | - |
 | tests/unit/test_cost_dashboard.sh | CREATE | done | ses_cost_dashboard | pass | 2026-08-17T19:41:30 | - |
+
+## Session Summary (2026-08-23) — Worker: har ralph subcommand + test
+
+### Completed Tasks
+- [x] Bumped `scripts/har` version 1.0.1 → 1.1.0 (header comment, HAR_VERSION, help banner).
+- [x] Implemented `har_ralph()` — bounded health-convergence loop (Ralph Loop / Anthropic pattern): `--max N` (default 3), `--dry-run`, `--setup PATH` (default repo-root/setup.sh). Runs `setup.sh --health` each round; converged→exit 0; on failure applies `--fix-config` (+ `--fix-zshrc` on first unhealthy round), writes best-effort WAL checkpoint to `~/.cache/opencode/wal.jsonl` (domain health); non-convergence→exit 1.
+- [x] Added `ralph` to the dispatcher `case` and to `har_help()` COMMANDS + `har ralph --help` sub-help.
+- [x] Created `tests/unit/test_har_ralph.sh` — 11 assertions (static wiring, help, dry-run non-mutation, converge + WAL).
+
+### Verification
+- `bash -n scripts/har` → clean; `bash -n tests/unit/test_har_ralph.sh` → clean.
+- `bash tests/unit/test_har_ralph.sh` → `RESULTS: 11 pass, 0 fail` (EXIT=0).
+- `shellcheck -S error scripts/har` → clean.
+- `bash scripts/har ralph --help` → prints sub-help, exit 0.
+
+### Files
+- MODIFY `scripts/har`
+- CREATE `tests/unit/test_har_ralph.sh`
+
+## File Status
+| File | Action | Status | Session | Unit Test | Timestamp | Issue |
+|------|--------|--------|---------|-----------|-----------|-------|
+| scripts/har | MODIFY | done | ses_har_ralph | pass | 2026-08-23T15:53:00 | - |
+| tests/unit/test_har_ralph.sh | CREATE | done | ses_har_ralph | pass | 2026-08-23T15:53:00 | - |

@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- `har ralph` — bounded health-convergence loop (initializer/coding-agent pattern, Anthropic-style); unit test
+
+### Changed
+- Harness-engineering doctrine added to coprocessor skill; error-handling & token-efficiency conventions in CONTRIBUTING; research synthesis docs/research/2026-08-23-harness-patterns.md — adopted from industry harness literature (Habr / STRATUM / Meta-Harness / Hashimoto)
+
 ## [3.2.0] — 2026-08-22
 
 ### Context, Token & Cost Management (M7)

@@ -75,6 +75,15 @@ fi
 - Stored in `~/.config/opencode/secrets.env` (chmod 600)
 - Never committed to the repository
 
+### Error handling conventions
+- Four classes (LangGraph-derived): transient → `_curl`/`_retry` backoff; tool-recoverable → return the error as a result so the caller/model can adapt; user-fixable → interrupt and ask; unexpected → propagate via `err()`.
+- Retries ≤ 2 for non-idempotent mutations (Stripe production rule). Idempotent reads may keep the default `_curl` 5-retry budget.
+- Hooks/checkers are fail-open by design — never a sole security barrier.
+
+### Token-efficiency convention
+- Machine-consumed artifacts (WAL entries, JSONL state, code comments, commit bodies) stay in English — Cyrillic costs ≈2× tokens (tokenizer tax).
+- Human-facing prose (docs site RU pages, replies) may be Russian.
+
 ## Adding a New Component
 
 When adding a new package, tool, MCP server, plugin, or LSP server, you must modify **all** of these files:

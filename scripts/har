@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# scripts/har — Meta-Harness CLI (v1.0.1)
+# scripts/har — Meta-Harness CLI (v1.1.0)
 # Unified harness combining opencode-ai + dsh (DeepSeek Harness) +
 # sandcastle (sandboxed orchestration) + every opencode-* plugin.
 # Single entrypoint: `har <cmd> [args...]`
@@ -12,7 +12,7 @@
 # Installed via npm but loaded only on explicit user invocation.
 set -euo pipefail
 
-HAR_VERSION="1.0.1"
+HAR_VERSION="1.1.0"
 HAR_HOME="${HAR_HOME:-$HOME/.local/share/har}"
 HAR_CACHE="${HAR_CACHE:-$HOME/.cache/har}"
 HAR_LOG="${HAR_LOG:-$HAR_CACHE/har.log}"
@@ -42,7 +42,7 @@ ok()    { echo "${C_GREEN}[har:OK]${C_RESET} $*" | tee -a "$HAR_LOG" >&2; }
 
 har_help() {
   cat <<'EOF'
-har — Meta-Harness CLI for AI development (v1.0.1)
+har — Meta-Harness CLI for AI development (v1.1.0)
 
 USAGE
   har <command> [args...]
@@ -67,6 +67,7 @@ COMMANDS
   evolve              Self-improve: refresh skill mtimes across all projects
   web [port]          Start unified dashboard (dsh web on port, default 3080)
   update              Update all plugins + dsh to latest
+  ralph               Bounded health-convergence loop (--max N, --dry-run)
   help                Show this help
 
 ENV
@@ -371,6 +372,88 @@ har_apply_all() {
   done
 }
 
+# ── RALPH: bounded health-convergence loop ───────────────────────────────
+# Ralph Loop (Anthropic long-running research pattern): an initializer +
+# coding agent iterate a bounded set of known heals until the install reports
+# healthy — hard iteration cap prevents infinite spin.
+har_ralph() {
+  local max=3
+  local dry_run=0
+  local repo_root
+  repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+  local setup="$repo_root/setup.sh"
+
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --max)
+        max="${2:-3}"
+        shift 2 2>/dev/null || shift ;;
+      --dry-run)
+        dry_run=1; shift ;;
+      --setup)
+        setup="${2:-$setup}"
+        shift 2 2>/dev/null || shift ;;
+      -h|--help)
+        cat <<'EOF'
+har ralph [--max N] [--dry-run] [--setup PATH]
+
+Bounded health-convergence loop (Ralph Loop): run `setup.sh --health` up to
+N times, applying known heals (--fix-config, plus --fix-zshrc on the first
+unhealthy round) until the install reports healthy.
+
+Options:
+  --max N        max rounds (default 3)
+  --dry-run      report what would be healed without mutating anything
+  --setup PATH   override setup.sh path (default: repo-root/setup.sh)
+EOF
+        return 0 ;;
+      *)
+        err "Unknown ralph option: $1"; return 2 ;;
+    esac
+  done
+
+  [ -f "$setup" ] || { err "ralph: setup.sh not found at $setup (pass --setup PATH)"; return 2; }
+
+  log "ralph: bounded health-convergence loop (max $max rounds, setup=$setup)"
+
+  local round
+  for (( round = 1; round <= max; round++ )); do
+    local health_rc=0
+    local health_out
+    if health_out="$(bash "$setup" --health 2>&1)"; then
+      health_rc=0
+    else
+      health_rc=$?
+    fi
+
+    if [ "$health_rc" -eq 0 ]; then
+      log "ralph: converged after $round round(s)"
+      return 0
+    fi
+
+    if [ "$dry_run" -eq 1 ]; then
+      warn "ralph: would heal (round $round): setup.sh --fix-config"
+      continue
+    fi
+
+    log "ralph: round $round unhealthy — applying known heals"
+    bash "$setup" --fix-config >/dev/null 2>&1 || warn "ralph: --fix-config failed (round $round)"
+    if [ "$round" -eq 1 ]; then
+      bash "$setup" --fix-zshrc >/dev/null 2>&1 || warn "ralph: --fix-zshrc failed"
+    fi
+
+    # WAL checkpoint (best-effort — must never break the loop)
+    local wal_dir="${HOME}/.cache/opencode"
+    if mkdir -p "$wal_dir" 2>/dev/null; then
+      printf '{"ts":"%s","domain":"health","decision":"har ralph round %d/%d: health fail -> applied known heals","rationale":"bounded convergence loop","impact":["setup.conf"],"confidence":0.9,"mode":"S2"}\n' \
+        "$(date -u +%FT%TZ)" "$round" "$max" >> "$wal_dir/wal.jsonl" 2>/dev/null || true
+    fi
+  done
+
+  err "ralph: did not converge after $max round(s)"
+  return 1
+}
+
 # ── Dispatcher ─────────────────────────────────────────────────────────────
 cmd="${1:-help}"; shift || true
 case "$cmd" in
@@ -395,6 +478,7 @@ case "$cmd" in
   apply-all|apply_all) har_apply_all ;;
   apply) har_apply "$@" ;;
   grace) har_grace "$@" ;;
+  ralph) har_ralph "$@" ;;
   version|--version|-v) echo "har ${HAR_VERSION}" ;;
   *) err "Unknown command: $cmd"; har_help; exit 2 ;;
 esac
