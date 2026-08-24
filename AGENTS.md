@@ -9,7 +9,7 @@
 
 The codebase is overwhelmingly **Bash** (orchestrator + numbered modules), with small amounts of **Go** (Cockpit TUI, `src/cockpit/`), **JavaScript** (Web GUI, `src/gui/`), and **Python** (utility scripts in `scripts/`). There is no traditional build: "build" means syntax checks + tests; the only compiled artifact is the GUI binary (`bun build --compile`).
 
-Current status: **v3.2.0** (canonical version — README, CHANGELOG, `package.json`, `SCRIPT_VERSION` aligned). Recent work: context/token/cost management stack (modules 53–60) and the `har` meta-harness CLI.
+Current status: **v3.3.0** (canonical version — README, CHANGELOG, `package.json`, `SCRIPT_VERSION` aligned). Recent work: context/token/cost management stack (modules 53–60), Daytona environment practice (module 61), skills audit and model-aware context budget tooling.
 
 ## Язык общения
 
@@ -193,5 +193,5 @@ The primary agent operates as a **Universal AI Coprocessor** (`.opencode/skills/
 
 - **Optimized for WSL2/Linux**; macOS paths are best-effort (needs `brew install bash grep`; Docker Desktop for infra modules; no launchd equivalents for systemd user services). Windows-native is unsupported.
 - `declare -A` is fully eliminated from code (0 usages; only historical mentions in comments) — parallel indexed arrays and case-dispatch lookups are used instead.
-- Canonical version: **v3.2.0** (README, CHANGELOG, `package.json`, `SCRIPT_VERSION` aligned).
+- Canonical version: **v3.3.0** (README, CHANGELOG, `package.json`, `SCRIPT_VERSION` aligned).
 - `docs/`, `site/`, `upstream/`, `.opencode/skills/` are large; prefer targeted Grep/Glob over broad walks.

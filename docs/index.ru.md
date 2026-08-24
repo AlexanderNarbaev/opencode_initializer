@@ -1,4 +1,4 @@
-# OpenCode Initializer v3.2.0
+# OpenCode Initializer v3.3.0
 
 [![GitHub stars](https://img.shields.io/github/stars/AlexanderNarbaev/opencode_initializer?style=social)](https://github.com/AlexanderNarbaev/opencode_initializer)
 [![License](https://img.shields.io/github/license/AlexanderNarbaev/opencode_initializer)](https://github.com/AlexanderNarbaev/opencode_initializer/blob/main/LICENSE)
@@ -49,14 +49,14 @@
 - :fontawesome-solid-globe: **Chrome** — Google Chrome + ChromeDriver (оптимизирован для WSL2)
 - :fontawesome-solid-clock-rotate-left: **Автообновление** — systemd weekly timer + topgrade
 
-## :fontawesome-solid-star: Новое в v3.2.0
+## :fontawesome-solid-star: Новое в v3.3.0
 
 | Возможность | Описание |
 |-------------|----------|
-| Lynis + Auditd | Lynis CIS-сканер безопасности + auditd kernel-правила аудита, weekly cron |
-| AI Gateway Proxy | Поддержка корпоративного AI Gateway (HTTP/HTTPS прокси для API-вызовов) |
-| Pre-commit Hook | `check-setup-lines.sh` — автоматическая проверка консистентности строк setup.sh ↔ README |
-| Расширенный CI | ShellCheck severity error по всем модулям, CI-гейты для новых файлов |
+| Окружения Daytona | `61-daytona.sh` + `daytona-env`: актуальный CLI платформы, декларативный реестр окружений, настройка командами И конфиг-файлами |
+| Аудит skills | `dev skills`: дрейф установленных и зарегистрированных, поиск устаревших/избыточных, свидетельства использования из свежих логов |
+| Контекстный бюджет | `dev context`: лимиты контекста моделей из routing.json, использование против максимума модели сессии, WARN 77% / ACT 90% |
+| IA документации | Гейт i18n-паритета в CI, ноль сирот в навигации, разделы Operations и Working Documents |
 
 ## :fontawesome-solid-star: Новое в v3.0.0
 

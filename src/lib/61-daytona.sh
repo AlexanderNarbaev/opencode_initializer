@@ -115,8 +115,8 @@ _install_daytona_env_wrapper() {
   local bin="$HOME/.local/bin/daytona-env"
   mkdir -p "$HOME/.local/bin"
 
-  if [ -f "$SCRIPT_DIR/../scripts/daytona-env.sh" ]; then
-    cp "$SCRIPT_DIR/../scripts/daytona-env.sh" "$bin"
+  if [ -f "$SCRIPT_DIR/../../scripts/daytona-env.sh" ]; then
+    cp "$SCRIPT_DIR/../../scripts/daytona-env.sh" "$bin"
   else
     cat > "$bin" <<'EOF'
 #!/usr/bin/env bash

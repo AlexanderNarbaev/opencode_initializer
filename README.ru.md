@@ -1,6 +1,6 @@
 [EN](README.md) | [RU](README.ru.md)
 
-# OpenCode Initializer v3.2.0
+# OpenCode Initializer v3.3.0
 
 > **Рабочая модель:** Multi-Agent Framework v3.0 | **Волна:** [current_wave.md](./current_wave.md) | **Чекпоинт:** [session_checkpoint.json](./session_checkpoint.json)
 <p align="center">

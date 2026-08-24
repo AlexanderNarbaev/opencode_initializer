@@ -1,30 +1,25 @@
 # Current Wave Status
 
-> Last updated: 2026-08-08T10:21:51Z
+> Last updated: 2026-08-24T22:36:00Z
 
 ## Status: ✅ COMPLETE
 
 ## Active Wave
-- **Wave:** v2.0.3 — Deep-research findings implementation
-- **Source:** docs/research/deep-research-2026-08-03.md (10 findings: 4 HIGH / 4 MEDIUM / 2 LOW)
+- **Wave:** v3.3.0 — Daytona practice, skills actualization, context-budget monitoring, Pages IA
+- **Source:** user directive (iterative team waves); research dossier 2026-08-24 (daytonaio releases v0.190.0, plugin catalog, model-limit table)
 
-## Completed in v2.0.3
+## Completed in v3.3.0
+- [x] Wave 1 — Daytona: module 61 + daytona-env + dev/health wiring + tests + docs EN/RU (504449b)
+- [x] Wave 2 — Skills: skill-audit tool + dev skills + tests + docs EN/RU (8c6acab)
+- [x] Wave 3 — Context: context-budget.py from routing.json SSOT + budget block in context-guard.json + tests + docs EN/RU (1b54bcf)
+- [x] Wave 4 — Pages IA: i18n parity gate in CI, 9 pages → .en.md pairs, Operations/Working-Documents nav, zero orphans (b77ff56)
+- [x] Wave 5 — Release: version 3.3.0 canonical, CHANGELOG, wave log, machine --health applied
 
-### HIGH
-- [x] #1 Plugins registry regression — default plugins.json creation in 17-project.sh
-- [x] #2 v2.0.2 migration — migrations/20260808-v2.0.2-remove-moonshot.sh
-- [x] #3 Sudo password deprecation — -s flag deprecated, SUDO_PASS env preferred
-- [x] #4 macOS grep -P fix — ERE replacements in 8 files + docs
-
-### MEDIUM
-- [x] #5 Trivy CI exit-code — blocking (1) + advisory (0, continue-on-error)
-- [x] #6 ShellCheck sweep — 24 SC2034 fixed, 0 warnings across all modules
-- [x] #7 Test coverage — 9 new test files for uncovered modules
-- [x] #8 OPencode_* env naming — OPENCODE_* canonical, OPencode_* fallback
-
-### LOW
-- [x] #9 dev doctor — cmd_doctor() wired
-- [x] #10 Health checks — +2 new checks (model router, embed proxy), 128+ total
+## Verification Evidence
+- bash tests/run_tests.sh: 264 passed / 0 failed (post Wave 1; suite re-run at release)
+- scripts/check-doc-counts.sh OK (unit=85 intg=6 e2e=5 providers=22 lsp=12)
+- scripts/check-docs-parity.sh OK (30 locale pairs)
+- mkdocs build exit 0, zero 'not included in nav'
 
 ## Previous Waves (Archived)
-See git history for v2.0.0, v2.0.1, v2.0.2.
+See git history for v2.0.x–v3.2.0.

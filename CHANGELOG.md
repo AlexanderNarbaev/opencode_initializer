@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.3.0] — 2026-08-24
+
+### Added
+- **Daytona environment practice** — `61-daytona.sh`: current Daytona platform CLI (legacy workspace-manager archived June 2026 is never used), declarative environments registry `~/.config/opencode/daytona/environments.json` (managed_by), `daytona-env` wrapper (list/create/status/delete/prune translating registry entries into CLI flags), `dev daytona`, health check, SKIP_DAYTONA opt-out; guides EN+RU
+- **Skills audit** — `scripts/skill-audit.sh` + `dev skills`: installed-vs-registered drift (broken/unregistered/stale-config), oversize SKILL.md >400L hints, duplicate detection, optional usage evidence from recent opencode logs (`--since N`), `--json/--strict`; guide EN+RU
+- **Context budget** — `scripts/context-budget.py` + `dev context`: per-model context limits consumed from routing.json cost_table SSOT; status/check/models subcommands report session usage vs the session model's maximum with WARN 77% / ACT 90% thresholds; 57-context-guard.json enriched with budget block; guide EN+RU
+- **Docs IA gate** — `scripts/check-docs-parity.sh` wired into docs CI: locale-pair completeness, fatal bare-vs-suffixed conflicts; mkdocs nav Operations + Working Documents sections with generated plans/research/superpowers indexes (EN+RU); zero nav orphans
+
+### Changed
+- Version canonicalized to 3.3.0 (package.json, SCRIPT_VERSION, README×2, docs/index×2)
+
 ## Unreleased
 
 ### Added

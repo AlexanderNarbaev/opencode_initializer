@@ -42,7 +42,8 @@ assert "00-core.sh has shebang"           'head -1 "'"$C"'" | grep -q "#!/usr/bi
 assert "00-core.sh has set -euo pipefail" 'grep -q "set -euo pipefail" "'"$C"'"'
 
 # ── Version ──────────────────────────────────────────────────────────────
-assert "SCRIPT_VERSION is v3.2.0" 'grep -qE "SCRIPT_VERSION.*v3\.2\.0" "'"$C"'"'
+REPO_V="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["version"])' "$PROJECT_DIR/package.json")"
+assert "SCRIPT_VERSION synced with package.json (got v$REPO_V)" "grep -qE 'SCRIPT_VERSION.*v${REPO_V}' '$C'"
 
 # ── OS validation ────────────────────────────────────────────────────────
 assert "OS validation exists"       'grep -q "/etc/os-release" "'"$C"'"'

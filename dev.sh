@@ -607,12 +607,16 @@ cmd_doctor() {
 }
 
 cmd_skills() {
+  # dispatch passes the subcommand name as $1 - strip it before delegating
+  [ "$#" -gt 0 ] && shift
   # Audit installed skills against the auto-skills registration (advisory tool).
   # Repo-relative delegation — no install dependency.
   bash "$SCRIPTS_DIR/scripts/skill-audit.sh" "${@}"
 }
 
 cmd_context() {
+  # dispatch passes the subcommand name as $1 - strip it before delegating
+  [ "$#" -gt 0 ] && shift
   # Model-aware context-overflow report (usage vs the model's own window).
   # Repo-relative delegation — no install dependency.
   python3 "$SCRIPTS_DIR/scripts/context-budget.py" "${@}"
@@ -823,6 +827,8 @@ cmd_sandcastle() {
 }
 
 cmd_daytona() {
+  # dispatch passes the subcommand name as $1 - strip it before delegating
+  [ "$#" -gt 0 ] && shift
   # Delegate to the daytona-env wrapper (installed by module 61-daytona.sh).
   # Prefers ~/.local/bin/daytona-env, falls back to the repo copy in scripts/.
   local wrapper=""

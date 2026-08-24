@@ -1,4 +1,4 @@
-# OpenCode Initializer v3.2.0
+# OpenCode Initializer v3.3.0
 
 [![GitHub stars](https://img.shields.io/github/stars/AlexanderNarbaev/opencode_initializer?style=social)](https://github.com/AlexanderNarbaev/opencode_initializer)
 [![License](https://img.shields.io/github/license/AlexanderNarbaev/opencode_initializer)](https://github.com/AlexanderNarbaev/opencode_initializer/blob/main/LICENSE)
@@ -49,14 +49,14 @@ A single script that turns a fresh Linux/WSL2 machine into a production-ready de
 - **Chrome** — Google Chrome + ChromeDriver (WSL2-optimized)
 - **Auto-update** — systemd weekly timer + topgrade
 
-## What's New in v3.2.0
+## What's New in v3.3.0
 
 | Feature | Description |
 |---------|-------------|
-| Lynis + Auditd | Lynis CIS security scanner + auditd kernel audit rules, weekly cron |
-| AI Gateway Proxy | Corporate AI Gateway support (HTTP/HTTPS proxy for API calls) |
-| Pre-commit Hook | `check-setup-lines.sh` — automatic line-count consistency check between setup.sh and README |
-| Extended CI | ShellCheck severity error across all modules, CI gates for new files |
+| Daytona Environments | `61-daytona.sh` + `daytona-env`: current-platform CLI, declarative environments registry, commands AND config-file setup |
+| Skills Audit | `dev skills`: installed-vs-registered drift, oversize/stale detection, usage evidence from recent logs |
+| Context Budget | `dev context`: per-model context limits from routing.json SSOT, usage vs THE session model's max, WARN 77% / ACT 90% |
+| Docs IA | i18n parity gate in CI, zero nav orphans, Operations & Working Documents sections |
 
 ## What's New in v3.0.0
 
