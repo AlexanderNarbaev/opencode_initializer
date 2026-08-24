@@ -57,6 +57,11 @@ extra_css:
 extra_javascript:
   - javascripts/extra.js
 
+# NOTE: The build emits `Unhandled file case - changelog/category/release.md` from
+# mkdocs-static-i18n. It is plugin-internal and unavoidable: the `blog` plugin
+# (blog_dir: changelog) generates a virtual `category/release.md` view for the
+# `release` post category, which the suffix i18n plugin cannot map to a locale.
+# The post and view still build correctly in the default language.
 plugins:
   - search:
       lang:
@@ -136,6 +141,8 @@ nav:
   - Architecture:
       - Overview: architecture/index.md
       - Agent System: architecture/agent-system.md
+      - "ADR: Hybrid AI Architecture": architecture/adr/2026-07-18-hybrid-ai-architecture.md
+      - "ADR: Multi-Agent Framework v3": architecture/adr/2026-07-18-multi-agent-framework-v3.md
   - Reference:
       - reference/index.md
       - MCP, LSP & Plugins: reference/mcp-lsp-plugins.md
@@ -156,11 +163,31 @@ nav:
       - Daytona Environments: guides/daytona-environments.md
       - Skills Audit: guides/skills-audit.md
       - Context Budget: guides/context-budget.md
+  - Operations:
+      - Manual Steps: manual-steps.md
+      - Orchestrator Patch: operations/orchestrator-patch.md
+      - Full Audit (2026-08-22): audit/2026-08-22-full-audit.md
+      - Versions Registry: VERSIONS.md
+  - Working Documents:
+      - Plans Index: plans/index.md
+      - Research Index: research/index.md
+      - Superpowers Docs: superpowers/index.md
   - Comparison: comparison.md
   - Changelog: changelog/index.md
   - Tags: tags.md
   - Contributing: contributing/index.md
   - FAQ: faq/index.md
+
+not_in_nav: |
+  plans/*.md
+  !plans/index.en.md
+  !plans/index.ru.md
+  research/*.md
+  !research/index.en.md
+  !research/index.ru.md
+  superpowers/**/*.md
+  !superpowers/index.en.md
+  !superpowers/index.ru.md
 
 extra:
   analytics: {}

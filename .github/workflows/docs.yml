@@ -29,6 +29,8 @@ jobs:
           cache: pip
       - name: Install dependencies
         run: pip install -r requirements.txt
+      - name: Docs i18n parity gate
+        run: bash scripts/check-docs-parity.sh
       - name: Build docs
         run: mkdocs build
       - name: Upload artifact

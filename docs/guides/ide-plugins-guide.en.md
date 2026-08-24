@@ -1,4 +1,4 @@
-## IDE AI Plugins Guide
+# IDE AI Plugins Guide
 
 ### Installed by 38-ide-plugins.sh
 

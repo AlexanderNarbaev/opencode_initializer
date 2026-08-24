@@ -565,3 +565,20 @@ No `[x]` marks applied pending this decision.
 | File | Action | Status | Session | Unit Test | Timestamp | Issue |
 |------|--------|--------|---------|-----------|-----------|-------|
 | scripts/check-doc-counts.sh | MODIFY | done | ses_doc_counts_prov_lsp | pass | 2026-08-23T16:43:00 | - |
+
+## Session Summary (2026-08-24) — EN translations for 10 RU-only docs pages
+
+### Completed
+- Created 10 missing `.en.md` files (i18n suffix convention) as faithful English translations:
+  - 8 copied verbatim from existing English `.md` sources (already canonical, in-sync): soc2-checklist, iso27001-mapping, agent-system, ai-gateway-proxy, sandcastle-guide, provider-setup, deepseek-harness-guide, team-setup.
+  - changelog/index.en.md — fresh translation (the `.md` was a `# Blog` stub, not a translation).
+  - ide-plugins-guide.en.md — copied + H2→H1 fix (source `.md` used `##`, `.ru.md` uses `#`).
+
+### Verification
+- `find docs -name "*.ru.md" | ... .en.md` → no STILL-MISSING (empty = PASS).
+- All 10 files start with `# ` (H1) heading.
+- 8 files byte-identical (cmp) to their `.md` sources.
+- NOT committed (per task).
+
+### Files (CREATE)
+docs/changelog/index.en.md (5), docs/compliance/soc2-checklist.en.md (80), docs/compliance/iso27001-mapping.en.md (102), docs/architecture/agent-system.en.md (200), docs/guides/ai-gateway-proxy.en.md (70), docs/guides/sandcastle-guide.en.md (68), docs/guides/provider-setup.en.md (55), docs/guides/ide-plugins-guide.en.md (37), docs/guides/team-setup.en.md (249), docs/guides/deepseek-harness-guide.en.md (54)
