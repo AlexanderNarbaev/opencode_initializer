@@ -76,6 +76,7 @@ usage() {
   echo "  dev sandcastle status   Show Sandcastle install/provider status"
   echo "  dev daytona <cmd>       Manage Daytona environments (list|create|status|delete|prune)"
   echo "  dev docs [out.md]       Generate module documentation table (RU/EN)"
+  echo "  dev skills [--json|--strict|--since N]  Audit installed skills vs auto-skills registration"
 }
 
 cmd_list() {
@@ -604,6 +605,12 @@ cmd_doctor() {
   _pre_session
 }
 
+cmd_skills() {
+  # Audit installed skills against the auto-skills registration (advisory tool).
+  # Repo-relative delegation — no install dependency.
+  bash "$SCRIPTS_DIR/scripts/skill-audit.sh" "${@}"
+}
+
 cmd_bundle() {
   # shellcheck disable=SC1090
   source "$SCRIPTS_DIR/src/lib/46-offline-bundle.sh" 2>/dev/null || {
@@ -872,6 +879,7 @@ case "${1:-}" in
   sandcastle) cmd_sandcastle "${@}" ;;
   daytona) cmd_daytona "${@}" ;;
   docs) cmd_docs "${@}" ;;
+  skills) cmd_skills "${@}" ;;
   -h | --help | help | "") usage ;;
-  *) err "Unknown: $1. Use: dev install|remove|update|health|list|config|self-update|version-check|autoupdate|infra|plugins|observability|models|doctor|backup|bundle|sandcastle|daytona|docs" ;;
+  *) err "Unknown: $1. Use: dev install|remove|update|health|list|config|self-update|version-check|autoupdate|infra|plugins|observability|models|doctor|backup|bundle|sandcastle|daytona|docs|skills" ;;
 esac

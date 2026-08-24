@@ -154,6 +154,7 @@ nav:
       - IDE Plugins: guides/ide-plugins-guide.md
       - Sandcastle: guides/sandcastle-guide.md
       - Daytona Environments: guides/daytona-environments.md
+      - Skills Audit: guides/skills-audit.md
   - Comparison: comparison.md
   - Changelog: changelog/index.md
   - Tags: tags.md

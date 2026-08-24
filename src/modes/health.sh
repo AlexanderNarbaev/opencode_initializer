@@ -102,6 +102,7 @@ _check "Skill: humanizer-ru"          "[ -f ~/.config/opencode/skills/humanizer-
 
 section "Config"
 _check "opencode.json"      "[ -f ~/.config/opencode/opencode.json ]"
+_check "auto-skills-config" "[ -f \"${XDG_CONFIG_HOME:-$HOME/.config}/opencode/auto-skills/config.json\" ]"
   _check "MCPs registered"    "python3 -c \"import json; c=json.load(open('$HOME/.config/opencode/opencode.json')); m=len(c.get('mcp',{})); exit(0 if m>2 else 1)\" 2>/dev/null"
   _check "Providers configured" "python3 -c \"import json; c=json.load(open('$HOME/.config/opencode/opencode.json')); p=len(c.get('provider',{})); exit(0 if p>=2 else 1)\" 2>/dev/null"
 _check "AGENTS.md"          "[ -f \"${PROJECT_DIR:-$HOME/projects}/AGENTS.md\" ]"
