@@ -95,10 +95,12 @@ _write_context_guard_config() {
   "version": 1,
   "managed_by": "opencode_initializer@57-context-guard",
   "compress": { "enabled": true, "auto": true },
-  "watch": { "threshold": 0.85 }
+  "watch": { "threshold": 0.85 },
+  "budget": { "warn_percent": 0.77, "act_percent": 0.90 }
 }
 EOF
   log "Wrote $cfg"
+  info "Model-aware budget report: python3 scripts/context-budget.py status"
 }
 
 # ── Health check ─────────────────────────────────────────────────────────────

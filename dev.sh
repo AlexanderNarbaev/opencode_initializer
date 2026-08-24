@@ -77,6 +77,7 @@ usage() {
   echo "  dev daytona <cmd>       Manage Daytona environments (list|create|status|delete|prune)"
   echo "  dev docs [out.md]       Generate module documentation table (RU/EN)"
   echo "  dev skills [--json|--strict|--since N]  Audit installed skills vs auto-skills registration"
+  echo "  dev context <models|status|check>  Report context-window usage vs model limits"
 }
 
 cmd_list() {
@@ -611,6 +612,12 @@ cmd_skills() {
   bash "$SCRIPTS_DIR/scripts/skill-audit.sh" "${@}"
 }
 
+cmd_context() {
+  # Model-aware context-overflow report (usage vs the model's own window).
+  # Repo-relative delegation — no install dependency.
+  python3 "$SCRIPTS_DIR/scripts/context-budget.py" "${@}"
+}
+
 cmd_bundle() {
   # shellcheck disable=SC1090
   source "$SCRIPTS_DIR/src/lib/46-offline-bundle.sh" 2>/dev/null || {
@@ -880,6 +887,7 @@ case "${1:-}" in
   daytona) cmd_daytona "${@}" ;;
   docs) cmd_docs "${@}" ;;
   skills) cmd_skills "${@}" ;;
+  context) cmd_context "${@}" ;;
   -h | --help | help | "") usage ;;
-  *) err "Unknown: $1. Use: dev install|remove|update|health|list|config|self-update|version-check|autoupdate|infra|plugins|observability|models|doctor|backup|bundle|sandcastle|daytona|docs|skills" ;;
+  *) err "Unknown: $1. Use: dev install|remove|update|health|list|config|self-update|version-check|autoupdate|infra|plugins|observability|models|doctor|backup|bundle|sandcastle|daytona|docs|skills|context" ;;
 esac

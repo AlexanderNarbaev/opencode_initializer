@@ -163,6 +163,7 @@ _check "Grafana container"    "docker ps --format '{{.Names}}' 2>/dev/null | gre
 _check "Model router"        "[ -f ~/.config/opencode/model-router/recommend.sh ]"
 _check "Embed proxy"         "[ -x ~/.local/bin/embed-proxy ]"
 _check "Provider check script" "[ -x ~/opencode_initializer/scripts/provider-check.sh ]"
+_check "context-budget-tool" "python3 -m py_compile \"$SCRIPT_DIR/scripts/context-budget.py\""
 
 section "Web Search (SearXNG)"
 _check "SearXNG container"  "docker ps --format '{{.Names}}' 2>/dev/null | grep -q searxng"

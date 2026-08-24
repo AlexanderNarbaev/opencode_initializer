@@ -155,6 +155,7 @@ nav:
       - Sandcastle: guides/sandcastle-guide.md
       - Daytona Environments: guides/daytona-environments.md
       - Skills Audit: guides/skills-audit.md
+      - Context Budget: guides/context-budget.md
   - Comparison: comparison.md
   - Changelog: changelog/index.md
   - Tags: tags.md
