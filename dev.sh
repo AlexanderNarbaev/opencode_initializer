@@ -74,6 +74,7 @@ usage() {
   echo "  dev bundle verify        Verify bundle SHA-256 integrity"
   echo "  dev sandcastle review   Run Sandcastle implement→review on current branch"
   echo "  dev sandcastle status   Show Sandcastle install/provider status"
+  echo "  dev daytona <cmd>       Manage Daytona environments (list|create|status|delete|prune)"
   echo "  dev docs [out.md]       Generate module documentation table (RU/EN)"
 }
 
@@ -807,6 +808,20 @@ cmd_sandcastle() {
   esac
 }
 
+cmd_daytona() {
+  # Delegate to the daytona-env wrapper (installed by module 61-daytona.sh).
+  # Prefers ~/.local/bin/daytona-env, falls back to the repo copy in scripts/.
+  local wrapper=""
+  if [ -x "$HOME/.local/bin/daytona-env" ]; then
+    wrapper="$HOME/.local/bin/daytona-env"
+  elif [ -x "$SCRIPT_DIR/scripts/daytona-env.sh" ]; then
+    wrapper="$SCRIPT_DIR/scripts/daytona-env.sh"
+  else
+    err "daytona-env wrapper not found — rerun setup (module 61) to install it"
+  fi
+  "$wrapper" "${@}"
+}
+
 cmd_docs() {
   # Generate a Markdown table of modules, parsing each module's header comment.
   # Usage: dev docs [out.md]   (defaults to MODULES.md when no output file given)
@@ -855,7 +870,8 @@ case "${1:-}" in
   backup) cmd_backup "${@}" ;;
   bundle) cmd_bundle "${@}" ;;
   sandcastle) cmd_sandcastle "${@}" ;;
+  daytona) cmd_daytona "${@}" ;;
   docs) cmd_docs "${@}" ;;
   -h | --help | help | "") usage ;;
-  *) err "Unknown: $1. Use: dev install|remove|update|health|list|config|self-update|version-check|autoupdate|infra|plugins|observability|models|doctor|backup|bundle|sandcastle|docs" ;;
+  *) err "Unknown: $1. Use: dev install|remove|update|health|list|config|self-update|version-check|autoupdate|infra|plugins|observability|models|doctor|backup|bundle|sandcastle|daytona|docs" ;;
 esac

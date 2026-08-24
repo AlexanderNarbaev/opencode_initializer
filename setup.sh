@@ -587,7 +587,7 @@ echo -e "${GREEN}     Log:  $SETUP_LOG${NC}"
 echo -e "${GREEN}============================================================${NC}"
 
 # ── Execute steps ───────────────────────────────────────────────────────────
-TOTAL_STEPS=48
+TOTAL_STEPS=49
 CURRENT_STEP=0
 
 _run_step() {
@@ -686,6 +686,7 @@ _run_step step_caching "Prompt Caching Stack" "$SCRIPT_DIR/src/lib/60-caching.sh
 _run_step step_context_guard "Context Guard (compression)" "$SCRIPT_DIR/src/lib/57-context-guard.sh"
 _run_step step_provider_discovery "Provider Auto-Discovery" "$SCRIPT_DIR/src/lib/58-provider-discovery.sh"
 _run_step step_local_memory "Local Memory (opencode-mem, opt-in)" "$SCRIPT_DIR/src/lib/59-local-memory.sh"
+_run_step step_daytona "Daytona Environment Practice" "$SCRIPT_DIR/src/lib/61-daytona.sh"
 [ "${BEST_PRACTICES_ENABLED:-true}" != "false" ] && _run_step step_best_practices "Best Practices Skills (smixs)" "$SCRIPT_DIR/src/lib/40-best-practices.sh"
 _run_step step_upstream_sync "Upstream Sync (submodules + pins)" "$SCRIPT_DIR/src/lib/99-upstream-sync.sh"
 

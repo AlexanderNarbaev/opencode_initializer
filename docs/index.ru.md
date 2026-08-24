@@ -28,7 +28,7 @@
 | Model Router | 9 профилей (coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn, testing) |
 | Инфраструктура | 7 сервисов (PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer) |
 | Web GUI | 9 разделов управления (порт 4200) |
-| Тестов | 261 проверок (82 unit + 6 integration + 5 e2e) |
+| Тестов | 261 проверок (83 unit + 6 integration + 5 e2e) |
 | Пакетных менеджеров | apt, dnf, pacman, apk, zypper, brew |
 | Архитектур | amd64, arm64 |
 

@@ -36,7 +36,7 @@ opencode_initializer/
 │   └── systemd/        ← opencode-metrics.service unit
 ├── scripts/            ← utilities: har (meta-harness CLI), ai-router.sh, embed-proxy.py, pii-guard.py,
 │                         provider-check.sh, oc-{json,rpc,sdk,tui,metrics}, sync-{agents,providers,projects}, check-setup-lines.sh, deploy-pages.sh
-├── tests/              ← run_tests.sh + test_lib.sh; unit/ (82 files), integration/ (6), e2e/ (5)
+├── tests/              ← run_tests.sh + test_lib.sh; unit/ (83 files), integration/ (6), e2e/ (5)
 ├── migrations/         ← timestamped, idempotent migration scripts
 ├── upstream/           ← git submodules: opencode, mcp-servers, searxng, superpowers, skill-conductor
 ├── docs/               ← MkDocs source (EN + RU), plans/, research/, architecture/adr/
