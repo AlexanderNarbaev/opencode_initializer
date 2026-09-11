@@ -1,0 +1,104 @@
+# ============================================================================
+# setup.toml — Configuration template for opencode_initializer
+#
+# Usage:
+#   bash setup.sh --config setup.toml          # Install with TOML config
+#   bash setup.sh --config setup.toml --dry-run # Preview without changes
+#   bash setup.sh --config setup.toml --print-config # Show resolved values
+#
+# Precedence: CLI flags > environment variables > TOML > defaults
+#
+# Copy this file and customize for your environment.
+# ============================================================================
+
+[meta]
+# Configuration schema version
+version = "1.0"
+# Installation profile: "personal", "corporate", "airgap", "hybrid"
+profile = "personal"
+
+[user]
+# Git identity (used for git config)
+git_name = "Your Name"
+git_email = "you@example.com"
+# Default shell (bash, zsh)
+shell = "zsh"
+# Project directory (where to clone/create projects)
+project_dir = "~/projects"
+
+[features]
+# Core features
+docker = true
+gui = true
+desktop = true
+auto_update = true
+
+# Language toolchains
+nodejs = true
+python = true
+go = true
+rust = false
+java = false
+dotnet = false
+
+# Skip specific components (overrides default installs)
+[features.skip]
+devbox = false
+mise = false
+just = false
+caching = false
+chromadb = false
+webui = false
+
+[services]
+# Infrastructure services (Docker Compose)
+postgres = true
+redis = true
+qdrant = true
+prometheus = true
+grafana = true
+memorylayer = true
+
+# Port overrides (default: auto-detect free ports)
+[ports]
+# postgres = 5432
+# redis = 6379
+# qdrant = 6333
+# prometheus = 9090
+# grafana = 3001
+
+[providers]
+# AI provider API keys (set via env vars or here)
+# WARNING: Keys in this file are stored in plaintext.
+# Prefer environment variables for security.
+# deepseek_key = "${DEEPSEEK_API_KEY}"
+# opencode_key = "${OPENCODE_API_KEY}"
+# minimax_key = "${MINIMAX_API_KEY}"
+# mimo_key = "${MIMO_API_KEY}"
+# xai_key = "${XAI_API_KEY}"
+# zai_key = "${ZAI_KEY}"
+# github_token = "${GITHUB_TOKEN}"
+
+[tools]
+# Specific version overrides (leave empty for defaults)
+# node_ver = "24"
+# python_ver = "3.14"
+# go_ver = "1.26"
+
+[drift]
+# Verify installation state on each run
+verify_on_run = true
+# Manifest file for drift detection
+manifest_file = "~/.local/state/opencode-init/manifest.json"
+
+[dry_run]
+# Default to dry-run mode (can be overridden with --dry-run flag)
+default = false
+
+[instructions]
+# Custom instructions to append to AGENTS.md
+# project_instructions = """
+# - Follow PEP 8 for Python code
+# - Use conventional commits
+# - Always run tests before committing
+# """

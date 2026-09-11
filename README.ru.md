@@ -1,11 +1,11 @@
 [EN](README.md) | [RU](README.ru.md)
 
-# OpenCode Initializer v3.3.0
+# OpenCode Initializer v4.0.0
 
 > **Рабочая модель:** Multi-Agent Framework v3.0 | **Волна:** [current_wave.md](./current_wave.md) | **Чекпоинт:** [session_checkpoint.json](./session_checkpoint.json)
 <p align="center">
   <b>AI-Native SDD Harness — среда разработки с ИИ-усилением в одну команду для WSL2, Linux и macOS. 4 профиля развёртывания.</b><br>
-  <sub>Оркестратор на 726 строк · 64 модуля · 12 режимов ·   24 MCP · 21 плагин · 12 LSP · 22 провайдера · air-gap · governance · PII guard · аудит · офлайн-пакет</sub>
+  <sub>Оркестратор на 727 строк · 81 модуль · 12 режимов ·   24 MCP · 21 плагин · 12 LSP · 22 провайдера · air-gap · governance · PII guard · аудит · офлайн-пакет</sub>
 </p>
 
 <p align="center">
@@ -38,7 +38,7 @@ curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializ
 | Категория | Кол-во | Состав |
 |-----------|--------|--------|
 | Языки | 6 | Java 25, Node.js 24, Python 3.14, Go 1.26, Rust (stable), .NET 10 |
-| Модули | 64 | Система, Docker, Chrome, ZSH, 6 языков, OpenCode, MCP/LSP, ChromaDB, LLM, RAG, SearXNG, провайдеры, dotfiles, Devbox, Infra, Cockpit, Isolated Circuit, Services, Observability, GUI, Model Router, WAL, Best Practices, Upstream Sync, Linux Platform, Lynis, auditd, DeepSeek Harness, Sandcastle, OpenCode Desktop и другие |
+| Модули | 76 | Система, Docker, Chrome, ZSH, 6 языков, OpenCode, MCP/LSP, ChromaDB, LLM, RAG, SearXNG, провайдеры, dotfiles, Devbox, Infra, Cockpit, Isolated Circuit, Services, Observability, GUI, Model Router, WAL, Best Practices, Upstream Sync, Linux Platform, Lynis, auditd, DeepSeek Harness, Sandcastle, OpenCode Desktop и другие |
 | MCP-серверы | 24 | GitHub, GitLab, Filesystem, Playwright, Chrome DevTools, Postgres, SQLite, Memory, Excalidraw, Brave Search, Context7, Google Maps и другие |
 | LSP-серверы | 12 | gopls, rust-analyzer, typescript, pyright, yaml, marksman, taplo, bash, dockerfile, css, html, json |
 | Плагины | 21 | codegraph, dcp, auto-fallback, goal-mode, swarm, vibeguard, devcontainers, worktree, scheduler, background-agents, goal-plugin, conductor, zellij-namer, morph-plugin, supermemory, websearch-cited, firecrawl, plugin-otel, token-tracker, orchestrator, daytona |
@@ -46,6 +46,10 @@ curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializ
 | Model Router | 9 профилей | coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn, testing |
 | Режимы CLI | 12 | full, reinit, new, health, update, upgrade, interactive, ci, fix-config, fix-zshrc, dry-run, airgap |
 | Инфраструктура | 7 | PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer |
+| Тесты | 102 | 89 unit + 7 integration (Testcontainers) + 5 e2e + 1 doc-counts |
+| TOML конфиг | ✅ | Декларативный конфиг через setup.toml (приоритет: CLI > env > toml > defaults) |
+| Отказоустойчивость | ✅ | Пошаговое восстановление ошибок с PARTIAL state tracking |
+| WAL Race Fix | ✅ | Атомарные записи через flock с mkdir fallback |
 | Наблюдаемость | Полный стек | Метрики Prometheus, дашборды Grafana, экспортёр метрик OpenCode, системные метрики Node Exporter |
 | GUI | Веб | Статус провайдеров, менеджер моделей, model router, управление MCP/LSP, мониторинг инфраструктуры, Grafana iframe, бэкап, переключатель Isolated Circuit |
 | Пакетные менеджеры | 6 | apt, dnf, pacman, apk, zypper, brew |
@@ -119,7 +123,7 @@ opencode_initializer/
 │   ├── oc-sdk.py              # Python SDK
 │   ├── embed-proxy.py         # Мост Ollama → MemoryLayer embedding
 │   └── ai-router.sh           # Интеллектуальная маршрутизация моделей (+ конфиг ai-router.json)
-├── tests/                     # Unit (85), интеграционные (6), E2E (5) — 268 проверок
+├── tests/                     # Unit (89), интеграционные (7), E2E (5) — 268 проверок
 ├── migrations/                # Временные метки, идемпотентные миграции
 ├── docs/                      # Сайт документации MkDocs Material (EN/RU)
 ├── .github/                   # CI воркфлоу (test, shellcheck, build, security, docs)

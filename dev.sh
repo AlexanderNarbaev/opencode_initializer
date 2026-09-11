@@ -53,6 +53,7 @@ usage() {
   echo "  dev health            Full diagnostic (115+ checks, 11 sections)"
   echo "  dev list              List installed components"
   echo "  dev config            Edit setup config"
+  echo "  dev config-from FILE  Load + resolve config from TOML file"
   echo "  dev self-update       Update dev CLI from git (pull + install)"
   echo "  dev version-check     Compare installed vs latest versions"
   echo "  dev autoupdate        Run topgrade full system update"
@@ -66,6 +67,7 @@ usage() {
   echo "  dev models install <model>  Download local model via Ollama"
   echo "  dev models list-local       List installed local models"
   echo "  dev doctor            Pre-session provider & model validation"
+  echo "  dev state [--strict]  Print current machine state (drift detection)"
   echo "  dev backup create     Backup all configs to tar.gz"
   echo "  dev backup list       Show available backups"
   echo "  dev backup restore <file>  Restore from backup"
@@ -96,6 +98,24 @@ cmd_list() {
 cmd_config() {
   mkdir -p "$(dirname "$CONFIG_FILE")"
   ${EDITOR:-nano} "$CONFIG_FILE"
+}
+
+cmd_config_from() {
+  local toml_file="${1:-}"
+  if [ -z "$toml_file" ]; then
+    warn "Usage: dev config-from <file.toml>"
+    return 1
+  fi
+  if [ ! -f "$toml_file" ]; then
+    warn "File not found: $toml_file"
+    return 1
+  fi
+  section "Config from: $toml_file"
+  info "Loading TOML values..."
+  _toml_load "$toml_file"
+  info "Resolved configuration:"
+  _toml_print_resolved "$toml_file"
+  info "Apply with: bash setup.sh --config $toml_file"
 }
 
 cmd_health() {
@@ -606,6 +626,119 @@ cmd_doctor() {
   _pre_session
 }
 
+# dev state — print current machine state and exit non-zero on drift.
+# Usage: dev state [--strict]
+# Sections: tools, paths, services, ports. Exits 1 if any collision/drift detected
+# (only with --strict; otherwise always exits 0 to keep `dev state` scriptable).
+cmd_state() {
+  section "Machine State"
+  local strict=0
+  # Strip the leading "state" subcommand name if dispatch passed it.
+  [ "${1:-}" = "state" ] && shift
+  [ "${1:-}" = "--strict" ] && strict=1
+
+  local fails=0 total=0
+  local label status
+
+  # ── Tools (binaries on PATH) ─────────────────────────────────────────────
+  echo "── Tools ────────────────────────────────────"
+  for t in docker bash git python3 node go cargo rustc java dotnet bun nvidia-smi; do
+    total=$((total+1))
+    if command -v "$t" >/dev/null 2>&1; then
+      printf "  PRESENT  %-12s %s\n" "$t" "$(command -v "$t")"
+    else
+      printf "  MISSING  %-12s (not on PATH)\n" "$t"
+      fails=$((fails+1))
+    fi
+  done
+
+  # ── Config paths ────────────────────────────────────────────────────────
+  echo
+  echo "── Config files ─────────────────────────────"
+  for f in \
+    "$HOME/.config/opencode/opencode.json" \
+    "$HOME/.config/opencode/infra.yml" \
+    "$HOME/.config/opencode/secrets.env" \
+    "$HOME/.config/opencode-setup/setup.conf" \
+    "$HOME/.config/opencode/.goal-mode-manifest.json"; do
+    total=$((total+1))
+    label="$(basename "$(dirname "$f")")/$(basename "$f")"
+    if [ -f "$f" ]; then
+      printf "  PRESENT  %s\n" "$f"
+    else
+      printf "  MISSING  %s\n" "$f"
+      fails=$((fails+1))
+    fi
+  done
+
+  # ── Docker services (opencode-* containers) ────────────────────────────
+  echo
+  echo "── OpenCode docker services ────────────────"
+  if command -v docker >/dev/null 2>&1; then
+    for svc in postgres qdrant redis prometheus grafana node_exporter memorylayer; do
+      total=$((total+1))
+      cname="opencode-$svc"
+      if docker ps --format '{{.Names}}' 2>/dev/null | grep -qx "$cname"; then
+        printf "  RUNNING  %s\n" "$cname"
+      else
+        state="$(docker ps -a --format '{{.Names}}\t{{.State}}' 2>/dev/null | awk -v c="$cname" '$1==c{print $2; exit}')"
+        if [ -n "$state" ]; then
+          printf "  STOPPED  %s (%s)\n" "$cname" "$state"
+          fails=$((fails+1))
+        else
+          printf "  ABSENT   %s (no container)\n" "$cname"
+          fails=$((fails+1))
+        fi
+      fi
+    done
+  else
+    echo "  (docker not installed — skipped)"
+  fi
+
+  # ── Listening ports (canonical defaults) ───────────────────────────────
+  echo
+  echo "── Listening ports (canonical defaults) ─────"
+  for spec in \
+    "5432 postgres" "6333 qdrant" "6334 qdrant-grpc" "6379 redis" \
+    "9092 kafka" "9090 prometheus" "3001 grafana" "9100 node-exporter" \
+    "61001 memorylayer" "4200 gui" "9464 metrics-exporter"; do
+    port="${spec% *}"
+    label="${spec#* }"
+    total=$((total+1))
+    if _port_is_free "$port"; then
+      printf "  FREE     %-15s :%s\n" "$label" "$port"
+    else
+      owner="$(_port_listening_owner "$port")"
+      printf "  BOUND    %-15s :%s  by %s\n" "$label" "$port" "$owner"
+      # Collisions on canonical ports are drift only when an opencode container
+      # *should* be holding them — i.e. when the container is missing above.
+      # Heuristic: if owner is NOT an opencode-* container and we are configured
+      # to run it, count as drift.
+      if [[ "$owner" != opencode-* ]] && [[ "$owner" != pid/* ]] && [ "$owner" != "<unknown>" ]; then
+        # An external service holds a canonical opencode port — collision, not drift.
+        # We don't count this as a fail unless --strict.
+        if [ "$strict" -eq 1 ]; then
+          printf "            [strict] external owner on canonical port\n"
+        fi
+      fi
+    fi
+  done
+
+  echo
+  echo "──────────────────────────────────────────────"
+  printf "  total=%d  fails=%d  strict=%d\n" "$total" "$fails" "$strict"
+  if [ "$strict" -eq 1 ]; then
+    if [ "$fails" -eq 0 ]; then
+      log "  strict mode: clean (exit 0)"
+      exit 0
+    else
+      warn "  strict mode: $fails drift item(s) (exit 1)"
+      exit 1
+    fi
+  fi
+  return 0
+}
+
 cmd_skills() {
   # dispatch passes the subcommand name as $1 - strip it before delegating
   [ "$#" -gt 0 ] && shift
@@ -876,6 +1009,7 @@ case "${1:-}" in
   health) cmd_health ;;
   list | ls) cmd_list ;;
   config) cmd_config ;;
+  config-from) cmd_config_from "${2:-}" ;;
   self-update) cmd_self_update ;;
   version-check) cmd_version_check ;;
   autoupdate) cmd_autoupdate ;;
@@ -887,6 +1021,7 @@ case "${1:-}" in
   isolated) cmd_isolated "${@}" ;;
   models) cmd_models "${@}" ;;
   doctor) cmd_doctor ;;
+  state) cmd_state "${@}" ;;
   backup) cmd_backup "${@}" ;;
   bundle) cmd_bundle "${@}" ;;
   sandcastle) cmd_sandcastle "${@}" ;;

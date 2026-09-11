@@ -1,0 +1,94 @@
+# opencode_initializer — setup.toml template
+# Copy to setup.toml and customize. Precedence: CLI > env > toml > defaults.
+# All keys are optional. Commented-out values show defaults.
+
+[meta]
+# version = "1.0.0"
+# profile = "personal"           # personal | corporate | airgapped | hybrid
+
+[user]
+# git_name = ""                  # Git user.name
+# git_email = ""                 # Git user.email
+# project_dir = "~/projects"     # Default project directory
+
+[paths]
+# setup_conf = "~/.config/opencode-setup/setup.conf"
+# secrets_file = "~/.config/opencode/secrets.env"
+# dl_cache = "~/.cache/opencode-setup"
+
+[features]
+# interactive = false            # Interactive component selection
+# dry_run = false                # Preview mode — no changes
+# isolated_circuit = false       # Local LLM only, no cloud
+# parallel_install = true        # Install optional modules in parallel
+
+[features.skip]
+# devbox = false                 # Skip Devbox (Nix-based)
+# caching = false                # Skip Prompt Caching Stack
+# dotfiles = false               # Skip chezmoi dotfiles
+# gui = false                    # Skip Web GUI Interface
+# cockpit = false                # Skip Cockpit TUI
+
+[services]
+# Enable Docker infrastructure services (set to true to enable)
+# postgres = false
+# qdrant = false
+# redis = false
+# kafka = false
+# neo4j = false
+# minio = false
+# observability = false          # Prometheus + Grafana
+
+[ports]
+# Override default service ports (0 = auto-detect free port)
+# postgres = 5432
+# qdrant = 6333
+# qdrant_grpc = 6334
+# redis = 6379
+# prometheus = 9090
+# grafana = 3001
+# node_exporter = 9100
+# ollama = 11434
+
+[providers]
+# API keys — prefer env vars or CLI flags for secrets.
+# These are fallbacks for non-secret configuration.
+# deepseek_key = ""
+# openai_key = ""
+# anthropic_key = ""
+# google_key = ""
+# mistral_key = ""
+# groq_key = ""
+# together_key = ""
+# cohere_key = ""
+# fireworks_key = ""
+# cerebras_key = ""
+# perplexity_key = ""
+# alibaba_key = ""
+# deepinfra_key = ""
+# xai_key = ""
+# mimo_key = ""
+# minimax_key = ""
+# openrouter_key = ""
+# zai_key = ""
+# github_token = ""
+# gitlab_token = ""
+# gitverse_token = ""
+# google_maps_key = ""
+
+[tools]
+# Version overrides (empty = use default pinned version)
+# node_ver = ""
+# python_ver = ""
+# go_ver = ""
+# rust_ver = ""
+# java_ver = ""
+# dotnet_ver = ""
+# zig_ver = ""
+# bun_ver = ""
+# opencode_ver = "latest"
+
+[drift]
+# Auto-fix drift on each run
+# auto_fix_ports = true          # Auto-shift conflicting ports
+# warn_on_drift = true           # Print warnings for detected drift

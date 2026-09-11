@@ -1,11 +1,11 @@
 [EN](README.md) | [RU](README.ru.md)
 
-# OpenCode Initializer v3.3.0
+# OpenCode Initializer v4.0.0
 
 > **Operating Model:** Multi-Agent Framework v3.0 | **Wave:** [current_wave.md](./current_wave.md) | **Checkpoint:** [session_checkpoint.json](./session_checkpoint.json)
 <p align="center">
   <b>AI-Native SDD Harness — one-command AI-enhanced development environment for WSL2, Linux, and macOS. 4 deployment profiles.</b><br>
-  <sub>726-line orchestrator · 64 modules · 12 modes ·   24 MCPs · 21 plugins · 12 LSPs · 22 providers · air-gap · governance · PII guard · audit trail · offline bundle</sub>
+  <sub>727-line orchestrator · 81 modules · 12 modes ·   24 MCPs · 21 plugins · 12 LSPs · 22 providers · air-gap · governance · PII guard · audit trail · offline bundle</sub>
 </p>
 
 <p align="center">
@@ -38,7 +38,7 @@ One command installs everything: 6 languages, 64 shell modules, 24 MCP servers, 
 | Category | Count | Details |
 |----------|-------|---------|
 | Languages | 6 | Java 25, Node.js 24, Python 3.14, Go 1.26, Rust (stable), .NET 10 |
-| Modules | 64 | System, Docker, Chrome, ZSH, 6 languages, OpenCode, MCP/LSP, ChromaDB, LLM, RAG, SearXNG, providers, dotfiles, Devbox, Infra, Cockpit, Isolated Circuit, Services, Observability, GUI, Model Router, WAL, Best Practices, Upstream Sync, Linux Platform, Lynis, auditd, DeepSeek Harness, Sandcastle, OpenCode Desktop, and more |
+| Modules | 81 | System, Docker, Chrome, ZSH, 6 languages, OpenCode, MCP/LSP, ChromaDB, LLM, RAG, SearXNG, providers, dotfiles, Devbox, Infra, Cockpit, Isolated Circuit, Services, Observability, GUI, Model Router, WAL, Best Practices, Upstream Sync, Linux Platform, Lynis, auditd, DeepSeek Harness, Sandcastle, OpenCode Desktop, Parallel Engine, Cache Manager, APM Integration, Multi-Agent, and more |
 | MCP Servers | 24 | GitHub, GitLab, Filesystem, Playwright, Chrome DevTools, Postgres, SQLite, Memory, Excalidraw, Brave Search, Context7, Google Maps, and more |
 | LSP Servers | 12 | gopls, rust-analyzer, typescript, pyright, yaml, marksman, taplo, bash, dockerfile, css, html, json |
 | Plugins | 21 | codegraph, dcp, auto-fallback, goal-mode, swarm, vibeguard, devcontainers, worktree, scheduler, background-agents, goal-plugin, conductor, zellij-namer, morph-plugin, supermemory, websearch-cited, firecrawl, plugin-otel, token-tracker, orchestrator, daytona |
@@ -46,6 +46,17 @@ One command installs everything: 6 languages, 64 shell modules, 24 MCP servers, 
 | Model Router | 9 profiles | coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn, testing |
 | CLI Modes | 12 | full, reinit, new, health, update, upgrade, interactive, ci, fix-config, fix-zshrc, dry-run, airgap |
 | Infrastructure | 7 | PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer |
+| Tests | 151 | 94 unit + 7 integration (Testcontainers) + 5 e2e + 1 doc-counts |
+| TOML Config | ✅ | Declarative config via setup.toml (precedence: CLI > env > toml > defaults) |
+| Fault Tolerance | ✅ | Per-step error recovery with PARTIAL state tracking |
+| WAL Race Fix | ✅ | Atomic writes via flock with mkdir fallback |
+| Parallel Install | ✅ | Layer-based parallel module execution with dependency awareness |
+| Download Cache | ✅ | Centralized package caching with dedup and integrity checks |
+| APM Preparation | ✅ | apm.yml generation from setup.toml, SBOM export |
+| APM Integration | ✅ | `apm install opencode_initializer`, policy management, update/uninstall |
+| Multi-Agent | ✅ | GitHub Copilot, Claude, Cursor, VS Code settings generation |
+| Incremental Install | ✅ | Skip already-installed modules (24h marker) |
+| Skip Flags | ✅ | `--skip devbox,gui,caching` to exclude specific modules |
 | Observability | Full stack | Prometheus metrics, Grafana dashboards, OpenCode metrics exporter, Node Exporter system metrics |
 | GUI | Web | Provider status, model manager, model router, MCP/LSP management, infra monitoring, Grafana iframe, backup, Isolated Circuit toggle |
 | Package Managers | 6 | apt, dnf, pacman, apk, zypper, brew |
@@ -119,7 +130,7 @@ opencode_initializer/
 │   ├── oc-sdk.py              # Python SDK
 │   ├── embed-proxy.py         # Ollama → MemoryLayer embedding bridge
 │   └── ai-router.sh           # Model routing intelligence (+ ai-router.json config)
-├── tests/                     # Unit (85), integration (6), E2E (5) — 268 checks
+├── tests/                     # Unit (89), integration (7), E2E (5) — 268 checks
 ├── migrations/                # Timestamped, idempotent migrations
 ├── docs/                      # MkDocs Material documentation site (EN/RU)
 ├── .github/                   # CI workflows (test, shellcheck, build, security, docs)

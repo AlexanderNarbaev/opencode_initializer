@@ -58,6 +58,11 @@ export SCRIPT_DIR
 # ── Source infrastructure (must be first) ────────────────────────────────────
 source "$SCRIPT_DIR/src/lib/helpers.sh"
 source "$SCRIPT_DIR/src/lib/00-core.sh"
+source "$SCRIPT_DIR/src/lib/00d-parallel.sh"
+source "$SCRIPT_DIR/src/lib/00e-cache-mgr.sh"
+source "$SCRIPT_DIR/src/lib/00f-apm.sh"
+source "$SCRIPT_DIR/src/lib/00g-apm-integration.sh"
+source "$SCRIPT_DIR/src/lib/00h-multi-agent.sh"
 
 # ── Logging — tee all output to timestamped log ─────────────────────────────
 SETUP_LOG="${HOME}/.cache/opencode-setup/setup-$(date +%Y%m%d-%H%M%S).log"
@@ -118,6 +123,55 @@ while [[ $# -gt 0 ]]; do case $1 in
   --airgap)
     ISOLATED_CIRCUIT="true"
     MODE="airgap"
+    shift
+    ;;
+  --config)
+    CONFIG_TOML="$2"
+    shift 2
+    ;;
+  --print-config)
+    MODE="print-config"
+    shift
+    ;;
+  --skip)
+    SKIP_FLAGS="$2"
+    shift 2
+    ;;
+  --parallel)
+    PARALLEL_INSTALL=true
+    PARALLEL_MAX_JOBS="${2:-$(nproc 2>/dev/null || echo 4)}"
+    shift 2
+    ;;
+  --no-parallel)
+    PARALLEL_INSTALL=false
+    shift
+    ;;
+  --apm)
+    GENERATE_APM=true
+    shift
+    ;;
+  --multi-agent)
+    GENERATE_MULTI_AGENT=true
+    shift
+    ;;
+  --copilot)
+    GENERATE_COPILOT=true
+    shift
+    ;;
+  --claude)
+    GENERATE_CLAUDE=true
+    shift
+    ;;
+  --cursor)
+    GENERATE_CURSOR=true
+    shift
+    ;;
+  --vscode)
+    GENERATE_VSCODE=true
+    shift
+    ;;
+  --force)
+    FORCE_REINSTALL=true
     shift
     ;;
   --dry-run)
@@ -319,6 +373,8 @@ Modes:
 
 Options:
   --airgap            Air-gap mode: set ISOLATED_CIRCUIT, bootstrap from offline bundle
+  --config FILE       Load configuration from TOML file (precedence: CLI > env > toml > defaults)
+  --print-config      Print resolved configuration and exit
   --isolated          Enable Isolated Circuit Mode (local LLM only, no cloud)
   --no-isolated       Disable Isolated Circuit Mode
   -p, --project-dir   Project directory (default: ~/projects)
@@ -390,6 +446,21 @@ if [ "$MODE" = "fix-config" ]; then
   source "$SCRIPT_DIR/src/lib/18-opencode-json.sh"
   section "Done — opencode.json regenerated"
   info "Restart OpenCode to apply changes."
+  exit 0
+fi
+if [ "$MODE" = "print-config" ]; then
+  info "Resolved configuration:"
+  echo "  MODE=$MODE"
+  echo "  PROJECT_DIR=$PROJECT_DIR"
+  echo "  GIT_NAME=$GIT_NAME"
+  echo "  GIT_EMAIL=$GIT_EMAIL"
+  echo "  DEPLOYMENT_PROFILE=$DEPLOYMENT_PROFILE"
+  echo "  ISOLATED_CIRCUIT=$ISOLATED_CIRCUIT"
+  echo "  INFRA_SERVICES=${INFRA_SERVICES:-}"
+  echo "  NODE_VER=$NODE_VER"
+  echo "  PYTHON_VER=$PYTHON_VER"
+  echo "  GO_VER=$GO_VER"
+  [ -n "${CONFIG_TOML:-}" ] && _toml_print_resolved "$CONFIG_TOML"
   exit 0
 fi
 if [ "$MODE" = "upgrade" ]; then source "$SCRIPT_DIR/src/modes/upgrade.sh"; fi
@@ -578,6 +649,69 @@ export GITVERSE_TOKEN="${GITVERSE_TOKEN:-}"
 export FZF_KEY="${FZF_KEY:-}"
 GIT_NAME="${GIT_NAME:-}"
 GIT_EMAIL="${GIT_EMAIL:-}"
+INFRA_SERVICES="${INFRA_SERVICES:-}"
+
+# ── TOML config loading (precedence: CLI > env > toml > defaults) ──────────
+CONFIG_TOML="${CONFIG_TOML:-}"
+if [ -n "$CONFIG_TOML" ]; then
+  if [ ! -f "$CONFIG_TOML" ]; then
+    err "Config file not found: $CONFIG_TOML"
+  fi
+  info "Loading config from: $CONFIG_TOML"
+  _toml_load "$CONFIG_TOML"
+  # Re-apply TOML values to shell variables (TOML exports UPPERCASE)
+  GIT_NAME="${GIT_NAME:-${USER_GIT_NAME:-}}"
+  GIT_EMAIL="${GIT_EMAIL:-${USER_GIT_EMAIL:-}}"
+  PROJECT_DIR="${PROJECT_DIR:-${USER_PROJECT_DIR:-}}"
+  DEPLOYMENT_PROFILE="${DEPLOYMENT_PROFILE:-${META_PROFILE:-}}"
+  ISOLATED_CIRCUIT="${ISOLATED_CIRCUIT:-${FEATURES_ISOLATED_CIRCUIT:-}}"
+  # Services
+  [ "${SERVICES_POSTGRES:-}" = "true" ] && INFRA_SERVICES="${INFRA_SERVICES:-}postgres "
+  [ "${SERVICES_QDRANT:-}" = "true" ] && INFRA_SERVICES="${INFRA_SERVICES:-}qdrant "
+  [ "${SERVICES_REDIS:-}" = "true" ] && INFRA_SERVICES="${INFRA_SERVICES:-}redis "
+  [ "${SERVICES_KAFKA:-}" = "true" ] && INFRA_SERVICES="${INFRA_SERVICES:-}kafka "
+  [ "${SERVICES_NEO4J:-}" = "true" ] && INFRA_SERVICES="${INFRA_SERVICES:-}neo4j "
+  [ "${SERVICES_MINIO:-}" = "true" ] && INFRA_SERVICES="${INFRA_SERVICES:-}minio "
+  [ "${SERVICES_OBSERVABILITY:-}" = "true" ] && INFRA_SERVICES="${INFRA_SERVICES:-}prometheus grafana " && OBSERVABILITY_ENABLED=true
+  # Skip flags
+  SKIP_DEVBOX="${SKIP_DEVBOX:-${FEATURES_SKIP_DEVBOX:-false}}"
+  SKIP_CACHING="${SKIP_CACHING:-${FEATURES_SKIP_CACHING:-false}}"
+  SKIP_DOTFILES="${SKIP_DOTFILES:-${FEATURES_SKIP_DOTFILES:-false}}"
+  # API keys (TOML is last resort — prefer env vars or CLI)
+  DEEPSEEK_KEY="${DEEPSEEK_KEY:-${PROVIDERS_DEEPSEEK_KEY:-}}"
+  OPENAI_API_KEY="${OPENAI_API_KEY:-${PROVIDERS_OPENAI_KEY:-}}"
+  ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:-${PROVIDERS_ANTHROPIC_KEY:-}}"
+  GOOGLE_API_KEY="${GOOGLE_API_KEY:-${PROVIDERS_GOOGLE_KEY:-}}"
+  MISTRAL_API_KEY="${MISTRAL_API_KEY:-${PROVIDERS_MISTRAL_KEY:-}}"
+  GROQ_API_KEY="${GROQ_API_KEY:-${PROVIDERS_GROQ_KEY:-}}"
+  TOGETHER_API_KEY="${TOGETHER_API_KEY:-${PROVIDERS_TOGETHER_KEY:-}}"
+  COHERE_API_KEY="${COHERE_API_KEY:-${PROVIDERS_COHERE_KEY:-}}"
+  FIREWORKS_API_KEY="${FIREWORKS_API_KEY:-${PROVIDERS_FIREWORKS_KEY:-}}"
+  CEREBRAS_API_KEY="${CEREBRAS_API_KEY:-${PROVIDERS_CEREBRAS_KEY:-}}"
+  PERPLEXITY_API_KEY="${PERPLEXITY_API_KEY:-${PROVIDERS_PERPLEXITY_KEY:-}}"
+  ALIBABA_API_KEY="${ALIBABA_API_KEY:-${PROVIDERS_ALIBABA_KEY:-}}"
+  DEEPINFRA_API_KEY="${DEEPINFRA_API_KEY:-${PROVIDERS_DEEPINFRA_KEY:-}}"
+  XAI_API_KEY="${XAI_API_KEY:-${PROVIDERS_XAI_KEY:-}}"
+  MIMO_API_KEY="${MIMO_API_KEY:-${PROVIDERS_MIMO_KEY:-}}"
+  MINIMAX_API_KEY="${MINIMAX_API_KEY:-${PROVIDERS_MINIMAX_KEY:-}}"
+  OPENROUTER_API_KEY="${OPENROUTER_API_KEY:-${PROVIDERS_OPENROUTER_KEY:-}}"
+  ZAI_API_KEY="${ZAI_API_KEY:-${PROVIDERS_ZAI_KEY:-}}"
+  GITHUB_TOKEN="${GITHUB_TOKEN:-${PROVIDERS_GITHUB_TOKEN:-}}"
+  GITLAB_TOKEN="${GITLAB_TOKEN:-${PROVIDERS_GITLAB_TOKEN:-}}"
+  GITVERSE_TOKEN="${GITVERSE_TOKEN:-${PROVIDERS_GITVERSE_TOKEN:-}}"
+  GOOGLE_MAPS_KEY="${GOOGLE_MAPS_KEY:-${PROVIDERS_GOOGLE_MAPS_KEY:-}}"
+  # Tools version overrides
+  NODE_VER="${NODE_VER:-${TOOLS_NODE_VER:-}}"
+  PYTHON_VER="${PYTHON_VER:-${TOOLS_PYTHON_VER:-}}"
+  GO_VER="${GO_VER:-${TOOLS_GO_VER:-}}"
+  RUST_VER="${RUST_VER:-${TOOLS_RUST_VER:-}}"
+  JAVA_VER="${JAVA_VER:-${TOOLS_JAVA_VER:-}}"
+  DOTNET_VER="${DOTNET_VER:-${TOOLS_DOTNET_VER:-}}"
+  ZIG_VER="${ZIG_VER:-${TOOLS_ZIG_VER:-}}"
+  BUN_VER="${BUN_VER:-${TOOLS_BUN_VER:-}}"
+  OPENCODE_CLI_VER="${OPENCODE_CLI_VER:-${TOOLS_OPENCODE_VER:-}}"
+  log "Config loaded from $CONFIG_TOML"
+fi
 
 # ── Mode banner ─────────────────────────────────────────────────────────────
 echo -e "${GREEN}============================================================${NC}"
@@ -600,11 +734,22 @@ _run_step() {
     return 0
   fi
   # shellcheck disable=SC1090
-  if ! (set +e; source "$module"); then
-    warn "$step_name — FAILED (continuing with next step)"
+  local step_output step_exit
+  step_output="$(set +e; source "$module" 2>&1)" || step_exit=$?
+  if [ "${step_exit:-0}" -ne 0 ]; then
+    # Extract last meaningful error line for diagnostics
+    local error_line
+    error_line="$(echo "$step_output" | grep -E "(ERROR|error|Error|FAILED|failed|Failed|command not found|Permission denied)" | tail -1)"
+    if [ -n "$error_line" ]; then
+      warn "$step_name — FAILED at: $error_line"
+    else
+      warn "$step_name — FAILED (exit code: $step_exit)"
+    fi
+    # Mark as PARTIAL so next run knows to retry
+    _wal_checkpoint "$step_name" "$step_key" "PARTIAL"
     return 1
   fi
-  _wal_checkpoint "$step_name" "$step_key"
+  _wal_checkpoint "$step_name" "$step_key" "DONE"
   log "$step_name — done"
 }
 
@@ -715,6 +860,42 @@ if [ "$MODE" = "airgap" ]; then
     warn "46-offline-bundle.sh not found — skipping offline bundle execution"
     info "Ensure the offline bundle is available at ~/.cache/opencode-setup/offline-bundle/"
   fi
+fi
+
+# ── Process skip flags (v3.5.0) ──────────────────────────────────────────────
+if [ -n "${SKIP_FLAGS:-}" ]; then
+  section "Skip Flags"
+  _process_skip_flags "$SKIP_FLAGS"
+fi
+
+# ── APM preparation (v3.5.0) ────────────────────────────────────────────────
+if [ "${GENERATE_APM:-false}" = "true" ]; then
+  section "APM Preparation"
+  _apm_install
+  _apm_generate_policy
+fi
+
+# ── Multi-agent targets (v4.0.0) ────────────────────────────────────────────
+if [ "${GENERATE_MULTI_AGENT:-false}" = "true" ]; then
+  section "Multi-Agent Targets"
+  _generate_all_targets "${PROJECT_DIR:-.}"
+elif [ "${GENERATE_COPILOT:-false}" = "true" ]; then
+  section "GitHub Copilot Instructions"
+  _generate_copilot_instructions "${PROJECT_DIR:-.}"
+elif [ "${GENERATE_CLAUDE:-false}" = "true" ]; then
+  section "Claude Settings"
+  _generate_claude_settings "${PROJECT_DIR:-.}"
+elif [ "${GENERATE_CURSOR:-false}" = "true" ]; then
+  section "Cursor Settings"
+  _generate_cursor_settings "${PROJECT_DIR:-.}"
+elif [ "${GENERATE_VSCODE:-false}" = "true" ]; then
+  section "VS Code Settings"
+  _generate_vscode_settings "${PROJECT_DIR:-.}"
+fi
+
+# ── Cache cleanup (v3.5.0) ──────────────────────────────────────────────────
+if [ "${DRY_RUN:-false}" != "true" ]; then
+  _cache_cleanup 2>/dev/null || true
 fi
 
 echo ""

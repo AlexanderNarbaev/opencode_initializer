@@ -92,7 +92,7 @@ POSTGRES
   qdrant:
     image: qdrant/qdrant:latest
     container_name: opencode-qdrant
-    ports: ["127.0.0.1:${QDRANT_PORT:-6333}:6333", "127.0.0.1:6334:6334"]
+    ports: ["127.0.0.1:${QDRANT_PORT:-6333}:6333", "127.0.0.1:${QDRANT_GRPC_PORT:-6334}:6334"]
     volumes: [opencode_qdrant_data:/qdrant/storage]
     restart: unless-stopped
 QDRANT
@@ -235,6 +235,44 @@ done
 
 log "Infra config written to $INFRA_CONFIG ($(echo "$ENABLED_SERVICES" | wc -w) services)"
 
+# ── Pre-flight: detect host-port collisions BEFORE compose up ────────────
+# Maps each enabled service to its host bind port; flags collisions and
+# suggests shifted ports via _resolve_service_port. Auto-fixes when not in
+# interactive/dry-run mode (persists shifted port to setup.conf).
+COLLISION_COUNT=0
+declare -A SVC_HOST_PORT=(
+  [postgres]="${POSTGRES_PORT:-5432}"
+  [qdrant]="${QDRANT_PORT:-6333}"
+  [qdrant_grpc]="${QDRANT_GRPC_PORT:-6334}"
+  [redis]="${REDIS_PORT:-6379}"
+  [kafka]="${KAFKA_PORT:-9092}"
+  [prometheus]="${PROMETHEUS_PORT:-9090}"
+  [grafana]="${GRAFANA_PORT:-3001}"
+  [node_exporter]="${NODE_EXPORTER_PORT:-9100}"
+  [memorylayer]="${MEMORYLAYER_PORT:-61001}"
+)
+for svc in $ENABLED_SERVICES; do
+  port="${SVC_HOST_PORT[$svc]:-}"
+  [ -z "$port" ] && continue
+  if ! _port_is_free "$port"; then
+    owner="$(_port_listening_owner "$port")"
+    warn "Port ${port} (${svc}) already bound by: ${owner:-<non-docker>}"
+    COLLISION_COUNT=$((COLLISION_COUNT + 1))
+    # Auto-resolve: bump and persist to setup.conf (skipped in dry-run)
+    if [ "${DRY_RUN:-false}" != "true" ]; then
+      shifted="$(_find_free_port "$((port + 10000))" 50)"
+      if [ -n "$shifted" ] && [ "$shifted" != "$port" ]; then
+        warn "  -> shifting ${svc} port ${port} -> ${shifted} (persisted to setup.conf)"
+        _set_config "$(printf '%s' "$svc" | tr '[:lower:]' '[:upper:]')_PORT" "$shifted"
+        export "$(printf '%s' "$svc" | tr '[:lower:]' '[:upper:]')_PORT=${shifted}"
+      fi
+    fi
+  fi
+done
+if [ "$COLLISION_COUNT" -gt 0 ]; then
+  warn "${COLLISION_COUNT} port collision(s) detected; auto-resolution applied where possible"
+fi
+
 # ── Smart detection: check what's already running ─────────────────────────
 RUNNING_COUNT=0; STOPPED_COUNT=0
 for svc in $ENABLED_SERVICES; do
@@ -255,9 +293,16 @@ if [ $STOPPED_COUNT -eq 0 ]; then
 else
   # ── Start services ────────────────────────────────────────────────────────
   info "Starting $STOPPED_COUNT infra service(s)..."
-  docker compose -f "$INFRA_CONFIG" up -d --wait 2>/dev/null && \
-    log "Infra services started" || \
-    warn "Some services failed to start — check: docker compose -f $INFRA_CONFIG ps"
+  log_file="/tmp/opencode-infra-up.$(date +%Y%m%d-%H%M%S).log"
+  if docker compose -f "$INFRA_CONFIG" up -d --wait >"$log_file" 2>&1; then
+    log "Infra services started"
+  else
+    rc=$?
+    warn "Some services failed to start (rc=${rc}); see ${log_file}"
+    docker ps -a --filter "status=created" --filter "name=opencode-" \
+      --format "  - {{.Names}} (created, never started)" 2>/dev/null
+    tail -n 20 "$log_file" >&2
+  fi
 fi
 
 # ── Metrics exporter user service (systemd / launchd) ───────────────────────

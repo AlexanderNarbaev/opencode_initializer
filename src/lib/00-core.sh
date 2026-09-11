@@ -5,7 +5,7 @@
 set -euo pipefail
 
 # ── Version ──────────────────────────────────────────────────────────────────
-SCRIPT_VERSION="${SCRIPT_VERSION:-v3.3.0}"
+SCRIPT_VERSION="${SCRIPT_VERSION:-v4.0.0}"
 
 # ── Bash version compatibility check ──────────────────────────────────────────
 _BASH_CHECK_DONE="${_BASH_CHECK_DONE:-}"
@@ -182,6 +182,7 @@ _WAL_TOTAL="${WAL_TOTAL:-41}"
 _wal_checkpoint() {
   local step_name="${1:-}"
   local module_key="${2:-}"
+  local status="${3:-DONE}"  # DONE or PARTIAL
   [ "${DRY_RUN:-false}" = "true" ] && return 0
   WAL_MODULE_COUNT=$((WAL_MODULE_COUNT + 1))
   if [ -f "$WAL_FILE" ]; then
@@ -192,11 +193,14 @@ _wal_checkpoint() {
     if [ -n "$step_name" ]; then
       # Portable range+group form: BSD sed requires '{' at end of line
       _sed_i "/^## Next Step/,/^$/{
-s|^- .*|- ${step_name}|
+s|^- .*|- ${step_name} [${status}]|
 }" "$WAL_FILE" 2>/dev/null || true
     fi
-    # Mirror legacy progress for resume compatibility
-    echo "$module_key" >> "$PROGRESS" 2>/dev/null || true
+    # Only record DONE steps in PROGRESS (so PARTIAL steps re-run on next attempt)
+    # Use _wal_locked_append for atomic writes in parallel scenarios
+    if [ "$status" = "DONE" ]; then
+      _wal_locked_append "$PROGRESS" "$module_key" 2>/dev/null || true
+    fi
   fi
 }
 
@@ -317,6 +321,98 @@ ISOLATED_CIRCUIT="${ISOLATED_CIRCUIT:-}"
 case "$(printf '%s' "${ISOLATED_CIRCUIT:-}" | tr '[:upper:]' '[:lower:]')" in true|1|yes|on|enabled) ISOLATED_CIRCUIT="true";; *) ISOLATED_CIRCUIT="false";; esac
 export ISOLATED_CIRCUIT
 
+# ── TOML config parsing (python3 tomllib, no PyYAML) ─────────────────────────
+# _toml_get FILE SECTION KEY — return scalar value, exit 1 if not found
+# SECTION uses dot notation: "meta.profile" → [meta] → profile
+_toml_get() {
+  local file="$1" section="$2" key="$3"
+  [ ! -f "$file" ] && return 1
+  python3 -c "
+import tomllib, sys
+try:
+    with open('$file', 'rb') as f:
+        data = tomllib.load(f)
+    parts = '$section'.split('.')
+    for p in parts:
+        data = data[p]
+    val = data['$key']
+    if isinstance(val, bool):
+        print('true' if val else 'false')
+    else:
+        print(val)
+except (KeyError, TypeError, FileNotFoundError):
+    sys.exit(1)
+" 2>/dev/null
+}
+
+# _toml_load FILE — export TOML values as flat UPPER_CASE env vars
+# Only sets vars NOT already set (preserves CLI/env precedence).
+# Format: [user] name="alex" → USER_NAME="alex"
+_toml_load() {
+  local file="$1"
+  [ ! -f "$file" ] && return 1
+  local IFS=$'\n'
+  # shellcheck disable=SC2207
+  local pairs=($(python3 -c "
+import tomllib, sys
+def flatten(d, prefix=''):
+    for k, v in d.items():
+        key = f'{prefix}_{k}' if prefix else k
+        if isinstance(v, dict):
+            yield from flatten(v, key)
+        elif isinstance(v, bool):
+            yield (key.upper().replace('-','_'), 'true' if v else 'false')
+        elif isinstance(v, (int, float)):
+            yield (key.upper().replace('-','_'), str(v))
+        elif isinstance(v, str):
+            yield (key.upper().replace('-','_'), v)
+try:
+    with open('$file', 'rb') as f:
+        data = tomllib.load(f)
+    for k, v in flatten(data):
+        print(f'{k}={v}')
+except Exception as e:
+    print(f'TOML_ERROR: {e}', file=sys.stderr)
+    sys.exit(1)
+" 2>/dev/null))
+  local pair
+  for pair in "${pairs[@]}"; do
+    local var_name="${pair%%=*}"
+    local var_val="${pair#*=}"
+    # Only set if not already defined (CLI/env take precedence)
+    if [ -z "${!var_name+x}" ] || [ -z "${!var_name}" ]; then
+      export "$var_name=$var_val"
+    fi
+  done
+}
+
+# _toml_print_resolved FILE — dump all key=value pairs for --print-config
+_toml_print_resolved() {
+  local file="$1"
+  [ ! -f "$file" ] && return 1
+  python3 -c "
+import tomllib
+def flatten(d, prefix=''):
+    for k, v in d.items():
+        key = f'{prefix}.{k}' if prefix else k
+        if isinstance(v, dict):
+            yield from flatten(v, key)
+        elif isinstance(v, bool):
+            yield (key, 'true' if v else 'false')
+        elif isinstance(v, (int, float)):
+            yield (key, str(v))
+        elif isinstance(v, str):
+            yield (key, v)
+try:
+    with open('$file', 'rb') as f:
+        data = tomllib.load(f)
+    for k, v in flatten(data):
+        print(f'  {k} = {v}')
+except Exception as e:
+    print(f'  ERROR: {e}')
+" 2>/dev/null
+}
+
 # ── i18n: Russian CLI output if LANG=ru* (R18: Accessibility) ───────────────
 CLI_LANG="${CLI_LANG:-${LANG:-}}"
 case "$CLI_LANG" in ru*) CLI_LANG="ru";; *) CLI_LANG="en";; esac
@@ -361,6 +457,101 @@ _resolve_service_port() {
     _set_config "$(printf '%s' "$svc" | tr '[:lower:]' '[:upper:]')_PORT" "$port"
   fi
   echo "$port"
+}
+
+# ── Port introspection — return the owning container/process for a listening port
+# Usage:  owner=$(_port_listening_owner 6379)
+# Output: "container_name" or "pid/NNN" or "<unknown>" if bound but unidentified
+# Returns empty string if the port is FREE.
+_port_listening_owner() {
+  local port="$1"
+  # Fast path: if the port is free, return empty immediately.
+  if _port_is_free "$port" 2>/dev/null; then
+    return 0
+  fi
+  local owner="" pid="" cname=""
+  # 1) Try ss -tlnpH (Linux). PID column only present when invoked as root.
+  if command -v ss >/dev/null 2>&1; then
+    pid="$(ss -tlnpH "sport = :$port" 2>/dev/null | grep -oE 'pid=[0-9]+' | head -1 | cut -d= -f2 || true)"
+  fi
+  # 2) Fallback to lsof (macOS + Linux)
+  if [ -z "$pid" ] && command -v lsof >/dev/null 2>&1; then
+    pid="$(lsof -nP -iTCP:"$port" -sTCP:LISTEN -t 2>/dev/null | head -1 || true)"
+  fi
+  # 3) Cross-reference against docker container names (running first, then all)
+  # Docker's Ports column uses formats like:
+  #   "0.0.0.0:6379->6379/tcp"          — single port mapping
+  #   "0.0.0.0:6333-6334->6333-6334/tcp" — port-range mapping
+  #   "[::]:16379->6379/tcp"            — IPv6 binding
+  if command -v docker >/dev/null 2>&1; then
+    cname="$(docker ps --format '{{.Names}} {{.Ports}}' 2>/dev/null \
+              | grep -E ":${port}(->|-|,| |\$)" | head -1 | awk '{print $1}')"
+    # Fallback: also check Created/Exited containers (port may be held by docker-proxy
+    # even when the container is not running, e.g. stuck in Created state).
+    if [ -z "$cname" ]; then
+      cname="$(docker ps -a --format '{{.Names}} {{.Ports}}' 2>/dev/null \
+                | grep -E ":${port}(->|-|,| |\$)" | head -1 | awk '{print $1}')"
+      [ -n "$cname" ] && cname="${cname} (Created/Exited)"
+    fi
+  fi
+  if [ -n "$cname" ]; then
+    owner="$cname"
+  elif [ -n "$pid" ]; then
+    owner="pid/$pid"
+  else
+    owner="<unknown>"
+  fi
+  printf '%s' "$owner"
+}
+
+# ── State-detection helpers — used by `dev state` and pre-flight checks
+# Each returns 0 (present/healthy) or 1 (absent/broken); echoes a one-line summary
+_state_check_binary() {  # _state_check_binary NAME
+  local name="$1"
+  if command -v "$name" >/dev/null 2>&1; then
+    printf "PRESENT %-12s -> %s\n" "$name" "$(command -v "$name")"
+    return 0
+  fi
+  printf "MISSING %-12s (not on PATH)\n" "$name"
+  return 1
+}
+
+_state_check_port() {  # _state_check_port PORT LABEL
+  local port="$1" label="$2"
+  if _port_is_free "$port"; then
+    printf "FREE    %-12s :%s\n" "$label" "$port"
+    return 0
+  fi
+  local owner
+  owner="$(_port_listening_owner "$port")"
+  printf "BOUND   %-12s :%s  by %s\n" "$label" "$port" "${owner:-<unknown>}"
+  return 1
+}
+
+_state_check_file() {  # _state_check_file PATH LABEL
+  local path="$1" label="$2"
+  if [ -f "$path" ]; then
+    printf "PRESENT %-12s %s\n" "$label" "$path"
+    return 0
+  fi
+  printf "MISSING %-12s %s\n" "$label" "$path"
+  return 1
+}
+
+_state_check_service() {  # _state_check_service CONTAINER_NAME LABEL
+  local cname="$1" label="$2"
+  if docker ps --format '{{.Names}}' 2>/dev/null | grep -qx "$cname"; then
+    printf "RUNNING %-12s %s\n" "$label" "$cname"
+    return 0
+  fi
+  local state
+  state="$(docker ps -a --format '{{.Names}}\t{{.State}}' 2>/dev/null | grep -E "^${cname}\b" | cut -f2)"
+  if [ -n "$state" ]; then
+    printf "STOPPED %-12s %s (%s)\n" "$label" "$cname" "$state"
+  else
+    printf "MISSING %-12s %s (no container)\n" "$label" "$cname"
+  fi
+  return 1
 }
 
 _service_mode() {

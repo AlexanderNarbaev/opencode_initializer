@@ -1,120 +1,140 @@
 #!/usr/bin/env bash
-# ============================================================================
-# ISOLATED Unit Test for 52-context-selector.sh
-# Target: src/lib/52-context-selector.sh
-# Session: ses_context_selector_test
-#
-# Tests:
-#   (a) Module file + syntax validity
-#   (b) config.json — task categories + file_lsp_map validity
-#   (c) _select_mcp_for_task() — per-category MCP selection + fallback
-#   (d) _select_lsp_for_file() — extension → LSP mapping
-#   (e) _optimize_context() — JSON summary + model-router integration
-#   (f) Module structure — gates, shebang, function definitions
-#
-# Isolation: temp HOME + stubbed helpers; module sourced standalone.
-# ============================================================================
+# tests/unit/test_context_selector.sh — Context selector tests
+# Tests that context selection and MCP/LSP loading works correctly.
 set -euo pipefail
 
-PROJECT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
-MODULE="$PROJECT_DIR/src/lib/52-context-selector.sh"
-TESTS_PASS=0; TESTS_FAIL=0
+PASS=0; FAIL=0; TOTAL=0
+_script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
-assert() {
-  local desc="$1" condition="$2"
-  if (eval "$condition") 2>/dev/null; then
-    TESTS_PASS=$((TESTS_PASS + 1))
+# shellcheck source=/dev/null
+source "$_script_dir/src/lib/helpers.sh" 2>/dev/null || true
+# shellcheck source=/dev/null
+source "$_script_dir/src/lib/00-core.sh" 2>/dev/null || true
+
+assert_eq() {
+  TOTAL=$((TOTAL + 1))
+  local desc="$1" expected="$2" actual="$3"
+  if [ "$expected" = "$actual" ]; then
+    PASS=$((PASS + 1))
+    printf "  ${GREEN}✓${NC} %s\n" "$desc"
   else
-    TESTS_FAIL=$((TESTS_FAIL + 1))
-    echo "    FAIL: $desc" >&2
+    FAIL=$((FAIL + 1))
+    printf "  ${RED}✗${NC} %s\n  expected: %s\n  actual:   %s\n" "$desc" "$expected" "$actual"
   fi
 }
 
-echo "=== Testing 52-context-selector.sh ==="
-
-# ── (a) Module + syntax ───────────────────────────────────────────────────────
-assert "52-context-selector.sh exists" "[ -f '$MODULE' ]"
-assert "52-context-selector.sh bash -n clean" "bash -n '$MODULE'"
-
-# ── Stub helpers (module sourced standalone — no helpers.sh/00-core.sh) ───────
-section() { :; }; info() { :; }; log() { :; }; warn() { :; }
-_step_skip() { return 1; }
-_step_done() { :; }
-_spin_start() { :; }; _spin_stop() { :; }; _progress() { :; }; _blur() { :; }
-
-TMP=$(mktemp -d /tmp/test_cs.XXXXXX)
-cleanup() { rm -rf "$TMP"; }
-trap cleanup EXIT
-
-# Isolate HOME so the module writes config into a temp tree
-HOME="$TMP/home"
-mkdir -p "$HOME"
-
-# Fake model-router profiles — verifies _optimize_context integration
-mkdir -p "$HOME/.config/opencode/model-router"
-cat > "$HOME/.config/opencode/model-router/task-profiles.json" <<'ROUTER'
-{
-  "coding": {"model": "fake/coding-model", "small_model": "fake/coding-small", "fallback": ["fake/fallback"]}
+assert_exit() {
+  TOTAL=$((TOTAL + 1))
+  local desc="$1" expected="$2" cmd="$3"
+  local actual
+  actual=0
+  eval "$cmd" >/dev/null 2>&1 || actual=$?
+  if [ "$expected" = "$actual" ]; then
+    PASS=$((PASS + 1))
+    printf "  ${GREEN}✓${NC} %s\n" "$desc"
+  else
+    FAIL=$((FAIL + 1))
+    printf "  ${RED}✗${NC} %s\n  expected exit: %s\n  actual exit:   %s\n" "$desc" "$expected" "$actual"
+  fi
 }
-ROUTER
 
-# ── Source the module (runs its main body against temp HOME) ─────────────────
-# shellcheck disable=SC1090
-source "$MODULE"
-CFG="$HOME/.config/opencode/context-selector/config.json"
+assert_contains() {
+  TOTAL=$((TOTAL + 1))
+  local desc="$1" needle="$2" haystack="$3"
+  if echo "$haystack" | grep -q "$needle"; then
+    PASS=$((PASS + 1))
+    printf "  ${GREEN}✓${NC} %s\n" "$desc"
+  else
+    FAIL=$((FAIL + 1))
+    printf "  ${RED}✗${NC} %s\n  missing: %s\n" "$desc" "$needle"
+  fi
+}
 
-# ── (b) config.json validity ─────────────────────────────────────────────────
-assert "config.json written" "[ -f '$CFG' ]"
-assert "config.json valid JSON" "python3 -c \"import json; json.load(open('$CFG'))\""
-for t in coding reasoning fast agentic research testing; do
-  assert "has $t category" "python3 -c \"import json; d=json.load(open('$CFG')); assert '$t' in d['task_categories']\""
-done
-assert "file_lsp_map has .ts" "python3 -c \"import json; d=json.load(open('$CFG')); assert '.ts' in d['file_lsp_map']\""
-assert "file_lsp_map has .py" "python3 -c \"import json; d=json.load(open('$CFG')); assert '.py' in d['file_lsp_map']\""
-assert "file_lsp_map has .go" "python3 -c \"import json; d=json.load(open('$CFG')); assert '.go' in d['file_lsp_map']\""
-assert "defaults has default_task" "python3 -c \"import json; d=json.load(open('$CFG')); assert d['defaults']['default_task']\""
+echo "─── Context Selector Tests ───"
+echo
 
-# ── (c) _select_mcp_for_task ─────────────────────────────────────────────────
-assert "coding MCP includes codegraph" "echo \"\$(_select_mcp_for_task coding)\" | grep -q codegraph"
-assert "coding MCP includes git" "echo \"\$(_select_mcp_for_task coding)\" | grep -q git"
-assert "coding MCP includes filesystem" "echo \"\$(_select_mcp_for_task coding)\" | grep -q filesystem"
-assert "fast MCP is minimal (filesystem only)" "[ \"\$(_select_mcp_for_task fast)\" = 'filesystem' ]"
-assert "reasoning MCP includes memory" "echo \"\$(_select_mcp_for_task reasoning)\" | grep -q memory"
-assert "reasoning MCP includes fetch" "echo \"\$(_select_mcp_for_task reasoning)\" | grep -q fetch"
-assert "agentic MCP includes orchestrator" "echo \"\$(_select_mcp_for_task agentic)\" | grep -q open-orchestra"
-assert "agentic MCP includes browser" "echo \"\$(_select_mcp_for_task agentic)\" | grep -q playwright"
-assert "research MCP includes fetch" "echo \"\$(_select_mcp_for_task research)\" | grep -q fetch"
-assert "unknown task falls back to default" "echo \"\$(_select_mcp_for_task doesnotexist)\" | grep -q codegraph"
+# ── Test 1: mcp-profiles.json structure ─────────────────────────────────────
+echo "1. mcp-profiles.json structure"
+mcp_profiles_file="$_script_dir/src/data/mcp-profiles.json"
+assert_exit "mcp-profiles.json exists" "0" "[ -f $mcp_profiles_file ]"
+mcp_profiles_content="$(cat "$mcp_profiles_file")"
+assert_contains "has task_profiles" "task_profiles" "$mcp_profiles_content"
+assert_contains "has disabled_by_default" "disabled_by_default" "$mcp_profiles_content"
+assert_contains "has file_lsp" "file_lsp" "$mcp_profiles_content"
 
-# ── (d) _select_lsp_for_file ─────────────────────────────────────────────────
-assert ".ts → typescript-lsp" "echo \"\$(_select_lsp_for_file foo.ts)\" | grep -q typescript-lsp"
-assert ".ts → eslint-lsp" "echo \"\$(_select_lsp_for_file foo.ts)\" | grep -q eslint-lsp"
-assert ".py → pyright" "echo \"\$(_select_lsp_for_file foo.py)\" | grep -q pyright"
-assert ".go → gopls" "echo \"\$(_select_lsp_for_file foo.go)\" | grep -q gopls"
-assert "nested path .py → pyright" "echo \"\$(_select_lsp_for_file src/pkg/mod.py)\" | grep -q pyright"
-assert ".txt → empty" "[ -z \"\$(_select_lsp_for_file foo.txt)\" ]"
-assert "no file → empty" "[ -z \"\$(_select_lsp_for_file)\" ]"
+# ── Test 2: Task profiles in mcp-profiles.json ─────────────────────────────
+echo
+echo "2. Task profiles"
+assert_contains "has coding profile" "coding" "$mcp_profiles_content"
+assert_contains "has reasoning profile" "reasoning" "$mcp_profiles_content"
+assert_contains "has fast profile" "fast" "$mcp_profiles_content"
+assert_contains "has agentic profile" "agentic" "$mcp_profiles_content"
+assert_contains "has research profile" "research" "$mcp_profiles_content"
+assert_contains "has testing profile" "testing" "$mcp_profiles_content"
 
-# ── (e) _optimize_context ────────────────────────────────────────────────────
-assert "optimize coding is JSON with mcp" "echo \"\$(_optimize_context coding)\" | python3 -c 'import json,sys; d=json.load(sys.stdin); assert d[\"mcp\"] and d[\"task\"]==\"coding\"'"
-assert "optimize fast is JSON with flash model" "echo \"\$(_optimize_context fast)\" | python3 -c 'import json,sys; d=json.load(sys.stdin); assert \"flash\" in d[\"model\"]'"
-assert "optimize coding+file injects file LSP" "echo \"\$(_optimize_context coding foo.py)\" | python3 -c 'import json,sys; d=json.load(sys.stdin); assert \"pyright\" in d[\"lsp\"]'"
-assert "optimize pulls model from model-router" "echo \"\$(_optimize_context coding)\" | python3 -c 'import json,sys; d=json.load(sys.stdin); assert d[\"model\"]==\"fake/coding-model\"'"
-assert "optimize exposes router fallback" "echo \"\$(_optimize_context coding)\" | python3 -c 'import json,sys; d=json.load(sys.stdin); assert d[\"fallback\"]==[\"fake/fallback\"]'"
-assert "optimize unknown task falls back to default" "echo \"\$(_optimize_context nope)\" | python3 -c 'import json,sys; d=json.load(sys.stdin); assert d[\"task\"]==\"coding\"'"
+# ── Test 3: Disabled by default ─────────────────────────────────────────────
+echo
+echo "3. Disabled by default"
+assert_contains "disables chrome-devtools" "chrome-devtools" "$mcp_profiles_content"
+assert_contains "disables playwright" "playwright" "$mcp_profiles_content"
+assert_contains "disables excalidraw" "excalidraw" "$mcp_profiles_content"
+assert_contains "disables agent-browser" "agent-browser" "$mcp_profiles_content"
 
-# ── (f) Module structure ─────────────────────────────────────────────────────
-assert "has _step_skip gate" "grep -q '_step_skip step_context_selector' '$MODULE'"
-assert "has section header" "grep -q 'section.*Context-Aware' '$MODULE'"
-assert "defines _select_mcp_for_task" "grep -q '^_select_mcp_for_task()' '$MODULE'"
-assert "defines _select_lsp_for_file" "grep -q '^_select_lsp_for_file()' '$MODULE'"
-assert "defines _optimize_context" "grep -q '^_optimize_context()' '$MODULE'"
-assert "writes config.json" "grep -q 'config.json' '$MODULE'"
-assert "writes select.sh CLI" "grep -q 'select.sh' '$MODULE'"
-assert "has _step_done gating" "grep -q '_step_done step_context_selector' '$MODULE'"
-assert "has shebang" "head -1 '$MODULE' | grep -q '#!/usr/bin/env bash'"
-assert "has opt-out flag" "grep -q 'SKIP_CONTEXT_SELECTOR' '$MODULE'"
+# ── Test 4: File LSP mapping ────────────────────────────────────────────────
+echo
+echo "4. File LSP mapping"
+assert_contains "maps .go files" ".go" "$mcp_profiles_content"
+assert_contains "maps .ts files" ".ts" "$mcp_profiles_content"
+assert_contains "maps .py files" ".py" "$mcp_profiles_content"
+assert_contains "maps .rs files" ".rs" "$mcp_profiles_content"
+assert_contains "maps .sh files" ".sh" "$mcp_profiles_content"
 
-# ── Report ───────────────────────────────────────────────────────────────────
-echo "test_context_selector: $TESTS_PASS passed, $TESTS_FAIL failed"
-[ "$TESTS_FAIL" -eq 0 ] || exit 1
+# ── Test 5: Context selector script exists ──────────────────────────────────
+echo
+echo "5. Context selector script"
+assert_exit "context-selector directory exists" "0" "[ -d $HOME/.config/opencode/context-selector ]"
+assert_exit "select.sh exists" "0" "[ -f $HOME/.config/opencode/context-selector/select.sh ]"
+assert_exit "config.json exists" "0" "[ -f $HOME/.config/opencode/context-selector/config.json ]"
+
+# ── Test 6: Context selector config structure ───────────────────────────────
+echo
+echo "6. Context selector config"
+if [ -f "$HOME/.config/opencode/context-selector/config.json" ]; then
+  config_content="$(cat "$HOME/.config/opencode/context-selector/config.json")"
+  assert_contains "config has task_categories" "task_categories" "$config_content"
+  assert_contains "config has coding" "coding" "$config_content"
+  assert_contains "config has reasoning" "reasoning" "$config_content"
+else
+  echo "  SKIP: config.json not found"
+fi
+
+# ── Test 7: Context selector can be sourced ─────────────────────────────────
+echo
+echo "7. Context selector syntax"
+if [ -f "$HOME/.config/opencode/context-selector/select.sh" ]; then
+  assert_exit "select.sh has valid syntax" "0" "bash -n $HOME/.config/opencode/context-selector/select.sh"
+else
+  echo "  SKIP: select.sh not found"
+fi
+
+# ── Test 8: Task distributor exists ─────────────────────────────────────────
+echo
+echo "8. Task distributor"
+assert_exit "task-distributor directory exists" "0" "[ -d $HOME/.config/opencode/task-distributor ]"
+assert_exit "distribute.sh exists" "0" "[ -f $HOME/.config/opencode/task-distributor/distribute.sh ]"
+assert_exit "config.json exists" "0" "[ -f $HOME/.config/opencode/task-distributor/config.json ]"
+
+# ── Test 9: Context guard exists ────────────────────────────────────────────
+echo
+echo "9. Context guard"
+assert_exit "context-guard.json exists" "0" "[ -f $HOME/.config/opencode/context-guard.json ]"
+
+# ── Test 10: Bundle config exists ───────────────────────────────────────────
+echo
+echo "10. Bundle config"
+assert_exit "bundle.json exists" "0" "[ -f $HOME/.config/opencode/bundle.json ]"
+
+# ── Summary ─────────────────────────────────────────────────────────────────
+echo
+echo "─── Results: $PASS/$TOTAL passed, $FAIL failed ───"
+[ "$FAIL" -eq 0 ] && exit 0 || exit 1

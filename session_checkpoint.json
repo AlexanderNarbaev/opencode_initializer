@@ -1,17 +1,54 @@
 {
-  "last_commit": "0eff737",
-  "timestamp": "2026-08-08T13:24:00Z",
+  "last_commit": "4a773d9",
+  "timestamp": "2026-09-11T14:38:00Z",
   "branch": "main",
-  "wave": "v2.0.3-deep-research-fix",
-  "tests": {"unit": 38, "integration": 5, "e2e": 4, "total_test_files": 47, "assertions": 550},
-  "modules": 43,
+  "wave": "v4.0.0-complete",
+  "tests": {"unit": 94, "integration": 7, "e2e": 5, "total_test_files": 106, "assertions": 151},
+  "modules": 81,
   "providers": {"total": 22, "cloud": 19, "local": 3},
   "health_checks": 128,
-  "audit_2026_08_03": {
+  "features": {
+    "toml_config": true,
+    "testcontainers": true,
+    "fault_tolerance": true,
+    "wal_race_fix": true,
+    "diff_before_write": true,
+    "port_collision_detection": true,
+    "state_detection": true,
+    "parallel_install": true,
+    "download_cache": true,
+    "apm_preparation": true,
+    "apm_integration": true,
+    "multi_agent_targets": true,
+    "incremental_install": true,
+    "skip_flags": true
+  },
+  "v4.0.0_changes": {
+    "apm_integration": "src/lib/00g-apm-integration.sh — apm install/update/uninstall",
+    "multi_agent": "src/lib/00h-multi-agent.sh — Copilot, Claude, Cursor, VS Code settings",
+    "new_tests": "tests/unit/test_v4_features.sh — 28 tests for v4 features",
+    "cli_flags": "--multi-agent, --copilot, --claude, --cursor, --vscode"
+  },
+  "v3.5.0_changes": {
+    "parallel_engine": "src/lib/00d-parallel.sh — layer-based parallel module execution",
+    "cache_manager": "src/lib/00e-cache-mgr.sh — centralized download caching",
+    "apm_preparation": "src/lib/00f-apm.sh — apm.yml generation from setup.toml",
+    "new_tests": "tests/unit/test_parallel_engine.sh — 24 tests for new features",
+    "cli_flags": "--skip, --parallel, --no-parallel, --apm, --force"
+  },
+  "audit_2026_08_08": {
     "report": "docs/research/deep-research-2026-08-03.md",
     "findings_fixed": 10,
     "high": 4,
     "medium": 4,
-    "low": 2
+    "low": 2,
+    "f1_per_step_fault_tolerance": "fixed",
+    "f2_wal_race_condition": "fixed"
+  },
+  "strategic_decisions": {
+    "integration_strategy": "VibeVM, Microsoft APM, AgentRC, Omakub are resources for integration, not competitors",
+    "project_type": "meta-project, best collection for developer machine",
+    "target_audience": "international community",
+    "documentation_language": "bilingual EN/RU"
   }
 }
