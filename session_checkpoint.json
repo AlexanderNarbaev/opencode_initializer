@@ -1,10 +1,10 @@
 {
-  "last_commit": "4a773d9",
-  "timestamp": "2026-09-11T14:38:00Z",
+  "last_commit": "efb608f",
+  "timestamp": "2026-09-11T18:59:00Z",
   "branch": "main",
-  "wave": "v4.0.0-complete",
-  "tests": {"unit": 94, "integration": 7, "e2e": 5, "total_test_files": 106, "assertions": 151},
-  "modules": 81,
+  "wave": "v7.0.0-complete",
+  "tests": {"unit": 104, "integration": 9, "e2e": 5, "total_test_files": 118, "assertions": 263},
+  "modules": 82,
   "providers": {"total": 22, "cloud": 19, "local": 3},
   "health_checks": 128,
   "features": {
@@ -21,7 +21,53 @@
     "apm_integration": true,
     "multi_agent_targets": true,
     "incremental_install": true,
-    "skip_flags": true
+    "skip_flags": true,
+    "gitverse_mirrors": true,
+    "auto_sync": true,
+    "security_scanner": true,
+    "benchmark": true,
+    "plugin_discovery": true,
+    "context_manager": true,
+    "workflow_automation": true,
+    "env_manager": true,
+    "template_engine": true,
+    "full_apm": true,
+    "cloud_sync": true,
+    "gui_dashboard": true,
+    "adr_documents": true,
+    "operations_runbook": true,
+    "integration_tests": true
+  },
+  "v7.0.0_changes": {
+    "full_apm": "src/lib/00r-apm-full.sh — full APM manifest, install/update/uninstall",
+    "cloud_sync": "src/lib/00s-cloud-sync.sh — 9 backends, upload/download/status",
+    "gui_dashboard": "src/lib/00t-gui-dashboard.sh — web-based management interface",
+    "adr_documents": "docs/adr/ — 7 Architecture Decision Records",
+    "operations_runbook": "docs/runbook/operations-runbook.md — complete operations guide",
+    "integration_tests": "tests/integration/test_containers.sh, test_infra_services.sh — Docker container tests"
+  },
+  "v5.0.0_changes": {
+    "full_apm": "src/lib/00r-apm-full.sh — apm.json manifest, full lifecycle management"
+  },
+  "v6.0.0_changes": {
+    "cloud_sync": "src/lib/00s-cloud-sync.sh — GitHub, GitLab, S3, GCS, Azure, Dropbox, GDrive, rsync, Syncthing"
+  },
+  "v4.5.0_changes": {
+    "env_manager": "src/lib/00p-env-manager.sh — multiple dev environments",
+    "template_engine": "src/lib/00q-template-engine.sh — 30+ project templates"
+  },
+  "v4.4.0_changes": {
+    "plugin_discovery": "src/lib/00m-plugin-discovery.sh — npm/GitHub search, registry",
+    "context_manager": "src/lib/00n-context-mgr.sh — token counting, model limits",
+    "workflow_automation": "src/lib/00o-workflow.sh — 5 workflows"
+  },
+  "v4.3.0_changes": {
+    "security_scanner": "src/lib/00k-security-scan.sh — secret detection, SHA256, permissions",
+    "benchmark": "src/lib/00l-benchmark.sh — network/disk/CPU/memory benchmarks"
+  },
+  "v4.1.0_changes": {
+    "mirrors": "src/lib/00i-mirrors.sh — GitVerse mirrors for RU/CN",
+    "auto_sync": "src/lib/00j-auto-sync.sh — background daemon for updates"
   },
   "v4.0.0_changes": {
     "apm_integration": "src/lib/00g-apm-integration.sh — apm install/update/uninstall",
@@ -50,5 +96,14 @@
     "project_type": "meta-project, best collection for developer machine",
     "target_audience": "international community",
     "documentation_language": "bilingual EN/RU"
+  },
+  "documentation": {
+    "adr_count": 7,
+    "runbook": true,
+    "guides": {
+      "toml_config": true,
+      "installation": true,
+      "troubleshooting": true
+    }
   }
 }
