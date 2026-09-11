@@ -65,6 +65,8 @@ source "$SCRIPT_DIR/src/lib/00g-apm-integration.sh"
 source "$SCRIPT_DIR/src/lib/00h-multi-agent.sh"
 source "$SCRIPT_DIR/src/lib/00i-mirrors.sh"
 source "$SCRIPT_DIR/src/lib/00j-auto-sync.sh"
+source "$SCRIPT_DIR/src/lib/00k-security-scan.sh"
+source "$SCRIPT_DIR/src/lib/00l-benchmark.sh"
 
 # ── Logging — tee all output to timestamped log ─────────────────────────────
 SETUP_LOG="${HOME}/.cache/opencode-setup/setup-$(date +%Y%m%d-%H%M%S).log"
@@ -188,6 +190,18 @@ while [[ $# -gt 0 ]]; do case $1 in
     ;;
   --auto-sync)
     START_AUTO_SYNC=true
+    shift
+    ;;
+  --security-scan)
+    RUN_SECURITY_SCAN=true
+    shift
+    ;;
+  --install-hooks)
+    INSTALL_SECURITY_HOOKS=true
+    shift
+    ;;
+  --benchmark)
+    RUN_BENCHMARK=true
     shift
     ;;
   --force)
@@ -943,6 +957,24 @@ if [ "${START_AUTO_SYNC:-false}" = "true" ]; then
   section "Auto-Sync Daemon"
   _auto_sync_daemon &
   log "Auto-sync daemon started (PID: $!)"
+fi
+
+# ── Security scan (v4.2.0) ──────────────────────────────────────────────────
+if [ "${RUN_SECURITY_SCAN:-false}" = "true" ]; then
+  section "Security Scan"
+  _generate_security_report "${PROJECT_DIR:-.}"
+fi
+
+# ── Install security hooks (v4.2.0) ─────────────────────────────────────────
+if [ "${INSTALL_SECURITY_HOOKS:-false}" = "true" ]; then
+  section "Security Hooks"
+  _install_pre_commit_hook "${PROJECT_DIR:-.}/.git"
+fi
+
+# ── Benchmark (v4.3.0) ──────────────────────────────────────────────────────
+if [ "${RUN_BENCHMARK:-false}" = "true" ]; then
+  section "Performance Benchmark"
+  _run_benchmark
 fi
 
 echo ""
