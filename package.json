@@ -1,6 +1,6 @@
 {
   "name": "opencode-initializer",
-  "version": "4.4.0",
+  "version": "4.5.0",
   "description": "Universal Dev Machine Bootstrap — one-command AI-enhanced dev machine setup",
   "scripts": {
     "build:gui": "bun build src/gui/server.js --compile --outfile dist/opencode-gui",

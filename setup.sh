@@ -70,6 +70,8 @@ source "$SCRIPT_DIR/src/lib/00l-benchmark.sh"
 source "$SCRIPT_DIR/src/lib/00m-plugin-discovery.sh"
 source "$SCRIPT_DIR/src/lib/00n-context-mgr.sh"
 source "$SCRIPT_DIR/src/lib/00o-workflow.sh"
+source "$SCRIPT_DIR/src/lib/00p-env-manager.sh"
+source "$SCRIPT_DIR/src/lib/00q-template-engine.sh"
 
 # ── Logging — tee all output to timestamped log ─────────────────────────────
 SETUP_LOG="${HOME}/.cache/opencode-setup/setup-$(date +%Y%m%d-%H%M%S).log"
@@ -222,6 +224,31 @@ while [[ $# -gt 0 ]]; do case $1 in
   --list-workflows)
     LIST_WORKFLOWS=true
     shift
+    ;;
+  --env-create)
+    ENV_CREATE="$2"
+    shift 2
+    ;;
+  --env-switch)
+    ENV_SWITCH="$2"
+    shift 2
+    ;;
+  --env-list)
+    ENV_LIST=true
+    shift
+    ;;
+  --env-show)
+    ENV_SHOW="$2"
+    shift 2
+    ;;
+  --template-list)
+    TEMPLATE_LIST=true
+    shift
+    ;;
+  --template-new)
+    TEMPLATE_NEW="$2"
+    TEMPLATE_NAME="$3"
+    shift 3
     ;;
   --force)
     FORCE_REINSTALL=true
@@ -1018,6 +1045,35 @@ fi
 # ── List workflows (v4.4.0) ─────────────────────────────────────────────────
 if [ "${LIST_WORKFLOWS:-false}" = "true" ]; then
   _workflow_list
+fi
+
+# ── Environment management (v4.5.0) ─────────────────────────────────────────
+if [ -n "${ENV_CREATE:-}" ]; then
+  section "Create Environment"
+  _env_create "$ENV_CREATE" "${ENV_DESC:-}"
+fi
+
+if [ -n "${ENV_SWITCH:-}" ]; then
+  section "Switch Environment"
+  _env_switch "$ENV_SWITCH"
+fi
+
+if [ "${ENV_LIST:-false}" = "true" ]; then
+  _env_list
+fi
+
+if [ -n "${ENV_SHOW:-}" ]; then
+  _env_show "$ENV_SHOW"
+fi
+
+# ── Template engine (v4.5.0) ────────────────────────────────────────────────
+if [ "${TEMPLATE_LIST:-false}" = "true" ]; then
+  _template_list
+fi
+
+if [ -n "${TEMPLATE_NEW:-}" ] && [ -n "${TEMPLATE_NAME:-}" ]; then
+  section "Generate Project"
+  _template_generate "$TEMPLATE_NEW" "$TEMPLATE_NAME" "${PROJECT_DIR:-.}"
 fi
 
 echo ""
