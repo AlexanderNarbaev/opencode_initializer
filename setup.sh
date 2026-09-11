@@ -63,6 +63,8 @@ source "$SCRIPT_DIR/src/lib/00e-cache-mgr.sh"
 source "$SCRIPT_DIR/src/lib/00f-apm.sh"
 source "$SCRIPT_DIR/src/lib/00g-apm-integration.sh"
 source "$SCRIPT_DIR/src/lib/00h-multi-agent.sh"
+source "$SCRIPT_DIR/src/lib/00i-mirrors.sh"
+source "$SCRIPT_DIR/src/lib/00j-auto-sync.sh"
 
 # ── Logging — tee all output to timestamped log ─────────────────────────────
 SETUP_LOG="${HOME}/.cache/opencode-setup/setup-$(date +%Y%m%d-%H%M%S).log"
@@ -168,6 +170,24 @@ while [[ $# -gt 0 ]]; do case $1 in
     ;;
   --vscode)
     GENERATE_VSCODE=true
+    shift
+    ;;
+  --mirrors)
+    CONFIGURE_MIRRORS=true
+    MIRROR_REGION="${2:-auto}"
+    shift 2
+    ;;
+  --sync)
+    RUN_SYNC=true
+    shift
+    ;;
+  --sync-force)
+    RUN_SYNC=true
+    SYNC_FORCE=true
+    shift
+    ;;
+  --auto-sync)
+    START_AUTO_SYNC=true
     shift
     ;;
   --force)
@@ -896,6 +916,33 @@ fi
 # ── Cache cleanup (v3.5.0) ──────────────────────────────────────────────────
 if [ "${DRY_RUN:-false}" != "true" ]; then
   _cache_cleanup 2>/dev/null || true
+fi
+
+# ── Mirror configuration (v4.1.0) ───────────────────────────────────────────
+if [ "${CONFIGURE_MIRRORS:-false}" = "true" ]; then
+  section "Mirror Configuration"
+  if [ "$MIRROR_REGION" = "auto" ]; then
+    _configure_all_mirrors
+  else
+    _configure_all_mirrors "$MIRROR_REGION"
+  fi
+fi
+
+# ── Auto-sync (v4.1.0) ─────────────────────────────────────────────────────
+if [ "${RUN_SYNC:-false}" = "true" ]; then
+  section "Auto-Sync"
+  if [ "${SYNC_FORCE:-false}" = "true" ]; then
+    _full_sync --force
+  else
+    _full_sync
+  fi
+fi
+
+# ── Start auto-sync daemon (v4.1.0) ─────────────────────────────────────────
+if [ "${START_AUTO_SYNC:-false}" = "true" ]; then
+  section "Auto-Sync Daemon"
+  _auto_sync_daemon &
+  log "Auto-sync daemon started (PID: $!)"
 fi
 
 echo ""
