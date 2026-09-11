@@ -1,11 +1,11 @@
 [EN](README.md) | [RU](README.ru.md)
 
-# OpenCode Initializer v4.5.0
+# OpenCode Initializer v7.0.0
 
 > **Operating Model:** Multi-Agent Framework v3.0 | **Wave:** [current_wave.md](./current_wave.md) | **Checkpoint:** [session_checkpoint.json](./session_checkpoint.json)
 <p align="center">
   <b>AI-Native SDD Harness — one-command AI-enhanced development environment for WSL2, Linux, and macOS. 4 deployment profiles.</b><br>
-  <sub>727-line orchestrator · 90 modules · 12 modes ·   24 MCPs · 21 plugins · 12 LSPs · 22 providers · air-gap · governance · PII guard · audit trail · offline bundle</sub>
+  <sub>727-line orchestrator · 93 modules · 12 modes ·   24 MCPs · 21 plugins · 12 LSPs · 22 providers · air-gap · governance · PII guard · audit trail · offline bundle</sub>
 </p>
 
 <p align="center">
