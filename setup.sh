@@ -72,6 +72,9 @@ source "$SCRIPT_DIR/src/lib/00n-context-mgr.sh"
 source "$SCRIPT_DIR/src/lib/00o-workflow.sh"
 source "$SCRIPT_DIR/src/lib/00p-env-manager.sh"
 source "$SCRIPT_DIR/src/lib/00q-template-engine.sh"
+source "$SCRIPT_DIR/src/lib/00r-apm-full.sh"
+source "$SCRIPT_DIR/src/lib/00s-cloud-sync.sh"
+source "$SCRIPT_DIR/src/lib/00t-gui-dashboard.sh"
 
 # ── Logging — tee all output to timestamped log ─────────────────────────────
 SETUP_LOG="${HOME}/.cache/opencode-setup/setup-$(date +%Y%m%d-%H%M%S).log"
@@ -249,6 +252,47 @@ while [[ $# -gt 0 ]]; do case $1 in
     TEMPLATE_NEW="$2"
     TEMPLATE_NAME="$3"
     shift 3
+    ;;
+  --apm-install)
+    APM_INSTALL=true
+    shift
+    ;;
+  --apm-update)
+    APM_UPDATE=true
+    shift
+    ;;
+  --apm-info)
+    APM_INFO=true
+    shift
+    ;;
+  --cloud-sync)
+    CLOUD_SYNC=true
+    shift
+    ;;
+  --cloud-upload)
+    CLOUD_UPLOAD=true
+    shift
+    ;;
+  --cloud-download)
+    CLOUD_DOWNLOAD=true
+    shift
+    ;;
+  --cloud-status)
+    CLOUD_STATUS=true
+    shift
+    ;;
+  --gui-start)
+    GUI_START=true
+    GUI_PORT="${2:-4200}"
+    shift 2
+    ;;
+  --gui-stop)
+    GUI_STOP=true
+    shift
+    ;;
+  --gui-status)
+    GUI_STATUS=true
+    shift
     ;;
   --force)
     FORCE_REINSTALL=true
@@ -1074,6 +1118,55 @@ fi
 if [ -n "${TEMPLATE_NEW:-}" ] && [ -n "${TEMPLATE_NAME:-}" ]; then
   section "Generate Project"
   _template_generate "$TEMPLATE_NEW" "$TEMPLATE_NAME" "${PROJECT_DIR:-.}"
+fi
+
+# ── APM full integration (v5.0.0) ──────────────────────────────────────────
+if [ "${APM_INSTALL:-false}" = "true" ]; then
+  section "APM Install"
+  _apm_install_cmd
+fi
+
+if [ "${APM_UPDATE:-false}" = "true" ]; then
+  section "APM Update"
+  _apm_update_cmd
+fi
+
+if [ "${APM_INFO:-false}" = "true" ]; then
+  _apm_info_cmd
+fi
+
+# ── Cloud sync (v6.0.0) ────────────────────────────────────────────────────
+if [ "${CLOUD_SYNC:-false}" = "true" ]; then
+  section "Cloud Sync"
+  _cloud_sync_status
+fi
+
+if [ "${CLOUD_UPLOAD:-false}" = "true" ]; then
+  section "Cloud Upload"
+  _cloud_sync_upload
+fi
+
+if [ "${CLOUD_DOWNLOAD:-false}" = "true" ]; then
+  section "Cloud Download"
+  _cloud_sync_download
+fi
+
+if [ "${CLOUD_STATUS:-false}" = "true" ]; then
+  _cloud_sync_status
+fi
+
+# ── GUI dashboard (v7.0.0) ─────────────────────────────────────────────────
+if [ "${GUI_START:-false}" = "true" ]; then
+  section "GUI Dashboard"
+  _gui_start "$GUI_PORT"
+fi
+
+if [ "${GUI_STOP:-false}" = "true" ]; then
+  _gui_stop
+fi
+
+if [ "${GUI_STATUS:-false}" = "true" ]; then
+  _gui_status
 fi
 
 echo ""
