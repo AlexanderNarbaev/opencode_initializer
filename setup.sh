@@ -67,6 +67,9 @@ source "$SCRIPT_DIR/src/lib/00i-mirrors.sh"
 source "$SCRIPT_DIR/src/lib/00j-auto-sync.sh"
 source "$SCRIPT_DIR/src/lib/00k-security-scan.sh"
 source "$SCRIPT_DIR/src/lib/00l-benchmark.sh"
+source "$SCRIPT_DIR/src/lib/00m-plugin-discovery.sh"
+source "$SCRIPT_DIR/src/lib/00n-context-mgr.sh"
+source "$SCRIPT_DIR/src/lib/00o-workflow.sh"
 
 # ── Logging — tee all output to timestamped log ─────────────────────────────
 SETUP_LOG="${HOME}/.cache/opencode-setup/setup-$(date +%Y%m%d-%H%M%S).log"
@@ -202,6 +205,22 @@ while [[ $# -gt 0 ]]; do case $1 in
     ;;
   --benchmark)
     RUN_BENCHMARK=true
+    shift
+    ;;
+  --discover-plugins)
+    DISCOVER_PLUGINS=true
+    shift
+    ;;
+  --plugin-health)
+    PLUGIN_HEALTH=true
+    shift
+    ;;
+  --workflow)
+    RUN_WORKFLOW="$2"
+    shift 2
+    ;;
+  --list-workflows)
+    LIST_WORKFLOWS=true
     shift
     ;;
   --force)
@@ -975,6 +994,30 @@ fi
 if [ "${RUN_BENCHMARK:-false}" = "true" ]; then
   section "Performance Benchmark"
   _run_benchmark
+fi
+
+# ── Plugin discovery (v4.4.0) ───────────────────────────────────────────────
+if [ "${DISCOVER_PLUGINS:-false}" = "true" ]; then
+  section "Plugin Discovery"
+  _discover_npm_plugins
+  _update_plugin_registry
+fi
+
+# ── Plugin health check (v4.4.0) ────────────────────────────────────────────
+if [ "${PLUGIN_HEALTH:-false}" = "true" ]; then
+  section "Plugin Health Check"
+  _plugin_health_check
+fi
+
+# ── Workflow execution (v4.4.0) ─────────────────────────────────────────────
+if [ -n "${RUN_WORKFLOW:-}" ]; then
+  section "Workflow Execution"
+  _workflow_run "$RUN_WORKFLOW"
+fi
+
+# ── List workflows (v4.4.0) ─────────────────────────────────────────────────
+if [ "${LIST_WORKFLOWS:-false}" = "true" ]; then
+  _workflow_list
 fi
 
 echo ""
