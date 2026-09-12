@@ -1,0 +1,35 @@
+tasks:
+  - name: Setup Development Environment
+    init: |
+      ./setup.sh --full
+    command: |
+      ./setup.sh --health
+
+ports:
+  - port: 4200
+    onOpen: notify
+    name: GUI Dashboard
+  - port: 5432
+    onOpen: ignore
+    name: PostgreSQL
+  - port: 6379
+    onOpen: ignore
+    name: Redis
+  - port: 6333
+    onOpen: ignore
+    name: Qdrant
+  - port: 9090
+    onOpen: ignore
+    name: Prometheus
+  - port: 3000
+    onOpen: ignore
+    name: Grafana
+
+vscode:
+  extensions:
+    - tamasfe.even-better-toml
+    - timonwong.shellcheck
+    - foxundermoon.shell-format
+    - ms-python.python
+    - golang.go
+    - rust-lang.rust-analyzer

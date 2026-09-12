@@ -1,6 +1,6 @@
 [EN](README.md) | [RU](README.ru.md)
 
-# OpenCode Initializer v12.0.0
+# OpenCode Initializer v13.0.0
 
 > **Operating Model:** Multi-Agent Framework v3.0 | **Wave:** [current_wave.md](./current_wave.md) | **Checkpoint:** [session_checkpoint.json](./session_checkpoint.json)
 <p align="center">
