@@ -1,11 +1,11 @@
 {
-  "last_commit": "0a2dfdb",
-  "timestamp": "2026-09-12T15:51:00Z",
+  "last_commit": "04939aa",
+  "timestamp": "2026-09-12T16:44:00Z",
   "branch": "main",
-  "wave": "v8.0.0-complete",
-  "version": "8.0.0",
-  "tests": {"unit": 104, "integration": 9, "e2e": 5, "total_test_files": 118, "assertions": 263},
-  "modules": 82,
+  "wave": "v9.0.0-complete",
+  "version": "9.0.0",
+  "tests": {"unit": 106, "integration": 9, "e2e": 5, "total_test_files": 120, "assertions": 298},
+  "modules": 83,
   "providers": {"total": 22, "cloud": 19, "local": 3},
   "features": {
     "toml_config": true,
@@ -40,31 +40,46 @@
     "sbom_generation": true,
     "cosign_signing": true,
     "semantic_release": true,
-    "conventional_commits": true
+    "conventional_commits": true,
+    "renovate_bot": true,
+    "openssf_scorecard": true,
+    "nix_flake": true,
+    "nixos_module": true,
+    "opentelemetry": true,
+    "property_tests": true,
+    "fuzz_tests": true
   },
-  "v8.0.0_changes": {
-    "apm_manifest": "apm.yml — AI Package Manager manifest (Microsoft APM standard)",
-    "mise_integration": "mise.toml — Development tools and environment management",
-    "shell_completions": "completions/ — bash, zsh, fish completions",
-    "homebrew_formula": "homebrew/opencode-init.rb — brew install opencode-init",
-    "sbom_generation": "scripts/generate-sbom.sh — SPDX format SBOM",
-    "cosign_signing": "scripts/sign-release.sh — Sigstore keyless signing",
-    "semantic_release": ".releaserc.json — Automated versioning",
-    "release_workflow": ".github/workflows/release.yml — CI/CD release pipeline"
+  "v9.0.0_changes": {
+    "renovate": "renovate.json — Automated dependency updates",
+    "scorecard": ".github/workflows/scorecard.yml — OpenSSF Scorecard",
+    "nix_flake": "flake.nix — Nix flake with NixOS module and dev shell",
+    "opentelemetry": "src/lib/00u-telemetry.sh — OpenTelemetry integration",
+    "property_tests": "tests/unit/test_property.sh — 28 property-based assertions",
+    "fuzz_tests": "tests/unit/test_fuzz.sh — 7 fuzz test assertions"
   },
   "improvement_plan": {
     "tier1_complete": 10,
     "tier1_total": 10,
-    "tier2_pending": 10,
+    "tier2_complete": 8,
+    "tier2_total": 10,
     "tier3_pending": 10,
     "tier4_pending": 10,
     "tier5_pending": 7
   },
-  "strategic_decisions": {
-    "integration_strategy": "Integrate best tools, don't compete",
-    "package_manager": "APM (Microsoft) as emerging standard",
-    "version_manager": "mise as universal version manager",
-    "supply_chain": "cosign + SBOM + SLSA",
-    "release_automation": "semantic-release with Conventional Commits"
+  "next_wave": {
+    "version": "v10.0.0",
+    "focus": "Tier 3 improvements",
+    "items": [
+      "CUE schema validation",
+      "age encryption for secrets",
+      "SLSA Level 3 provenance",
+      "Chaos engineering tests",
+      "Performance regression tests",
+      "OpenAPI spec",
+      "VitePress documentation site",
+      "CLA bot",
+      "AllContributors",
+      "PyPI package"
+    ]
   }
 }
