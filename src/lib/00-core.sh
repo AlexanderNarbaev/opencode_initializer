@@ -5,7 +5,7 @@
 set -euo pipefail
 
 # ── Version ──────────────────────────────────────────────────────────────────
-SCRIPT_VERSION="${SCRIPT_VERSION:-v13.0.0}"
+SCRIPT_VERSION="${SCRIPT_VERSION:-v14.0.0}"
 
 # ── Bash version compatibility check ──────────────────────────────────────────
 _BASH_CHECK_DONE="${_BASH_CHECK_DONE:-}"
