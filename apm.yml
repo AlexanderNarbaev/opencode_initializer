@@ -1,0 +1,84 @@
+# apm.yml — AI Package Manager manifest
+# https://github.com/microsoft/apm
+name: opencode-initializer
+version: 8.0.0
+description: AI-Native SDD Harness — one-command AI-enhanced development environment
+
+# Project metadata
+metadata:
+  author: Alexander Narbaev
+  license: MIT
+  repository: https://github.com/AlexanderNarbaev/opencode_initializer
+  homepage: https://alexandernarbaev.github.io/opencode_initializer/
+  keywords:
+    - developer-environment
+    - ai-tools
+    - setup
+    - automation
+    - shell
+    - bash
+    - opencode
+    - mcp
+    - lsp
+
+# Dependencies — skills, plugins, MCP servers
+dependencies:
+  apm:
+    # Core skills
+    - microsoft/apm/skills/apm-basics
+    # MCP servers
+    - github/github-mcp-server
+    - anthropics/anthropic-mcp-server
+  mcp:
+    # GitHub MCP
+    - name: io.github.github/github-mcp-server
+      transport: http
+    # Filesystem MCP
+    - name: io.modelcontextprotocol/filesystem
+      transport: stdio
+    # Playwright MCP
+    - name: io.modelcontextprotocol/playwright
+      transport: stdio
+
+# Agent-specific configurations
+agents:
+  copilot:
+    instructions: |
+      You are working on opencode_initializer, an AI-Native SDD Harness.
+      Follow the project's coding standards in docs/guides/.
+      Use TOML for configuration, bash for scripts.
+      Always run tests before committing.
+  claude:
+    settings:
+      maxTokens: 8192
+      temperature: 0.3
+    instructions: |
+      You are working on opencode_initializer.
+      Prefer minimal, correct implementations.
+      Verify all changes with tests.
+  cursor:
+    settings:
+      model: claude-sonnet-4-20250514
+    instructions: |
+      Project: opencode_initializer
+      Stack: Bash, TOML, Docker, PostgreSQL, Redis, Qdrant
+      Style: Minimal, defensive, well-tested
+
+# Hooks
+hooks:
+  pre-commit:
+    - shellcheck src/lib/*.sh
+    - bash tests/unit/test_core.sh
+  post-install:
+    - ./setup.sh --health
+
+# Metadata for compilation targets
+targets:
+  copilot:
+    output: .github/copilot-instructions.md
+  claude:
+    output: .claude/settings.json
+  cursor:
+    output: .cursor/settings.json
+  vscode:
+    output: .vscode/settings.json

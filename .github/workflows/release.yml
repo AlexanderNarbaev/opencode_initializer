@@ -1,0 +1,57 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install semantic-release plugins
+        run: npm install --save-dev semantic-release @semantic-release/commit-analyzer @semantic-release/release-notes-generator @semantic-release/changelog @semantic-release/github @semantic-release/exec @semantic-release/git
+
+      - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release
+
+      - name: Install cosign
+        if: success()
+        uses: sigstore/cosign-installer@v3
+
+      - name: Sign release
+        if: success()
+        run: |
+          VERSION=$(cat .version 2>/dev/null || echo "unknown")
+          if [ -f "opencode_initializer-${VERSION}.tar.gz" ]; then
+            cosign sign-blob --yes \
+              --output-signature "opencode_initializer-${VERSION}.tar.gz.sig" \
+              --output-certificate "opencode_initializer-${VERSION}.tar.gz.pem" \
+              "opencode_initializer-${VERSION}.tar.gz"
+          fi
+        env:
+          COSIGN_EXPERIMENTAL: "true"

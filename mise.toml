@@ -1,0 +1,106 @@
+# mise.toml — Development tools and environment
+# https://mise.jdx.dev/
+
+[tools]
+# Languages
+node = "24"
+python = "3.14"
+go = "1.26"
+rust = "stable"
+java = "25"
+dotnet = "10"
+
+# Tools
+shellcheck = "latest"
+shfmt = "latest"
+jq = "latest"
+yq = "latest"
+docker = "latest"
+docker-compose = "latest"
+
+# CLI tools
+gh = "latest"
+cosign = "latest"
+syft = "latest"
+grype = "latest"
+
+[env]
+# Project paths
+PROJECT_ROOT = "{{ config_root }}"
+SCRIPT_DIR = "{{ config_root }}/src/lib"
+
+# Development defaults
+NODE_ENV = "development"
+PYTHON_ENV = "development"
+
+# Docker
+DOCKER_BUILDKIT = "1"
+COMPOSE_DOCKER_CLI_BUILD = "1"
+
+# OpenCode
+OPENCODE_INIT_VERSION = "8.0.0"
+
+[tasks.install]
+description = "Run full installation"
+run = "./setup.sh --full"
+
+[tasks.test]
+description = "Run all tests"
+run = '''
+for t in tests/unit/test_*.sh; do
+  echo "--- $(basename $t) ---"
+  bash "$t" 2>&1 | tail -3
+done
+'''
+
+[tasks.test-core]
+description = "Run core tests"
+run = "bash tests/unit/test_core.sh"
+
+[tasks.test-toml]
+description = "Run TOML config tests"
+run = "bash tests/unit/test_toml_config.sh"
+
+[tasks.health]
+description = "Run health check"
+run = "./setup.sh --health"
+
+[tasks.security]
+description = "Run security scan"
+run = "./setup.sh --security-scan"
+
+[tasks.benchmark]
+description = "Run performance benchmark"
+run = "./setup.sh --benchmark"
+
+[tasks.lint]
+description = "Run shellcheck on all scripts"
+run = "shellcheck src/lib/*.sh"
+
+[tasks.fmt]
+description = "Format all shell scripts"
+run = "shfmt -w src/lib/*.sh"
+
+[tasks.docs]
+description = "Build documentation"
+run = "mkdocs build"
+
+[tasks.clean]
+description = "Clean build artifacts"
+run = "rm -rf .cache/ .tmp/ dist/"
+
+[tasks.release]
+description = "Prepare release"
+depends = ["test", "lint"]
+run = '''
+echo "Running tests..."
+mise run test
+echo "Linting..."
+mise run lint
+echo "Ready for release!"
+'''
+
+# Watch mode for development
+[tasks.watch]
+description = "Watch for changes and run tests"
+run = "watchexec -e sh -w src/lib -w tests -- mise run test-core"

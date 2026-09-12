@@ -1,0 +1,21 @@
+{
+  "types": [
+    { "type": "feat", "section": "✨ Features" },
+    { "type": "fix", "section": "🐛 Bug Fixes" },
+    { "type": "perf", "section": "⚡ Performance" },
+    { "type": "docs", "section": "📝 Documentation" },
+    { "type": "style", "hidden": true },
+    { "type": "refactor", "section": "♻️ Refactoring" },
+    { "type": "test", "section": "✅ Tests", "hidden": false },
+    { "type": "build", "section": "📦 Build", "hidden": true },
+    { "type": "ci", "section": "🔧 CI/CD", "hidden": true },
+    { "type": "chore", "hidden": true },
+    { "type": "revert", "section": "⏪ Reverts" }
+  ],
+  "commitUrlFormat": "https://github.com/AlexanderNarbaev/opencode_initializer/commit/{{hash}}",
+  "compareUrlFormat": "https://github.com/AlexanderNarbaev/opencode_initializer/compare/{{previousTag}}...{{currentTag}}",
+  "issueUrlFormat": "https://github.com/AlexanderNarbaev/opencode_initializer/issues/{{id}}",
+  "userUrlFormat": "https://github.com/{{user}}",
+  "releaseCommitMessageFormat": "chore(release): {{currentTag}} [skip ci]",
+  "issuePrefixes": ["#"]
+}
