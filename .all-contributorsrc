@@ -1,0 +1,34 @@
+{
+  "projectName": "opencode_initializer",
+  "projectOwner": "AlexanderNarbaev",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": [
+    "README.md",
+    "README.ru.md"
+  ],
+  "imageSize": 100,
+  "commit": true,
+  "commitConvention": "conventional",
+  "contributors": [
+    {
+      "login": "AlexanderNarbaev",
+      "name": "Alexander Narbaev",
+      "avatar_url": "https://avatars.githubusercontent.com/u/0?v=4",
+      "profile": "https://github.com/AlexanderNarbaev",
+      "contributions": [
+        "code",
+        "doc",
+        "design",
+        "maintenance",
+        "review",
+        "test",
+        "tool",
+        "infra",
+        "security"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "skipCi": true
+}

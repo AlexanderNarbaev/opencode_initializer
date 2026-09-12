@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CLA Assistant Configuration",
+  "description": "Contributor License Agreement for OpenCode Initializer",
+  "type": "object",
+  "properties": {
+    "cla": {
+      "type": "object",
+      "properties": {
+        "terms": {
+          "type": "string",
+          "description": "URL to CLA terms"
+        },
+        "privacy": {
+          "type": "string",
+          "description": "URL to privacy policy"
+        }
+      }
+    }
+  }
+}

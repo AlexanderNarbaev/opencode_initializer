@@ -1,0 +1,59 @@
+# PyPI package configuration for opencode_initializer
+# https://packaging.python.org/en/latest/tutorials/packaging-projects/
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.backends"
+
+[project]
+name = "opencode-initializer"
+version = "12.0.0"
+description = "AI-Native SDD Harness — one-command AI-enhanced development environment"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "Alexander Narbaev", email = "alex@example.com" },
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Shell",
+    "Topic :: Software Development :: Build Tools",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Installation/Setup",
+    "Topic :: System :: Systems Administration",
+]
+keywords = [
+    "developer-environment",
+    "ai-tools",
+    "setup",
+    "automation",
+    "shell",
+    "bash",
+    "opencode",
+    "mcp",
+    "lsp",
+]
+
+[project.urls]
+Homepage = "https://github.com/AlexanderNarbaev/opencode_initializer"
+Documentation = "https://alexandernarbaev.github.io/opencode_initializer/"
+Repository = "https://github.com/AlexanderNarbaev/opencode_initializer"
+Issues = "https://github.com/AlexanderNarbaev/opencode_initializer/issues"
+Changelog = "https://github.com/AlexanderNarbaev/opencode_initializer/blob/main/CHANGELOG.md"
+
+[project.scripts]
+opencode-init = "opencode_initializer.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/opencode_initializer"]
