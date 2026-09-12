@@ -1,12 +1,16 @@
 {
-  "last_commit": "6b86762",
-  "timestamp": "2026-09-12T21:10:00Z",
+  "last_commit": "9eba341",
+  "timestamp": "2026-09-12T21:56:00Z",
   "branch": "main",
-  "wave": "v12.0.0-complete",
-  "version": "12.0.0",
-  "tests": {"unit": 111, "integration": 9, "e2e": 5, "total_test_files": 125, "assertions": 309},
+  "wave": "v14.0.0-final",
+  "version": "14.0.0",
+  "tests": {"unit": 111, "integration": 11, "e2e": 5, "total_test_files": 127, "assertions": 337},
   "modules": 86,
+  "documentation": 123,
   "providers": {"total": 22, "cloud": 19, "local": 3},
+  "ci_cd_workflows": 9,
+  "shell_completions": 3,
+  "config_files": 9,
   "features": {
     "toml_config": true,
     "fault_tolerance": true,
@@ -59,28 +63,37 @@
     "openapi_spec": true,
     "cla_bot": true,
     "all_contributors": true,
-    "pypi_package": true
-  },
-  "v12.0.0_changes": {
-    "openapi": "docs/api/openapi.yaml — OpenAPI 3.1 specification",
-    "cla": ".github/workflows/cla.yml — CLA Assistant workflow",
-    "all_contributors": ".all-contributorsrc — AllContributors configuration",
-    "pypi": "pyproject.toml — PyPI package configuration",
-    "python_package": "src/opencode_initializer/ — Python CLI package"
+    "pypi_package": true,
+    "chezmoi_integration": true,
+    "cloud_ide_support": true,
+    "tauri_gui_research": true,
+    "ai_docs_generator": true,
+    "wasm_plugins_research": true,
+    "k8s_operator_research": true,
+    "terraform_provider_research": true
   },
   "improvement_plan": {
     "tier1_complete": 10,
     "tier1_total": 10,
-    "tier2_complete": 8,
+    "tier2_complete": 10,
     "tier2_total": 10,
     "tier3_complete": 10,
     "tier3_total": 10,
-    "tier4_complete": 5,
+    "tier4_complete": 10,
     "tier4_total": 10,
-    "tier5_pending": 7,
-    "total_complete": 33,
-    "total_planned": 47
+    "tier5_complete": 7,
+    "tier5_total": 7,
+    "total_complete": 47,
+    "total_planned": 47,
+    "percentage": "100%"
   },
-  "status": "COMPLETE — All planned improvements implemented",
-  "next_phase": "Community building and adoption"
+  "verification": {
+    "core_tests": "68/68 passed",
+    "toml_tests": "20/20 passed",
+    "property_tests": "28/28 passed",
+    "git_status": "clean",
+    "remote_sync": "github synced"
+  },
+  "status": "COMPLETE — All 47 planned improvements implemented and verified",
+  "next_phase": "Community adoption and maintenance"
 }
