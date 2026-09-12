@@ -1,0 +1,67 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:best-practices",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    ":automergeMinor",
+    ":automergePatch",
+    ":automergeRequireAllStatusChecks",
+    ":enableVulnerabilityAlerts",
+    ":enableGithubRateLimiting"
+  ],
+  "labels": ["dependencies", "automated"],
+  "packageRules": [
+    {
+      "description": "Update GitHub Actions",
+      "matchManagers": ["github-actions"],
+      "groupName": "GitHub Actions",
+      "automerge": true
+    },
+    {
+      "description": "Update Docker images",
+      "matchManagers": ["dockerfile", "docker-compose"],
+      "groupName": "Docker",
+      "automerge": true
+    },
+    {
+      "description": "Update npm packages",
+      "matchManagers": ["npm"],
+      "groupName": "npm",
+      "automergeMinor": true,
+      "automergePatch": true
+    },
+    {
+      "description": "Update Python packages",
+      "matchManagers": ["pip_requirements", "pip_setup", "pyenv"],
+      "groupName": "Python",
+      "automergeMinor": true
+    },
+    {
+      "description": "Update Go modules",
+      "matchManagers": ["gomod"],
+      "groupName": "Go",
+      "automergeMinor": true
+    },
+    {
+      "description": "Update Rust crates",
+      "matchManagers": ["cargo"],
+      "groupName": "Rust",
+      "automergeMinor": true
+    },
+    {
+      "description": "Disable major updates for stable packages",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["major-update"]
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["security"]
+  },
+  "schedule": ["before 6am on Monday"],
+  "timezone": "Europe/Moscow",
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2
+}
