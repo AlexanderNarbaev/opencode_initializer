@@ -1,11 +1,11 @@
 {
-  "last_commit": "04939aa",
-  "timestamp": "2026-09-12T16:44:00Z",
+  "last_commit": "4dd87f0",
+  "timestamp": "2026-09-12T17:28:00Z",
   "branch": "main",
-  "wave": "v9.0.0-complete",
-  "version": "9.0.0",
-  "tests": {"unit": 106, "integration": 9, "e2e": 5, "total_test_files": 120, "assertions": 298},
-  "modules": 83,
+  "wave": "v10.0.0-complete",
+  "version": "10.0.0",
+  "tests": {"unit": 111, "integration": 9, "e2e": 5, "total_test_files": 125, "assertions": 309},
+  "modules": 84,
   "providers": {"total": 22, "cloud": 19, "local": 3},
   "features": {
     "toml_config": true,
@@ -47,39 +47,44 @@
     "nixos_module": true,
     "opentelemetry": true,
     "property_tests": true,
-    "fuzz_tests": true
+    "fuzz_tests": true,
+    "cue_schema": true,
+    "age_encryption": true,
+    "slsa_provenance": true,
+    "chaos_tests": true,
+    "perf_regression_tests": true
   },
-  "v9.0.0_changes": {
-    "renovate": "renovate.json — Automated dependency updates",
-    "scorecard": ".github/workflows/scorecard.yml — OpenSSF Scorecard",
-    "nix_flake": "flake.nix — Nix flake with NixOS module and dev shell",
-    "opentelemetry": "src/lib/00u-telemetry.sh — OpenTelemetry integration",
-    "property_tests": "tests/unit/test_property.sh — 28 property-based assertions",
-    "fuzz_tests": "tests/unit/test_fuzz.sh — 7 fuzz test assertions"
+  "v10.0.0_changes": {
+    "cue_schema": "config/schema.cue — CUE schema validation",
+    "age_encryption": "src/lib/00v-age-encryption.sh — age encryption for secrets",
+    "slsa_provenance": "scripts/generate-provenance.sh — SLSA Level 3 provenance",
+    "chaos_tests": "tests/unit/test_chaos.sh — 6 chaos engineering tests",
+    "perf_tests": "tests/unit/test_perf_regression.sh — 5 performance regression tests"
   },
   "improvement_plan": {
     "tier1_complete": 10,
     "tier1_total": 10,
     "tier2_complete": 8,
     "tier2_total": 10,
-    "tier3_pending": 10,
+    "tier3_complete": 5,
+    "tier3_total": 10,
     "tier4_pending": 10,
     "tier5_pending": 7
   },
   "next_wave": {
-    "version": "v10.0.0",
-    "focus": "Tier 3 improvements",
+    "version": "v11.0.0",
+    "focus": "Tier 4 improvements",
     "items": [
-      "CUE schema validation",
-      "age encryption for secrets",
-      "SLSA Level 3 provenance",
-      "Chaos engineering tests",
-      "Performance regression tests",
-      "OpenAPI spec",
-      "VitePress documentation site",
-      "CLA bot",
-      "AllContributors",
-      "PyPI package"
+      "NixOS module enhancements",
+      "atuin integration",
+      "zoxide integration",
+      "starship integration",
+      "AI-powered documentation",
+      "Plugin marketplace MVP",
+      "Cloud IDE support",
+      "WebAssembly plugin system",
+      "GUI desktop app research",
+      "VS Code extension research"
     ]
   }
 }
