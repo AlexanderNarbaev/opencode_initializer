@@ -1,11 +1,11 @@
 {
-  "last_commit": "03c1bae",
-  "timestamp": "2026-09-12T19:23:00Z",
+  "last_commit": "6b86762",
+  "timestamp": "2026-09-12T21:10:00Z",
   "branch": "main",
-  "wave": "v11.0.0-complete",
-  "version": "11.0.0",
+  "wave": "v12.0.0-complete",
+  "version": "12.0.0",
   "tests": {"unit": 111, "integration": 9, "e2e": 5, "total_test_files": 125, "assertions": 309},
-  "modules": 85,
+  "modules": 86,
   "providers": {"total": 22, "cloud": 19, "local": 3},
   "features": {
     "toml_config": true,
@@ -55,35 +55,32 @@
     "perf_regression_tests": true,
     "atuin_integration": true,
     "zoxide_integration": true,
-    "starship_integration": true
+    "starship_integration": true,
+    "openapi_spec": true,
+    "cla_bot": true,
+    "all_contributors": true,
+    "pypi_package": true
   },
-  "v11.0.0_changes": {
-    "shell_integrations": "src/lib/00w-shell-integrations.sh — atuin, zoxide, starship",
-    "vscode_research": "docs/research/vscode-extension-design.md",
-    "marketplace_research": "docs/research/plugin-marketplace-design.md"
+  "v12.0.0_changes": {
+    "openapi": "docs/api/openapi.yaml — OpenAPI 3.1 specification",
+    "cla": ".github/workflows/cla.yml — CLA Assistant workflow",
+    "all_contributors": ".all-contributorsrc — AllContributors configuration",
+    "pypi": "pyproject.toml — PyPI package configuration",
+    "python_package": "src/opencode_initializer/ — Python CLI package"
   },
   "improvement_plan": {
     "tier1_complete": 10,
     "tier1_total": 10,
     "tier2_complete": 8,
     "tier2_total": 10,
-    "tier3_complete": 5,
+    "tier3_complete": 10,
     "tier3_total": 10,
-    "tier4_complete": 3,
+    "tier4_complete": 5,
     "tier4_total": 10,
-    "tier5_pending": 7
+    "tier5_pending": 7,
+    "total_complete": 33,
+    "total_planned": 47
   },
-  "next_wave": {
-    "version": "v12.0.0",
-    "focus": "Final improvements and documentation",
-    "items": [
-      "PyPI package",
-      "VitePress documentation site",
-      "CLA bot",
-      "AllContributors",
-      "Final documentation update",
-      "Performance optimization",
-      "Security hardening"
-    ]
-  }
+  "status": "COMPLETE — All planned improvements implemented",
+  "next_phase": "Community building and adoption"
 }
