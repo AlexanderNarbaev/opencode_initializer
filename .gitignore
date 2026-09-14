@@ -12,10 +12,15 @@ Thumbs.db
 __pycache__/
 *.pyc
 .cache/
+.pytest_cache/
 
 # MkDocs
 site/
+
+# Virtual environments
 .venv-docs/
+.venv-test/
+.venv/
 
 # Secrets
 *.key
@@ -34,36 +39,64 @@ setup_v[0-9]*.sh
 # Temp
 /tmp/
 v[0-9]*.sh
+
+# Build artifacts
+dist/
+build/
+out/
+node_modules/
+
 # .opencode/ — architecture docs ARE tracked, only generated files ignored
 .opencode/*.excalidraw
-wal/
-.codegraph/
-.wslconfig
-.agentic-tools-mcp/
-sqlite_mcp_server.db
-*.log
-# Ignore ai-router root copies (moved to scripts/)
-/ai-router.sh
-/ai-router.json
-docs/changelog/index.md
 .opencode/state/
 .opencode/goals/
 .opencode/work-log.md
 .opencode/context.md
 .opencode/.unit_out.tmp
 .opencode/run-unit-suite.sh
-# Test/local node_modules
-node_modules/
-
-# Build artifacts
-dist/
 .opencode/status.md
+.opencode/sync-issues.md
+.opencode/todo.md
 
-# Lynis (47-lynis.sh) keyring artifact when run from repo root
-cisofy-archive-keyring-*.gpg
+# .swarm/ — bundled skills tracked, runtime data ignored
+.swarm/runs/
+.swarm/evidence/
+.swarm/telemetry.jsonl
+.swarm/knowledge-*.jsonl
+.swarm/events.jsonl
+.swarm/repo-graph*.json
+.swarm/checkpoints.json
+.swarm/curator-summary.json
+.swarm/drift-report-*.json
+.swarm/doc-manifest.json
+.swarm/knowledge-*.json
+.swarm/synonym-map.json
+.swarm/worktree-id.json
+.swarm/locks/
+.swarm/outputs/
+.swarm/session/
+.swarm/summaries/
+.swarm/lane-results/
+.swarm/review-receipts/
+.swarm/evolution/
 
-# Runtime artifacts when the configured PROJECT_DIR is this repo itself
-.sandcastle/
+# WAL
+wal/
+.codegraph/
+
+# Misc
+.wslconfig
+.agentic-tools-mcp/
+sqlite_mcp_server.db
 *.grace.yaml
 .npmrc
 src/cockpit/opencode-cockpit
+
+# Lynis keyring artifact
+cisofy-archive-keyring-*.gpg
+
+# Sandcastle
+.sandcastle/
+
+# .opencode-test-home
+.opencode-test-home/
