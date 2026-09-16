@@ -5,7 +5,7 @@
 > **Operating Model:** Multi-Agent Framework v3.0 | **Wave:** [current_wave.md](./current_wave.md) | **Checkpoint:** [session_checkpoint.json](./session_checkpoint.json)
 <p align="center">
   <b>AI-Native SDD Harness — one-command AI-enhanced development environment for WSL2, Linux, and macOS. 4 deployment profiles.</b><br>
-  <sub>727-line orchestrator · 141 modules · 12 modes ·   24 MCPs · 21 plugins · 12 LSPs · 22 providers · air-gap · governance · PII guard · audit trail · offline bundle · APM · SBOM · cosign</sub>
+  <sub>1179-line orchestrator · 146 modules · 12 modes ·   24 MCPs · 21 plugins · 12 LSP servers · 22 providers · air-gap · governance · PII guard · audit trail · offline bundle · APM · SBOM · cosign</sub>
 </p>
 
 <p align="center">
@@ -26,7 +26,7 @@
 curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializer/main/setup.sh | bash -s -- --full
 ```
 
-One command installs everything: 6 languages, 141 shell modules, 24 MCP servers, 21 OpenCode plugins, 12 LSP servers, 22 AI providers, infrastructure as code (PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer), Cockpit TUI (8 tabs), Web GUI, Isolated Circuit Mode, hardware auto-detection, Lynis CIS scanner, auditd kernel rules, and SearXNG web search.
+One command installs everything: 6 languages, 146 shell modules, 24 MCP servers, 21 OpenCode plugins, 12 LSP servers, 22 AI providers, infrastructure as code (PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer), Cockpit TUI (8 tabs), Web GUI, Isolated Circuit Mode, hardware auto-detection, Lynis CIS scanner, auditd kernel rules, and SearXNG web search.
 
 [Full Documentation](https://alexandernarbaev.github.io/opencode_initializer/)
 
@@ -38,7 +38,7 @@ One command installs everything: 6 languages, 141 shell modules, 24 MCP servers,
 | Category | Count | Details |
 |----------|-------|---------|
 | Languages | 6 | Java 25, Node.js 24, Python 3.14, Go 1.26, Rust (stable), .NET 10 |
-| Modules | 141 | System, Docker, Chrome, ZSH, 6 languages, OpenCode, MCP/LSP, ChromaDB, LLM, RAG, SearXNG, providers, dotfiles, Devbox, Infra, Cockpit, Isolated Circuit, Services, Observability, GUI, Model Router, WAL, Best Practices, Upstream Sync, Linux Platform, Lynis, auditd, DeepSeek Harness, Sandcastle, OpenCode Desktop, Parallel Engine, Cache Manager, APM Integration, Multi-Agent, Mirrors, Auto-Sync, Security Scanner, Benchmark, Skill Registry, Skill Manager, Skill Security, Skill Eval, Agent Orchestrator, Agent Pipeline, Agent Mesh, Agent Protocol, Context Engine, Memory Layer, RBAC, Governance, Compliance, Security Posture, Analytics, Observability, Marketplace, Plugin Manager, Templates, Integrations, Connectors, Context Engineering, Learning, Automation, Sandbox, CI/CD, Workflow Engine, Security Policies, Secrets Manager, Harness Core, Harness Tools, Harness Memory, Harness Context, Harness Prompt, Harness State, Harness Errors, Harness Guardrails, Harness Verify, Harness Subagents, PLA Orchestrator, PLA Extract, PLA Analyze, PLA Verify, PLA Synthesize, PLA Coordinate, RAG Hybrid, RAG BM25, RAG Vector, RAG Fusion, Performance Optimizer, Cache Manager, Security Hardening, Vulnerability Scan, Scalability, Load Balancer |
+| Modules | 146 | System, Docker, Chrome, ZSH, 6 languages, OpenCode, MCP/LSP, ChromaDB, LLM, RAG, SearXNG, providers, dotfiles, Devbox, Infra, Cockpit, Isolated Circuit, Services, Observability, GUI, Model Router, WAL, Best Practices, Upstream Sync, Linux Platform, Lynis, auditd, DeepSeek Harness, Sandcastle, OpenCode Desktop, Parallel Engine, Cache Manager, APM Integration, Multi-Agent, Mirrors, Auto-Sync, Security Scanner, Benchmark, Skill Registry, Skill Manager, Skill Security, Skill Eval, Agent Orchestrator, Agent Pipeline, Agent Mesh, Agent Protocol, Context Engine, Memory Layer, RBAC, Governance, Compliance, Security Posture, Analytics, Observability, Marketplace, Plugin Manager, Templates, Integrations, Connectors, Context Engineering, Learning, Automation, Sandbox, CI/CD, Workflow Engine, Security Policies, Secrets Manager, Harness Core, Harness Tools, Harness Memory, Harness Context, Harness Prompt, Harness State, Harness Errors, Harness Guardrails, Harness Verify, Harness Subagents, PLA Orchestrator, PLA Extract, PLA Analyze, PLA Verify, PLA Synthesize, PLA Coordinate, RAG Hybrid, RAG BM25, RAG Vector, RAG Fusion, Performance Optimizer, Cache Manager, Security Hardening, Vulnerability Scan, Scalability, Load Balancer |
 | MCP Servers | 24 | GitHub, GitLab, Filesystem, Playwright, Chrome DevTools, Postgres, SQLite, Memory, Excalidraw, Brave Search, Context7, Google Maps, and more |
 | LSP Servers | 12 | gopls, rust-analyzer, typescript, pyright, yaml, marksman, taplo, bash, dockerfile, css, html, json |
 | Plugins | 21 | codegraph, dcp, auto-fallback, goal-mode, swarm, vibeguard, devcontainers, worktree, scheduler, background-agents, goal-plugin, conductor, zellij-namer, morph-plugin, supermemory, websearch-cited, firecrawl, plugin-otel, token-tracker, orchestrator, daytona |
@@ -46,7 +46,7 @@ One command installs everything: 6 languages, 141 shell modules, 24 MCP servers,
 | Model Router | 9 profiles | coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn, testing |
 | CLI Modes | 12 | full, reinit, new, health, update, upgrade, interactive, ci, fix-config, fix-zshrc, dry-run, airgap |
 | Infrastructure | 7 | PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer |
-| Tests | 444 | 129 unit + 11 integration + 5 e2e + 3 benchmarks |
+| Tests | 133 | 116 unit + 12 integration + 5 e2e |
 | TOML Config | ✅ | Declarative config via setup.toml (precedence: CLI > env > toml > defaults) |
 | Fault Tolerance | ✅ | Per-step error recovery with PARTIAL state tracking |
 | WAL Race Fix | ✅ | Atomic writes via flock with mkdir fallback |
@@ -64,6 +64,16 @@ One command installs everything: 6 languages, 141 shell modules, 24 MCP servers,
 | Observability | Full stack | Prometheus metrics, Grafana dashboards, OpenCode metrics exporter, Node Exporter system metrics |
 | GUI | Web | Provider status, model manager, model router, MCP/LSP management, infra monitoring, Grafana iframe, backup, Isolated Circuit toggle |
 | Package Managers | 6 | apt, dnf, pacman, apk, zypper, brew |
+
+## Architecture Documentation
+
+Comprehensive architecture documentation covering LLM fundamentals, AIPDLC methodology, agent roles, security model, and skills organization:
+
+- [LLM Fundamentals 2026](docs/architecture/llm-fundamentals-2026.md) — Transformers, attention, MoE, speculative decoding, KV cache, GPU landscape, pricing
+- [AIPDLC Integration Guide](docs/architecture/aipdlc-integration-guide.md) — AI-Powered Development Lifecycle methodology, Control Plane, agent roles, isolation, MCP
+- [Agent Roles 2026](docs/architecture/agent-roles-2026.md) — Commander/Planner/Worker/Reviewer hierarchy, capabilities, communication protocol
+- [Security Model 2026](docs/architecture/security-model-2026.md) — OWASP AST10, isolation, secret management, OPA policies, Zero Trust
+- [Skills Organization 2026](docs/architecture/skills-organization-2026.md) — Skill categories, AIPDLC mapping, composition, performance
 
 ### New Integrations
 

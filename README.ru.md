@@ -5,7 +5,7 @@
 > **Рабочая модель:** Multi-Agent Framework v3.0 | **Волна:** [current_wave.md](./current_wave.md) | **Чекпоинт:** [session_checkpoint.json](./session_checkpoint.json)
 <p align="center">
   <b>AI-Native SDD Harness — среда разработки с ИИ-усилением в одну команду для WSL2, Linux и macOS. 4 профиля развёртывания.</b><br>
-  <sub>Оркестратор на 727 строк · 81 модуль · 12 режимов ·   24 MCP · 21 плагин · 12 LSP · 22 провайдера · air-gap · governance · PII guard · аудит · офлайн-пакет</sub>
+  <sub>Оркестратор на 1179 строк · 146 модулей · 12 режимов ·   24 MCP · 21 плагин · 12 LSP-серверов · 22 провайдера · air-gap · governance · PII guard · аудит · офлайн-пакет</sub>
 </p>
 
 <p align="center">
@@ -26,7 +26,7 @@
 curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializer/main/setup.sh | bash -s -- --full
 ```
 
-Одна команда устанавливает всё: 6 языков, 64 shell-модуля, 24 MCP-сервера, 21 плагин OpenCode, 12 LSP-серверов, 22 AI-провайдера, инфраструктуру как код (PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer), Cockpit TUI (8 вкладок), Web GUI, Isolated Circuit Mode, авто-определение оборудования, Lynis CIS scanner, правила auditd для ядра и поиск SearXNG.
+Одна команда устанавливает всё: 6 языков, 146 shell-модулей, 24 MCP-сервера, 21 плагин OpenCode, 12 LSP-серверов, 22 AI-провайдера, инфраструктуру как код (PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer), Cockpit TUI (8 вкладок), Web GUI, Isolated Circuit Mode, авто-определение оборудования, Lynis CIS scanner, правила auditd для ядра и поиск SearXNG.
 
 [Полная документация](https://alexandernarbaev.github.io/opencode_initializer/)
 
@@ -38,7 +38,7 @@ curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializ
 | Категория | Кол-во | Состав |
 |-----------|--------|--------|
 | Языки | 6 | Java 25, Node.js 24, Python 3.14, Go 1.26, Rust (stable), .NET 10 |
-| Модули | 76 | Система, Docker, Chrome, ZSH, 6 языков, OpenCode, MCP/LSP, ChromaDB, LLM, RAG, SearXNG, провайдеры, dotfiles, Devbox, Infra, Cockpit, Isolated Circuit, Services, Observability, GUI, Model Router, WAL, Best Practices, Upstream Sync, Linux Platform, Lynis, auditd, DeepSeek Harness, Sandcastle, OpenCode Desktop и другие |
+| Модули | 146 | Система, Docker, Chrome, ZSH, 6 языков, OpenCode, MCP/LSP, ChromaDB, LLM, RAG, SearXNG, провайдеры, dotfiles, Devbox, Infra, Cockpit, Isolated Circuit, Services, Observability, GUI, Model Router, WAL, Best Practices, Upstream Sync, Linux Platform, Lynis, auditd, DeepSeek Harness, Sandcastle, OpenCode Desktop и другие |
 | MCP-серверы | 24 | GitHub, GitLab, Filesystem, Playwright, Chrome DevTools, Postgres, SQLite, Memory, Excalidraw, Brave Search, Context7, Google Maps и другие |
 | LSP-серверы | 12 | gopls, rust-analyzer, typescript, pyright, yaml, marksman, taplo, bash, dockerfile, css, html, json |
 | Плагины | 21 | codegraph, dcp, auto-fallback, goal-mode, swarm, vibeguard, devcontainers, worktree, scheduler, background-agents, goal-plugin, conductor, zellij-namer, morph-plugin, supermemory, websearch-cited, firecrawl, plugin-otel, token-tracker, orchestrator, daytona |
@@ -46,13 +46,23 @@ curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializ
 | Model Router | 9 профилей | coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn, testing |
 | Режимы CLI | 12 | full, reinit, new, health, update, upgrade, interactive, ci, fix-config, fix-zshrc, dry-run, airgap |
 | Инфраструктура | 7 | PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer |
-| Тесты | 102 | 89 unit + 7 integration (Testcontainers) + 5 e2e + 1 doc-counts |
+| Тесты | 133 | 116 unit + 12 integration + 5 e2e |
 | TOML конфиг | ✅ | Декларативный конфиг через setup.toml (приоритет: CLI > env > toml > defaults) |
 | Отказоустойчивость | ✅ | Пошаговое восстановление ошибок с PARTIAL state tracking |
 | WAL Race Fix | ✅ | Атомарные записи через flock с mkdir fallback |
 | Наблюдаемость | Полный стек | Метрики Prometheus, дашборды Grafana, экспортёр метрик OpenCode, системные метрики Node Exporter |
 | GUI | Веб | Статус провайдеров, менеджер моделей, model router, управление MCP/LSP, мониторинг инфраструктуры, Grafana iframe, бэкап, переключатель Isolated Circuit |
 | Пакетные менеджеры | 6 | apt, dnf, pacman, apk, zypper, brew |
+
+## Документация по архитектуре
+
+Исчерпывающая документация по архитектуре: основы LLM, методология AIPDLC, роли агентов, модель безопасности и организация навыков:
+
+- [Основы LLM 2026](docs/architecture/llm-fundamentals-2026.md) — трансформеры, attention, MoE, спекулятивное декодирование, KV-кэш, ландшафт GPU, ценообразование
+- [Руководство по интеграции AIPDLC](docs/architecture/aipdlc-integration-guide.md) — методология AI-Powered Development Lifecycle, Control Plane, роли агентов, изоляция, MCP
+- [Роли агентов 2026](docs/architecture/agent-roles-2026.md) — иерархия Commander/Planner/Worker/Reviewer, возможности, протокол коммуникации
+- [Модель безопасности 2026](docs/architecture/security-model-2026.md) — OWASP AST10, изоляция, управление секретами, политики OPA, Zero Trust
+- [Организация навыков 2026](docs/architecture/skills-organization-2026.md) — категории навыков, маппинг AIPDLC, композиция, производительность
 
 ### Новые интеграции
 
