@@ -624,3 +624,34 @@ _get_service_port() {
 
 OPENCODE_LOCAL_ENDPOINT="${OPENCODE_LOCAL_ENDPOINT:-${OPencode_LOCAL_ENDPOINT:-http://localhost:11434/v1}}"
 export OPENCODE_LOCAL_ENDPOINT
+
+# ── Help function ────────────────────────────────────────────────────────────
+# Usage: _core_help
+# Displays help for core module functions.
+_core_help() {
+  cat <<EOF
+Core Infrastructure Module (v${SCRIPT_VERSION})
+
+Functions:
+  _check_bash_version    Check bash version compatibility
+  _service_mode          Get service mode (local/external/disabled)
+  _resolve_service_port  Resolve service port with fallback
+  _find_free_port        Find available port
+  _port_is_free          Check if port is available
+  _port_listening_owner  Get process listening on port
+  _set_config            Set configuration value
+  _get_config            Get configuration value
+  _get_service_port      Get default port for service
+
+Variables:
+  SCRIPT_VERSION         Script version
+  ARCH                   System architecture
+  PKG_MANAGER            Package manager
+  SETUP_CONF             Setup configuration file
+  DL_CACHE               Download cache directory
+
+Usage:
+  source src/lib/00-core.sh
+  _core_help             Show this help
+EOF
+}

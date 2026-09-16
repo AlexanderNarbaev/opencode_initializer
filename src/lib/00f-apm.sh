@@ -414,5 +414,31 @@ _apm_install() {
   info "  Future: apm install $_APM_PACKAGE_NAME"
 }
 
+# ── Help function ────────────────────────────────────────────────────────────
+# Usage: _apm_help
+# Displays help for APM preparation functions.
+_apm_help() {
+  cat <<EOF
+APM Preparation Module (v3.5.0)
+
+Functions:
+  _apm_generate          Generate apm.yml from setup.toml
+  _apm_generate_minimal  Generate minimal apm.yml
+  _apm_export_sbom       Export Software Bill of Materials
+  _apm_install           Prepare APM for installation
+
+Variables:
+  APM_YML                APM YAML output path
+  _APM_SCHEMA_VERSION    Schema version
+  _APM_PACKAGE_NAME      Package name
+  _APM_PACKAGE_VERSION   Package version
+
+Usage:
+  source src/lib/00f-apm.sh
+  _apm_help              Show this help
+  _apm_install           Prepare APM
+EOF
+}
+
 # ── Export functions ─────────────────────────────────────────────────────────
-export -f _apm_generate _apm_generate_minimal _apm_export_sbom _apm_install 2>/dev/null || true
+export -f _apm_generate _apm_generate_minimal _apm_export_sbom _apm_install _apm_help 2>/dev/null || true

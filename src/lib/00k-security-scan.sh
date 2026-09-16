@@ -382,6 +382,29 @@ HOOK
   log "Pre-commit hook installed: $hook_file"
 }
 
+# ── Help function ────────────────────────────────────────────────────────────
+# Usage: _security_scan_help
+# Displays help for security scanning functions.
+_security_scan_help() {
+  cat <<EOF
+Security Scanning Module (v3.5.0)
+
+Functions:
+  _scan_secrets           Scan for secrets and credentials
+  _verify_integrity       Verify file integrity
+  _audit_permissions      Audit file permissions
+  _scan_dependencies      Scan for vulnerable dependencies
+  _generate_security_report Generate security report
+  _install_pre_commit_hook Install pre-commit hook
+
+Usage:
+  source src/lib/00k-security-scan.sh
+  _security_scan_help     Show this help
+  _scan_secrets /path     Scan directory for secrets
+  _audit_permissions /path Audit permissions
+EOF
+}
+
 # ── Export functions ─────────────────────────────────────────────────────────
 export -f _scan_secrets _verify_integrity _audit_permissions _scan_dependencies \
-  _generate_security_report _install_pre_commit_hook 2>/dev/null || true
+  _generate_security_report _install_pre_commit_hook _security_scan_help 2>/dev/null || true

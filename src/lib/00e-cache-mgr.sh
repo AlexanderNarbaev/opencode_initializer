@@ -251,6 +251,34 @@ _cache_stats() {
   echo "  Misses: $miss_count"
 }
 
+# ── Help function ────────────────────────────────────────────────────────────
+# Usage: _cache_help
+# Displays help for cache manager functions.
+_cache_help() {
+  cat <<EOF
+Download Cache Manager (v3.5.0)
+
+Functions:
+  _cache_init            Initialize cache directory
+  _cache_key             Generate cache key from URL
+  _cache_hit             Check if URL is cached
+  _cache_get             Get cached file path
+  _cache_store           Store file in cache
+  _cache_download        Download with caching
+  _cache_cleanup         Clean old cache entries
+  _cache_stats           Show cache statistics
+
+Variables:
+  CACHE_MAX_AGE_DAYS     Maximum cache age (default: 30)
+  CACHE_MAX_SIZE_MB      Maximum cache size (default: 5120)
+
+Usage:
+  source src/lib/00e-cache-mgr.sh
+  _cache_help            Show this help
+  _cache_download "https://example.com/file.tar.gz"
+EOF
+}
+
 # ── Export functions ─────────────────────────────────────────────────────────
 export -f _cache_init _cache_key _cache_hit _cache_get _cache_store \
-  _cache_download _cache_cleanup _cache_stats 2>/dev/null || true
+  _cache_download _cache_cleanup _cache_stats _cache_help 2>/dev/null || true

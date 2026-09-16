@@ -320,6 +320,34 @@ _mark_installed() {
   date -u +"%Y-%m-%dT%H:%M:%SZ" > "${marker_dir}/${module_name}"
 }
 
+# ── Help function ────────────────────────────────────────────────────────────
+# Usage: _parallel_help
+# Displays help for parallel execution functions.
+_parallel_help() {
+  cat <<EOF
+Parallel Installation Engine (v3.5.0)
+
+Functions:
+  _parallel_run_layer    Run modules in parallel layers
+  _parallel_wait_all     Wait for all parallel jobs
+  _parallel_install      Install modules in parallel
+  _process_skip_flags    Process skip flags
+  _should_install        Check if module should be installed
+  _mark_installed        Mark module as installed
+
+Variables:
+  PARALLEL_MAX_JOBS      Maximum parallel jobs (default: nproc)
+  _PARALLEL_PIDS         Array of background PIDs
+  _PARALLEL_NAMES        Corresponding module names
+  _PARALLEL_RESULTS      Exit codes
+
+Usage:
+  source src/lib/00d-parallel.sh
+  _parallel_help         Show this help
+  _parallel_run_layer "layer1" "step1:module1:Name1" "step2:module2:Name2"
+EOF
+}
+
 # ── Export functions ─────────────────────────────────────────────────────────
 export -f _parallel_run_layer _parallel_wait_all _parallel_install \
-  _process_skip_flags _should_install _mark_installed 2>/dev/null || true
+  _process_skip_flags _should_install _mark_installed _parallel_help 2>/dev/null || true
