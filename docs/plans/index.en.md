@@ -12,5 +12,5 @@ Dated implementation and design plans for OpenCode Initializer.
 | [v1.0.0-rebirth-plan.md](v1.0.0-rebirth-plan.md) | v1.0.0 Rebirth — Implementation Plan | 2026-06-22 |
 | [v1.0.1-reliability-hardening.md](v1.0.1-reliability-hardening.md) | v1.0.1 Reliability Hardening — Implementation Plan | 2026-06-23 |
 | [v1.1.0-ecosystem-expansion.md](v1.1.0-ecosystem-expansion.md) | v1.1.0 Ecosystem Expansion — Competitive Research Implementation Plan | 2026-06-26 |
-| [2026-07-18-cross-project-sync-plan.md](2026-07-18-cross-project-sync-plan.md) | Сводный план развития проектов — Июль 2026 | 2026-07-18 |
+| [cross-project-sync-plan.md](cross-project-sync-plan.md) | Сводный план развития проектов — Июль 2026 | 2026-07-18 |
 | [v3.0-vision.md](v3.0-vision.md) | v3.0 Vision — SDD-Native Agentic Platform | — |
