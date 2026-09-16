@@ -199,7 +199,7 @@ _skill_install() {
   
   # Record installation
   echo "$skill_version" > "$install_path/VERSION"
-  echo "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$install_path/INSTALLED_AT"
+  date -u +%Y-%m-%dT%H:%M:%SZ > "$install_path/INSTALLED_AT"
   
   log "Skill $skill_name@$skill_version installed to $install_path"
 }
@@ -230,12 +230,12 @@ _skill_list_installed() {
     return 0
   fi
   
-  find "$SKILL_INSTALL_DIR" -maxdepth 2 -name "VERSION" -exec sh -c '
-    dir=$(dirname "{}")
+  find "$SKILL_INSTALL_DIR" -maxdepth 2 -name "VERSION" -print0 2>/dev/null | while IFS= read -r -d '' version_file; do
+    dir=$(dirname "$version_file")
     name=$(basename "$dir")
-    version=$(cat "{}")
+    version=$(cat "$version_file")
     echo "$name@$version"
-  ' \; 2>/dev/null | sort
+  done | sort
 }
 
 # ── Skill Publish ────────────────────────────────────────────────────────────

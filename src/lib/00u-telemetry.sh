@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # OpenTelemetry integration for opencode_initializer
 # https://opentelemetry.io/
 

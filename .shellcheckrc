@@ -1,0 +1,17 @@
+# ShellCheck configuration for OpenCode Initializer
+# https://github.com/koalaman/shellcheck/wiki/Directive
+
+# SC1090: Can't follow non-constant source
+disable=SC1090
+
+# SC1091: Not following (external files)
+disable=SC1091
+
+# SC2034: Variable appears unused (common in sourced modules)
+disable=SC2034
+
+# SC2155: Declare and assign separately
+disable=SC2155
+
+# SC2046: Quote this to prevent word splitting
+disable=SC2046

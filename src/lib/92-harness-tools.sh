@@ -70,6 +70,7 @@ _harness_tool_run() {
     command=$(jq -r '.command' "$tool_file" 2>/dev/null)
     
     if [ -n "$command" ]; then
+      # shellcheck disable=SC2294
       eval "$command" "${args[@]}" 2>&1
     fi
   fi

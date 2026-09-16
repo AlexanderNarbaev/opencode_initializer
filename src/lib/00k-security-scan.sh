@@ -130,7 +130,7 @@ _verify_integrity() {
 # Reports files with overly permissive permissions.
 _audit_permissions() {
   local dir="${1:-.}"
-  local findings=0
+  local perm_count=0
 
   section "Permission Audit" >&2
 
@@ -141,7 +141,7 @@ _audit_permissions() {
   if [ -n "$world_writable" ]; then
     while IFS= read -r file; do
       warn "  ⚠ World-writable: $file" >&2
-      findings=$((findings + 1))
+      perm_count=$((perm_count + 1))
     done <<< "$world_writable"
   fi
 
@@ -152,7 +152,7 @@ _audit_permissions() {
   if [ -n "$suid_files" ]; then
     while IFS= read -r file; do
       warn "  ⚠ SUID/SGID: $file" >&2
-      findings=$((findings + 1))
+      perm_count=$((perm_count + 1))
     done <<< "$suid_files"
   fi
 
@@ -163,17 +163,17 @@ _audit_permissions() {
   if [ -n "$root_owned" ]; then
     while IFS= read -r file; do
       warn "  ⚠ Root-owned: $file" >&2
-      findings=$((findings + 1))
+      perm_count=$((perm_count + 1))
     done <<< "$root_owned"
   fi
 
-  if [ "$findings" -eq 0 ]; then
+  if [ "$perm_count" -eq 0 ]; then
     log "No permission issues found" >&2
   else
-    warn "Found $findings permission issues" >&2
+    warn "Found $perm_count permission issues" >&2
   fi
 
-  echo "$findings"
+  echo "$perm_count"
 }
 
 # ── Scan for vulnerable dependencies ────────────────────────────────────────

@@ -19,7 +19,7 @@ set -euo pipefail
 # _dedupe <word ...> — remove duplicate words, preserving first-seen order.
 _dedupe() {
   local out="" w
-  for w in $*; do
+  for w in "$@"; do
     case " $out " in
       *" $w "*) : ;;
       *) out="$out $w" ;;
@@ -115,7 +115,7 @@ _detect_file_skills() {
         out="$out running-tests" ;;
     esac
   done
-  echo "$(_dedupe $out)"
+  _dedupe $out
 }
 
 # _auto_load_skills [text ...] — resolve the minimal set of SKILL.md paths for

@@ -14,7 +14,7 @@ _cache_clear() {
   
   case "$cache_type" in
     all)
-      rm -rf "$CACHE_DIR"/*
+      rm -rf "${CACHE_DIR:?}"/*
       log "All cache cleared"
       ;;
     skills)

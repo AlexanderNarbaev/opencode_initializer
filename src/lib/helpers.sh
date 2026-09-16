@@ -537,9 +537,9 @@ _safe_rm() {
     case "$real_p" in
       "/")                    blocked=1; msg="root filesystem" ;;
       "$HOME")                blocked=1; msg="HOME directory" ;;
-      "${HOME}/.cache")       blocked=1; msg="~/.cache" ;;
-      "$cache_opencode")      blocked=1; msg="~/.cache/opencode" ;;
-      "${cache_opencode}/"*)  blocked=1; msg="under ~/.cache/opencode" ;;
+      "${HOME}/.cache")       blocked=1; msg="$HOME/.cache" ;;
+      "$cache_opencode")      blocked=1; msg="$HOME/.cache/opencode" ;;
+      "${cache_opencode}/"*)  blocked=1; msg="under $HOME/.cache/opencode" ;;
     esac
 
     if [ "$blocked" = "1" ]; then
