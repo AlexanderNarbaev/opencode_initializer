@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # tests/unit/test_parallel_engine.sh — Tests for parallel installation engine (v3.5.0)
 set -euo pipefail
+export SKIP_MIRROR_RESOLVE=true
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 TESTS_PASSED=0

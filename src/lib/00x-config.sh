@@ -11,35 +11,32 @@ _CONFIG_JSON="${_CONFIG_DIR}/config.json"
 _CONFIG_BACKUP="${_CONFIG_DIR}/backup"
 _CONFIG_VERSION="1.0.0"
 
-# ── Configuration schema ─────────────────────────────────────────────────────
-declare -A _CONFIG_SCHEMA=(
-  # Services
-  ["POSTGRES_PORT"]="5432"
-  ["REDIS_PORT"]="6379"
-  ["QDRANT_PORT"]="6333"
-  ["PROMETHEUS_PORT"]="9090"
-  ["GRAFANA_PORT"]="3001"
-  ["NODE_EXPORTER_PORT"]="9100"
-  ["MEMORYLAYER_PORT"]="61001"
-  ["KAFKA_PORT"]="9092"
-  ["NEO4J_PORT"]="7474"
-  ["MINIO_PORT"]="9000"
-  ["SEARXNG_PORT"]="8888"
-  ["OPEN_WEBUI_PORT"]="3300"
-  
-  # Features
-  ["PARALLEL_INSTALL"]="true"
-  ["DOWNLOAD_CACHE"]="true"
-  ["SECURITY_SCAN"]="true"
-  ["AUTO_UPDATE"]="true"
-  ["VERBOSE"]="false"
-  ["DRY_RUN"]="false"
-  
-  # Paths
-  ["DL_CACHE"]="$HOME/.cache/opencode-setup"
-  ["SETUP_DIR"]="$HOME/.config/opencode-setup"
-  ["DATA_DIR"]="$HOME/.local/share/opencode"
+# ── Configuration schema (parallel indexed arrays — macOS bash 3.2 safe) ──────
+_CONFIG_KEYS=(
+  POSTGRES_PORT REDIS_PORT QDRANT_PORT PROMETHEUS_PORT GRAFANA_PORT
+  NODE_EXPORTER_PORT MEMORYLAYER_PORT KAFKA_PORT NEO4J_PORT MINIO_PORT
+  SEARXNG_PORT OPEN_WEBUI_PORT
+  PARALLEL_INSTALL DOWNLOAD_CACHE SECURITY_SCAN AUTO_UPDATE VERBOSE DRY_RUN
+  DL_CACHE SETUP_DIR DATA_DIR
 )
+_CONFIG_DEFAULTS=(
+  5432 6379 6333 9090 3001
+  9100 61001 9092 7474 9000
+  8888 3300
+  true true true true false false
+  "$HOME/.cache/opencode-setup" "$HOME/.config/opencode-setup" "$HOME/.local/share/opencode"
+)
+
+_config_schema_default() {
+  local key="$1" i
+  for (( i=0; i<${#_CONFIG_KEYS[@]}; i++ )); do
+    if [ "${_CONFIG_KEYS[$i]}" = "$key" ]; then
+      echo "${_CONFIG_DEFAULTS[$i]}"
+      return 0
+    fi
+  done
+  return 1
+}
 
 # ── Initialize configuration ─────────────────────────────────────────────────
 _config_init() {
@@ -59,31 +56,31 @@ _config_generate_default() {
 # Generated: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 # ── Services ──────────────────────────────────────────────────────────────────
-POSTGRES_PORT=${_CONFIG_SCHEMA[POSTGRES_PORT]}
-REDIS_PORT=${_CONFIG_SCHEMA[REDIS_PORT]}
-QDRANT_PORT=${_CONFIG_SCHEMA[QDRANT_PORT]}
-PROMETHEUS_PORT=${_CONFIG_SCHEMA[PROMETHEUS_PORT]}
-GRAFANA_PORT=${_CONFIG_SCHEMA[GRAFANA_PORT]}
-NODE_EXPORTER_PORT=${_CONFIG_SCHEMA[NODE_EXPORTER_PORT]}
-MEMORYLAYER_PORT=${_CONFIG_SCHEMA[MEMORYLAYER_PORT]}
-KAFKA_PORT=${_CONFIG_SCHEMA[KAFKA_PORT]}
-NEO4J_PORT=${_CONFIG_SCHEMA[NEO4J_PORT]}
-MINIO_PORT=${_CONFIG_SCHEMA[MINIO_PORT]}
-SEARXNG_PORT=${_CONFIG_SCHEMA[SEARXNG_PORT]}
-OPEN_WEBUI_PORT=${_CONFIG_SCHEMA[OPEN_WEBUI_PORT]}
+POSTGRES_PORT=$(_config_schema_default POSTGRES_PORT)
+REDIS_PORT=$(_config_schema_default REDIS_PORT)
+QDRANT_PORT=$(_config_schema_default QDRANT_PORT)
+PROMETHEUS_PORT=$(_config_schema_default PROMETHEUS_PORT)
+GRAFANA_PORT=$(_config_schema_default GRAFANA_PORT)
+NODE_EXPORTER_PORT=$(_config_schema_default NODE_EXPORTER_PORT)
+MEMORYLAYER_PORT=$(_config_schema_default MEMORYLAYER_PORT)
+KAFKA_PORT=$(_config_schema_default KAFKA_PORT)
+NEO4J_PORT=$(_config_schema_default NEO4J_PORT)
+MINIO_PORT=$(_config_schema_default MINIO_PORT)
+SEARXNG_PORT=$(_config_schema_default SEARXNG_PORT)
+OPEN_WEBUI_PORT=$(_config_schema_default OPEN_WEBUI_PORT)
 
 # ── Features ──────────────────────────────────────────────────────────────────
-PARALLEL_INSTALL=${_CONFIG_SCHEMA[PARALLEL_INSTALL]}
-DOWNLOAD_CACHE=${_CONFIG_SCHEMA[DOWNLOAD_CACHE]}
-SECURITY_SCAN=${_CONFIG_SCHEMA[SECURITY_SCAN]}
-AUTO_UPDATE=${_CONFIG_SCHEMA[AUTO_UPDATE]}
-VERBOSE=${_CONFIG_SCHEMA[VERBOSE]}
-DRY_RUN=${_CONFIG_SCHEMA[DRY_RUN]}
+PARALLEL_INSTALL=$(_config_schema_default PARALLEL_INSTALL)
+DOWNLOAD_CACHE=$(_config_schema_default DOWNLOAD_CACHE)
+SECURITY_SCAN=$(_config_schema_default SECURITY_SCAN)
+AUTO_UPDATE=$(_config_schema_default AUTO_UPDATE)
+VERBOSE=$(_config_schema_default VERBOSE)
+DRY_RUN=$(_config_schema_default DRY_RUN)
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
-DL_CACHE=${_CONFIG_SCHEMA[DL_CACHE]}
-SETUP_DIR=${_CONFIG_SCHEMA[SETUP_DIR]}
-DATA_DIR=${_CONFIG_SCHEMA[DATA_DIR]}
+DL_CACHE=$(_config_schema_default DL_CACHE)
+SETUP_DIR=$(_config_schema_default SETUP_DIR)
+DATA_DIR=$(_config_schema_default DATA_DIR)
 EOF
   
   log "Generated default configuration: $_CONFIG_FILE"
@@ -156,7 +153,7 @@ _config_validate() {
   _config_init
   
   # Check required keys
-  for key in "${!_CONFIG_SCHEMA[@]}"; do
+  for key in "${_CONFIG_KEYS[@]}"; do
     local value
     value=$(_config_get "$key" "")
     if [ -z "$value" ]; then

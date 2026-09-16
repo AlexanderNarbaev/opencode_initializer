@@ -5,6 +5,7 @@
 #   _state_check_file, _state_check_service
 # Run: bash tests/unit/test_state_detection.sh
 set -euo pipefail
+export SKIP_MIRROR_RESOLVE=true
 
 PROJECT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 CORE="$PROJECT_DIR/src/lib/00-core.sh"

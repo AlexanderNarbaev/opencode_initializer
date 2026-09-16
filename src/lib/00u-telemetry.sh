@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 # OpenTelemetry integration for opencode_initializer
 # https://opentelemetry.io/
 

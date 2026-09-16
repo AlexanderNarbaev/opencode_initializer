@@ -125,6 +125,22 @@ _mirror_url() {
   echo "$1"; return 1
 }
 
+# ── Skip mirror resolution in test/non-interactive contexts ──────────────────
+if [ "${SKIP_MIRROR_RESOLVE:-false}" = "true" ]; then
+  GITHUB_MIRROR="https://github.com"
+  NPM_REGISTRY="https://registry.npmjs.org"
+  PYPI_MIRROR="https://pypi.org/simple"
+  DOCKER_MIRROR="https://hub.docker.com"
+  GO_MIRROR="https://go.dev"
+  RUSTUP_MIRROR="https://static.rust-lang.org/rustup"
+  ZIG_MIRROR="https://ziglang.org/download"
+  JAVA_MIRROR="https://api.adoptium.net"
+  export NPM_CONFIG_REGISTRY="$NPM_REGISTRY"
+  export PIP_INDEX_URL="$PYPI_MIRROR"
+  export GOPROXY="${GO_PROXY:-https://goproxy.cn,direct}"
+  export RUSTUP_DIST_SERVER="$RUSTUP_MIRROR"
+else
+
 # Comprehensive mirror list: primary → RU mirror → Chinese mirror → global fallback
 GITHUB_MIRROR=$(_mirror_url \
   "https://github.com" \
@@ -168,6 +184,7 @@ export NPM_CONFIG_REGISTRY="$NPM_REGISTRY"
 export PIP_INDEX_URL="$PYPI_MIRROR"
 export GOPROXY="${GO_PROXY:-https://goproxy.cn,direct}"
 export RUSTUP_DIST_SERVER="$RUSTUP_MIRROR"
+fi  # end SKIP_MIRROR_RESOLVE
 
 # ── Progress tracking — resume after failure ────────────────────────────────
 PROGRESS="$DL_CACHE/progress"

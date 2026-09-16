@@ -4,6 +4,7 @@
 # Tests: determinism (two runs identical), UNCHANGED skip, DRY_RUN no-write,
 #        unified diff emitted, secrets redacted.
 set -euo pipefail
+export SKIP_MIRROR_RESOLVE=true
 
 PROJECT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 LIB="$PROJECT_DIR/src/lib/18-opencode-json.sh"

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # tests/unit/test_security_benchmark.sh — Tests for security and benchmark (v4.2.0/v4.3.0)
 set -euo pipefail
+export SKIP_MIRROR_RESOLVE=true
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 TESTS_PASSED=0

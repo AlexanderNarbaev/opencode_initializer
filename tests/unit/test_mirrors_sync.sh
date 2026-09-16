@@ -3,6 +3,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+export SKIP_MIRROR_RESOLVE=true  # skip network mirror resolution while sourcing 00-core.sh
 TESTS_PASSED=0
 TESTS_FAILED=0
 TESTS_TOTAL=0

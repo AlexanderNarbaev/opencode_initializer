@@ -12,13 +12,16 @@ _LOG_MAX_FILES="${LOG_MAX_FILES:-5}"
 _LOG_FORMAT="${LOG_FORMAT:-text}"  # text, json
 
 # ── Log levels ────────────────────────────────────────────────────────────────
-declare -A _LOG_LEVELS=(
-  ["debug"]=0
-  ["info"]=1
-  ["warn"]=2
-  ["error"]=3
-  ["fatal"]=4
-)
+_log_level_num() {
+  case "$1" in
+    debug) echo 0 ;;
+    info)  echo 1 ;;
+    warn)  echo 2 ;;
+    error) echo 3 ;;
+    fatal) echo 4 ;;
+    *)     echo 1 ;;
+  esac
+}
 
 # ── Initialize logging ───────────────────────────────────────────────────────
 _logging_init() {
@@ -36,8 +39,10 @@ _logging_log() {
   timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
   
   # Check if message should be logged
-  local current_level_num="${_LOG_LEVELS[$_LOG_LEVEL]:-1}"
-  local message_level_num="${_LOG_LEVELS[$level]:-1}"
+  local current_level_num
+  current_level_num=$(_log_level_num "$_LOG_LEVEL")
+  local message_level_num
+  message_level_num=$(_log_level_num "$level")
   
   if [ "$message_level_num" -lt "$current_level_num" ]; then
     return 0

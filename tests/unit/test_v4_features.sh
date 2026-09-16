@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # tests/unit/test_v4_features.sh — Tests for v4.0.0 features (APM + Multi-agent)
 set -euo pipefail
+export SKIP_MIRROR_RESOLVE=true
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 TESTS_PASSED=0

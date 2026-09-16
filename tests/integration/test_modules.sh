@@ -47,7 +47,7 @@ for f in "$PROJECT_DIR/src/lib/"*.sh; do
     assert "$fname is helper (no number)" "true"
   else
     assert "$fname follows NN-name pattern" \
-      "echo '$fname' | grep -qE '^[0-9]{2}[a-z]?(-[a-z0-9-]+)?\.sh$'"
+      "echo '$fname' | grep -qE '^[0-9]{2,3}[a-z]?(-[a-z0-9-]+)?\.sh$'"
   fi
 done
 
@@ -80,8 +80,8 @@ done
 
 # ── setup.sh orchestrator line count ──────────────────────────────────
 SETUP_LINES=$(wc -l < "$PROJECT_DIR/setup.sh")
-assert "setup.sh is ~700 lines (+/- 50, v3.0.0 growth)" \
-  "[ '$SETUP_LINES' -ge 650 ] && [ '$SETUP_LINES' -le 750 ]"
+assert "setup.sh is ~1200 lines (+/- 100, v3.3.0 growth)" \
+  "[ '$SETUP_LINES' -ge 1100 ] && [ '$SETUP_LINES' -le 1300 ]"
 
 # ── Module count matches AGENTS.md description ────────────────────────
 MODES_COUNT=$(ls "$PROJECT_DIR/src/modes/"*.sh 2>/dev/null | wc -l)

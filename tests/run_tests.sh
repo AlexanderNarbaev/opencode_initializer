@@ -5,6 +5,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+export SKIP_MIRROR_RESOLVE=true  # skip expensive network mirror probes in tests
 
 PASS=0; FAIL=0; TOTAL=0
 
