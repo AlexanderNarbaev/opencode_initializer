@@ -105,8 +105,8 @@ def test_postgres_connection():
 - `setup.sh` — refactor _run_step
 
 Что сделать:
-- [ ] Обернуть `_run_step` в subshell: `(set +e; source "$module")`
-- [ ] Capture exit code; on failure, mark step as `PARTIAL`
+- [x] Обернуть `_run_step` в subshell: `(set +e; source "$module")`
+- [x] Capture exit code; on failure, mark step as `PARTIAL`
 - [ ] При повторном запуске, `PARTIAL` шаги перезапускаются
 - [ ] Лог: `warn "step_X FAILED — re-run will retry"`
 
@@ -124,7 +124,7 @@ def test_postgres_connection():
 
 Что сделать:
 - [ ] Обновить README.md/README.ru.md (устаревшие счетчики)
-- [ ] Обновить architecture.md (ссылается на "24 модуля", сейчас 76)
+- [x] Обновить architecture.md (ссылается на "24 модуля", сейчас 76)
 - [ ] Добавить ADR для каждого архитектурного решения
 - [ ] Добавить runbook для типовых операций
 
