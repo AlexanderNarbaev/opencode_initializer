@@ -5,7 +5,7 @@ Research notes and competitive analyses informing OpenCode Initializer.
 | File | Title | Date |
 |------|-------|------|
 | [2025-2026-dev-setup-best-practices.md](2025-2026-dev-setup-best-practices.md) | Исследование: лучшие практики Dev Machine Bootstrapping и AI Tooling (2025–2026) | — |
-| [2026-06-21-ecosystem-deep-research.md](2026-06-21-ecosystem-deep-research.md) | Deep Ecosystem Research — OpenCode v35.4 → v36.0 | 2026-06-21 |
+| [ecosystem-deep-research.md](ecosystem-deep-research.md) | Deep Ecosystem Research — OpenCode v35.4 → v36.0 | 2026-06-21 |
 | [competitive-landscape-analysis.md](competitive-landscape-analysis.md) | Competitive Landscape & Ecosystem Analysis — June 2026 | 2026-06-23 |
 | [competitive-landscape.md](competitive-landscape.md) | Competitive Landscape — Dev Environment Bootstrap & Local LLM Tools | 2026-06-26 |
 | [ai-gateway-best-practices.md](ai-gateway-best-practices.md) | AI Gateway Best Practices — Research 2026-08-10 | 2026-08-10 |
