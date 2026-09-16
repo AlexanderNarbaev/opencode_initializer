@@ -1,0 +1,36 @@
+{
+  "name": "OpenCode Initializer",
+  "version": "15.0.0",
+  "description": "AI-native development platform with 141 modules",
+  "modules": {
+    "core": {"range": "00-61", "count": 62, "description": "Core infrastructure"},
+    "skill_management": {"range": "62-65", "count": 4, "description": "Skill registry, manager, security, eval"},
+    "agent_orchestration": {"range": "66-71", "count": 6, "description": "Orchestrator, pipeline, mesh, protocol, context, memory"},
+    "enterprise": {"range": "72-77", "count": 6, "description": "RBAC, governance, compliance, security, analytics, observability"},
+    "ecosystem": {"range": "78-82", "count": 5, "description": "Marketplace, plugins, templates, integrations, connectors"},
+    "agent_harness_advanced": {"range": "83-90", "count": 8, "description": "Context engineering, learning, automation, sandbox, CI/CD, workflow, security, secrets"},
+    "agent_harness_core": {"range": "91-100", "count": 10, "description": "TAO loop, tools, memory, prompt, state, errors, guardrails, verify, subagents"},
+    "pla_rag": {"range": "101-110", "count": 10, "description": "Pipeline orchestration, extract, analyze, verify, synthesize, coordinate, hybrid RAG, BM25, vector, fusion"},
+    "production": {"range": "111-116", "count": 6, "description": "Performance, cache, security hardening, vulnerability scan, scalability, load balancer"}
+  },
+  "tests": {
+    "total_assertions": 444,
+    "test_files": 167,
+    "suites": {
+      "skill_registry": 15,
+      "skill_security": 8,
+      "skill_eval": 5,
+      "agent_orchestration": 11,
+      "enterprise": 12,
+      "ecosystem": 10,
+      "agent_harness": 16,
+      "harness_core": 20,
+      "pla_rag": 20,
+      "production": 12
+    }
+  },
+  "providers": {"total": 22, "cloud": 19, "local": 3},
+  "mcp_servers": 24,
+  "lsp_servers": 12,
+  "plugins": 21
+}

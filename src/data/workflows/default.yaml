@@ -1,0 +1,50 @@
+{
+  "workflows": {
+    "code_review": {
+      "name": "Code Review Pipeline",
+      "description": "Automated code review with security and performance checks",
+      "steps": [
+        {"name": "extract", "type": "pla-extract", "config": {"source": "git_diff"}},
+        {"name": "analyze", "type": "pla-analyze", "config": {"methods": ["chain-of-thought"]}},
+        {"name": "verify", "type": "pla-verify", "config": {"checks": ["security", "performance"]}},
+        {"name": "synthesize", "type": "pla-synthesize", "config": {"format": "markdown"}}
+      ]
+    },
+    "security_audit": {
+      "name": "Security Audit Pipeline",
+      "description": "Comprehensive security audit",
+      "steps": [
+        {"name": "scan", "type": "vuln-scan", "config": {"target": "."}},
+        {"name": "analyze", "type": "pla-analyze", "config": {"methods": ["step-back"]}},
+        {"name": "verify", "type": "pla-verify", "config": {"checks": ["secrets", "permissions"]}},
+        {"name": "report", "type": "pla-synthesize", "config": {"format": "json"}}
+      ]
+    },
+    "documentation": {
+      "name": "Documentation Pipeline",
+      "description": "Auto-generate documentation",
+      "steps": [
+        {"name": "extract", "type": "pla-extract", "config": {"source": "code"}},
+        {"name": "analyze", "type": "pla-analyze", "config": {"methods": ["decomposition"]}},
+        {"name": "synthesize", "type": "pla-synthesize", "config": {"format": "markdown"}}
+      ]
+    }
+  },
+  "templates": {
+    "python_project": {
+      "name": "Python Project",
+      "description": "Standard Python project setup",
+      "skills": ["tdd-python", "code-review", "documentation"]
+    },
+    "web_app": {
+      "name": "Web Application",
+      "description": "Full-stack web application",
+      "skills": ["code-review", "security-audit", "documentation"]
+    },
+    "api_service": {
+      "name": "API Service",
+      "description": "REST API service",
+      "skills": ["code-review", "security-audit", "performance"]
+    }
+  }
+}
