@@ -1,0 +1,47 @@
+{
+  "version": "1.0.0",
+  "name": "OpenCode Skill Registry",
+  "description": "Central registry for OpenCode skills",
+  "skills": [
+    {
+      "name": "code-review",
+      "version": "1.2.0",
+      "description": "Automated code review with security and performance checks",
+      "author": "opencode",
+      "tags": ["code-review", "security", "quality"],
+      "license": "MIT"
+    },
+    {
+      "name": "tdd-python",
+      "version": "2.0.0",
+      "description": "Test-driven development workflow for Python",
+      "author": "opencode",
+      "tags": ["testing", "tdd", "python"],
+      "license": "MIT"
+    },
+    {
+      "name": "security-audit",
+      "version": "1.5.0",
+      "description": "Comprehensive security audit for codebases",
+      "author": "opencode",
+      "tags": ["security", "audit", "compliance"],
+      "license": "MIT"
+    },
+    {
+      "name": "documentation",
+      "version": "1.1.0",
+      "description": "Auto-generate documentation from code",
+      "author": "opencode",
+      "tags": ["docs", "documentation", "generation"],
+      "license": "MIT"
+    },
+    {
+      "name": "refactoring",
+      "version": "1.0.0",
+      "description": "Safe code refactoring with verification",
+      "author": "opencode",
+      "tags": ["refactoring", "code-quality"],
+      "license": "MIT"
+    }
+  ]
+}

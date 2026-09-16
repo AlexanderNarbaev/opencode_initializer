@@ -1,0 +1,41 @@
+{
+  "version": "1.0.0",
+  "scenarios": [
+    {
+      "id": "default",
+      "name": "Default Evaluation",
+      "description": "Standard evaluation scenario for any skill",
+      "metrics": [
+        { "name": "completion_rate", "weight": 25 },
+        { "name": "quality_score", "weight": 25 },
+        { "name": "docs_score", "weight": 20 },
+        { "name": "test_score", "weight": 15 },
+        { "name": "security_score", "weight": 15 }
+      ]
+    },
+    {
+      "id": "code-review",
+      "name": "Code Review Evaluation",
+      "description": "Evaluation scenario for code review skills",
+      "metrics": [
+        { "name": "completion_rate", "weight": 20 },
+        { "name": "quality_score", "weight": 30 },
+        { "name": "docs_score", "weight": 15 },
+        { "name": "test_score", "weight": 15 },
+        { "name": "security_score", "weight": 20 }
+      ]
+    },
+    {
+      "id": "documentation",
+      "name": "Documentation Evaluation",
+      "description": "Evaluation scenario for documentation skills",
+      "metrics": [
+        { "name": "completion_rate", "weight": 15 },
+        { "name": "quality_score", "weight": 20 },
+        { "name": "docs_score", "weight": 40 },
+        { "name": "test_score", "weight": 10 },
+        { "name": "security_score", "weight": 15 }
+      ]
+    }
+  ]
+}

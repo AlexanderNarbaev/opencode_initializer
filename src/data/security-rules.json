@@ -1,0 +1,80 @@
+{
+  "version": "1.0.0",
+  "rules": [
+    {
+      "id": "SEC001",
+      "name": "prompt_injection",
+      "description": "Detect potential prompt injection patterns",
+      "severity": "critical",
+      "patterns": [
+        "ignore previous instructions",
+        "ignore all previous",
+        "disregard.*instructions",
+        "you are now",
+        "new instructions"
+      ]
+    },
+    {
+      "id": "SEC002",
+      "name": "secret_leakage",
+      "description": "Detect hardcoded secrets and credentials",
+      "severity": "critical",
+      "patterns": [
+        "AKIA[0-9A-Z]{16}",
+        "sk-[a-zA-Z0-9]{48}",
+        "ghp_[a-zA-Z0-9]{36}",
+        "-----BEGIN.*PRIVATE KEY-----"
+      ]
+    },
+    {
+      "id": "SEC003",
+      "name": "permission_escalation",
+      "description": "Detect permission escalation attempts",
+      "severity": "high",
+      "patterns": [
+        "chmod 777",
+        "sudo su",
+        "/etc/passwd",
+        "/etc/shadow"
+      ]
+    },
+    {
+      "id": "SEC004",
+      "name": "unsafe_execution",
+      "description": "Detect unsafe execution patterns",
+      "severity": "high",
+      "patterns": [
+        "curl.*|.*bash",
+        "wget.*|.*sh",
+        "eval \\$",
+        "rm -rf /"
+      ]
+    },
+    {
+      "id": "SEC005",
+      "name": "network_access",
+      "description": "Detect network access patterns",
+      "severity": "medium",
+      "patterns": [
+        "fetch\\(",
+        "axios\\.",
+        "http\\.get",
+        "requests\\.get"
+      ]
+    }
+  ],
+  "scoring": {
+    "prompt_injection": -15,
+    "secret_leakage": -25,
+    "permission_escalation": -20,
+    "unsafe_execution": -10,
+    "network_access": -3,
+    "dependency_vulnerability": -5
+  },
+  "levels": {
+    "HIGH": { "min": 90, "max": 100 },
+    "MEDIUM": { "min": 70, "max": 89 },
+    "LOW": { "min": 50, "max": 69 },
+    "CRITICAL": { "min": 0, "max": 49 }
+  }
+}
