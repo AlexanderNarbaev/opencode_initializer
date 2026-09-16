@@ -2,7 +2,7 @@
 
 > **HEAD:** ccf240e (`chore: add sync scripts...`) · **Ветка:** main · **Волна:** v2.0.2 (ACTIVE, uncommitted)
 > **Метод:** ручная инспекция + запуск тестов + grep-верификация + codegraph
-> **Предыдущий аудит:** [audit-v2.0.0.md](./audit-v2.0.0.md)
+> **Предыдущий аудит:** [audit-v2.md](./audit-v2.md)
 
 ## 1. Резюме
 

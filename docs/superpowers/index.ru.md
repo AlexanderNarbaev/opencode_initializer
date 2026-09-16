@@ -4,5 +4,5 @@
 
 | Файл | Название | Дата |
 |------|----------|------|
-| [plans/2026-06-29-phase-0-stabilization.md](plans/2026-06-29-phase-0-stabilization.md) | Phase 0: Stabilization — Implementation Plan | 2026-06-29 |
-| [specs/2026-06-29-opencode-platform-v2-design.md](specs/2026-06-29-opencode-platform-v2-design.md) | opencode_platform v2.0 — Enterprise Dev Machine Design | 2026-06-29 |
+| [plans/phase-0-stabilization.md](plans/phase-0-stabilization.md) | Phase 0: Stabilization — Implementation Plan | 2026-06-29 |
+| [specs/opencode-platform-v2-design.md](specs/opencode-platform-v2-design.md) | opencode_platform v2.0 — Enterprise Dev Machine Design | 2026-06-29 |
