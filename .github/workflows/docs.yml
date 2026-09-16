@@ -8,6 +8,9 @@ on:
       - 'README.md'
       - 'mkdocs.yml'
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -25,7 +28,13 @@ jobs:
           pip install mkdocs-static-i18n
           pip install mkdocs-git-revision-date-localized-plugin
           pip install mkdocs-minify-plugin
-          pip install mkdocs-social
       
       - name: Build documentation
         run: mkdocs build --strict
+      
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        if: github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
