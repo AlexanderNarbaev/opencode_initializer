@@ -1,0 +1,261 @@
+# OpenCode Personal Home Station — Comprehensive Configuration
+# Version: 15.2.0
+# Profile: Maximum Efficiency, Reasonable Security
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Core Settings
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[core]
+version = "15.2.0"
+profile = "personal-home-station"
+language = "en"
+timezone = "auto"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Performance Settings
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[performance]
+max_parallel_jobs = 4
+cache_enabled = true
+cache_max_age_days = 30
+cache_max_size_mb = 5120
+lazy_loading = true
+background_updates = true
+optimize_git = true
+optimize_docker = true
+optimize_node = true
+optimize_python = true
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Token Economy Settings
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[token_economy]
+compact_prompts = true
+reuse_context = true
+batch_operations = true
+skip_redundant_checks = true
+minimal_output = false
+history_size = 100000
+deduplicate_history = true
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Security Settings
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[security]
+scan_on_install = true
+verify_checksums = true
+sandbox_execution = false
+auto_update = true
+backup_before_changes = true
+check_vulnerabilities = true
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Cleanup Settings
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[cleanup]
+auto_clean_sessions = true
+session_max_age_days = 1
+tool_output_max_age_days = 3
+snapshot_max_age_days = 7
+log_max_age_days = 14
+clean_temp_files = true
+clean_docker = true
+clean_npm = true
+clean_pip = true
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Agent Frameworks
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[agents]
+# CrewAI - Multi-agent orchestration
+crewai_enabled = true
+crewai_auto_install = true
+
+# LangGraph - Stateful agents
+langgraph_enabled = true
+langgraph_auto_install = true
+
+# Microsoft Agent Framework
+maf_enabled = false
+maf_auto_install = false
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# MCP Servers
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[mcp]
+# Reference servers
+memory_enabled = true
+filesystem_enabled = true
+sequentialthinking_enabled = true
+github_enabled = true
+gitlab_enabled = true
+postgres_enabled = true
+redis_enabled = true
+slack_enabled = true
+brave_search_enabled = true
+puppeteer_enabled = true
+
+# Community servers
+context7_enabled = true
+notion_enabled = true
+git_enabled = true
+fetch_enabled = true
+time_enabled = true
+sqlite_enabled = true
+excalidraw_enabled = true
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# LSP Servers
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[lsp]
+# Core languages
+typescript_enabled = true
+python_enabled = true
+go_enabled = true
+rust_enabled = true
+bash_enabled = true
+yaml_enabled = true
+json_enabled = true
+docker_enabled = true
+html_css_enabled = true
+
+# Additional languages
+lua_enabled = true
+zig_enabled = true
+ruby_enabled = true
+java_enabled = true
+csharp_enabled = true
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Development Tools
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[tools]
+# Task runners
+taskfile_enabled = true
+just_enabled = true
+
+# Documentation
+mkdocs_enabled = true
+hugo_enabled = true
+
+# Static analysis
+shellcheck_enabled = true
+hadolint_enabled = true
+yamllint_enabled = true
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Plugin Configuration
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[plugins]
+# Core plugins
+codegraph_enabled = true
+orchestrator_enabled = true
+token_tracker_enabled = true
+notify_enabled = true
+pty_enabled = true
+ignore_enabled = true
+snip_enabled = true
+snippets_enabled = true
+
+# AI enhancement plugins
+dcp_enabled = true
+auto_fallback_enabled = true
+goal_mode_enabled = true
+swarm_enabled = true
+vibeguard_enabled = true
+background_agents_enabled = true
+skillful_enabled = true
+goal_plugin_enabled = true
+conductor_enabled = true
+
+# Infrastructure plugins
+daytona_enabled = true
+devcontainers_enabled = true
+worktree_enabled = true
+scheduler_enabled = true
+
+# Memory/context plugins
+supermemory_enabled = true
+websearch_cited_enabled = true
+firecrawl_enabled = true
+
+# Telemetry
+otel_enabled = true
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Shell Configuration
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[shell]
+# History
+history_size = 100000
+history_file_size = 200000
+history_control = "ignoreboth:erasedups"
+save_immediately = true
+
+# Prompt
+compact_prompt = true
+show_git_status = true
+show_exit_code = true
+
+# Aliases
+enable_aliases = true
+enable_functions = true
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Docker Configuration
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[docker]
+auto_cleanup = true
+prune_containers = true
+prune_images = true
+prune_volumes = true
+prune_build_cache = true
+container_max_age_hours = 24
+build_cache_max_age_hours = 168
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Git Configuration
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[git]
+auto_gc = true
+auto_prune = true
+optimize_repos = true
+deduplicate_history = true
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Node.js Configuration
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[node]
+auto_cleanup = true
+clean_npm_cache = true
+clean_npx_cache = true
+clean_node_gyp = true
+clean_typescript = true
+npx_cache_max_age_days = 7
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Python Configuration
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[python]
+auto_cleanup = true
+clean_pip_cache = true
+clean_uv_cache = true
+clean_pyenv_cache = true
+clean_virtualenvs = true
+virtualenv_max_age_days = 30
+
