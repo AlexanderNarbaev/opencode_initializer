@@ -164,4 +164,4 @@ git commit -m "feat: add new feature"
 
 - [core.md](core.md) - Core infrastructure
 - [apm.md](apm.md) - APM preparation
-- [helpers.sh](../helpers.sh) - Helper functions
+- [helpers.sh](helpers.md) - Helper functions

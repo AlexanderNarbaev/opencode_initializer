@@ -128,4 +128,4 @@ APM preparation enables future integration with:
 
 - [core.md](core.md) - Core infrastructure
 - [security.md](security.md) - Security scanning
-- [helpers.sh](../helpers.sh) - Helper functions
+- [helpers.sh](helpers.md) - Helper functions

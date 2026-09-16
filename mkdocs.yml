@@ -166,7 +166,7 @@ nav:
   - Operations:
       - Manual Steps: manual-steps.md
       - Orchestrator Patch: operations/orchestrator-patch.md
-      - Full Audit (2026-08-22): audit/2026-08-22-full-audit.md
+      - Full Audit (2026-08-22): audit/full-audit.md
       - Versions Registry: VERSIONS.md
   - Working Documents:
       - Plans Index: plans/index.md
