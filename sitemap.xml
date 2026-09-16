@@ -183,6 +183,13 @@
         <xhtml:link rel="alternate" hreflang="ru" href="https://alexandernarbaev.github.io/opencode_initializer/ru/api/cli-reference/"/>
     </url>
     <url>
+        <loc>https://alexandernarbaev.github.io/opencode_initializer/architecture/agent-roles-2026/</loc>
+        <lastmod>2026-09-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://alexandernarbaev.github.io/opencode_initializer/architecture/agent-roles-2026/"/>
+        <xhtml:link rel="alternate" hreflang="ru" href="https://alexandernarbaev.github.io/opencode_initializer/ru/architecture/agent-roles-2026/"/>
+    </url>
+    <url>
         <loc>https://alexandernarbaev.github.io/opencode_initializer/architecture/agent-system/</loc>
         <lastmod>2026-09-16</lastmod>
         <changefreq>daily</changefreq>
@@ -190,11 +197,32 @@
         <xhtml:link rel="alternate" hreflang="ru" href="https://alexandernarbaev.github.io/opencode_initializer/ru/architecture/agent-system/"/>
     </url>
     <url>
+        <loc>https://alexandernarbaev.github.io/opencode_initializer/architecture/aipdlc-integration-guide/</loc>
+        <lastmod>2026-09-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://alexandernarbaev.github.io/opencode_initializer/architecture/aipdlc-integration-guide/"/>
+        <xhtml:link rel="alternate" hreflang="ru" href="https://alexandernarbaev.github.io/opencode_initializer/ru/architecture/aipdlc-integration-guide/"/>
+    </url>
+    <url>
         <loc>https://alexandernarbaev.github.io/opencode_initializer/architecture/</loc>
         <lastmod>2026-09-16</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://alexandernarbaev.github.io/opencode_initializer/architecture/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://alexandernarbaev.github.io/opencode_initializer/ru/architecture/"/>
+    </url>
+    <url>
+        <loc>https://alexandernarbaev.github.io/opencode_initializer/architecture/llm-fundamentals-2026/</loc>
+        <lastmod>2026-09-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://alexandernarbaev.github.io/opencode_initializer/architecture/llm-fundamentals-2026/"/>
+        <xhtml:link rel="alternate" hreflang="ru" href="https://alexandernarbaev.github.io/opencode_initializer/ru/architecture/llm-fundamentals-2026/"/>
+    </url>
+    <url>
+        <loc>https://alexandernarbaev.github.io/opencode_initializer/architecture/security-model-2026/</loc>
+        <lastmod>2026-09-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://alexandernarbaev.github.io/opencode_initializer/architecture/security-model-2026/"/>
+        <xhtml:link rel="alternate" hreflang="ru" href="https://alexandernarbaev.github.io/opencode_initializer/ru/architecture/security-model-2026/"/>
     </url>
     <url>
         <loc>https://alexandernarbaev.github.io/opencode_initializer/architecture/adr/hybrid-ai-architecture/</loc>
@@ -883,6 +911,13 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://alexandernarbaev.github.io/opencode_initializer/api/cli-reference/"/>
     </url>
     <url>
+        <loc>https://alexandernarbaev.github.io/opencode_initializer/ru/architecture/agent-roles-2026/</loc>
+        <lastmod>2026-09-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ru" href="https://alexandernarbaev.github.io/opencode_initializer/ru/architecture/agent-roles-2026/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://alexandernarbaev.github.io/opencode_initializer/architecture/agent-roles-2026/"/>
+    </url>
+    <url>
         <loc>https://alexandernarbaev.github.io/opencode_initializer/ru/architecture/agent-system/</loc>
         <lastmod>2026-09-16</lastmod>
         <changefreq>daily</changefreq>
@@ -890,11 +925,32 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://alexandernarbaev.github.io/opencode_initializer/architecture/agent-system/"/>
     </url>
     <url>
+        <loc>https://alexandernarbaev.github.io/opencode_initializer/ru/architecture/aipdlc-integration-guide/</loc>
+        <lastmod>2026-09-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ru" href="https://alexandernarbaev.github.io/opencode_initializer/ru/architecture/aipdlc-integration-guide/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://alexandernarbaev.github.io/opencode_initializer/architecture/aipdlc-integration-guide/"/>
+    </url>
+    <url>
         <loc>https://alexandernarbaev.github.io/opencode_initializer/ru/architecture/</loc>
         <lastmod>2026-09-16</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://alexandernarbaev.github.io/opencode_initializer/ru/architecture/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://alexandernarbaev.github.io/opencode_initializer/architecture/"/>
+    </url>
+    <url>
+        <loc>https://alexandernarbaev.github.io/opencode_initializer/ru/architecture/llm-fundamentals-2026/</loc>
+        <lastmod>2026-09-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ru" href="https://alexandernarbaev.github.io/opencode_initializer/ru/architecture/llm-fundamentals-2026/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://alexandernarbaev.github.io/opencode_initializer/architecture/llm-fundamentals-2026/"/>
+    </url>
+    <url>
+        <loc>https://alexandernarbaev.github.io/opencode_initializer/ru/architecture/security-model-2026/</loc>
+        <lastmod>2026-09-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ru" href="https://alexandernarbaev.github.io/opencode_initializer/ru/architecture/security-model-2026/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://alexandernarbaev.github.io/opencode_initializer/architecture/security-model-2026/"/>
     </url>
     <url>
         <loc>https://alexandernarbaev.github.io/opencode_initializer/ru/architecture/adr/hybrid-ai-architecture/</loc>
