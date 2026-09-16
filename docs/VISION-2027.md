@@ -26,6 +26,7 @@ Become the **enterprise-grade, open-source platform** for AI-native development 
 | Skill Registry | Public + private registries with semantic versioning | Tessl Registry |
 | Security Scanning | Snyk-powered security scoring before installation | Tessl + Snyk |
 | Evaluation System | Measure skill impact with before/after evals | Tessl Evals |
+| APM Integration | `apm.yml` manifest for reproducible installs | Microsoft APM |
 
 **Implementation:**
 - `src/lib/62-skill-registry.sh` — Skill discovery, install, publish
@@ -39,14 +40,16 @@ Become the **enterprise-grade, open-source platform** for AI-native development 
 
 | Feature | Description | Evidence Source |
 |---------|-------------|-----------------|
-| Workflow Engine | YAML-defined multi-agent pipelines | Goose Workflows |
+| Workflow Engine | YAML-defined multi-agent pipelines | Goose Workflows, Dify |
 | Agent Mesh | Service discovery and communication protocol | MCP Protocol |
 | Context Engine | Dynamic context injection based on task | Continue Context |
+| Control Plane | Centralized orchestration and work graph | Agyn, Microsoft APM |
 
 **Implementation:**
 - `src/lib/66-agent-orchestrator.sh` — Workflow execution
 - `src/lib/68-agent-mesh.sh` — Agent networking
 - `src/lib/70-context-engine.sh` — Context management
+- `src/lib/88-workflow-engine.sh` — Workflow orchestration
 
 ### 3. Enterprise Governance
 
@@ -58,11 +61,13 @@ Become the **enterprise-grade, open-source platform** for AI-native development 
 | RBAC | Role-based access control for skills and agents | Tessl Governance |
 | Compliance | SOC2/ISO27001 compliance reporting | Industry Standards |
 | Observability | Real-time skill activation tracking | Tessl Observability |
+| Sandbox Isolation | Agent isolation (Docker, MicroVM, BoxLite) | OpenAI Codex, BoxLite |
 
 **Implementation:**
 - `src/lib/72-rbac.sh` — Access control
 - `src/lib/74-compliance.sh` — Compliance reporting
 - `src/lib/76-analytics.sh` — Analytics collection
+- `src/lib/86-sandbox.sh` — Agent isolation
 
 ### 4. Ecosystem Expansion
 
@@ -74,11 +79,13 @@ Become the **enterprise-grade, open-source platform** for AI-native development 
 | Marketplace | Public registry for skills and plugins | VS Code Marketplace |
 | Templates | Pre-configured agent setups for common tasks | Goose Distributions |
 | Integrations | GitHub, GitLab, Jira, Slack, AWS, GCP, Azure | Industry Standards |
+| MCP Gateway | Unified MCP server management | MCP Protocol |
 
 **Implementation:**
 - `src/lib/78-marketplace.sh` — Marketplace client
 - `src/lib/80-templates.sh` — Template management
 - `src/lib/81-integrations.sh` — Integration framework
+- `src/lib/89-mcp-gateway.sh` — MCP gateway
 
 ---
 

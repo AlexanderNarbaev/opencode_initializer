@@ -433,6 +433,24 @@ opencode automate schedule "daily-standup" --cron "0 9 * * 1-5"
 | 5-6 | AI Automation | 85-automation.sh |
 | 7-8 | Testing & Docs | tests, README |
 
+### Q1 2028: Phase 6 — AIPDLC Integration
+
+| Week | Deliverable | Module |
+|------|-------------|--------|
+| 1-2 | Sandbox Isolation | 86-sandbox.sh |
+| 3-4 | CI/CD Integration | 87-cicd-integration.sh |
+| 5-6 | Workflow Engine | 88-workflow-engine.sh |
+| 7-8 | Security Policies | 89-security-policies.sh |
+
+### Q1 2028: Phase 6 — AIPDLC Integration
+
+| Week | Deliverable | Module |
+|------|-------------|--------|
+| 1-2 | Sandbox Isolation | 86-sandbox.sh |
+| 3-4 | CI/CD Integration | 87-cicd-integration.sh |
+| 5-6 | Workflow Engine | 88-workflow-engine.sh |
+| 7-8 | Security Policies | 89-security-policies.sh |
+
 ---
 
 ## Success Metrics
@@ -461,6 +479,12 @@ opencode automate schedule "daily-standup" --cron "0 9 * * 1-5"
 - **Context Engineering**: 90%+ context relevance
 - **Learning**: 30%+ skill improvement from feedback
 - **Automation**: 1000+ automations created
+
+### Phase 6: AIPDLC Integration
+- **Sandbox Adoption**: 100+ agents running in isolation
+- **CI/CD Integration**: 50+ pipelines automated
+- **Workflow Engine**: 200+ multi-agent workflows
+- **Security Policies**: 0 policy violations
 
 ---
 
@@ -493,7 +517,12 @@ src/lib/
 ├── 82-connectors.sh          # Service connectors
 ├── 83-context-engineering.sh # Context optimization
 ├── 84-learning.sh            # Learning framework
-└── 85-automation.sh          # Automation framework
+├── 85-automation.sh          # Automation framework
+├── 86-sandbox.sh             # Agent isolation (Docker, MicroVM, BoxLite)
+├── 87-cicd-integration.sh    # CI/CD pipeline integration
+├── 88-workflow-engine.sh     # Workflow orchestration
+├── 89-security-policies.sh   # OPA/Rego policy enforcement
+└── 90-secrets-manager.sh     # Vault/secrets integration
 ```
 
 ### Data Files
@@ -511,7 +540,10 @@ src/data/
 ├── integrations.json         # Integration definitions
 ├── context-strategies.json   # Context strategies
 ├── learning-models.json      # Learning models
-└── automations.json          # Automation definitions
+├── automations.json          # Automation definitions
+├── sandbox-policies.json     # Sandbox isolation policies
+├── cicd-pipelines.json       # CI/CD pipeline definitions
+└── security-policies.json    # OPA/Rego policy templates
 ```
 
 ### Scripts
@@ -529,7 +561,10 @@ scripts/
 ├── template-builder.py       # Template creation
 ├── context-optimizer.py      # Context optimization
 ├── feedback-analyzer.py      # Feedback processing
-└── automation-runner.py      # Task execution
+├── automation-runner.py      # Task execution
+├── sandbox-manager.py        # Sandbox lifecycle management
+├── cicd-connector.py         # CI/CD integration
+└── policy-enforcer.py        # OPA/Rego policy enforcement
 ```
 
 ---
@@ -547,6 +582,7 @@ scripts/
 | Multi-Agent | ❌ | ✅ (Phase 2) |
 | CLI-First | ✅ | ✅ |
 | Open Source | ❌ | ✅ |
+| Agent Isolation | ❌ | ✅ (Phase 6) |
 
 ### vs Goose
 
@@ -558,6 +594,7 @@ scripts/
 | Custom Distributions | ✅ | ✅ Templates (Phase 4) |
 | Agent Mesh | ❌ | ✅ (Phase 2) |
 | Skill Management | ❌ | ✅ (Phase 1) |
+| Sandbox Isolation | ❌ | ✅ (Phase 6) |
 
 ### vs Claude Code
 
@@ -569,6 +606,7 @@ scripts/
 | Multi-Provider | ❌ | ✅ 22 providers |
 | Skill Registry | ❌ | ✅ (Phase 1) |
 | Enterprise Governance | ❌ | ✅ (Phase 3) |
+| Agent Isolation | ❌ | ✅ (Phase 6) |
 
 ---
 
@@ -586,5 +624,28 @@ The plan is **incremental** — each phase delivers standalone value while build
 
 ---
 
-*Research sources: Tessl, Claude Code, Aider, Goose, Continue, MCP, 20+ leading AI dev tools*
-*Date: 2026-09-14*
+## References
+
+1. **Tessl Documentation** — https://docs.tessl.io/
+2. **Tessl llms.txt** — https://docs.tessl.io/llms.txt
+3. **Claude Code GitHub** — https://github.com/anthropics/claude-code
+4. **Aider GitHub** — https://github.com/aider-ai/aider
+5. **Goose GitHub** — https://github.com/block/goose
+6. **Continue GitHub** — https://github.com/continuedev/continue
+7. **MCP Protocol** — https://modelcontextprotocol.io/
+8. **Microsoft APM** — Agent Package Manager
+9. **Agyn** — Multi-role agent architectures
+10. **Dify** — Agent workflow platform
+11. **VibeVM** — Specification-driven development
+12. **BoxLite** — Lightweight OCI emulation
+13. **OpenAI Codex** — Sandbox and permissions
+14. **Team Topologies** — Organizational patterns
+15. **Polomodov** — AI in SDLC
+16. **Fowler** — Engineering loops and agent harness
+17. **Martin** — Automated test gauntlet
+
+---
+
+*Research sources: Tessl, Claude Code, Aider, Goose, Continue, MCP, Microsoft APM, Agyn, Dify, VibeVM, BoxLite, OpenAI Codex, Team Topologies, Polomodov, Fowler, Martin*  
+*Date: 2026-09-14*  
+*AIPDLC Integration: [AIPDLC-INTEGRATION.md](./AIPDLC-INTEGRATION.md)*
