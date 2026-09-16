@@ -1,6 +1,6 @@
 # Архитектура
 
-OpenCode Initializer построен на модульной архитектуре: лёгкий **оркестратор** (`setup.sh`, 561 строка), который подключает 39 **модулей** и запускает 11 **режимов**.
+OpenCode Initializer построен на модульной архитектуре: лёгкий **оркестратор** (`setup.sh`, 1179 строк), который подключает 146 **модулей** и запускает 11 **режимов**.
 
 ## C4 Уровень 1: Контекст системы
 
@@ -9,7 +9,7 @@ C4Context
     title opencode_initializer — Контекст системы
 
     Person(dev, "Разработчик", "Хочет готовое AI-усиленное окружение для разработки")
-    System(oci, "OpenCode Initializer", "Настраивает полную dev-машину: 6 языков, 64 модуля, 24 MCP, 21 плагин, 22 провайдера, инфраструктура")
+    System(oci, "OpenCode Initializer", "Настраивает полную dev-машину: 6 языков, 64 модуля, 24 MCP-сервера, 21 плагин, 22 провайдера, инфраструктура")
 
     System_Ext(gh, "GitHub", "Исходный код, релизы, CI/CD")
     System_Ext(ghp, "GitHub Packages", "npm пакеты, Docker образы")
@@ -76,7 +76,7 @@ C4Container
         Container(dotnet, "10-dotnet.sh", "Bash", ".NET 10")
 
         Container(opencode, "11-opencode.sh", "Bash", "OpenCode CLI + Bun")
-        Container(mcp, "12-mcp-lsp.sh", "Bash", "24 MCP + 21 плагин + 12 LSP")
+        Container(mcp, "12-mcp-lsp.sh", "Bash", "24 MCP-сервера + 21 плагин + 12 LSP")
         Container(chromadb, "13-chromadb.sh", "Bash", "ChromaDB + systemd")
         Container(shokunin, "14-shokunin.sh", "Bash", "Shokunin + Superpowers + Caveman")
         Container(sec, "15-security.sh", "Bash", "Trivy, Qodana")
@@ -119,7 +119,7 @@ C4Container
 
 ```mermaid
 flowchart TD
-    A["setup.sh (561 строка)"] --> B["Определить SCRIPT_DIR"]
+    A["setup.sh (1179 строк)"] --> B["Определить SCRIPT_DIR"]
     B --> C["Подключить helpers.sh"]
     C --> D["Подключить 00-core.sh"]
     D --> E{"Разбор аргументов CLI"}
@@ -250,3 +250,18 @@ graph LR
 - [MCP, LSP и плагины](../reference/mcp-lsp-plugins.md) — полный каталог
 - [Руководство](../user-guide/index.md) — повседневное использование
 - [Продвинутое](../advanced/index.md) — кастомизация и оптимизация
+
+## Комплексная архитектурная документация
+
+### Основы LLM и ИИ
+- [LLM Fundamentals 2026](llm-fundamentals-2026.md) — Трансформеры, внимание, MoE, спекулятивное декодирование, KV-кэш, ландшафт GPU, ценообразование
+
+### Жизненный цикл разработки
+- [AIPDLC Integration Guide](aipdlc-integration-guide.md) — Методология AIPDLC (жизненный цикл разработки на основе ИИ), Control Plane, роли агентов, изоляция, MCP
+
+### Архитектура агентов
+- [Agent Roles 2026](agent-roles-2026.md) — Иерархия Commander/Planner/Worker/Reviewer, возможности, протокол взаимодействия
+- [Skills Organization 2026](skills-organization-2026.md) — Категории навыков, маппинг AIPDLC, композиция, производительность
+
+### Безопасность
+- [Security Model 2026](security-model-2026.md) — OWASP AST10, изоляция, управление секретами, OPA-политики, Zero Trust

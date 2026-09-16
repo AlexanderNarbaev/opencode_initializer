@@ -1,6 +1,6 @@
 # Architecture
 
-OpenCode Initializer follows a modular architecture: a lightweight **orchestrator** (`setup.sh`, 561 lines) that sources 38 **modules** and dispatches 11 **modes**.
+OpenCode Initializer follows a modular architecture: a lightweight **orchestrator** (`setup.sh`, 1179 lines) that sources 146 **modules** and dispatches 11 **modes**.
 
 ## C4 Level 1: System Context
 
@@ -9,7 +9,7 @@ C4Context
     title opencode_initializer — System Context
 
     Person(dev, "Developer", "Wants a ready-to-use AI-enhanced dev environment")
-    System(oci, "OpenCode Initializer", "Bootstraps complete dev machine with 6 languages, 64 modules, 24 MCPs, 21 plugins, 22 providers, infrastructure")
+    System(oci, "OpenCode Initializer", "Bootstraps complete dev machine with 6 languages, 64 modules, 24 MCP servers, 21 plugins, 22 providers, infrastructure")
 
     System_Ext(gh, "GitHub", "Source code, releases, CI/CD")
     System_Ext(ghp, "GitHub Packages", "npm packages, Docker images")
@@ -118,7 +118,7 @@ C4Container
 
 ```mermaid
 flowchart TD
-    A["setup.sh (561 lines)"] --> B["Detect SCRIPT_DIR"]
+    A["setup.sh (1179 lines)"] --> B["Detect SCRIPT_DIR"]
     B --> C["Source helpers.sh"]
     C --> D["Source 00-core.sh"]
     D --> E{"Parse CLI args"}
@@ -246,3 +246,18 @@ graph LR
 - [MCP, LSP & Plugins](../reference/mcp-lsp-plugins.md) — full component catalogue
 - [User Guide](../user-guide/index.md) — daily usage patterns
 - [Advanced Guide](../advanced/index.md) — customization and optimization
+
+## Comprehensive Architecture Documentation
+
+### LLM & AI Fundamentals
+- [LLM Fundamentals 2026](llm-fundamentals-2026.md) — Transformers, attention, MoE, speculative decoding, KV cache, GPU landscape, pricing
+
+### Development Lifecycle
+- [AIPDLC Integration Guide](aipdlc-integration-guide.md) — AI-Powered Development Lifecycle methodology, Control Plane, agent roles, isolation, MCP
+
+### Agent Architecture
+- [Agent Roles 2026](agent-roles-2026.md) — Commander/Planner/Worker/Reviewer hierarchy, capabilities, communication protocol
+- [Skills Organization 2026](skills-organization-2026.md) — Skill categories, AIPDLC mapping, composition, performance
+
+### Security
+- [Security Model 2026](security-model-2026.md) — OWASP AST10, isolation, secret management, OPA policies, Zero Trust
