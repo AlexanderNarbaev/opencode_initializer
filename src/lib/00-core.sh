@@ -446,7 +446,8 @@ _find_free_port() {
 _resolve_service_port() {
   local svc="$1" default="$2"
   local port=""
-  local env_name="$(printf '%s' "$svc" | tr '[:lower:]' '[:upper:]')_PORT"
+  local env_name
+  env_name="$(printf '%s' "$svc" | tr '[:lower:]' '[:upper:]')_PORT"
   port="${!env_name:-}"
   if [ -z "$port" ] || [ "$port" = "0" ]; then
     # shellcheck disable=SC1090
