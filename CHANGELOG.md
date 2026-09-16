@@ -1,3 +1,99 @@
+# [15.0.0](https://github.com/AlexanderNarbaev/opencode_initializer/compare/v14.0.0...v15.0.0) (2026-09-16)
+
+### Features
+
+* **Phase 0:** Skill Management System (modules 62-65)
+  - 62-skill-registry.sh: Skill discovery, install, publish
+  - 63-skill-manager.sh: Version management, rollback, updates
+  - 64-skill-security.sh: Security scanning (6 checks, scoring)
+  - 65-skill-eval.sh: Evaluation framework (5 metrics)
+
+* **Phase 0:** Agent Orchestration (modules 66-71)
+  - 66-agent-orchestrator.sh: Workflow execution engine
+  - 67-agent-pipeline.sh: Pipeline management
+  - 68-agent-mesh.sh: Agent networking & service discovery
+  - 69-agent-protocol.sh: Communication protocol
+  - 70-context-engine.sh: Context management & optimization
+  - 71-memory-layer.sh: Memory persistence (WAL, long-term, short-term)
+
+* **Phase 1:** Enterprise Features (modules 72-77)
+  - 72-rbac.sh: Role-based access control (5 default roles)
+  - 73-governance.sh: Policy enforcement & audit logging
+  - 74-compliance.sh: SOC2/ISO27001/GDPR compliance reporting
+  - 75-security-posture.sh: Security assessment & vulnerability scan
+  - 76-analytics.sh: Event tracking & analytics dashboard
+  - 77-observability.sh: Metrics, alerts, health checks
+
+* **Phase 2:** Ecosystem Expansion (modules 78-82)
+  - 78-marketplace.sh: Marketplace client (search, install, list)
+  - 79-plugin-manager.sh: Plugin lifecycle (enable/disable, config)
+  - 80-templates.sh: Agent template management
+  - 81-integrations.sh: Integration framework (GitHub, GitLab, Slack)
+  - 82-connectors.sh: Service connectors (HTTP, Postgres, Redis)
+
+* **Phase 3:** Agent Harness Advanced (modules 83-90)
+  - 83-context-engineering.sh: Context optimization, SCEI pattern
+  - 84-learning.sh: Continuous learning from feedback
+  - 85-automation.sh: Task automation engine
+  - 86-sandbox.sh: Agent isolation (Docker, MicroVM)
+  - 87-cicd-integration.sh: CI/CD pipeline integration
+  - 88-workflow-engine.sh: Workflow orchestration
+  - 89-security-policies.sh: OPA/Rego policy enforcement
+  - 90-secrets-manager.sh: Vault/secrets integration
+
+* **Phase 4:** Agent Harness Core (modules 91-100)
+  - 91-harness-core.sh: TAO/ReAct orchestration loop
+  - 92-harness-tools.sh: Tool registration & execution
+  - 93-harness-memory.sh: Memory hierarchy (WAL, files, vectors)
+  - 94-harness-context.sh: Context management & compaction
+  - 95-harness-prompt.sh: Prompt construction (SCEI pattern)
+  - 96-harness-state.sh: State management & checkpoints
+  - 97-harness-errors.sh: Error handling (4 types)
+  - 98-harness-guardrails.sh: Input/output/tool guardrails
+  - 99-harness-verify.sh: Verification loops (tests, lint, types)
+  - 100-harness-subagents.sh: Subagent orchestration
+
+* **Phase 5:** PLA & RAG (modules 101-110)
+  - 101-pla-orchestrator.sh: Pipeline micro-prompts orchestration
+  - 102-pla-extract.sh: Extraction layer
+  - 103-pla-analyze.sh: Analysis layer
+  - 104-pla-verify.sh: Verification layer
+  - 105-pla-synthesize.sh: Synthesis layer
+  - 106-pla-coordinate.sh: Coordination layer
+  - 107-rag-hybrid.sh: Hybrid search (BM25 + Vector)
+  - 108-rag-bm25.sh: BM25 search
+  - 109-rag-vector.sh: Vector search
+  - 110-rag-fusion.sh: RRF fusion
+
+* **Phase 6:** Production Hardening (modules 111-116)
+  - 111-perf-optimizer.sh: Performance benchmarking & optimization
+  - 112-cache-manager.sh: Cache management
+  - 113-security-hardening.sh: Security hardening checks
+  - 114-vulnerability-scan.sh: Vulnerability scanning
+  - 115-scalability.sh: Scalability checks & recommendations
+  - 116-load-balancer.sh: Load balancer status
+
+### Documentation
+
+* **docs:** Strategic Development Plan 2027
+* **docs:** AIPDLC Integration Plan
+* **docs:** Deep Integration Plan (50+ sources)
+* **docs:** Master Implementation Plan
+
+### Tests
+
+* **tests:** 129 new test assertions (was 337, now 444)
+* **tests:** 10 new test files
+* **tests:** All tests passing
+
+### Metrics
+
+* **Modules:** 141 (was 86, +55)
+* **Tests:** 444 assertions (was 337, +107)
+* **Features:** 102 (was 47, +55)
+
+---
+
 # [2.1.0](https://github.com/AlexanderNarbaev/opencode_initializer/compare/v2.0.0...v2.1.0) (2026-09-12)
 
 
