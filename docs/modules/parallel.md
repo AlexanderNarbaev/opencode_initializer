@@ -126,4 +126,4 @@ Modules are grouped by dependency layers:
 
 - [core.md](core.md) - Core infrastructure
 - [cache.md](cache.md) - Cache management
-- [helpers.md](helpers.md) - Helper functions
+- [helpers.sh](../helpers.sh) - Helper functions

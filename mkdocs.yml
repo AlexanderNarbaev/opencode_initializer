@@ -141,8 +141,8 @@ nav:
   - Architecture:
       - Overview: architecture/index.md
       - Agent System: architecture/agent-system.md
-      - "ADR: Hybrid AI Architecture": architecture/adr/2026-07-18-hybrid-ai-architecture.md
-      - "ADR: Multi-Agent Framework v3": architecture/adr/2026-07-18-multi-agent-framework-v3.md
+      - "ADR: Hybrid AI Architecture": architecture/adr/hybrid-ai-architecture.md
+      - "ADR: Multi-Agent Framework v3": architecture/adr/multi-agent-framework-v3.md
   - Reference:
       - reference/index.md
       - MCP, LSP & Plugins: reference/mcp-lsp-plugins.md

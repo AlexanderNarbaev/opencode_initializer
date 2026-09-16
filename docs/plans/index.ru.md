@@ -4,8 +4,8 @@
 
 | Файл | Название | Дата |
 |------|----------|------|
-| [2026-06-19-v35.3-production-hardening.md](2026-06-19-v35.3-production-hardening.md) | v35.3 Production Hardening — Implementation Plan | 2026-06-19 |
-| [2026-06-21-ecosystem-expansion-design.md](2026-06-21-ecosystem-expansion-design.md) | Design: Ecosystem Expansion v35.4 | 2026-06-21 |
+| [v35.3-production-hardening.md](v35.3-production-hardening.md) | v35.3 Production Hardening — Implementation Plan | 2026-06-19 |
+| [ecosystem-expansion-design.md](ecosystem-expansion-design.md) | Design: Ecosystem Expansion v35.4 | 2026-06-21 |
 | [ecosystem-expansion.md](ecosystem-expansion.md) | Ecosystem Expansion v35.4 — Implementation Plan | 2026-06-21 |
 | [v36-full-ecosystem-design.md](v36-full-ecosystem-design.md) | Design: Full Ecosystem Expansion v36.0 | 2026-06-21 |
 | [v1.0.0-rebirth-design.md](v1.0.0-rebirth-design.md) | Design: v1.0.0 Rebirth — Clean Open Source Launch | 2026-06-22 |

@@ -140,4 +140,4 @@ _cache_cleanup
 
 - [core.md](core.md) - Core infrastructure
 - [parallel.md](parallel.md) - Parallel execution
-- [helpers.md](helpers.md) - Helper functions
+- [helpers.sh](../helpers.sh) - Helper functions
