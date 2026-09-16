@@ -10,17 +10,23 @@ _CLOUD_SYNC_STATE="${_CLOUD_SYNC_DIR}/state.json"
 _CLOUD_SYNC_HISTORY="${_CLOUD_SYNC_DIR}/history.jsonl"
 
 # ── Supported sync backends ──────────────────────────────────────────────────
-declare -A _SYNC_BACKENDS=(
-  ["github"]="GitHub Gist (private)"
-  ["gitlab"]="GitLab Snippet"
-  ["s3"]="AWS S3 / MinIO"
-  ["gcs"]="Google Cloud Storage"
-  ["azure"]="Azure Blob Storage"
-  ["dropbox"]="Dropbox"
-  ["gdrive"]="Google Drive"
-  ["rsync"]="rsync over SSH"
-  ["syncthing"]="Syncthing P2P"
-)
+# Using function-based lookup for bash 3.2 compatibility
+_SYNC_BACKEND_NAMES=("github" "gitlab" "s3" "gcs" "azure" "dropbox" "gdrive" "rsync" "syncthing")
+
+_sync_backend_description() {
+  case "$1" in
+    github) echo "GitHub Gist (private)" ;;
+    gitlab) echo "GitLab Snippet" ;;
+    s3) echo "AWS S3 / MinIO" ;;
+    gcs) echo "Google Cloud Storage" ;;
+    azure) echo "Azure Blob Storage" ;;
+    dropbox) echo "Dropbox" ;;
+    gdrive) echo "Google Drive" ;;
+    rsync) echo "rsync over SSH" ;;
+    syncthing) echo "Syncthing P2P" ;;
+    *) echo "" ;;
+  esac
+}
 
 # ── Initialize cloud sync ───────────────────────────────────────────────────
 _cloud_sync_init() {
@@ -408,8 +414,10 @@ print(f\"Conflicts:   {len(state.get('conflicts', []))}\")
 _cloud_sync_backends() {
   section "Available Sync Backends"
 
-  for backend in "${!_SYNC_BACKENDS[@]}"; do
-    printf "  %-15s %s\n" "$backend" "${_SYNC_BACKENDS[$backend]}"
+  for backend in "${_SYNC_BACKEND_NAMES[@]}"; do
+    local desc
+    desc=$(_sync_backend_description "$backend")
+    printf "  %-15s %s\n" "$backend" "$desc"
   done
 }
 

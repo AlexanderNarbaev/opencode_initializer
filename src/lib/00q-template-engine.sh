@@ -8,68 +8,76 @@ _TEMPLATE_DIR="${SCRIPT_DIR}/src/templates"
 _TEMPLATE_REGISTRY="${DL_CACHE}/templates.json"
 
 # ── Built-in templates ──────────────────────────────────────────────────────
-declare -A _TEMPLATES=(
-  # Web frameworks
-  ["nextjs"]="Next.js 14+ with TypeScript, Tailwind, App Router"
-  ["react"]="React 18+ with Vite, TypeScript"
-  ["vue"]="Vue 3 with Vite, TypeScript, Pinia"
-  ["svelte"]="SvelteKit with TypeScript"
-  ["angular"]="Angular 17+ with TypeScript"
-  
-  # Backend frameworks
-  ["express"]="Express.js with TypeScript, Prisma"
-  ["fastify"]="Fastify with TypeScript, Prisma"
-  ["nestjs"]="NestJS with TypeScript, Prisma"
-  ["django"]="Django with Python, PostgreSQL"
-  ["fastapi"]="FastAPI with Python, SQLAlchemy"
-  ["flask"]="Flask with Python, SQLAlchemy"
-  ["spring"]="Spring Boot with Java, PostgreSQL"
-  ["rails"]="Ruby on Rails with PostgreSQL"
-  ["laravel"]="Laravel with PHP, MySQL"
-  
-  # API
-  ["graphql"]="GraphQL API with Apollo Server"
-  ["grpc"]="gRPC service with Protocol Buffers"
-  ["rest"]="REST API with Express, OpenAPI"
-  
-  # Mobile
-  ["react-native"]="React Native with Expo"
-  ["flutter"]="Flutter with Dart"
-  ["ionic"]="Ionic with Angular/React/Vue"
-  
-  # Desktop
-  ["electron"]="Electron with React, TypeScript"
-  ["tauri"]="Tauri with React, Rust"
-  
-  # CLI
-  ["cli-node"]="CLI tool with Node.js, Commander"
-  ["cli-python"]="CLI tool with Python, Click"
-  ["cli-go"]="CLI tool with Go, Cobra"
-  ["cli-rust"]="CLI tool with Rust, Clap"
-  
-  # Libraries
-  ["lib-ts"]="TypeScript library with Rollup"
-  ["lib-py"]="Python library with Poetry"
-  ["lib-go"]="Go library"
-  ["lib-rust"]="Rust library with Cargo"
-  
-  # Infrastructure
-  ["docker"]="Docker Compose multi-service setup"
-  ["k8s"]="Kubernetes deployment manifests"
-  ["terraform"]="Terraform infrastructure as code"
-  ["ansible"]="Ansible playbook"
-  
-  # AI/ML
-  ["ml-python"]="ML project with PyTorch, scikit-learn"
-  ["llm-app"]="LLM application with LangChain"
-  ["rag"]="RAG system with vector database"
-  
-  # Full-stack
-  ["saas"]="SaaS starter with auth, payments, DB"
-  ["blog"]="Blog with Next.js, MDX"
-  ["ecommerce"]="E-commerce with Next.js, Stripe"
-  ["dashboard"]="Admin dashboard with React, Charts"
+# Using function-based lookup for bash 3.2 compatibility
+_TEMPLATE_NAMES=(
+  "nextjs" "react" "vue" "svelte" "angular"
+  "express" "fastify" "nestjs" "django" "fastapi" "flask" "spring" "rails" "laravel"
+  "graphql" "grpc" "rest"
+  "react-native" "flutter" "ionic"
+  "electron" "tauri"
+  "cli-node" "cli-python" "cli-go" "cli-rust"
+  "lib-ts" "lib-py" "lib-go" "lib-rust"
+  "docker" "k8s" "terraform" "ansible"
+  "ml-python" "llm-app" "rag"
+  "saas" "blog" "ecommerce" "dashboard"
 )
+
+_template_description() {
+  case "$1" in
+    # Web frameworks
+    nextjs) echo "Next.js 14+ with TypeScript, Tailwind, App Router" ;;
+    react) echo "React 18+ with Vite, TypeScript" ;;
+    vue) echo "Vue 3 with Vite, TypeScript, Pinia" ;;
+    svelte) echo "SvelteKit with TypeScript" ;;
+    angular) echo "Angular 17+ with TypeScript" ;;
+    # Backend frameworks
+    express) echo "Express.js with TypeScript, Prisma" ;;
+    fastify) echo "Fastify with TypeScript, Prisma" ;;
+    nestjs) echo "NestJS with TypeScript, Prisma" ;;
+    django) echo "Django with Python, PostgreSQL" ;;
+    fastapi) echo "FastAPI with Python, SQLAlchemy" ;;
+    flask) echo "Flask with Python, SQLAlchemy" ;;
+    spring) echo "Spring Boot with Java, PostgreSQL" ;;
+    rails) echo "Ruby on Rails with PostgreSQL" ;;
+    laravel) echo "Laravel with PHP, MySQL" ;;
+    # API
+    graphql) echo "GraphQL API with Apollo Server" ;;
+    grpc) echo "gRPC service with Protocol Buffers" ;;
+    rest) echo "REST API with Express, OpenAPI" ;;
+    # Mobile
+    react-native) echo "React Native with Expo" ;;
+    flutter) echo "Flutter with Dart" ;;
+    ionic) echo "Ionic with Angular/React/Vue" ;;
+    # Desktop
+    electron) echo "Electron with React, TypeScript" ;;
+    tauri) echo "Tauri with React, Rust" ;;
+    # CLI
+    cli-node) echo "CLI tool with Node.js, Commander" ;;
+    cli-python) echo "CLI tool with Python, Click" ;;
+    cli-go) echo "CLI tool with Go, Cobra" ;;
+    cli-rust) echo "CLI tool with Rust, Clap" ;;
+    # Libraries
+    lib-ts) echo "TypeScript library with Rollup" ;;
+    lib-py) echo "Python library with Poetry" ;;
+    lib-go) echo "Go library" ;;
+    lib-rust) echo "Rust library with Cargo" ;;
+    # Infrastructure
+    docker) echo "Docker Compose multi-service setup" ;;
+    k8s) echo "Kubernetes deployment manifests" ;;
+    terraform) echo "Terraform infrastructure as code" ;;
+    ansible) echo "Ansible playbook" ;;
+    # AI/ML
+    ml-python) echo "ML project with PyTorch, scikit-learn" ;;
+    llm-app) echo "LLM application with LangChain" ;;
+    rag) echo "RAG system with vector database" ;;
+    # Full-stack
+    saas) echo "SaaS starter with auth, payments, DB" ;;
+    blog) echo "Blog with Next.js, MDX" ;;
+    ecommerce) echo "E-commerce with Next.js, Stripe" ;;
+    dashboard) echo "Admin dashboard with React, Charts" ;;
+    *) echo "" ;;
+  esac
+}
 
 # ── List templates ──────────────────────────────────────────────────────────
 # Usage: _template_list [category]
@@ -78,8 +86,9 @@ _template_list() {
 
   section "Available Templates"
 
-  for name in $(echo "${!_TEMPLATES[@]}" | tr ' ' '\n' | sort); do
-    local desc="${_TEMPLATES[$name]}"
+  for name in "${_TEMPLATE_NAMES[@]}"; do
+    local desc
+    desc=$(_template_description "$name")
     local cat="${name%%-*}"
     
     if [ "$category" = "all" ] || [ "$cat" = "$category" ]; then
@@ -95,7 +104,7 @@ _template_generate() {
 
   section "Generating: $name ($template)"
 
-  if [ -z "${_TEMPLATES[$template]+x}" ]; then
+  if [ -z "$(_template_description "$template")" ]; then
     warn "Unknown template: $template"
     return 1
   fi

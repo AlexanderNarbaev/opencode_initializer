@@ -147,7 +147,7 @@ _rbac_check_permission() {
   local permission="${2:-}"
   
   if [ -z "$role_name" ] || [ -z "$permission" ]; then
-    err "Role and permission required"
+    err "Role and permission required. Usage: opencode rbac check <role> <permission>"
   fi
   
   _rbac_init

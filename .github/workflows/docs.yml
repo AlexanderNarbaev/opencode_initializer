@@ -6,6 +6,7 @@ on:
     paths:
       - 'docs/**'
       - 'README.md'
+      - 'mkdocs.yml'
 
 jobs:
   build:
@@ -18,8 +19,13 @@ jobs:
         with:
           python-version: '3.x'
       
-      - name: Install MkDocs
-        run: pip install mkdocs-material
+      - name: Install MkDocs and plugins
+        run: |
+          pip install mkdocs-material
+          pip install mkdocs-static-i18n
+          pip install mkdocs-git-revision-date-localized-plugin
+          pip install mkdocs-minify-plugin
+          pip install mkdocs-social
       
       - name: Build documentation
         run: mkdocs build --strict

@@ -32,7 +32,7 @@ _harness_run() {
   local max_iterations="${2:-50}"
   
   if [ -z "$task" ]; then
-    err "Task required"
+    err "Task required. Usage: opencode harness run <task> [max_iterations]"
   fi
   
   info "Starting harness: $task"

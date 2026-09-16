@@ -66,13 +66,13 @@ _sandbox_start() {
   local name="${1:-}"
   
   if [ -z "$name" ]; then
-    err "Sandbox name required"
+    err "Sandbox name required. Usage: opencode sandbox start <name>"
   fi
   
   local sandbox_file="$SANDBOX_DIR/$name.json"
   
   if [ ! -f "$sandbox_file" ]; then
-    err "Sandbox not found: $name"
+    err "Sandbox '$name' not found. Run 'opencode sandbox list' to see available sandboxes"
   fi
   
   # Update status

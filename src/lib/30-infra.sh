@@ -240,19 +240,22 @@ log "Infra config written to $INFRA_CONFIG ($(echo "$ENABLED_SERVICES" | wc -w) 
 # suggests shifted ports via _resolve_service_port. Auto-fixes when not in
 # interactive/dry-run mode (persists shifted port to setup.conf).
 COLLISION_COUNT=0
-declare -A SVC_HOST_PORT=(
-  [postgres]="${POSTGRES_PORT:-5432}"
-  [qdrant]="${QDRANT_PORT:-6333}"
-  [qdrant_grpc]="${QDRANT_GRPC_PORT:-6334}"
-  [redis]="${REDIS_PORT:-6379}"
-  [kafka]="${KAFKA_PORT:-9092}"
-  [prometheus]="${PROMETHEUS_PORT:-9090}"
-  [grafana]="${GRAFANA_PORT:-3001}"
-  [node_exporter]="${NODE_EXPORTER_PORT:-9100}"
-  [memorylayer]="${MEMORYLAYER_PORT:-61001}"
-)
+_svc_host_port() {
+  case "$1" in
+    postgres) echo "${POSTGRES_PORT:-5432}" ;;
+    qdrant) echo "${QDRANT_PORT:-6333}" ;;
+    qdrant_grpc) echo "${QDRANT_GRPC_PORT:-6334}" ;;
+    redis) echo "${REDIS_PORT:-6379}" ;;
+    kafka) echo "${KAFKA_PORT:-9092}" ;;
+    prometheus) echo "${PROMETHEUS_PORT:-9090}" ;;
+    grafana) echo "${GRAFANA_PORT:-3001}" ;;
+    node_exporter) echo "${NODE_EXPORTER_PORT:-9100}" ;;
+    memorylayer) echo "${MEMORYLAYER_PORT:-61001}" ;;
+    *) echo "" ;;
+  esac
+}
 for svc in $ENABLED_SERVICES; do
-  port="${SVC_HOST_PORT[$svc]:-}"
+  port="$(_svc_host_port "$svc")"
   [ -z "$port" ] && continue
   if ! _port_is_free "$port"; then
     owner="$(_port_listening_owner "$port")"

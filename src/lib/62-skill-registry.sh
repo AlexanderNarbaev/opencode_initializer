@@ -12,9 +12,13 @@ SKILL_INSTALL_DIR="${SKILL_INSTALL_DIR:-$HOME/.config/opencode/skills}"
 SKILL_REGISTRY_TIMEOUT="${SKILL_REGISTRY_TIMEOUT:-30}"
 
 # ── Skill Metadata ───────────────────────────────────────────────────────────
-declare -A SKILL_REGISTRY=()
-declare -A SKILL_VERSIONS=()
-declare -A SKILL_INSTALLED=()
+# Using regular arrays for bash 3.2 compatibility
+SKILL_REGISTRY_KEYS=()
+SKILL_REGISTRY_VALUES=()
+SKILL_VERSIONS_KEYS=()
+SKILL_VERSIONS_VALUES=()
+SKILL_INSTALLED_KEYS=()
+SKILL_INSTALLED_VALUES=()
 
 # ── Registry Operations ──────────────────────────────────────────────────────
 
@@ -140,7 +144,7 @@ _skill_install() {
   local force="${2:-false}"
   
   if [ -z "$skill_spec" ]; then
-    err "Skill specification required (e.g., @opencode/code-review or code-review@1.2.0)"
+    err "Skill specification required. Usage: opencode skill install <spec> (e.g., code-review@1.2.0)"
   fi
   
   # Parse skill spec: name@version or @scope/name@version
@@ -167,7 +171,7 @@ _skill_install() {
     local installed_version
     installed_version=$(cat "$install_path/VERSION" 2>/dev/null || echo "unknown")
     warn "Skill $skill_name@$installed_version already installed"
-    info "Use --force to reinstall"
+    info "Use 'opencode skill install $skill_spec --force' to reinstall"
     return 0
   fi
   

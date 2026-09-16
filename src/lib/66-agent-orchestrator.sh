@@ -74,11 +74,16 @@ _workflow_run() {
   local async="${3:-false}"
   
   if [ -z "$workflow_name" ]; then
-    err "Workflow name required"
+    err "Workflow name required. Usage: opencode orchestrator run <name> [input]"
   fi
   
   local workflow_file="$AGENT_ORCHESTRATOR_DIR/$workflow_name.yaml"
-  _workflow_validate "$workflow_file" || err "Invalid workflow"
+  
+  if [ ! -f "$workflow_file" ]; then
+    err "Workflow '$workflow_name' not found at $workflow_file. Run 'opencode orchestrator list' to see available workflows"
+  fi
+  
+  _workflow_validate "$workflow_file" || err "Workflow '$workflow_name' is invalid. Check YAML syntax and required fields (name, version, steps)"
   
   # Create execution state
   local run_id

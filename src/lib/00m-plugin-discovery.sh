@@ -9,34 +9,42 @@ _PLUGIN_DISCOVERY_LOG="${DL_CACHE}/plugin-discovery.log"
 
 # ── Known plugin sources ────────────────────────────────────────────────────
 # Format: "source:category:priority"
-declare -A _PLUGIN_SOURCES=(
-  # OpenCode ecosystem
-  ["opencode"]="official:core:1"
-  ["@opencode-ai"]="official:core:1"
-  
-  # MCP servers
-  ["@modelcontextprotocol"]="official:mcp:1"
-  ["@upstash"]="community:mcp:2"
-  ["@colbymchenry"]="community:mcp:2"
-  ["@playwright"]="official:mcp:1"
-  ["@pimzino"]="community:mcp:2"
-  ["@scitrera"]="community:mcp:2"
-  ["@notionhq"]="official:mcp:1"
-  
-  # AI providers
-  ["@anthropic-ai"]="official:provider:1"
-  ["@openai"]="official:provider:1"
-  ["@google-ai"]="official:provider:1"
-  
-  # Tools
-  ["@vikrant82"]="community:cache:2"
-  ["agent-browser"]="community:browser:3"
-  ["chrome-devtools"]="official:browser:1"
-  ["brave-search"]="official:search:1"
-  ["mcp-searxng"]="community:search:2"
-  ["excalidraw"]="community:diagram:2"
-  ["open-orchestra"]="community:orchestration:3"
+# Using function-based lookup for bash 3.2 compatibility
+_PLUGIN_PACKAGES=(
+  "opencode" "@opencode-ai"
+  "@modelcontextprotocol" "@upstash" "@colbymchenry" "@playwright" "@pimzino" "@scitrera" "@notionhq"
+  "@anthropic-ai" "@openai" "@google-ai"
+  "@vikrant82" "agent-browser" "chrome-devtools" "brave-search" "mcp-searxng" "excalidraw" "open-orchestra"
 )
+
+_plugin_source_get() {
+  case "$1" in
+    # OpenCode ecosystem
+    opencode) echo "official:core:1" ;;
+    @opencode-ai) echo "official:core:1" ;;
+    # MCP servers
+    @modelcontextprotocol) echo "official:mcp:1" ;;
+    @upstash) echo "community:mcp:2" ;;
+    @colbymchenry) echo "community:mcp:2" ;;
+    @playwright) echo "official:mcp:1" ;;
+    @pimzino) echo "community:mcp:2" ;;
+    @scitrera) echo "community:mcp:2" ;;
+    @notionhq) echo "official:mcp:1" ;;
+    # AI providers
+    @anthropic-ai) echo "official:provider:1" ;;
+    @openai) echo "official:provider:1" ;;
+    @google-ai) echo "official:provider:1" ;;
+    # Tools
+    @vikrant82) echo "community:cache:2" ;;
+    agent-browser) echo "community:browser:3" ;;
+    chrome-devtools) echo "official:browser:1" ;;
+    brave-search) echo "official:search:1" ;;
+    mcp-searxng) echo "community:search:2" ;;
+    excalidraw) echo "community:diagram:2" ;;
+    open-orchestra) echo "community:orchestration:3" ;;
+    *) echo "" ;;
+  esac
+}
 
 # ── Discover plugins from npm ───────────────────────────────────────────────
 # Usage: _discover_npm_plugins [query] [limit]
@@ -152,8 +160,11 @@ EOF
   local total=0
   local updated=0
 
-  for pkg in "${!_PLUGIN_SOURCES[@]}"; do
-    IFS=':' read -r source category priority <<< "${_PLUGIN_SOURCES[$pkg]}"
+  for pkg in "${_PLUGIN_PACKAGES[@]}"; do
+    local source_info
+    source_info=$(_plugin_source_get "$pkg")
+    [ -z "$source_info" ] && continue
+    IFS=':' read -r source category priority <<< "$source_info"
 
     # Get current version from npm
     local current_version
@@ -203,8 +214,11 @@ _install_recommended_plugins() {
   local installed=0
   local failed=0
 
-  for pkg in "${!_PLUGIN_SOURCES[@]}"; do
-    IFS=':' read -r source cat priority <<< "${_PLUGIN_SOURCES[$pkg]}"
+  for pkg in "${_PLUGIN_PACKAGES[@]}"; do
+    local source_info
+    source_info=$(_plugin_source_get "$pkg")
+    [ -z "$source_info" ] && continue
+    IFS=':' read -r source cat priority <<< "$source_info"
 
     # Filter by category
     if [ "$category" != "all" ] && [ "$cat" != "$category" ]; then
@@ -241,7 +255,7 @@ _plugin_health_check() {
   local installed=0
   local missing=0
 
-  for pkg in "${!_PLUGIN_SOURCES[@]}"; do
+  for pkg in "${_PLUGIN_PACKAGES[@]}"; do
     total=$((total + 1))
 
     if npm list -g "$pkg" >/dev/null 2>&1; then

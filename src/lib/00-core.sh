@@ -556,7 +556,8 @@ _state_check_service() {  # _state_check_service CONTAINER_NAME LABEL
 
 _service_mode() {
   local svc="$1"
-  local mode_var="$(printf '%s' "$svc" | tr '[:lower:]' '[:upper:]')_MODE"
+  local mode_var
+  mode_var="$(printf '%s' "$svc" | tr '[:lower:]' '[:upper:]')_MODE"
   local mode="${!mode_var:-}"
   if [ -z "$mode" ] && [ -f "$SETUP_CONF" ]; then
     # shellcheck disable=SC1090
@@ -564,7 +565,8 @@ _service_mode() {
     mode="${!mode_var:-}"
   fi
   mode="${mode:-local}"
-  local mode_lower="$(printf '%s' "$mode" | tr '[:upper:]' '[:lower:]')"
+  local mode_lower
+  mode_lower="$(printf '%s' "$mode" | tr '[:upper:]' '[:lower:]')"
   case "$mode_lower" in
     local|external|disabled) echo "$mode_lower" ;;
     *) echo "local" ;;

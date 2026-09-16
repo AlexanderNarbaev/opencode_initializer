@@ -89,7 +89,8 @@ _skill_eval_completion() {
   if [ -f "$skill_dir/SKILL.md" ]; then
     # Check for code blocks (executable examples)
     local code_blocks
-    code_blocks=$(grep -c '```' "$skill_dir/SKILL.md" 2>/dev/null || echo "0")
+    code_blocks=$(grep -c '```' "$skill_dir/SKILL.md" 2>/dev/null | tr -d '[:space:]')
+    code_blocks=${code_blocks:-0}
     if [ "$code_blocks" -gt 0 ]; then
       score=$((score + 30))
     fi
@@ -144,15 +145,18 @@ _skill_eval_quality() {
   
   # Check for consistent formatting
   local tabs=0 spaces=0
-  tabs=$(grep -rl "	" "$skill_dir/" 2>/dev/null | wc -l || echo "0")
-  spaces=$(grep -rl "  " "$skill_dir/" 2>/dev/null | wc -l || echo "0")
+  tabs=$(grep -rl "	" "$skill_dir/" 2>/dev/null | wc -l | tr -d '[:space:]')
+  tabs=${tabs:-0}
+  spaces=$(grep -rl "  " "$skill_dir/" 2>/dev/null | wc -l | tr -d '[:space:]')
+  spaces=${spaces:-0}
   if [ "$spaces" -gt "$tabs" ]; then
     score=$((score + 20))
   fi
   
   # Check for comments
   local comments
-  comments=$(grep -r "^#" "$skill_dir/" 2>/dev/null | wc -l || echo "0")
+  comments=$(grep -r "^#" "$skill_dir/" 2>/dev/null | wc -l | tr -d '[:space:]')
+  comments=${comments:-0}
   if [ "$comments" -gt 5 ]; then
     score=$((score + 25))
   elif [ "$comments" -gt 0 ]; then

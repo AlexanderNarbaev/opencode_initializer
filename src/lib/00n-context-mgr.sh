@@ -9,20 +9,25 @@ _CONTEXT_HISTORY="${_CONTEXT_DIR}/history.jsonl"
 _CONTEXT_BUDGET="${_CONTEXT_DIR}/budget.json"
 
 # ── Model context limits ────────────────────────────────────────────────────
-declare -A _MODEL_CONTEXT_LIMITS=(
-  ["gpt-4o"]=128000
-  ["gpt-4-turbo"]=128000
-  ["claude-3.5-sonnet"]=200000
-  ["claude-3-opus"]=200000
-  ["gemini-1.5-pro"]=1000000
-  ["gemini-1.5-flash"]=1000000
-  ["deepseek-chat"]=64000
-  ["deepseek-coder"]=64000
-  ["qwen-2.5"]=128000
-  ["mistral-large"]=128000
-  ["llama-3.1"]=128000
-  ["codellama"]=16000
-)
+# Using function-based lookup for bash 3.2 compatibility
+_get_context_limit() {
+  local model="$1"
+  case "$model" in
+    gpt-4o) echo 128000 ;;
+    gpt-4-turbo) echo 128000 ;;
+    claude-3.5-sonnet) echo 200000 ;;
+    claude-3-opus) echo 200000 ;;
+    gemini-1.5-pro) echo 1000000 ;;
+    gemini-1.5-flash) echo 1000000 ;;
+    deepseek-chat) echo 64000 ;;
+    deepseek-coder) echo 64000 ;;
+    qwen-2.5) echo 128000 ;;
+    mistral-large) echo 128000 ;;
+    llama-3.1) echo 128000 ;;
+    codellama) echo 16000 ;;
+    *) echo 128000 ;;
+  esac
+}
 
 # ── Initialize context manager ──────────────────────────────────────────────
 _context_init() {
@@ -38,13 +43,6 @@ _context_init() {
 }
 EOF
   fi
-}
-
-# ── Get model context limit ─────────────────────────────────────────────────
-# Usage: limit=$(_get_context_limit "gpt-4o")
-_get_context_limit() {
-  local model="$1"
-  echo "${_MODEL_CONTEXT_LIMITS[$model]:-128000}"
 }
 
 # ── Count tokens (approximate) ──────────────────────────────────────────────
