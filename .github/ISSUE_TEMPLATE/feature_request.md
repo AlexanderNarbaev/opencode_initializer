@@ -1,24 +1,27 @@
 ---
 name: Feature Request
-about: Suggest a feature for opencode_initializer
-title: "[Feature]: "
+about: Suggest a new feature for OpenCode Initializer
+title: '[FEATURE] '
 labels: enhancement
-assignees: AlexanderNarbaev
-
+assignees: ''
 ---
 
-## Problem Statement
+## Description
 
-<!-- What problem are you trying to solve? -->
+A clear and concise description of the feature.
+
+## Use Case
+
+Why is this feature needed? What problem does it solve?
 
 ## Proposed Solution
 
-<!-- What would you like to see? -->
+How you think this could be implemented.
 
 ## Alternatives Considered
 
-<!-- Any alternative approaches you've thought about -->
+Any alternative solutions you've considered.
 
 ## Additional Context
 
-<!-- Any other context, screenshots, etc. -->
+Any other context about the feature request.

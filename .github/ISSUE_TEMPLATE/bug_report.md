@@ -1,35 +1,41 @@
 ---
 name: Bug Report
-about: Report a bug in opencode_initializer
-title: "[Bug]: "
+about: Report a bug in OpenCode Initializer
+title: '[BUG] '
 labels: bug
-assignees: AlexanderNarbaev
+assignees: ''
 ---
 
 ## Description
 
-<!-- Clearly describe the bug -->
+A clear and concise description of the bug.
 
 ## Steps to Reproduce
 
-1.
-2.
-3.
+1. Run '...'
+2. Execute '...'
+3. See error
 
 ## Expected Behavior
 
-<!-- What should have happened -->
+What you expected to happen.
 
 ## Actual Behavior
 
-<!-- What actually happened, with error messages -->
+What actually happened.
 
 ## Environment
 
-- OS: [e.g., Ubuntu 24.04, WSL2, macOS]
-- Shell: [e.g., zsh 5.9, bash 5.2]
-- Installer version: [e.g., v1.0.0]
+- OS: [e.g., Ubuntu 22.04]
+- Bash version: [e.g., 5.1.16]
+- OpenCode version: [e.g., 15.0.0]
+
+## Logs
+
+```
+Paste relevant logs here
+```
 
 ## Additional Context
 
-<!-- Logs, screenshots, etc. -->
+Any other context about the problem.
