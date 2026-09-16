@@ -225,6 +225,13 @@
         <xhtml:link rel="alternate" hreflang="ru" href="https://alexandernarbaev.github.io/opencode_initializer/ru/architecture/security-model-2026/"/>
     </url>
     <url>
+        <loc>https://alexandernarbaev.github.io/opencode_initializer/architecture/skills-organization-2026/</loc>
+        <lastmod>2026-09-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://alexandernarbaev.github.io/opencode_initializer/architecture/skills-organization-2026/"/>
+        <xhtml:link rel="alternate" hreflang="ru" href="https://alexandernarbaev.github.io/opencode_initializer/ru/architecture/skills-organization-2026/"/>
+    </url>
+    <url>
         <loc>https://alexandernarbaev.github.io/opencode_initializer/architecture/adr/hybrid-ai-architecture/</loc>
         <lastmod>2026-09-16</lastmod>
         <changefreq>daily</changefreq>
@@ -951,6 +958,13 @@
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://alexandernarbaev.github.io/opencode_initializer/ru/architecture/security-model-2026/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://alexandernarbaev.github.io/opencode_initializer/architecture/security-model-2026/"/>
+    </url>
+    <url>
+        <loc>https://alexandernarbaev.github.io/opencode_initializer/ru/architecture/skills-organization-2026/</loc>
+        <lastmod>2026-09-16</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ru" href="https://alexandernarbaev.github.io/opencode_initializer/ru/architecture/skills-organization-2026/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://alexandernarbaev.github.io/opencode_initializer/architecture/skills-organization-2026/"/>
     </url>
     <url>
         <loc>https://alexandernarbaev.github.io/opencode_initializer/ru/architecture/adr/hybrid-ai-architecture/</loc>
