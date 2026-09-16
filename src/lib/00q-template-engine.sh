@@ -859,15 +859,26 @@ Created with opencode_initializer.
 
 ## Getting Started
 
-TODO: Add setup instructions
+1. Install dependencies: \`npm install\` (or \`pip install -r requirements.txt\` for Python)
+2. Copy \`.env.example\` to \`.env\` and configure
+3. Run the project: \`npm start\` (or \`python main.py\`)
 
 ## Structure
 
-TODO: Add project structure
+\`\`\`
+├── src/           # Source code
+├── tests/         # Test files
+├── docs/          # Documentation
+├── .env.example   # Environment template
+└── README.md      # This file
+\`\`\`
 
 ## Scripts
 
-TODO: Add available scripts
+- \`npm start\` — Start the application
+- \`npm test\` — Run tests
+- \`npm run build\` — Build for production
+- \`npm run lint\` — Run linter
 EOF
 
   cat > "$dir/.gitignore" <<'EOF'

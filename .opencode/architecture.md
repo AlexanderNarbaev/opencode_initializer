@@ -3,14 +3,14 @@
 <!-- direction: LR -->
 
 ## Services
-- setup-sh: setup.sh Orchestrator [type: bash] [domain: core] — Main entry point (815 lines), sources modules from lib/ and dispatches modes from modes/
-- lib-modules: lib/ Modules (76) [type: bash] [domain: core] — 76 modular scripts: 00-core.sh through 61-daytona.sh + helpers.sh + version-check.sh + pre-session-check.sh
+- setup-sh: setup.sh Orchestrator [type: bash] [domain: core] — Main entry point (1179 lines), sources modules from lib/ and dispatches modes from modes/
+- lib-modules: lib/ Modules (146) [type: bash] [domain: core] — 146 modular scripts: 00-core.sh through 119-ecosystem-integration.sh + helpers.sh + version-check.sh + pre-session-check.sh
 - dev-cli: dev.sh CLI [type: bash] [domain: core] — CLI: dev install|remove|update|health|list|config|version-check|autoupdate|self-update|state|backup
 - modes: modes/ Scripts (6) [type: bash] [domain: core] — 6 modes: health, ci, interactive, upgrade, fix-zshrc, new
 - data-ssot: src/data/ SSOT Files [type: json] [domain: config] — 3 SSOT files: routing.json (model routing), providers.json (provider registry), mcp-profiles.json (MCP/LSP selection)
 - mcp-servers: MCP Servers (24) [type: config] [domain: agents] — 24 MCP servers: filesystem, git, github, playwright, agent-browser, chrome-devtools, fetch, context7, sqlite, excalidraw, sequential-thinking, memory, agentic-tools, time, goal, google-maps, gitlab, postgres, chromadb, ollama, chrome-devtools-mcp, loopsense, codegraph, websearch
 - agents: Agent Roles (16) [type: config] [domain: agents] — 16 specialized agent roles for multi-agent routing: brainstorm, plan, implement, review, debug, test, research, architect, devops, docs, security, data, frontend, backend, mobile, general
-- tests: tests/ Suite [type: bash/python] [domain: quality] — 102 tests: 89 unit + 7 integration (Testcontainers) + 5 e2e + 1 doc-counts
+- tests: tests/ Suite [type: bash/python] [domain: quality] — 133 tests: 116 unit + 12 integration (Testcontainers) + 5 e2e + 1 doc-counts
 - ci-cd: GitHub Actions CI [type: github-actions] [domain: quality] — ShellCheck + syntax + unit tests via .github/workflows/
 - migrations: migrations/ [type: bash] [domain: core] — Timestamped, idempotent migrations auto-run by dev update
 - opencode-json: opencode.json Config [type: json] [domain: config] — Multi-provider config with diff-before-write, DRY_RUN support, secret masking
