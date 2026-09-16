@@ -1,11 +1,11 @@
 [EN](README.md) | [RU](README.ru.md)
 
-# OpenCode Initializer v14.0.0
+# OpenCode Initializer v15.0.0
 
 > **Operating Model:** Multi-Agent Framework v3.0 | **Wave:** [current_wave.md](./current_wave.md) | **Checkpoint:** [session_checkpoint.json](./session_checkpoint.json)
 <p align="center">
   <b>AI-Native SDD Harness — one-command AI-enhanced development environment for WSL2, Linux, and macOS. 4 deployment profiles.</b><br>
-  <sub>727-line orchestrator · 82 modules · 12 modes ·   24 MCPs · 21 plugins · 12 LSPs · 22 providers · air-gap · governance · PII guard · audit trail · offline bundle · APM · SBOM · cosign</sub>
+  <sub>727-line orchestrator · 141 modules · 12 modes ·   24 MCPs · 21 plugins · 12 LSPs · 22 providers · air-gap · governance · PII guard · audit trail · offline bundle · APM · SBOM · cosign</sub>
 </p>
 
 <p align="center">
@@ -26,7 +26,7 @@
 curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializer/main/setup.sh | bash -s -- --full
 ```
 
-One command installs everything: 6 languages, 64 shell modules, 24 MCP servers, 21 OpenCode plugins, 12 LSP servers, 22 AI providers, infrastructure as code (PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer), Cockpit TUI (8 tabs), Web GUI, Isolated Circuit Mode, hardware auto-detection, Lynis CIS scanner, auditd kernel rules, and SearXNG web search.
+One command installs everything: 6 languages, 141 shell modules, 24 MCP servers, 21 OpenCode plugins, 12 LSP servers, 22 AI providers, infrastructure as code (PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer), Cockpit TUI (8 tabs), Web GUI, Isolated Circuit Mode, hardware auto-detection, Lynis CIS scanner, auditd kernel rules, and SearXNG web search.
 
 [Full Documentation](https://alexandernarbaev.github.io/opencode_initializer/)
 
@@ -38,7 +38,7 @@ One command installs everything: 6 languages, 64 shell modules, 24 MCP servers, 
 | Category | Count | Details |
 |----------|-------|---------|
 | Languages | 6 | Java 25, Node.js 24, Python 3.14, Go 1.26, Rust (stable), .NET 10 |
-| Modules | 82 | System, Docker, Chrome, ZSH, 6 languages, OpenCode, MCP/LSP, ChromaDB, LLM, RAG, SearXNG, providers, dotfiles, Devbox, Infra, Cockpit, Isolated Circuit, Services, Observability, GUI, Model Router, WAL, Best Practices, Upstream Sync, Linux Platform, Lynis, auditd, DeepSeek Harness, Sandcastle, OpenCode Desktop, Parallel Engine, Cache Manager, APM Integration, Multi-Agent, Mirrors, Auto-Sync, Security Scanner, Benchmark, and more |
+| Modules | 141 | System, Docker, Chrome, ZSH, 6 languages, OpenCode, MCP/LSP, ChromaDB, LLM, RAG, SearXNG, providers, dotfiles, Devbox, Infra, Cockpit, Isolated Circuit, Services, Observability, GUI, Model Router, WAL, Best Practices, Upstream Sync, Linux Platform, Lynis, auditd, DeepSeek Harness, Sandcastle, OpenCode Desktop, Parallel Engine, Cache Manager, APM Integration, Multi-Agent, Mirrors, Auto-Sync, Security Scanner, Benchmark, Skill Registry, Skill Manager, Skill Security, Skill Eval, Agent Orchestrator, Agent Pipeline, Agent Mesh, Agent Protocol, Context Engine, Memory Layer, RBAC, Governance, Compliance, Security Posture, Analytics, Observability, Marketplace, Plugin Manager, Templates, Integrations, Connectors, Context Engineering, Learning, Automation, Sandbox, CI/CD, Workflow Engine, Security Policies, Secrets Manager, Harness Core, Harness Tools, Harness Memory, Harness Context, Harness Prompt, Harness State, Harness Errors, Harness Guardrails, Harness Verify, Harness Subagents, PLA Orchestrator, PLA Extract, PLA Analyze, PLA Verify, PLA Synthesize, PLA Coordinate, RAG Hybrid, RAG BM25, RAG Vector, RAG Fusion, Performance Optimizer, Cache Manager, Security Hardening, Vulnerability Scan, Scalability, Load Balancer |
 | MCP Servers | 24 | GitHub, GitLab, Filesystem, Playwright, Chrome DevTools, Postgres, SQLite, Memory, Excalidraw, Brave Search, Context7, Google Maps, and more |
 | LSP Servers | 12 | gopls, rust-analyzer, typescript, pyright, yaml, marksman, taplo, bash, dockerfile, css, html, json |
 | Plugins | 21 | codegraph, dcp, auto-fallback, goal-mode, swarm, vibeguard, devcontainers, worktree, scheduler, background-agents, goal-plugin, conductor, zellij-namer, morph-plugin, supermemory, websearch-cited, firecrawl, plugin-otel, token-tracker, orchestrator, daytona |
@@ -46,7 +46,7 @@ One command installs everything: 6 languages, 64 shell modules, 24 MCP servers, 
 | Model Router | 9 profiles | coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn, testing |
 | CLI Modes | 12 | full, reinit, new, health, update, upgrade, interactive, ci, fix-config, fix-zshrc, dry-run, airgap |
 | Infrastructure | 7 | PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer |
-| Tests | 263 | 104 unit + 7 integration (Testcontainers) + 5 e2e + 1 doc-counts |
+| Tests | 444 | 129 unit + 11 integration + 5 e2e + 3 benchmarks |
 | TOML Config | ✅ | Declarative config via setup.toml (precedence: CLI > env > toml > defaults) |
 | Fault Tolerance | ✅ | Per-step error recovery with PARTIAL state tracking |
 | WAL Race Fix | ✅ | Atomic writes via flock with mkdir fallback |
@@ -78,6 +78,18 @@ One command installs everything: 6 languages, 64 shell modules, 24 MCP servers, 
 - **Cockpit TUI**: 8-tab terminal UI (Services, Plugins, GPU/Models, Sessions, Tasks, Logs, Infra, Grafana)
 - **Web GUI**: Full management dashboard on port 4200 with Metrics iframe, model switching, infrastructure control
 - **Isolated Circuit Mode**: Air-gapped LLM operation with local OpenAI-compatible backends (Ollama, vLLM, SGLang)
+
+### v15.0.0 — Skill Management + Agent Orchestration + Enterprise + Harness + PLA + RAG
+
+- **Skill Management** (62-65): Registry, manager, security scanning, evaluation framework
+- **Agent Orchestration** (66-71): Orchestrator, pipeline, mesh, protocol, context engine, memory layer
+- **Enterprise Features** (72-77): RBAC, governance, compliance (SOC2/ISO27001), security posture, analytics, observability
+- **Ecosystem Expansion** (78-82): Marketplace, plugin manager, templates, integrations, connectors
+- **Agent Harness** (83-100): Context engineering, learning, automation, sandbox, CI/CD, workflow engine, security policies, secrets manager, harness core (TAO loop), tools, memory, prompt (SCEI), state, errors, guardrails, verify, subagents
+- **PLA & RAG** (101-110): Pipeline micro-prompts (extract, analyze, verify, synthesize, coordinate), hybrid RAG (BM25 + Vector), RRF fusion
+- **Production Hardening** (111-116): Performance optimizer, cache manager, security hardening, vulnerability scan, scalability, load balancer
+- **CI/CD**: GitHub Actions (test, lint, docs, release)
+- **Documentation**: CLI reference, examples, integration tests, benchmarks
 - **z.ai GLM-5.2**: Primary provider for RU/CN markets, OpenAI-compatible API, free tier
 - **OpenRouter**: Aggregator access to 100+ models via single API key
 - **OpenCode Metrics**: Real-time Prometheus exporter on port 9464 — sessions, WAL entries, container health, Ollama models, active configuration
