@@ -1,0 +1,275 @@
+version: '3.8'
+
+# OpenCode Initializer — multi-profile Docker Compose stack
+#
+# Profiles:
+#   (default)  opencode + MCP/LSP dev tools (always-on application tier)
+#   infra      PostgreSQL, Redis, Qdrant
+#   monitoring Prometheus, Grafana, and the DB/metrics exporters
+#   mcp        MCP servers
+#   lsp        LSP servers (scaffolding example — LSP normally runs in-process)
+#   full       everything above
+#
+# Usage:
+#   docker compose --profile full up -d
+#   docker compose --profile infra up -d
+#   docker compose --profile monitoring up -d
+
+services:
+  # ── Main OpenCode service ─────────────────────────────────────────────
+  opencode:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: opencode
+    restart: always
+    ports:
+      - "4096:4096"
+    environment:
+      - OPENCODE_STRICT_VALIDATION=false
+      - NODE_TLS_REJECT_UNAUTHORIZED=0
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+    volumes:
+      - ./opencode/opencode.json:/root/.config/opencode/opencode.json
+      - ./dev:/workspace
+      - opencode-data:/root/.local/share/opencode
+    working_dir: /workspace
+    networks:
+      - opencode-network
+      - data-network
+      - monitoring-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+        required: false
+      redis:
+        condition: service_healthy
+        required: false
+      qdrant:
+        condition: service_healthy
+        required: false
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:4096/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # ── Infrastructure services ───────────────────────────────────────────
+  postgres:
+    image: postgres:17-alpine
+    container_name: opencode-postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=opencode
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-opencode}
+      - POSTGRES_DB=opencode
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - data-network
+      - monitoring-network
+    profiles:
+      - infra
+      - full
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U opencode -d opencode"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: opencode-redis
+    restart: always
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - data-network
+      - monitoring-network
+    profiles:
+      - infra
+      - full
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: opencode-qdrant
+    restart: always
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant-data:/qdrant/storage
+    networks:
+      - data-network
+      - monitoring-network
+    profiles:
+      - infra
+      - full
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c ':> /dev/tcp/127.0.0.1/6333' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Monitoring stack ──────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: opencode-prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./src/grafana/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+    networks:
+      - monitoring-network
+    profiles:
+      - monitoring
+      - full
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: opencode-grafana
+    restart: always
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./src/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./src/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./src/grafana/dashboards:/etc/grafana/dashboards:ro
+    networks:
+      - monitoring-network
+    profiles:
+      - monitoring
+      - full
+    depends_on:
+      prometheus:
+        condition: service_healthy
+        required: false
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://localhost:3000/api/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # DB metrics exporters (feed the Grafana infra dashboards)
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: opencode-postgres-exporter
+    restart: always
+    environment:
+      - DATA_SOURCE_NAME=postgresql://opencode:${POSTGRES_PASSWORD:-opencode}@postgres:5432/opencode?sslmode=disable
+    networks:
+      - data-network
+      - monitoring-network
+    profiles:
+      - monitoring
+      - full
+    depends_on:
+      postgres:
+        condition: service_healthy
+        required: false
+
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: opencode-redis-exporter
+    restart: always
+    environment:
+      - REDIS_ADDR=redis://redis:6379
+    networks:
+      - data-network
+      - monitoring-network
+    profiles:
+      - monitoring
+      - full
+    depends_on:
+      redis:
+        condition: service_healthy
+        required: false
+
+  # ── MCP servers (optional) ────────────────────────────────────────────
+  mcp-filesystem:
+    image: node:20-alpine
+    container_name: mcp-filesystem
+    command: npx -y @modelcontextprotocol/server-filesystem /workspace
+    volumes:
+      - ./dev:/workspace
+    networks:
+      - opencode-network
+    profiles:
+      - mcp
+      - full
+
+  mcp-github:
+    image: node:20-alpine
+    container_name: mcp-github
+    command: npx -y @modelcontextprotocol/server-github
+    environment:
+      - GITHUB_PERSONAL_ACCESS_TOKEN=${GITHUB_TOKEN}
+    networks:
+      - opencode-network
+    profiles:
+      - mcp
+      - full
+
+  # ── LSP servers (scaffolding example) ─────────────────────────────────
+  # Note: LSP servers normally run as subprocesses inside the opencode
+  # container (spawned by the client over stdio). This container is provided
+  # only as a profile scaffold for remote/isolated LSP setups.
+  lsp-typescript:
+    image: node:20-alpine
+    container_name: lsp-typescript
+    command: npx -y typescript-language-server --stdio
+    volumes:
+      - ./dev:/workspace
+    working_dir: /workspace
+    networks:
+      - opencode-network
+    profiles:
+      - lsp
+      - full
+
+volumes:
+  opencode-data:
+  postgres-data:
+  redis-data:
+  qdrant-data:
+  prometheus-data:
+  grafana-data:
+
+networks:
+  opencode-network:
+    driver: bridge
+  data-network:
+    driver: bridge
+    internal: false
+  monitoring-network:
+    driver: bridge
