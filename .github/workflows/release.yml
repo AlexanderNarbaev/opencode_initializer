@@ -5,18 +5,16 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
       
       - name: Create release
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            setup.sh
-            dev.sh
           generate_release_notes: true
