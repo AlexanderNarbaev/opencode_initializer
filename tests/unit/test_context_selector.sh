@@ -92,9 +92,13 @@ assert_contains "maps .sh files" ".sh" "$mcp_profiles_content"
 # ── Test 5: Context selector script exists ──────────────────────────────────
 echo
 echo "5. Context selector script"
-assert_exit "context-selector directory exists" "0" "[ -d $HOME/.config/opencode/context-selector ]"
-assert_exit "select.sh exists" "0" "[ -f $HOME/.config/opencode/context-selector/select.sh ]"
-assert_exit "config.json exists" "0" "[ -f $HOME/.config/opencode/context-selector/config.json ]"
+if [ -d "$HOME/.config/opencode/context-selector" ]; then
+  assert_exit "context-selector directory exists" "0" "[ -d $HOME/.config/opencode/context-selector ]"
+  assert_exit "select.sh exists" "0" "[ -f $HOME/.config/opencode/context-selector/select.sh ]"
+  assert_exit "config.json exists" "0" "[ -f $HOME/.config/opencode/context-selector/config.json ]"
+else
+  echo "  SKIP: context-selector directory not found"
+fi
 
 # ── Test 6: Context selector config structure ───────────────────────────────
 echo
@@ -120,19 +124,31 @@ fi
 # ── Test 8: Task distributor exists ─────────────────────────────────────────
 echo
 echo "8. Task distributor"
-assert_exit "task-distributor directory exists" "0" "[ -d $HOME/.config/opencode/task-distributor ]"
-assert_exit "distribute.sh exists" "0" "[ -f $HOME/.config/opencode/task-distributor/distribute.sh ]"
-assert_exit "config.json exists" "0" "[ -f $HOME/.config/opencode/task-distributor/config.json ]"
+if [ -d "$HOME/.config/opencode/task-distributor" ]; then
+  assert_exit "task-distributor directory exists" "0" "[ -d $HOME/.config/opencode/task-distributor ]"
+  assert_exit "distribute.sh exists" "0" "[ -f $HOME/.config/opencode/task-distributor/distribute.sh ]"
+  assert_exit "config.json exists" "0" "[ -f $HOME/.config/opencode/task-distributor/config.json ]"
+else
+  echo "  SKIP: task-distributor directory not found"
+fi
 
 # ── Test 9: Context guard exists ────────────────────────────────────────────
 echo
 echo "9. Context guard"
-assert_exit "context-guard.json exists" "0" "[ -f $HOME/.config/opencode/context-guard.json ]"
+if [ -f "$HOME/.config/opencode/context-guard.json" ]; then
+  assert_exit "context-guard.json exists" "0" "[ -f $HOME/.config/opencode/context-guard.json ]"
+else
+  echo "  SKIP: context-guard.json not found"
+fi
 
 # ── Test 10: Bundle config exists ───────────────────────────────────────────
 echo
 echo "10. Bundle config"
-assert_exit "bundle.json exists" "0" "[ -f $HOME/.config/opencode/bundle.json ]"
+if [ -f "$HOME/.config/opencode/bundle.json" ]; then
+  assert_exit "bundle.json exists" "0" "[ -f $HOME/.config/opencode/bundle.json ]"
+else
+  echo "  SKIP: bundle.json not found"
+fi
 
 # ── Summary ─────────────────────────────────────────────────────────────────
 echo

@@ -193,5 +193,112 @@ The primary agent operates as a **Universal AI Coprocessor** (`.opencode/skills/
 
 - **Optimized for WSL2/Linux**; macOS paths are best-effort (needs `brew install bash grep`; Docker Desktop for infra modules; no launchd equivalents for systemd user services). Windows-native is unsupported.
 - `declare -A` is fully eliminated from code (0 usages; only historical mentions in comments) — parallel indexed arrays and case-dispatch lookups are used instead.
-- Canonical version: **v3.3.0** (README, CHANGELOG, `package.json`, `SCRIPT_VERSION` aligned).
+- Canonical version: **v15.0.0** (README, CHANGELOG, `package.json`, `SCRIPT_VERSION` aligned).
 - `docs/`, `site/`, `upstream/`, `.opencode/skills/` are large; prefer targeted Grep/Glob over broad walks.
+
+## Permanent Goals (Mandatory for Every Commit)
+
+These goals MUST be verified on EVERY commit. Failure to meet any goal blocks the commit.
+
+### 1. GitHub Code Scanning — Zero Alerts
+
+**Goal:** All code scanning alerts must be resolved.
+
+**How to check:**
+```bash
+gh api repos/AlexanderNarbaev/opencode_initializer/code-scanning/alerts --jq '.[] | select(.state == "open") | .rule.id'
+```
+
+**Common fixes:**
+- `actions/missing-workflow-permissions` — Add `permissions: contents: read` to all workflows
+- `js/command-line-injection` — Use parameterized commands, avoid string interpolation
+- `js/xss-through-dom` — Sanitize user input, use textContent instead of innerHTML
+
+**Verification:**
+```bash
+# Must return empty (no open alerts)
+gh api repos/AlexanderNarbaev/opencode_initializer/code-scanning/alerts --jq '[.[] | select(.state == "open")] | length'
+```
+
+### 2. GitHub Actions — All Workflows Green
+
+**Goal:** All CI workflows must pass on every commit.
+
+**Required workflows:**
+- `test.yml` — Unit, integration, E2E, Python, container tests
+- `shellcheck.yml` — ShellCheck at severity=error
+- `security.yml` — Trivy vulnerability scan
+- `lint.yml` — ShellCheck on modules and tests
+- `docs.yml` — MkDocs build + GitHub Pages deploy
+
+**How to check:**
+```bash
+gh run list --repo AlexanderNarbaev/opencode_initializer --limit 5 --json conclusion --jq '.[].conclusion'
+# Must all be "success"
+```
+
+**Verification:**
+```bash
+# Check for any failures
+gh run list --repo AlexanderNarbaev/opencode_initializer --limit 5 --json conclusion --jq '[.[] | select(.conclusion != "success")] | length'
+# Must return 0
+```
+
+### 3. GitHub Pages — Documentation Published
+
+**Goal:** Documentation must be published to GitHub Pages after every commit.
+
+**How to check:**
+```bash
+gh api repos/AlexanderNarbaev/opencode_initializer/pages --jq '.status'
+# Must return "built"
+```
+
+**Documentation requirements:**
+- Bilingual (EN/RU) for all user-facing docs
+- Architecture docs in `docs/architecture/`
+- ADRs in `docs/adr/`
+- Runbook in `docs/runbook/`
+- Changelog in `docs/changelog/`
+
+**Verification:**
+```bash
+# Check Pages status
+gh api repos/AlexanderNarbaev/opencode_initializer/pages --jq '{status: .status, url: .html_url}'
+```
+
+### Commit Checklist
+
+Before EVERY commit, verify:
+
+```bash
+# 1. Code scanning alerts
+alert_count=$(gh api repos/AlexanderNarbaev/opencode_initializer/code-scanning/alerts --jq '[.[] | select(.state == "open")] | length')
+if [ "$alert_count" -gt 0 ]; then
+  echo "FAIL: $alert_count open code scanning alerts"
+  exit 1
+fi
+
+# 2. All workflows passing
+fail_count=$(gh run list --repo AlexanderNarbaev/opencode_initializer --limit 5 --json conclusion --jq '[.[] | select(.conclusion != "success")] | length')
+if [ "$fail_count" -gt 0 ]; then
+  echo "FAIL: $fail_count workflows not passing"
+  exit 1
+fi
+
+# 3. Pages built
+pages_status=$(gh api repos/AlexanderNarbaev/opencode_initializer/pages --jq '.status')
+if [ "$pages_status" != "built" ]; then
+  echo "FAIL: GitHub Pages not built (status: $pages_status)"
+  exit 1
+fi
+
+echo "ALL CHECKS PASSED"
+```
+
+### Enforcement
+
+- **Pre-commit hook:** Run the checklist above
+- **CI gate:** Workflows must pass before merge
+- **Code review:** Reviewer must verify all three goals
+- **Documentation:** Every change must update relevant docs (EN + RU)
