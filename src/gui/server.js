@@ -9,6 +9,8 @@ const HOME = process.env.HOME || '/home/user';
 const HTML = path.join(__dirname, 'index.html');
 
 function run(cmd) {
+  // Validate command contains only safe characters
+  if (!/^[a-zA-Z0-9._\-\/\s>|&]+$/.test(cmd)) return null;
   try { return execSync(cmd, { timeout: 5000, encoding: 'utf-8' }).trim(); } catch { return null; }
 }
 
@@ -97,6 +99,8 @@ const server = http.createServer((req, res) => {
     req.on('end',()=>{
       let act; try{act=JSON.parse(body)}catch{act={}};
       const a=act.action||'', target=act.target||'';
+      // Validate target contains only safe characters
+      const safeTarget = /^[a-zA-Z0-9._\-]+$/.test(target) ? target : '';
       let result={ok:true,message:'Done'};
       try{
         if(a==='health'){run('dev health > /dev/null 2>&1 &');result.message='Health check started'}
@@ -104,13 +108,13 @@ const server = http.createServer((req, res) => {
         else if(a==='restart-mcps'){result.message='MCP reload on next opencode start'}
         else if(a==='infra-up-all'){run('dev infra up');result.message='Starting all services'}
         else if(a==='infra-down-all'){run('dev infra down');result.message='Stopping all services'}
-        else if(a==='infra-start'){run('dev infra up '+target);result.refresh=true;result.message='Starting '+target}
-        else if(a==='infra-stop'){run('docker stop opencode-'+target.toLowerCase());result.refresh=true;result.message='Stopping '+target}
-        else if(a==='infra-restart'){run('docker restart opencode-'+target.toLowerCase());result.refresh=true;result.message='Restarting '+target}
-        else if(a==='restore-backup'){run('dev backup restore '+target);result.message='Restored from '+target}
-        else if(a==='pull-model'){run('ollama pull '+target+' > /dev/null 2>&1 &');result.message='Pulling model '+target+' (background)';result.refresh=true}
-        else if(a==='remove-model'){run('ollama rm '+target);result.message='Removed model '+target;result.refresh=true}
-        else if(a==='switch-model'){const cfg=readOpencodeConfig();if(cfg){cfg.model=target;writeOpencodeConfig(cfg);result.message='Switched to '+target;result.refresh=true}else{result={ok:false,message:'Config not found'}}}
+        else if(a==='infra-start'){if(safeTarget){run('dev infra up '+safeTarget);result.refresh=true;result.message='Starting '+safeTarget}else{result={ok:false,message:'Invalid target'}}}
+        else if(a==='infra-stop'){if(safeTarget){run('docker stop opencode-'+safeTarget.toLowerCase());result.refresh=true;result.message='Stopping '+safeTarget}else{result={ok:false,message:'Invalid target'}}}
+        else if(a==='infra-restart'){if(safeTarget){run('docker restart opencode-'+safeTarget.toLowerCase());result.refresh=true;result.message='Restarting '+safeTarget}else{result={ok:false,message:'Invalid target'}}}
+        else if(a==='restore-backup'){if(safeTarget){run('dev backup restore '+safeTarget);result.message='Restored from '+safeTarget}else{result={ok:false,message:'Invalid target'}}}
+        else if(a==='pull-model'){if(safeTarget){run('ollama pull '+safeTarget+' > /dev/null 2>&1 &');result.message='Pulling model '+safeTarget+' (background)';result.refresh=true}else{result={ok:false,message:'Invalid target'}}}
+        else if(a==='remove-model'){if(safeTarget){run('ollama rm '+safeTarget);result.message='Removed model '+safeTarget;result.refresh=true}else{result={ok:false,message:'Invalid target'}}}
+        else if(a==='switch-model'){if(safeTarget){const cfg=readOpencodeConfig();if(cfg){cfg.model=safeTarget;writeOpencodeConfig(cfg);result.message='Switched to '+safeTarget;result.refresh=true}else{result={ok:false,message:'Config not found'}}}else{result={ok:false,message:'Invalid target'}}}
         else if(a==='toggle-external-obs'){const conf=path.join(HOME,'.config/opencode-setup/setup.conf');let content='';try{content=fs.readFileSync(conf,'utf-8')}catch{}if(content.includes('EXTERNAL_OBSERVABILITY=true')){content=content.replace('EXTERNAL_OBSERVABILITY=true','EXTERNAL_OBSERVABILITY=false');result.message='External observability DISABLED'}else if(content.includes('EXTERNAL_OBSERVABILITY=false')){content=content.replace('EXTERNAL_OBSERVABILITY=false','EXTERNAL_OBSERVABILITY=true');result.message='External observability ENABLED'}else{content+='\nEXTERNAL_OBSERVABILITY=true\n';result.message='External observability ENABLED'}try{fs.writeFileSync(conf,content)}catch{}}
         else{result={ok:false,message:'Unknown: '+a}}
       }catch(e){result={ok:false,message:e.message}}
