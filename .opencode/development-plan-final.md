@@ -80,9 +80,9 @@ default = false
 
 Что сделать:
 - [ ] Переписать 35% shallow tests на deep
-- [ ] Добавить Testcontainers тесты (PostgreSQL, Redis, Qdrant)
-- [ ] Добавить mode-specific тесты (health, ci, interactive, upgrade)
-- [ ] Добавить E2E smoke test в CI: `setup.sh --dry-run --mode ci`
+- [x] Добавить Testcontainers тесты (PostgreSQL, Redis, Qdrant) — tests/integration/test_infra_containers.py
+- [x] Добавить mode-specific тесты (health, ci, interactive, upgrade) — tests/integration/test_modes.sh
+- [x] Добавить E2E smoke test в CI: `setup.sh --dry-run --mode ci` — tests/e2e/test_smoke_ci.sh
 - [ ] Добавить интеграционные тесты для 18-opencode-json.sh
 - [ ] Добавить тесты для 11 модулей с нулевым покрытием
 
@@ -123,8 +123,8 @@ def test_postgres_connection():
 ### 1.5 Документация [P1]
 
 Что сделать:
-- [ ] Обновить README.md/README.ru.md (устаревшие счетчики)
-- [x] Обновить architecture.md (ссылается на "24 модуля", сейчас 76)
+- [x] Обновить README.md/README.ru.md (устаревшие счетчики) — обновлено до v15.0.0
+- [x] Обновить architecture.md (ссылается на "24 модуля", сейчас 76) — обновлено до 146 модулей
 - [ ] Добавить ADR для каждого архитектурного решения
 - [ ] Добавить runbook для типовых операций
 
@@ -135,11 +135,11 @@ def test_postgres_connection():
 ### 2.1 Ускорение установки [P1]
 
 Что сделать:
-- [ ] Параллельная установка модулей (flock для WAL)
-- [ ] Кеширование загрузок
-- [ ] Зеркала для CN/RU
-- [ ] Инкрементальная установка
-- [ ] --skip флаги
+- [x] Параллельная установка модулей (flock для WAL) — src/lib/00d-parallel.sh
+- [x] Кеширование загрузок — src/lib/00e-cache-mgr.sh
+- [x] Зеркала для CN/RU — src/lib/00-core.sh (GITHUB_MIRROR, NPM_REGISTRY, PYPI_MIRROR, etc.)
+- [x] Инкрементальная установка — src/lib/00d-parallel.sh (_is_module_installed)
+- [x] --skip флаги — setup.sh (--skip, --devbox-skip, --skip-caching, --dotfiles-skip)
 
 ### 2.2 APM подготовка [P2]
 
