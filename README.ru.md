@@ -46,7 +46,7 @@ curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializ
 | Model Router | 9 профилей | coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn, testing |
 | Режимы CLI | 12 | full, reinit, new, health, update, upgrade, interactive, ci, fix-config, fix-zshrc, dry-run, airgap |
 | Инфраструктура | 7 | PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer |
-| Тесты | 133 | 116 unit + 12 integration + 5 e2e |
+| Тесты | 136 | 117 unit + 13 integration + 6 e2e |
 | TOML конфиг | ✅ | Декларативный конфиг через setup.toml (приоритет: CLI > env > toml > defaults) |
 | Отказоустойчивость | ✅ | Пошаговое восстановление ошибок с PARTIAL state tracking |
 | WAL Race Fix | ✅ | Атомарные записи через flock с mkdir fallback |
@@ -133,7 +133,7 @@ opencode_initializer/
 │   ├── oc-sdk.py              # Python SDK
 │   ├── embed-proxy.py         # Мост Ollama → MemoryLayer embedding
 │   └── ai-router.sh           # Интеллектуальная маршрутизация моделей (+ конфиг ai-router.json)
-├── tests/                     # Unit (116), интеграционные (12), E2E (5) — 133 файл
+├── tests/                     # Unit (117), интеграционные (13), E2E (6) — 136 файл
 ├── migrations/                # Временные метки, идемпотентные миграции
 ├── docs/                      # Сайт документации MkDocs Material (EN/RU)
 ├── .github/                   # CI воркфлоу (test, shellcheck, build, security, docs)
