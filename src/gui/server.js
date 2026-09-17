@@ -9,8 +9,12 @@ const HOME = process.env.HOME || '/home/user';
 const HTML = path.join(__dirname, 'index.html');
 
 function run(cmd) {
-  // Validate command contains only safe characters
-  if (!/^[a-zA-Z0-9._\-\/\s>|&]+$/.test(cmd)) return null;
+  // Whitelist of allowed commands
+  const allowed = ['dev', 'docker', 'ollama', 'curl', 'ss', 'which'];
+  const parts = cmd.split(/\s+/);
+  if (!parts.length || !allowed.includes(parts[0])) return null;
+  // Validate all parts contain only safe characters
+  if (!parts.every(p => /^[a-zA-Z0-9._\-\/\:]+$/.test(p))) return null;
   try { return execSync(cmd, { timeout: 5000, encoding: 'utf-8' }).trim(); } catch { return null; }
 }
 
