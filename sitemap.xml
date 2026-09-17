@@ -169,6 +169,41 @@
         <xhtml:link rel="alternate" hreflang="ru" href="https://alexandernarbaev.github.io/opencode_initializer/ru/adr/adr-007-cloud-sync/"/>
     </url>
     <url>
+        <loc>https://alexandernarbaev.github.io/opencode_initializer/adr/adr-008-container-infrastructure/</loc>
+        <lastmod>2026-09-17</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://alexandernarbaev.github.io/opencode_initializer/adr/adr-008-container-infrastructure/"/>
+        <xhtml:link rel="alternate" hreflang="ru" href="https://alexandernarbaev.github.io/opencode_initializer/ru/adr/adr-008-container-infrastructure/"/>
+    </url>
+    <url>
+        <loc>https://alexandernarbaev.github.io/opencode_initializer/adr/adr-009-test-strategy/</loc>
+        <lastmod>2026-09-17</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://alexandernarbaev.github.io/opencode_initializer/adr/adr-009-test-strategy/"/>
+        <xhtml:link rel="alternate" hreflang="ru" href="https://alexandernarbaev.github.io/opencode_initializer/ru/adr/adr-009-test-strategy/"/>
+    </url>
+    <url>
+        <loc>https://alexandernarbaev.github.io/opencode_initializer/adr/adr-010-security-model/</loc>
+        <lastmod>2026-09-17</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://alexandernarbaev.github.io/opencode_initializer/adr/adr-010-security-model/"/>
+        <xhtml:link rel="alternate" hreflang="ru" href="https://alexandernarbaev.github.io/opencode_initializer/ru/adr/adr-010-security-model/"/>
+    </url>
+    <url>
+        <loc>https://alexandernarbaev.github.io/opencode_initializer/adr/adr-011-agent-architecture/</loc>
+        <lastmod>2026-09-17</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://alexandernarbaev.github.io/opencode_initializer/adr/adr-011-agent-architecture/"/>
+        <xhtml:link rel="alternate" hreflang="ru" href="https://alexandernarbaev.github.io/opencode_initializer/ru/adr/adr-011-agent-architecture/"/>
+    </url>
+    <url>
+        <loc>https://alexandernarbaev.github.io/opencode_initializer/adr/adr-012-documentation-strategy/</loc>
+        <lastmod>2026-09-17</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://alexandernarbaev.github.io/opencode_initializer/adr/adr-012-documentation-strategy/"/>
+        <xhtml:link rel="alternate" hreflang="ru" href="https://alexandernarbaev.github.io/opencode_initializer/ru/adr/adr-012-documentation-strategy/"/>
+    </url>
+    <url>
         <loc>https://alexandernarbaev.github.io/opencode_initializer/advanced/</loc>
         <lastmod>2026-09-17</lastmod>
         <changefreq>daily</changefreq>
@@ -909,6 +944,41 @@
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://alexandernarbaev.github.io/opencode_initializer/ru/adr/adr-007-cloud-sync/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://alexandernarbaev.github.io/opencode_initializer/adr/adr-007-cloud-sync/"/>
+    </url>
+    <url>
+        <loc>https://alexandernarbaev.github.io/opencode_initializer/ru/adr/adr-008-container-infrastructure/</loc>
+        <lastmod>2026-09-17</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ru" href="https://alexandernarbaev.github.io/opencode_initializer/ru/adr/adr-008-container-infrastructure/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://alexandernarbaev.github.io/opencode_initializer/adr/adr-008-container-infrastructure/"/>
+    </url>
+    <url>
+        <loc>https://alexandernarbaev.github.io/opencode_initializer/ru/adr/adr-009-test-strategy/</loc>
+        <lastmod>2026-09-17</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ru" href="https://alexandernarbaev.github.io/opencode_initializer/ru/adr/adr-009-test-strategy/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://alexandernarbaev.github.io/opencode_initializer/adr/adr-009-test-strategy/"/>
+    </url>
+    <url>
+        <loc>https://alexandernarbaev.github.io/opencode_initializer/ru/adr/adr-010-security-model/</loc>
+        <lastmod>2026-09-17</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ru" href="https://alexandernarbaev.github.io/opencode_initializer/ru/adr/adr-010-security-model/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://alexandernarbaev.github.io/opencode_initializer/adr/adr-010-security-model/"/>
+    </url>
+    <url>
+        <loc>https://alexandernarbaev.github.io/opencode_initializer/ru/adr/adr-011-agent-architecture/</loc>
+        <lastmod>2026-09-17</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ru" href="https://alexandernarbaev.github.io/opencode_initializer/ru/adr/adr-011-agent-architecture/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://alexandernarbaev.github.io/opencode_initializer/adr/adr-011-agent-architecture/"/>
+    </url>
+    <url>
+        <loc>https://alexandernarbaev.github.io/opencode_initializer/ru/adr/adr-012-documentation-strategy/</loc>
+        <lastmod>2026-09-17</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ru" href="https://alexandernarbaev.github.io/opencode_initializer/ru/adr/adr-012-documentation-strategy/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://alexandernarbaev.github.io/opencode_initializer/adr/adr-012-documentation-strategy/"/>
     </url>
     <url>
         <loc>https://alexandernarbaev.github.io/opencode_initializer/ru/advanced/</loc>
