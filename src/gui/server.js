@@ -1,7 +1,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const { execSync, exec } = require('child_process');
+const { execSync, execFileSync, exec } = require('child_process');
 
 const rawPort = process.env.GUI_PORT || process.env.METRICS_EXPORTER_PORT || '4200';
 const PORT = parseInt(rawPort) || 4200;
@@ -70,11 +70,16 @@ function readTaskProfiles() {
 }
 
 function checkPort(port) {
-  try { execSync(`ss -tlnp | grep ':${port} '`, { stdio: 'pipe' }); return true; } catch { return false; }
+  // Validate port is a number to prevent injection
+  const portNum = parseInt(port, 10);
+  if (isNaN(portNum) || portNum < 1 || portNum > 65535) return false;
+  try { execFileSync('ss', ['-tlnp'], { stdio: 'pipe' }); return true; } catch { return false; }
 }
 
 function checkBin(name) {
-  try { execSync(`which ${name} 2>/dev/null || test -x ${HOME}/.bun/bin/${name}`, { stdio: 'pipe' }); return true; } catch { return false; }
+  // Validate name contains only safe characters
+  if (!/^[a-zA-Z0-9._-]+$/.test(name)) return false;
+  try { execFileSync('which', [name], { stdio: 'pipe' }); return true; } catch { return false; }
 }
 
 const server = http.createServer((req, res) => {
@@ -121,7 +126,7 @@ const server = http.createServer((req, res) => {
     const lspList = cfg && cfg.lsp ? Object.keys(cfg.lsp) : [];
     let mcpOk=0,mcpMiss=0,lspOk=0,lspMiss=0;
     mcpList.forEach(m=>{checkBin(m)?mcpOk++:mcpMiss++});
-    lspList.forEach(l=>{try{execSync(`which ${l}`,{stdio:'pipe'});lspOk++}catch{lspMiss++}});
+    lspList.forEach(l=>{try{if(/^[a-zA-Z0-9._-]+$/.test(l)){execFileSync('which',[l],{stdio:'pipe'});lspOk++}else{lspMiss++}}catch{lspMiss++}});
     const grafanaPort = parseInt(cfg.GRAFANA_PORT) || 3001;
     const infraList = [['ChromaDB',8000],['PostgreSQL',5432],['Qdrant',6333],['Redis',6379],['MemoryLayer',61001],['Prometheus',9090],['Grafana',grafanaPort]];
     let infraOk=0,infraMiss=0;
@@ -193,7 +198,7 @@ const server = http.createServer((req, res) => {
     const cfg = readOpencodeConfig();
     const lsps = cfg ? Object.entries(cfg.lsp||{}).map(([name,v])=>{
       const cmd = v.command && v.command[0] ? v.command[0] : '';
-      let installed = false; try { execSync(`which ${cmd}`,{stdio:'pipe'}); installed=true; } catch {}
+      let installed = false; try { if(/^[a-zA-Z0-9._-]+$/.test(cmd)){execFileSync('which',[cmd],{stdio:'pipe'});installed=true;} } catch {}
       const exts = (v.extensions||[]).join(', ');
       return { name, installed, languages: exts };
     }) : [];
