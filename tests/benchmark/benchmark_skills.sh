@@ -42,7 +42,7 @@ echo "  Validation (100 iterations): ${duration}ms ($(( duration / 100 ))ms per 
 # Benchmark security scan
 start_time=$(date +%s%N)
 for i in $(seq 1 100); do
-  _skill_security_score "$TEST_SKILL_DIR" 2>/dev/null
+  _skill_security_score "$TEST_SKILL_DIR" 2>/dev/null || true
 done
 end_time=$(date +%s%N)
 duration=$(( (end_time - start_time) / 1000000 ))
@@ -51,7 +51,7 @@ echo "  Security scan (100 iterations): ${duration}ms ($(( duration / 100 ))ms p
 # Benchmark evaluation
 start_time=$(date +%s%N)
 for i in $(seq 1 100); do
-  _skill_eval_completion "$TEST_SKILL_DIR" 2>/dev/null
+  _skill_eval_completion "$TEST_SKILL_DIR" 2>/dev/null || true
 done
 end_time=$(date +%s%N)
 duration=$(( (end_time - start_time) / 1000000 ))

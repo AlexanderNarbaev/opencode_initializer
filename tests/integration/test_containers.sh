@@ -11,9 +11,9 @@ PASS=0
 FAIL=0
 SKIP=0
 
-pass() { ((PASS++)); echo -e "  \033[32m✓\033[0m $1"; }
-fail() { ((FAIL++)); echo -e "  \033[31m✗\033[0m $1"; }
-skip() { ((SKIP++)); echo -e "  \033[33m⊘\033[0m $1 (skipped)"; }
+pass() { PASS=$((PASS + 1)); echo -e "  \033[32m✓\033[0m $1"; }
+fail() { FAIL=$((FAIL + 1)); echo -e "  \033[31m✗\033[0m $1"; }
+skip() { SKIP=$((SKIP + 1)); echo -e "  \033[33m⊘\033[0m $1 (skipped)"; }
 
 # ── Check Docker availability ────────────────────────────────────────────────
 if ! command -v docker &>/dev/null; then
