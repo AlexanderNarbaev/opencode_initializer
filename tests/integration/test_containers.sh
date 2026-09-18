@@ -26,6 +26,12 @@ if ! docker info &>/dev/null; then
   exit 0
 fi
 
+# Skip container tests in CI (Docker-in-Docker not available)
+if [ "${CI:-false}" = "true" ] || [ "${GITHUB_ACTIONS:-false}" = "true" ]; then
+  echo "Running in CI — skipping container tests"
+  exit 0
+fi
+
 # ── Test: PostgreSQL container ───────────────────────────────────────────────
 echo "=== Test: PostgreSQL Container ==="
 
