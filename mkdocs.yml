@@ -91,6 +91,7 @@ plugins:
       blog_toc: true
       post_date_format: long
       archive: false
+      categories: false
   - tags
   - git-revision-date-localized:
       enable_creation_date: true
@@ -218,6 +219,7 @@ not_in_nav: |
   !superpowers/index.en.md
   !superpowers/index.ru.md
   changelog/category/*.md
+  changelog/category/release.md
 
 extra:
   analytics: {}
