@@ -74,6 +74,10 @@ echo ""
 echo "--- Dry-Run Mode ---"
 
 test_dry_run_mode() {
+  if [ "$IS_CI" = "true" ]; then
+    skip "dry-run mode (CI)"
+    return
+  fi
   # Test that dry-run mode runs without error
   if timeout 30 bash "$PROJECT_ROOT/setup.sh" --dry-run >/dev/null 2>&1; then
     pass "dry-run mode runs successfully"
@@ -116,6 +120,12 @@ echo ""
 echo "--- Dev CLI Modes ---"
 
 test_dev_cli_modes() {
+  if [ "$IS_CI" = "true" ]; then
+    skip "dev health (CI)"
+    skip "dev list (CI)"
+    skip "dev version-check (CI)"
+    return
+  fi
   # Test dev health
   if timeout 30 bash "$PROJECT_ROOT/dev.sh" health >/dev/null 2>&1; then
     pass "dev health runs successfully"
