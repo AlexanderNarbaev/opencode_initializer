@@ -3,6 +3,7 @@ name: Sandcastle Review
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -14,6 +15,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      
       - name: Run Sandcastle review
         run: |
-          echo "Sandcastle review passed"
+          dev sandcastle review
