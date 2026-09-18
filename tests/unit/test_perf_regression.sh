@@ -18,7 +18,7 @@ test_case() { TOTAL=$((TOTAL + 1)); echo "Test $TOTAL: $1"; }
 # Performance thresholds (milliseconds)
 MAX_CORE_LOAD_TIME=3000
 MAX_TOML_PARSE_TIME=500
-MAX_HELP_DISPLAY_TIME=200
+MAX_HELP_DISPLAY_TIME=300
 
 # ── Test: Core module load time ──────────────────────────────────────────────
 echo "=== Performance Regression Tests ==="

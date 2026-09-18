@@ -1,3 +1,4 @@
+# shellcheck shell=zsh
 #compdef opencode-init
 # completions/opencode-init.zsh — Zsh completion for opencode_initializer
 # Source: fpath=(/path/to/completions $fpath); autoload -Uz compinit; compinit
