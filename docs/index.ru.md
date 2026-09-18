@@ -1,4 +1,4 @@
-# OpenCode Initializer v3.3.0
+# OpenCode Initializer v15.0.0
 
 [![GitHub stars](https://img.shields.io/github/stars/AlexanderNarbaev/opencode_initializer?style=social)](https://github.com/AlexanderNarbaev/opencode_initializer)
 [![License](https://img.shields.io/github/license/AlexanderNarbaev/opencode_initializer)](https://github.com/AlexanderNarbaev/opencode_initializer/blob/main/LICENSE)
@@ -49,7 +49,7 @@
 - :fontawesome-solid-globe: **Chrome** — Google Chrome + ChromeDriver (оптимизирован для WSL2)
 - :fontawesome-solid-clock-rotate-left: **Автообновление** — systemd weekly timer + topgrade
 
-## :fontawesome-solid-star: Новое в v3.3.0
+## :fontawesome-solid-star: Новое в v15.0.0
 
 | Возможность | Описание |
 |-------------|----------|

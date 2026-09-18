@@ -2,7 +2,7 @@
 
 > **Status:** Architecture reference (living document)
 > **Scope:** The end-to-end security architecture for the opencode_initializer agent harness — threat model, isolation tiers, secret handling, policy enforcement, audit, and zero-trust principles.
-> **Canonical version:** v3.3.0
+> **Canonical version:** v15.0.0
 > **Companion docs:** [LLM Fundamentals 2026](llm-fundamentals-2026.md), [Multi-Agent Framework v3 ADR](adr/multi-agent-framework-v3.md), [Hybrid AI Architecture ADR](adr/hybrid-ai-architecture.md)
 
 This document is the single reference for *how the harness protects itself*. It distinguishes three honesty levels throughout:

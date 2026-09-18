@@ -2,7 +2,7 @@
 
 > **Status:** Architecture reference (living document)
 > **Scope:** How the skills in `opencode_initializer` are categorized, mapped to the AIPDLC control structure, composed into pipelines, tuned for cost/latency, secured, and evolved over time.
-> **Canonical version:** v3.3.0
+> **Canonical version:** v15.0.0
 > **Companion docs:** [LLM Fundamentals 2026](llm-fundamentals-2026.md), [AIPDLC Integration Guide](aipdlc-integration-guide.md), [Agent Role Definitions 2026](agent-roles-2026.md), [Security Model 2026](security-model-2026.md)
 
 This document is the **skills map**: it answers "which skill runs at which point in the lifecycle, under which role, with which model, and within which security boundary." It follows the same honesty convention as the security model:
@@ -472,7 +472,7 @@ Skills are versioned artifacts with a lifecycle. The repo currently does **not**
 | Skill registry | `available_skills` manifest (OpenCode frontmatter `name`/`description`) | the `description` field is the discovery contract; changing it changes routing |
 | Source pinning | `upstream/` submodule pins skill sources (`superpowers`, `skill-conductor`) to exact commits | supply-chain pinning, same as MCP/LSP |
 
-**Recommended:** a `version:` frontmatter field + a `CHANGELOG` per skill family, mirrored to the docs site. The ADR/versioning discipline already used for modules (`v3.3.0` across README/CHANGELOG/`package.json`/`SCRIPT_VERSION`) should extend to the Tier-1 skill set.
+**Recommended:** a `version:` frontmatter field + a `CHANGELOG` per skill family, mirrored to the docs site. The ADR/versioning discipline already used for modules (`v15.0.0` across README/CHANGELOG/`package.json`/`SCRIPT_VERSION`) should extend to the Tier-1 skill set.
 
 ### 6.2 Skill Deprecation
 

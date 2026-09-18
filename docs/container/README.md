@@ -68,7 +68,7 @@ the non-root `opencode` user.
 docker build -t opencode-initializer:latest .
 
 # Or use the provided helper (adds --tag/--push/--registry/--build-arg handling)
-./scripts/container-build.sh --tag v3.3.0
+./scripts/container-build.sh --tag v15.0.0
 ```
 
 | Stage | Base image | Contents |
@@ -512,10 +512,10 @@ docker compose exec opencode bash tests/run_tests.sh
 
 ```bash
 # 1. Build and tag with the canonical version
-./scripts/container-build.sh --tag v3.3.0 --registry ghcr.io/yourorg
+./scripts/container-build.sh --tag v15.0.0 --registry ghcr.io/yourorg
 
 # 2. Push
-./scripts/container-build.sh --tag v3.3.0 --registry ghcr.io/yourorg --push
+./scripts/container-build.sh --tag v15.0.0 --registry ghcr.io/yourorg --push
 
 # 3. Provide real secrets
 cp .env.example .env && chmod 600 .env && $EDITOR .env

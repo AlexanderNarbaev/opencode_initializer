@@ -1,4 +1,4 @@
-# OpenCode Initializer v3.3.0
+# OpenCode Initializer v15.0.0
 
 [![GitHub stars](https://img.shields.io/github/stars/AlexanderNarbaev/opencode_initializer?style=social)](https://github.com/AlexanderNarbaev/opencode_initializer)
 [![License](https://img.shields.io/github/license/AlexanderNarbaev/opencode_initializer)](https://github.com/AlexanderNarbaev/opencode_initializer/blob/main/LICENSE)
@@ -49,7 +49,7 @@ A single script that turns a fresh Linux/WSL2 machine into a production-ready de
 - **Chrome** — Google Chrome + ChromeDriver (WSL2-optimized)
 - **Auto-update** — systemd weekly timer + topgrade
 
-## What's New in v3.3.0
+## What's New in v15.0.0
 
 | Feature | Description |
 |---------|-------------|

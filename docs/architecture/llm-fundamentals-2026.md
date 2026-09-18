@@ -2,7 +2,7 @@
 
 > **Status:** Architecture reference (living document)
 > **Scope:** How transformer-era language models actually work, what changed in 2026, what the hardware/economics look like, and — most importantly — how every concept maps onto a concrete module in `opencode_initializer`.
-> **Canonical version:** v3.3.0
+> **Canonical version:** v15.0.0
 > **Companion docs:** [AIPDLC Integration](../AIPDLC-INTEGRATION.md), [Multi-Agent Framework v3 ADR](adr/multi-agent-framework-v3.md), [Hybrid AI Architecture ADR](adr/hybrid-ai-architecture.md)
 
 This document is written for an engineer who needs to *reason* about LLM cost/latency/quality trade-offs when running an agent harness. Every section ends with "**In opencode_initializer**" — the concrete place in this repo where the concept is implemented, so the theory is never detached from the system.
