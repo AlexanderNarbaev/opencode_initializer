@@ -10,7 +10,7 @@ multi-profile Compose stack, configuration, hardening, development workflows, pr
 operations, and troubleshooting.
 
 > **Scope.** This document describes the *container* delivery path. For the bare-metal
-> orchestrator, see `setup.sh` and [`docs/getting-started/`](../getting-started/). For the
+> orchestrator, see `setup.sh` and [`docs/getting-started/`](../getting-started/index.md). For the
 > post-install CLI, see `dev.sh` and [`docs/cli.md`](../cli.md).
 
 ---

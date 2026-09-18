@@ -25,7 +25,7 @@ Skills live in three tiers. Tier 1 is project-local (the AIPDLC protocol spine);
 | T2 — Workflow toolkit | `.opencode/skills/matt-pocock/*` | ~20 | single-purpose craft skills: `tdd`, `implement`, `code-review`, `diagnosing-bugs`, `research`, `grill-*`, `wizard` |
 | T3 — Global enablement | `~/.config/opencode/skills/{superpowers,smixs}/*` | ~28 | cross-project methodology (brainstorming, writing-plans, 7w3, disruptor, MVP fleet) |
 
-The **canonical** (project-owned) set is Tier 1 + the `matt-pocock` subset that Tier 1 skills invoke by name. The full name→location map is in the [Appendix](#appendix-a---full-skill-inventory).
+The **canonical** (project-owned) set is Tier 1 + the `matt-pocock` subset that Tier 1 skills invoke by name. The full name→location map is in the [Appendix](#appendix-a--full-skill-inventory).
 
 ---
 

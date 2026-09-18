@@ -217,6 +217,7 @@ not_in_nav: |
   superpowers/**/*.md
   !superpowers/index.en.md
   !superpowers/index.ru.md
+  changelog/category/*.md
 
 extra:
   analytics: {}
