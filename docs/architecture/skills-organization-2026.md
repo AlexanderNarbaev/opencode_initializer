@@ -594,4 +594,4 @@ Skills are tested like modules, at three levels:
 - [Agent Role Definitions 2026](agent-roles-2026.md) — the four-role hierarchy skills are bound to.
 - [Security Model 2026](security-model-2026.md) — the threat model skills operate within.
 - [Multi-Agent Framework v3 ADR](adr/multi-agent-framework-v3.md) — the operating model.
-- [Architecture Index](index.en.md) — C4 diagrams and module layout.
+- [Architecture Index](index.md) — C4 diagrams and module layout.

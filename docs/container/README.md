@@ -46,7 +46,7 @@ docker compose version                   # Docker Compose version v2+
 
 **macOS (best-effort)** — install Docker Desktop, then enable BuildKit (default) and the
 Compose plugin. Containerized infra is best-effort; see the bare-metal caveats in
-[`README.md`](../../README.md).
+[`README.md`](https://github.com/AlexanderNarbaev/opencode_initializer/blob/main/README.md).
 
 **Windows (WSL2)** — install Docker Desktop with the WSL2 backend. The container runs
 Linux-native; Windows-native is unsupported.
@@ -202,7 +202,7 @@ docker compose --profile monitoring up -d
 
 - **Prometheus** scrapes `opencode:9464` (host metrics), `postgres-exporter:9187`,
   `redis-exporter:9121`, and Qdrant's native `/metrics` (see
-  [`src/grafana/prometheus.yml`](../../src/grafana/prometheus.yml)).
+  [`src/grafana/prometheus.yml`](https://github.com/AlexanderNarbaev/opencode_initializer/blob/main/src/grafana/prometheus.yml)).
 - **Grafana** is provisioned from `src/grafana/provisioning/` and ships the
   `agent-performance` and `infrastructure-overview` dashboards.
 
@@ -656,9 +656,9 @@ docker compose exec opencode bash -c 'bash setup.sh --health'
 
 ---
 
-*Related files: [`Dockerfile`](../../Dockerfile),
-[`docker-compose.yml`](../../docker-compose.yml),
-[`scripts/container-build.sh`](../../scripts/container-build.sh),
-[`scripts/container-run.sh`](../../scripts/container-run.sh),
-[`scripts/container-test.sh`](../../scripts/container-test.sh),
-[`.devcontainer/devcontainer.json`](../../.devcontainer/devcontainer.json).*
+*Related files: [`Dockerfile`](https://github.com/AlexanderNarbaev/opencode_initializer/blob/main/Dockerfile),
+[`docker-compose.yml`](https://github.com/AlexanderNarbaev/opencode_initializer/blob/main/docker-compose.yml),
+[`scripts/container-build.sh`](https://github.com/AlexanderNarbaev/opencode_initializer/blob/main/scripts/container-build.sh),
+[`scripts/container-run.sh`](https://github.com/AlexanderNarbaev/opencode_initializer/blob/main/scripts/container-run.sh),
+[`scripts/container-test.sh`](https://github.com/AlexanderNarbaev/opencode_initializer/blob/main/scripts/container-test.sh),
+[`.devcontainer/devcontainer.json`](https://github.com/AlexanderNarbaev/opencode_initializer/blob/main/.devcontainer/devcontainer.json).*

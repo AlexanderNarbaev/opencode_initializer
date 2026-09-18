@@ -1,267 +1,58 @@
-# Архитектура
+# Обзор архитектуры
 
-OpenCode Initializer построен на модульной архитектуре: лёгкий **оркестратор** (`setup.sh`, 1179 строк), который подключает 146 **модулей** и запускает 11 **режимов**.
+## Контекст системы
 
-## C4 Уровень 1: Контекст системы
+OpenCode Initializer — это одно-командный, AI-нативный бутстрап для development машин.
 
 ```mermaid
 C4Context
-    title opencode_initializer — Контекст системы
-
-    Person(dev, "Разработчик", "Хочет готовое AI-усиленное окружение для разработки")
-    System(oci, "OpenCode Initializer", "Настраивает полную dev-машину: 6 языков, 64 модуля, 24 MCP-сервера, 21 плагин, 22 провайдера, инфраструктура")
-
-    System_Ext(gh, "GitHub", "Исходный код, релизы, CI/CD")
-    System_Ext(ghp, "GitHub Packages", "npm пакеты, Docker образы")
-    System_Ext(apt, "Реестры пакетов", "apt, dnf, pacman, apk, zypper, brew")
-    System_Ext(mcp_registry, "MCP Registry", "MCP-серверы")
-    System_Ext(ai_api, "AI Провайдеры", "OpenCode, DeepSeek и 14+ других")
-
-    Rel(dev, oci, "Запускает setup.sh", "curl|bash")
-    Rel(oci, gh, "Скачивает", "HTTPS")
-    Rel(oci, ghp, "Устанавливает пакеты", "npm, pip, cargo")
-    Rel(oci, apt, "Устанавливает системные пакеты", "apt/dnf/pacman")
-    Rel(oci, mcp_registry, "Загружает MCP-серверы", "npm, npx")
-    Rel(oci, ai_api, "Настраивает провайдеров", "HTTPS/API")
-
-    UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="2")
+    title OpenCode Initializer — Контекст системы
+    
+    Person(dev, "Разработчик", "Хочет готовое AI-улучшенное окружение")
+    System(oci, "OpenCode Initializer", "Бутстрап полного dev окружения")
+    
+    System_Ext(gh, "GitHub", "Исходный код, релизы")
+    System_Ext(ai, "AI Провайдеры", "22 LLM провайдера")
+    System_Ext(infra, "Инфраструктура", "PostgreSQL, Redis, Qdrant")
+    
+    Rel(dev, oci, "Запускает setup.sh")
+    Rel(oci, gh, "Скачивает модули")
+    Rel(oci, ai, "Настраивает провайдеры")
+    Rel(oci, infra, "Развертывает сервисы")
 ```
 
-## C4 Уровень 2: Контейнеры
+## Диаграмма контейнеров
 
 ```mermaid
 C4Container
-    title opencode_initializer — Контейнеры
-
-    Container_Boundary(oci, "OpenCode Initializer") {
-        Container(setup, "setup.sh", "Bash", "Оркестратор — запускает 12 режимов, подключает 64 модуля, отслеживает прогресс")
-        Container(dev_cli, "dev CLI", "Bash", "Управление после установки: install, remove, update, health, config, isolated")
-        Container(lib, "src/lib/ (64 модуля)", "Bash", "Основные модули: система, языки, инструменты, MCP, LSP, LLM, провайдеры, инфраструктура, cockpit, изолированный режим")
-        Container(modes, "src/modes/ (6 скриптов)", "Bash", "Режимы: ci, fix-zshrc, health, interactive, new, upgrade")
-        Container(tests, "tests/", "Bash + Bats", "Юнит, интеграционные, E2E тесты (257 проверок)")
-        Container(docs_site, "Сайт документации", "MkDocs Material", "Документация (эта страница)")
-    }
-
-    System_Ext(gh_actions, "GitHub Actions", "CI/CD — ShellCheck, shfmt, тесты, деплой доков")
-    System_Ext(github_pages, "GitHub Pages", "Хостинг документации")
-
-    Rel(setup, lib, "Подключает модули", "source")
-    Rel(setup, modes, "Запускает режим", "bash")
-    Rel(dev_cli, lib, "Подключает helpers", "source")
-    Rel(gh_actions, tests, "Запускает", "CI триггер")
-    Rel(gh_actions, docs_site, "Собирает и деплоит", "mkdocs build + gh-pages")
-    Rel(docs_site, github_pages, "Деплоится на", "GitHub Pages")
+    title OpenCode Initializer — Диаграмма контейнеров
+    
+    Container(orch, "Оркестратор", "setup.sh", "Парсит CLI, загружает модули")
+    Container(modules, "Модули", "src/lib/*.sh", "146 пронумерованных модулей")
+    Container(tests, "Тесты", "tests/", "136 тестовых файлов")
+    Container(docs, "Документация", "docs/", "128 файлов документации")
+    
+    Rel(orch, modules, "Загружает и выполняет")
+    Rel(orch, tests, "Запускает тесты")
+    Rel(orch, docs, "Генерирует документацию")
 ```
 
-## C4 Уровень 3: Схема модулей
+## Карта модулей
 
-```mermaid
-C4Container
-    title src/lib/ — 64 модуля
+| Диапазон | Ответственность |
+|----------|----------------|
+| `00-core.sh` | Версия, определение ОС, абстракция пакетного менеджера |
+| `01–10` | Системные пакеты, Docker, Chrome, ZSH, языки |
+| `11–19` | OpenCode CLI, MCP/LSP/plugins, ChromaDB |
+| `20–29` | Авто-обновление, RAG, WebUI, провайдеры, dotfiles |
+| `30–36` | Инфраструктура, Cockpit, наблюдаемость |
+| `37–40` | WAL, IDE plugins, лучшие практики |
+| `41–51` | Governance, аудит, PII, офлайн бандл |
+| `52–60` | Context engine, навыки, распределение задач |
+| `99` | Синхронизация upstream |
 
-    Container_Boundary(modules, "src/lib/") {
-        Container(helpers, "helpers.sh", "Bash", "_curl, _retry, _npm_install — общая инфраструктура")
-        Container(core, "00-core.sh", "Bash", "Определение ОС/ПМ/архитектуры, зеркала, прогресс")
+## Связанная документация
 
-        Container(sys, "01-system.sh", "Bash", "Системные пакеты (кросс-дистрибутив)")
-        Container(docker, "02-docker.sh", "Bash", "Docker Engine")
-        Container(chrome, "03-chrome.sh", "Bash", "Google Chrome + chromedriver")
-        Container(zsh, "04-zsh.sh", "Bash", "Zsh + Oh My Zsh + P10k + 14 плагинов")
-
-        Container(java, "05-java.sh", "Bash", "Java 25 (Adoptium) + Zig")
-        Container(node, "06-node.sh", "Bash", "Node.js 24 (n)")
-        Container(python, "07-python.sh", "Bash", "Python 3.14 + uv")
-        Container(go, "08-go.sh", "Bash", "Go 1.26")
-        Container(rust, "09-rust.sh", "Bash", "Rust stable (rustup)")
-        Container(dotnet, "10-dotnet.sh", "Bash", ".NET 10")
-
-        Container(opencode, "11-opencode.sh", "Bash", "OpenCode CLI + Bun")
-        Container(mcp, "12-mcp-lsp.sh", "Bash", "24 MCP-сервера + 21 плагин + 12 LSP")
-        Container(chromadb, "13-chromadb.sh", "Bash", "ChromaDB + systemd")
-        Container(shokunin, "14-shokunin.sh", "Bash", "Shokunin + Superpowers + Caveman")
-        Container(sec, "15-security.sh", "Bash", "Trivy, Qodana")
-        Container(llm, "16-llm.sh", "Bash", "Ollama, vLLM, SGLang, Open WebUI")
-
-        Container(project, "17-project.sh", "Bash", "Структура проекта (AGENTS.md, WAL)")
-        Container(json, "18-opencode-json.sh", "Bash", "Генерация opencode.json")
-        Container(finalize, "19-finalize.sh", "Bash", "Git config, PATH, верификация (36 проверок)")
-        Container(update, "20-autoupdate.sh", "Bash", "topgrade + systemd таймер")
-        Container(rag, "21-rag.sh", "Bash", "RAG система (опционально)")
-
-        Container(webui, "22-webui-service.sh", "Bash", "Open WebUI systemd сервис")
-        Container(just, "23-just.sh", "Bash", "just — таск-раннер")
-        Container(websearch, "24-websearch.sh", "Bash", "SearXNG веб-поиск + sanitizer")
-        Container(providers, "26-providers.sh", "Bash", "Реестр 22 LLM-провайдеров")
-        Container(dotfiles, "27-dotfiles.sh", "Bash", "chezmoi — менеджер dotfiles")
-        Container(devbox, "28-devbox.sh", "Bash", "Devbox — Nix-окружения")
-        Container(mise, "29-mise.sh", "Bash", "mise-en-place — менеджер версий инструментов")
-
-        Container(infra, "30-infra.sh", "Bash", "Инфраструктура: PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer")
-        Container(cockpit, "31-cockpit.sh", "Bash", "Cockpit TUI — демон управления сервером")
-        Container(isolated, "32-isolated.sh", "Bash", "Изолированный контур — автономные LLM без сети")
-        Container(observ, "34-observability.sh", "Bash", "Grafana + Prometheus — стек наблюдаемости")
-        Container(gui, "35-gui.sh", "Bash", "Веб-интерфейс управления")
-        Container(router, "36-model-router.sh", "Bash", "Model Router — подбор модели под задачу")
-
-        Container(vcheck, "version-check.sh", "Bash", "Сравнение версий (8+ инструментов)")
-        Container(precheck, "pre-session-check.sh", "Bash", "Предсессионная валидация")
-    }
-
-    Rel(core, helpers, "Использует")
-    Rel(sys, core, "Зависит")
-    Rel(java, core, "Зависит")
-    Rel(mcp, helpers, "Использует _curl/_npm_install")
-    Rel(finalize, json, "Вызывает")
-    Rel(project, core, "Зависит")
-```
-
-## C4 Уровень 4: Поток выполнения setup.sh
-
-```mermaid
-flowchart TD
-    A["setup.sh (1179 строк)"] --> B["Определить SCRIPT_DIR"]
-    B --> C["Подключить helpers.sh"]
-    C --> D["Подключить 00-core.sh"]
-    D --> E{"Разбор аргументов CLI"}
-    E -->|"--help"| F["Показать справку и выйти"]
-    E -->|"--version"| G["Показать версию и выйти"]
-    E -->|"--health"| H["Подключить modes/health.sh"]
-    E -->|"--fix-config"| I["Запустить исправление конфига"]
-    E -->|"--dry-run"| J["Режим предпросмотра"]
-    E -->|"--interactive"| K["Интерактивный режим"]
-    E -->|"--reinit"| L["Режим переустановки"]
-    E -->|"--ci"| CI["CI/CD headless режим"]
-    E -->|"по умолчанию (full)"| M["Полная установка"]
-
-    M --> N["Последовательно: 01-system.sh .. 35-gui.sh"]
-    N --> O["18-opencode-json.sh"]
-    O --> P["19-finalize.sh"]
-    P --> Q["Верификация: 36 проверок"]
-    Q --> R["Готово"]
-
-    H --> S["65+ диагностических проверок"]
-    K --> T["Покомпонентный выбор"]
-```
-
-## Карта зависимостей модулей
-
-```mermaid
-graph LR
-    subgraph "Инфраструктурный слой"
-        helpers["helpers.sh"]
-        core["00-core.sh"]
-    end
-
-    subgraph "Системный слой"
-        sys["01-system.sh"]
-        docker["02-docker.sh"]
-        chrome["03-chrome.sh"]
-        zsh["04-zsh.sh"]
-    end
-
-    subgraph "Языковой слой"
-        java["05-java.sh"]
-        node["06-node.sh"]
-        python["07-python.sh"]
-        go["08-go.sh"]
-        rust["09-rust.sh"]
-        dotnet["10-dotnet.sh"]
-    end
-
-    subgraph "Инструментальный слой"
-        opencode["11-opencode.sh"]
-        mcp["12-mcp-lsp.sh"]
-        chromadb["13-chromadb.sh"]
-        shokunin["14-shokunin.sh"]
-        sec["15-security.sh"]
-        llm["16-llm.sh"]
-        rag["21-rag.sh"]
-        websearch["24-websearch.sh"]
-        providers["26-providers.sh"]
-    end
-
-    subgraph "Слой финализации"
-        project["17-project.sh"]
-        json["18-opencode-json.sh"]
-        finalize["19-finalize.sh"]
-        update["20-autoupdate.sh"]
-        mise["29-mise.sh"]
-        just["23-just.sh"]
-        dotfiles["27-dotfiles.sh"]
-        devbox["28-devbox.sh"]
-    end
-
-    helpers --> core
-    core --> sys
-    core --> docker
-    core --> chrome
-    core --> zsh
-
-    sys --> java
-    sys --> node
-    sys --> python
-    sys --> go
-    sys --> rust
-    sys --> dotnet
-
-    helpers --> opencode
-    helpers --> mcp
-    helpers --> chromadb
-    helpers --> shokunin
-    helpers --> sec
-    helpers --> llm
-    helpers --> rag
-    helpers --> websearch
-
-
-    core --> project
-    project --> json
-    json --> finalize
-    finalize --> update
-```
-
-## Ключевые архитектурные решения
-
-| Решение | Обоснование |
-|---------|-------------|
-| **Модульная архитектура** | Каждый язык/инструмент изолирован в собственном модуле. Легко добавлять, удалять и обновлять |
-| **Отслеживание прогресса** | `~/.cache/opencode-setup/progress` запоминает выполненные шаги. Повторные запуски идемпотентны |
-| **Adoptium API для Java** | GitHub-хостинг CDN, надёжен в WSL2 в отличие от sdkman.io |
-| **npm pack кэш для MCP** | `.tgz` файлы кэшируются локально, переживают повторные запуски |
-| **Весь curl через _curl()** | 5 попыток, экспоненциальная задержка, кэш 24ч |
-| **Весь npm через _npm_install()** | npm pack → bun fallback |
-| **WSL2 DNS fix** | Добавляет 8.8.8.8 + 1.1.1.1 в /etc/resolv.conf |
-| **Нет секретов в коде** | Все API ключи только через аргументы CLI |
-| **Bun binary paths для MCP** | Абсолютные пути к `~/.bun/bin/` вместо `npx -y`, мгновенный холодный старт |
-| **Автообновление через systemd** | topgrade еженедельно (Вс 04:00), unattended-upgrades ежедневно для безопасности |
-| **Автоопределение оборудования** | NVIDIA/AMD/Intel GPU, NPU, Apple Silicon — настройка LLM без конфигурации |
-| **Мульти-провайдер** | 22 LLM-провайдера (19 облачных + 3 локальных) с динамической регистрацией и переключением сессий |
-| **Инфраструктура как код** | PostgreSQL + Qdrant + Redis + Prometheus + Grafana + MemoryLayer через Docker Compose |
-| **Изолированный контур** | Автономная работа LLM с локальными OpenAI-совместимыми бэкендами |
-| **Cockpit TUI** | 8-вкладочный терминальный интерфейс управления сервером |
-| **z.ai GLM-5.2 интеграция** | Основной провайдер для RU/CN рынка, OpenAI-совместимый API |
-| **OpenRouter агрегатор** | Единый API-ключ для 100+ моделей |
-| **Model Router** | Подбор модели под задачу по 8 профилям (coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn) |
-
----
-
-**См. также:**
-- [Справочник](../reference/index.md) — CLI и таблица модулей
-- [MCP, LSP и плагины](../reference/mcp-lsp-plugins.md) — полный каталог
-- [Руководство](../user-guide/index.md) — повседневное использование
-- [Продвинутое](../advanced/index.md) — кастомизация и оптимизация
-
-## Комплексная архитектурная документация
-
-### Основы LLM и ИИ
-- [LLM Fundamentals 2026](llm-fundamentals-2026.md) — Трансформеры, внимание, MoE, спекулятивное декодирование, KV-кэш, ландшафт GPU, ценообразование
-
-### Жизненный цикл разработки
-- [AIPDLC Integration Guide](aipdlc-integration-guide.md) — Методология AIPDLC (жизненный цикл разработки на основе ИИ), Control Plane, роли агентов, изоляция, MCP
-
-### Архитектура агентов
-- [Agent Roles 2026](agent-roles-2026.md) — Иерархия Commander/Planner/Worker/Reviewer, возможности, протокол взаимодействия
-- [Skills Organization 2026](skills-organization-2026.md) — Категории навыков, маппинг AIPDLC, композиция, производительность
-
-### Безопасность
-- [Security Model 2026](security-model-2026.md) — OWASP AST10, изоляция, управление секретами, OPA-политики, Zero Trust
+- [Система агентов](agent-system.ru.md) — многоагентная архитектура
+- [Основы LLM](llm-fundamentals-2026.md) — основы LLM и оптимизация
+- [Интеграция AIPDLC](aipdlc-integration-guide.md) — жизненный цикл разработки

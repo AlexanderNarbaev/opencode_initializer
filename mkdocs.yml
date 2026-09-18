@@ -141,8 +141,26 @@ nav:
   - Architecture:
       - Overview: architecture/index.md
       - Agent System: architecture/agent-system.md
+      - LLM Fundamentals 2026: architecture/llm-fundamentals-2026.md
+      - AIPDLC Integration Guide: architecture/aipdlc-integration-guide.md
+      - Agent Roles 2026: architecture/agent-roles-2026.md
+      - Security Model 2026: architecture/security-model-2026.md
+      - Skills Organization 2026: architecture/skills-organization-2026.md
       - "ADR: Hybrid AI Architecture": architecture/adr/hybrid-ai-architecture.md
       - "ADR: Multi-Agent Framework v3": architecture/adr/multi-agent-framework-v3.md
+      - ADRs:
+          - adr/adr-001-integration-strategy.md
+          - adr/adr-002-toml-config.md
+          - adr/adr-003-parallel-install.md
+          - adr/adr-004-multi-agent.md
+          - adr/adr-005-gitverse-mirrors.md
+          - adr/adr-006-security-scanner.md
+          - adr/adr-007-cloud-sync.md
+          - adr/adr-008-container-infrastructure.md
+          - adr/adr-009-test-strategy.md
+          - adr/adr-010-security-model.md
+          - adr/adr-011-agent-architecture.md
+          - adr/adr-012-documentation-strategy.md
   - Reference:
       - reference/index.md
       - MCP, LSP & Plugins: reference/mcp-lsp-plugins.md
@@ -168,6 +186,17 @@ nav:
       - Orchestrator Patch: operations/orchestrator-patch.md
       - Full Audit (2026-08-22): audit/full-audit.md
       - Versions Registry: VERSIONS.md
+      - Runbook: runbook/operations-runbook.md
+      - Container: container/README.md
+  - Modules:
+      - APM: modules/apm.md
+      - Cache: modules/cache.md
+      - Config: modules/config.md
+      - Core: modules/core.md
+      - Helpers: modules/helpers.md
+      - Logging: modules/logging.md
+      - Parallel: modules/parallel.md
+      - Security: modules/security.md
   - Working Documents:
       - Plans Index: plans/index.md
       - Research Index: research/index.md

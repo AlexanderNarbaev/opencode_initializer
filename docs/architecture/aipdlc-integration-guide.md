@@ -204,7 +204,7 @@ delegate_task(agent="Worker",   prompt="write migration doc", background=true) #
 ### Relationship to the 15-agent taxonomy
 
 The four AIPDLC roles are the *dispatch layer*. The richer 15-agent taxonomy in
-`docs/architecture/agent-system.en.md` (`build`, `plan`, `compaction`, `explore`, `reviewer`,
+[agent-system.en.md](agent-system.md) (`build`, `plan`, `compaction`, `explore`, `reviewer`,
 `critic`, `sme`, `orchestrator`, …) is the *execution layer* those roles fan out into. The mapping
 is: **Commander** ~ orchestrator, **Planner** ~ plan + researcher + sme, **Worker** ~ build +
 test-engineer + docs, **Reviewer** ~ reviewer + code-reviewer + critic + security-auditor.
@@ -552,6 +552,6 @@ to maximize.
 ---
 
 **See also:**
-- [Agent System Architecture](./agent-system.en.md) — the 15-agent execution taxonomy
-- [Architecture Index](./index.en.md) — C4 diagrams and module layout
+- [Agent System Architecture](./agent-system.md) — the 15-agent execution taxonomy
+- [Architecture Index](./index.md) — C4 diagrams and module layout
 - [ADR: Multi-Agent Framework v3](./adr/multi-agent-framework-v3.md) — operating model decision

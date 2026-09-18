@@ -81,7 +81,7 @@ Small tasks are routed to cheap models because a 2 000-token prefill on a small 
 
 **Why it matters:** long-context agents (like ours) pay prefill on *every turn* because the full conversation + tool results + system prompt is re-sent. Two mitigations:
 
-- **Prompt caching** — cache the KV for the *static* prefix (system prompt, tool definitions, skill instructions) so repeated turns only prefill the *dynamic* suffix. `60-caching.sh` implements this, and it's why the [harness principles](../../.config/opencode/instructions/harness-principles.md) mandate "static blocks first, dynamic input last."
+- **Prompt caching** — cache the KV for the *static* prefix (system prompt, tool definitions, skill instructions) so repeated turns only prefill the *dynamic* suffix. `60-caching.sh` implements this, and it's why the [harness principles](https://github.com/AlexanderNarbaev/opencode_initializer/blob/main/.config/opencode/instructions/harness-principles.md) mandate "static blocks first, dynamic input last."
 - **Context compression** — reduce `n` so the cached prefix is smaller and the uncached suffix is shorter.
 
 ---
@@ -226,7 +226,7 @@ The pragmatic 2026 default: **cloud API for reasoning + local quantized models f
 
 ## 4. AIPDLC Integration
 
-AIPDLC = **AI-Product Development Life Cycle** — the governing methodology that turns a raw LLM into a *supervised, auditable, isolated* engineering workforce. The full treatment is in [AIPDLC-INTEGRATION.md](../AIPDLC-INTEGRATION.md) and [agent-system.en.md](agent-system.en.md); this section maps the LLM mechanics to the control structure.
+AIPDLC = **AI-Product Development Life Cycle** — the governing methodology that turns a raw LLM into a *supervised, auditable, isolated* engineering workforce. The full treatment is in [AIPDLC-INTEGRATION.md](https://github.com/AlexanderNarbaev/opencode_initializer/blob/main/docs/AIPDLC-INTEGRATION.md) and [agent-system.en.md](agent-system.md); this section maps the LLM mechanics to the control structure.
 
 ### 4.1 Control Plane
 
@@ -477,8 +477,8 @@ The harness already emits per-turn token counts and per-provider cost (context/t
 
 ### Companion docs
 
-- [AIPDLC Integration](../AIPDLC-INTEGRATION.md)
-- [Agent System (EN)](agent-system.en.md) / [(RU)](agent-system.ru.md)
+- [AIPDLC Integration](https://github.com/AlexanderNarbaev/opencode_initializer/blob/main/docs/AIPDLC-INTEGRATION.md)
+- [Agent System (EN)](agent-system.md) / [(RU)](agent-system.md)
 - [Multi-Agent Framework v3 ADR](adr/multi-agent-framework-v3.md)
 - [Hybrid AI Architecture ADR](adr/hybrid-ai-architecture.md)
 
