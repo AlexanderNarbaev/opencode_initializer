@@ -159,7 +159,11 @@ echo "Test 6: Cache manager"
   # Test cache key generation
   key1=$(_cache_key "https://example.com/file1.tar.gz")
   key2=$(_cache_key "https://example.com/file2.tar.gz")
-  assert_true "Cache keys different" "[ '$key1' != '$key2' ] && echo 0 || echo 1"
+  if [ "$key1" != "$key2" ]; then
+    assert_true "Cache keys different" "echo 0"
+  else
+    assert_true "Cache keys different" "echo 1"
+  fi
 
   # Test cache initialization
   _cache_init
