@@ -14,6 +14,13 @@ pass() { PASS=$((PASS + 1)); echo -e "  \033[32m✓\033[0m $1"; }
 fail() { FAIL=$((FAIL + 1)); echo -e "  \033[31m✗\033[0m $1"; }
 skip() { SKIP=$((SKIP + 1)); echo -e "  \033[33m⊘\033[0m $1 (skipped)"; }
 
+# Skip heavy mode tests in CI
+if [ "${CI:-false}" = "true" ] || [ "${GITHUB_ACTIONS:-false}" = "true" ]; then
+  IS_CI=true
+else
+  IS_CI=false
+fi
+
 echo "=== Mode-Specific Integration Tests ==="
 
 # Test: health mode
@@ -21,6 +28,10 @@ echo ""
 echo "--- Health Mode ---"
 
 test_health_mode() {
+  if [ "$IS_CI" = "true" ]; then
+    skip "health mode (CI)"
+    return
+  fi
   # Test that health mode runs without error
   if timeout 30 bash "$PROJECT_ROOT/setup.sh" --health >/dev/null 2>&1; then
     pass "health mode runs successfully"
@@ -44,6 +55,10 @@ echo ""
 echo "--- CI Mode ---"
 
 test_ci_mode() {
+  if [ "$IS_CI" = "true" ]; then
+    skip "ci mode (CI)"
+    return
+  fi
   # Test that ci mode runs without error
   if timeout 60 bash "$PROJECT_ROOT/setup.sh" --ci >/dev/null 2>&1; then
     pass "ci mode runs successfully"

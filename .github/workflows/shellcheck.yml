@@ -17,19 +17,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run ShellCheck
-        uses: ludeeus/action-shellcheck@master
-        with:
-          severity: error
-          scandir: '.'
-          format: tty
-          exclude: 'completions'
-  shfmt:
-    runs-on: ubuntu-latest
-    if: false  # Disabled: shfmt breaks associative array keys with hyphens (00-core.sh)
-    steps:
-      - uses: actions/checkout@v4
-      - name: Run shfmt
-        uses: docker://mvdan/shfmt:latest
-        with:
-          args: -d -i 2 -ci .
+      - name: Install ShellCheck
+        run: sudo apt-get install -y shellcheck
+      - name: Run ShellCheck on shell files
+        run: |
+          errors=0
+          for f in $(find . -name '*.sh' -not -path './.git/*' -not -path './node_modules/*' -not -path './upstream/*' -not -path './completions/*'); do
+            if ! shellcheck -S error "$f" 2>/dev/null; then
+              echo "FAIL: $f"
+              errors=$((errors + 1))
+            fi
+          done
+          if [ "$errors" -gt 0 ]; then
+            echo "ShellCheck failed on $errors files"
+            exit 1
+          fi
+          echo "ShellCheck passed on all shell files"
