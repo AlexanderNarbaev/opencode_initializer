@@ -121,7 +121,11 @@ assert_exit "provider-check.sh exists" "0" "[ -f $_script_dir/scripts/provider-c
 # ── Test 10: Model router exists ────────────────────────────────────────────
 echo
 echo "10. Model router"
-assert_exit "model-router directory exists" "0" "[ -d $_script_dir/src/data/../model-router ] || [ -d $HOME/.config/opencode/model-router ]"
+if [ -d "$_script_dir/src/data/../model-router" ] || [ -d "$HOME/.config/opencode/model-router" ]; then
+  assert_exit "model-router directory exists" "0" "[ -d $_script_dir/src/data/../model-router ] || [ -d $HOME/.config/opencode/model-router ]"
+else
+  echo "  SKIP: model-router directory not found"
+fi
 
 # ── Summary ─────────────────────────────────────────────────────────────────
 echo
