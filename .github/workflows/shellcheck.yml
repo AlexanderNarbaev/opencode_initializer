@@ -23,6 +23,7 @@ jobs:
           severity: error
           scandir: '.'
           format: tty
+          exclude: './completions/*.zsh'
   shfmt:
     runs-on: ubuntu-latest
     if: false  # Disabled: shfmt breaks associative array keys with hyphens (00-core.sh)
