@@ -1,0 +1,103 @@
+{
+  "name": "@ai-hero/sandcastle",
+  "version": "0.12.0",
+  "description": "CLI for orchestrating AI agents in isolated sandbox environments",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./sandboxes/docker": {
+      "import": "./dist/sandboxes/docker.js",
+      "types": "./dist/sandboxes/docker.d.ts"
+    },
+    "./sandboxes/vercel": {
+      "import": "./dist/sandboxes/vercel.js",
+      "types": "./dist/sandboxes/vercel.d.ts"
+    },
+    "./sandboxes/podman": {
+      "import": "./dist/sandboxes/podman.js",
+      "types": "./dist/sandboxes/podman.d.ts"
+    },
+    "./sandboxes/daytona": {
+      "import": "./dist/sandboxes/daytona.js",
+      "types": "./dist/sandboxes/daytona.d.ts"
+    },
+    "./sandboxes/no-sandbox": {
+      "import": "./dist/sandboxes/no-sandbox.js",
+      "types": "./dist/sandboxes/no-sandbox.d.ts"
+    }
+  },
+  "bin": {
+    "sandcastle": "dist/main.js"
+  },
+  "scripts": {
+    "build": "tsup",
+    "postbuild": "rm -rf dist/templates && cp -r src/templates dist/templates && node scripts/check-public-types-effect-free.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsgo --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepare": "husky",
+    "release": "changeset publish",
+    "sandcastle": "npm run build && tsx .sandcastle/run.ts",
+    "test-podman": "npm run build && tsx --env-file=.sandcastle/.env .sandcastle/test-podman.ts",
+    "test-vercel": "npm run build && tsx --env-file=.sandcastle/.env .sandcastle/test-vercel.ts",
+    "test-interactive": "npm run build && tsx --env-file=.sandcastle/.env .sandcastle/test-interactive.ts"
+  },
+  "keywords": [
+    "cli",
+    "sandbox",
+    "docker",
+    "ai",
+    "agent"
+  ],
+  "packageManager": "npm@10.9.2",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mattpocock/sandcastle"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@changesets/cli": "^2.30.0",
+    "@daytona/sdk": "^0.164.0",
+    "@effect/cli": "^0.74.0",
+    "@effect/platform": "^0.95.0",
+    "@effect/platform-node": "^0.105.0",
+    "@effect/printer": "^0.48.0",
+    "@effect/printer-ansi": "^0.48.0",
+    "@types/node": "^25.5.0",
+    "@typescript/native-preview": "^7.0.0-dev.20260317.1",
+    "effect": "^3.20.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.1",
+    "prettier": "^3.5.3",
+    "tsup": "^8.5.1",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3",
+    "vitest": "^3.2.0",
+    "zod": "^4.4.3"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.1.0"
+  },
+  "peerDependencies": {
+    "@daytona/sdk": "^0.164.0",
+    "@vercel/sandbox": ">=1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@vercel/sandbox": {
+      "optional": true
+    },
+    "@daytona/sdk": {
+      "optional": true
+    }
+  },
+  "files": [
+    "dist"
+  ]
+}
