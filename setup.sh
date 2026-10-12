@@ -654,7 +654,9 @@ _sudo_prompt_ok() {
 }
 
 case "$MODE" in
-  new|fix-config|health|ci|fix-zshrc) ;;
+  # Modes that make no system changes must not require sudo
+  # (dry-run is a preview; help is usage text)
+  new|fix-config|health|ci|fix-zshrc|dry-run|help) ;;
   *)
     if ! _sudo_prompt_ok; then
       err "sudo unavailable. Run with --no-sudo (CI), set SUDO_PASS env, or configure NOPASSWD."

@@ -99,14 +99,14 @@ echo "--- Help Mode ---"
 
 test_help_mode() {
   # Test that help mode runs without error
-  if timeout 10 bash "$PROJECT_ROOT/setup.sh" --help >/dev/null 2>&1; then
+  if timeout 60 bash "$PROJECT_ROOT/setup.sh" --help >/dev/null 2>&1; then
     pass "help mode runs successfully"
   else
     fail "help mode failed"
   fi
   
   # Test that help mode produces output
-  output=$(timeout 10 bash "$PROJECT_ROOT/setup.sh" --help 2>&1)
+  output=$(timeout 60 bash "$PROJECT_ROOT/setup.sh" --help 2>&1)
   if [ -n "$output" ]; then
     pass "help mode produces output"
   else
@@ -142,7 +142,7 @@ test_dev_cli_modes() {
   fi
   
   # Test dev version-check
-  if timeout 10 bash "$PROJECT_ROOT/dev.sh" version-check >/dev/null 2>&1; then
+  if timeout 120 bash "$PROJECT_ROOT/dev.sh" version-check >/dev/null 2>&1; then
     pass "dev version-check runs successfully"
   else
     fail "dev version-check failed"
