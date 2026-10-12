@@ -39,7 +39,7 @@ test_postgres_start() {
   local container_name="test-postgres-$$"
   docker run -d --name "$container_name" \
     -e POSTGRES_PASSWORD=testpass \
-    -p 15432:5432 \
+    -p 127.0.0.1::5432 \
     postgres:17-alpine &>/dev/null
 
   # Wait for PostgreSQL to be ready
@@ -49,7 +49,7 @@ test_postgres_start() {
       break
     fi
     sleep 1
-    ((attempts++))
+    attempts=$((attempts + 1))
   done
 
   if docker exec "$container_name" pg_isready -U postgres &>/dev/null; then
@@ -65,7 +65,7 @@ test_postgres_connection() {
   local container_name="test-postgres-conn-$$"
   docker run -d --name "$container_name" \
     -e POSTGRES_PASSWORD=testpass \
-    -p 15433:5432 \
+    -p 127.0.0.1::5432 \
     postgres:17-alpine &>/dev/null
 
   sleep 5
@@ -90,7 +90,7 @@ echo "=== Test: Redis Container ==="
 test_redis_start() {
   local container_name="test-redis-$$"
   docker run -d --name "$container_name" \
-    -p 16379:6379 \
+    -p 127.0.0.1::6379 \
     redis:7-alpine &>/dev/null
 
   sleep 2
@@ -107,7 +107,7 @@ test_redis_start() {
 test_redis_set_get() {
   local container_name="test-redis-setget-$$"
   docker run -d --name "$container_name" \
-    -p 16380:6379 \
+    -p 127.0.0.1::6379 \
     redis:7-alpine &>/dev/null
 
   sleep 2
@@ -135,12 +135,16 @@ echo "=== Test: Qdrant Container ==="
 test_qdrant_start() {
   local container_name="test-qdrant-$$"
   docker run -d --name "$container_name" \
-    -p 16333:6333 \
+    -p 127.0.0.1::6333 \
     qdrant/qdrant:latest &>/dev/null
 
   sleep 5
 
-  if curl -sf http://localhost:16333/healthz &>/dev/null; then
+  # Resolve the ephemeral host port Docker assigned to container port 6333
+  local host_port
+  host_port=$(docker port "$container_name" 6333/tcp 2>/dev/null | head -1 | sed 's/.*://')
+
+  if [ -n "$host_port" ] && curl -sf "http://localhost:${host_port}/healthz" &>/dev/null; then
     pass "Qdrant container starts and responds to health check"
   else
     fail "Qdrant container failed to respond"
