@@ -39,6 +39,22 @@ elif [ -f "$HOME/opencode_initializer/src/lib/helpers.sh" ]; then
 else
   SCRIPTS_DIR="$(dirname "$(_readlink_f "$0")")"
 fi
+
+# ── Non-interactive / no-network fast path ──────────────────────────────────
+# When stdin or stdout is not a TTY (CI, cron, piped/redirected output) or an
+# explicit no-network signal is set, skip the load-time live mirror probing in
+# 00-core.sh (up to ~72 curl probes) and bound network work in sub-commands so
+# `dev list|health|version-check` complete quickly instead of hanging on slow
+# or unreachable networks. Interactive runs keep full behavior.
+if [ "${SKIP_MIRROR_RESOLVE:-false}" != "true" ] && {
+     [ ! -t 0 ] || [ ! -t 1 ] ||
+     [ "${NO_NETWORK:-false}" = "true" ] ||
+     [ "${NONINTERACTIVE:-false}" = "true" ] ||
+     [ "${CI:-false}" = "true" ]; }; then
+  export SKIP_MIRROR_RESOLVE=true
+  export DEV_NONINTERACTIVE=1
+fi
+
 source "$SCRIPTS_DIR/src/lib/helpers.sh"
 source "$SCRIPTS_DIR/src/lib/00-core.sh"
 CONFIG_FILE="${HOME}/.config/opencode-setup/setup.conf"
