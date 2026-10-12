@@ -1,0 +1,53 @@
+{
+  "$schema": "https://opencode.initializer/schemas/spec-v1.json",
+  "uri": "spec://feat/ai-agent-bootstrap@1.0.0",
+  "kind": "feat",
+  "name": "ai-agent-bootstrap",
+  "title": "AI Agent Bootstrap Feature",
+  "description": "Core feature for bootstrapping AI agents with context, tools, and memory",
+  "version": "1.0.0",
+  "status": "approved",
+  "created": "2026-01-01T00:00:00+00:00",
+  "updated": "2026-01-01T00:00:00+00:00",
+  "authors": ["OpenCode Team"],
+  "reviewers": ["Architecture Board"],
+  "dependencies": [
+    "spec://stack/core-infra@1.0.0",
+    "spec://tool/mcp-protocol@1.0.0"
+  ],
+  "tags": ["ai", "agent", "bootstrap", "core"],
+  "content": {
+    "requirements": [
+      "Agent must initialize with valid context from spec://context/default@1.0.0",
+      "Agent must register available tools from MCP registry",
+      "Agent must establish memory connection (Qdrant/PostgreSQL)",
+      "Agent must validate credentials before first API call",
+      "Agent must support hot-reload of configuration"
+    ],
+    "acceptance_criteria": [
+      "Agent starts within 5 seconds",
+      "All registered tools are accessible via spec:// URIs",
+      "Memory layer responds to queries within 100ms p95",
+      "Failed initialization rolls back gracefully"
+    ],
+    "implementation_notes": [
+      "Use lazy loading for tool registration",
+      "Implement circuit breaker for external API calls",
+      "Cache context embeddings in Redis"
+    ],
+    "test_strategy": [
+      "Unit tests for each initialization step",
+      "Integration tests with mock MCP servers",
+      "E2E tests with full agent lifecycle",
+      "Load tests with 100 concurrent agents"
+    ]
+  },
+  "metadata": {
+    "complexity": "high",
+    "priority": "critical",
+    "estimated_tokens": 5000,
+    "actual_tokens": 0,
+    "risk_level": "medium",
+    "rollback_plan": "Revert to previous agent version via versioned specs"
+  }
+}

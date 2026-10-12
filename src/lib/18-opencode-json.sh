@@ -14,15 +14,25 @@ home = os.path.expanduser("~")
 project_dir = os.environ.get("PROJECT_DIR", os.path.join(home, "projects"))
 config_path = os.path.join(home, ".config", "opencode", "opencode.json")
 
-# Load existing config to preserve user choices
+# Load existing config to preserve user choices (mcp + permission/agent/instructions
+# customizations must survive regeneration — see ci.sh clobber incident 2026-10-12)
 existing_mcp = {}
+existing_keep = {}
 if os.path.exists(config_path):
     try:
+        import re as _re
         with open(config_path) as f:
-            existing = json.load(f)
-            existing_mcp = existing.get("mcp", {})
-    except:
-        pass
+            _raw = f.read()
+        # Config is JSONC: strip full-line // comments before parsing (otherwise the
+        # whole existing config is silently discarded — clobber bug, 2026-10-12)
+        _raw = _re.sub(r'^\s*//.*$', '', _raw, flags=_re.M)
+        existing = json.loads(_raw)
+        existing_mcp = existing.get("mcp", {})
+        for _k in ("permission", "agent", "instructions", "plugin", "provider", "model", "small_model", "share"):
+            if _k in existing:
+                existing_keep[_k] = existing[_k]
+    except Exception as _e:
+        print(f"[warn] existing opencode.json not preserved (parse failed): {_e}")
 
 # Load secrets from secrets.env for provider and token detection
 secrets = {}
@@ -808,6 +818,10 @@ config = {
         "show_tool_usage": True
     }
 }
+
+# Preserve user permission/agent/instructions blocks over generated defaults
+for _k, _v in existing_keep.items():
+    config[_k] = _v
 
 # ── Per-agent MCP permissions (src/data/mcp-profiles.json) ─────────────────
 # Emits `mymcp_*` permission keys per agent derived from the agent→task-profile

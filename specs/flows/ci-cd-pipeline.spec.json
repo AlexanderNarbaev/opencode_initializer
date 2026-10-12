@@ -1,0 +1,48 @@
+{
+  "$schema": "https://opencode.initializer/schemas/spec-v1.json",
+  "uri": "spec://flow/ci-cd-pipeline@1.0.0",
+  "kind": "flow",
+  "name": "ci-cd-pipeline",
+  "title": "CI/CD Pipeline Workflow",
+  "description": "Complete CI/CD workflow from commit to production deployment",
+  "version": "1.0.0",
+  "status": "approved",
+  "created": "2026-01-01T00:00:00+00:00",
+  "updated": "2026-01-01T00:00:00+00:00",
+  "authors": ["DevOps Team"],
+  "reviewers": ["Security Team"],
+  "dependencies": ["spec://stack/github-actions@1.0.0"],
+  "tags": ["ci-cd", "deployment", "automation"],
+  "content": {
+    "requirements": [
+      "Pipeline triggers on push to main and PRs",
+      "Run unit, integration, and E2E tests in parallel",
+      "Security scan with Trivy and CodeQL",
+      "Build and push Docker images on success",
+      "Deploy to staging automatically",
+      "Production deployment requires manual approval"
+    ],
+    "acceptance_criteria": [
+      "Pipeline completes within 15 minutes",
+      "False positive rate < 1% for security scans",
+      "Rollback possible within 5 minutes"
+    ],
+    "implementation_notes": [
+      "Use matrix builds for test parallelization",
+      "Cache dependencies between runs",
+      "Implement canary deployments for production"
+    ],
+    "test_strategy": [
+      "Test pipeline with sample commits",
+      "Chaos engineering: simulate failures at each stage",
+      "Load test with concurrent pipelines"
+    ]
+  },
+  "metadata": {
+    "complexity": "high",
+    "priority": "critical",
+    "estimated_tokens": 4000,
+    "actual_tokens": 0,
+    "risk_level": "low"
+  }
+}

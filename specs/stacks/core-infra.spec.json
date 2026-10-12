@@ -1,0 +1,48 @@
+{
+  "$schema": "https://opencode.initializer/schemas/spec-v1.json",
+  "uri": "spec://stack/core-infra@1.0.0",
+  "kind": "stack",
+  "name": "core-infra",
+  "title": "Core Infrastructure Stack",
+  "description": "Base technology stack for OpenCode Initializer",
+  "version": "1.0.0",
+  "status": "approved",
+  "created": "2026-01-01T00:00:00+00:00",
+  "updated": "2026-01-01T00:00:00+00:00",
+  "authors": ["Platform Team"],
+  "reviewers": ["Architecture Board"],
+  "dependencies": [],
+  "tags": ["infrastructure", "core", "stack"],
+  "content": {
+    "requirements": [
+      "Ubuntu 24.04 LTS or compatible",
+      "Docker 25.x with Compose v2",
+      "PostgreSQL 16 for persistent storage",
+      "Qdrant 1.8 for vector search",
+      "Redis 7 for caching",
+      "Node.js 24, Python 3.14, Go 1.26 runtimes"
+    ],
+    "acceptance_criteria": [
+      "All services start via docker-compose up",
+      "Health checks pass within 30 seconds",
+      "Backup/restore tested monthly"
+    ],
+    "implementation_notes": [
+      "Use official Docker images where possible",
+      "Pin all versions in requirements files",
+      "Enable automatic security updates"
+    ],
+    "test_strategy": [
+      "Infrastructure as code tests with Terratest",
+      "Container scanning with Trivy",
+      "Performance benchmarks monthly"
+    ]
+  },
+  "metadata": {
+    "complexity": "medium",
+    "priority": "critical",
+    "estimated_tokens": 3000,
+    "actual_tokens": 0,
+    "risk_level": "low"
+  }
+}

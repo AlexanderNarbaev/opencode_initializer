@@ -8,7 +8,7 @@
     "check": "node --check src/gui/server.js"
   },
   "dependencies": {
-    "@opencode-ai/plugin": "1.17.8"
+    "@opencode-ai/plugin": "1.19.0"
   },
   "bin": {
     "opencode-gui": "./dist/opencode-gui"

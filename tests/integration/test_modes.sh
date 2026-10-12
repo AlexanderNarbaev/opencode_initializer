@@ -33,14 +33,15 @@ test_health_mode() {
     return
   fi
   # Test that health mode runs without error
-  if timeout 30 bash "$PROJECT_ROOT/setup.sh" --health >/dev/null 2>&1; then
+  # (budget 120s: health performs 120+ checks incl. network-ish probes; 30s was too tight)
+  if timeout 120 bash "$PROJECT_ROOT/setup.sh" --health >/dev/null 2>&1; then
     pass "health mode runs successfully"
   else
     fail "health mode failed"
   fi
   
   # Test that health mode produces output
-  output=$(timeout 30 bash "$PROJECT_ROOT/setup.sh" --health 2>&1)
+  output=$(timeout 120 bash "$PROJECT_ROOT/setup.sh" --health 2>&1)
   if [ -n "$output" ]; then
     pass "health mode produces output"
   else

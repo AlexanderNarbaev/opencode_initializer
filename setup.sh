@@ -58,6 +58,8 @@ export SCRIPT_DIR
 # ── Source infrastructure (must be first) ────────────────────────────────────
 source "$SCRIPT_DIR/src/lib/helpers.sh"
 source "$SCRIPT_DIR/src/lib/00-core.sh"
+source "$SCRIPT_DIR/src/lib/01-error-recovery.sh"
+source "$SCRIPT_DIR/src/lib/02-wal-fix.sh"
 source "$SCRIPT_DIR/src/lib/00d-parallel.sh"
 source "$SCRIPT_DIR/src/lib/00e-cache-mgr.sh"
 source "$SCRIPT_DIR/src/lib/00f-apm.sh"
@@ -559,6 +561,39 @@ esac
 done
 
 # ── Early-exit modes ─────────────────────────────────────────────────────────
+# ── Step runner (defined EARLY: modes/*.sh call _run_step at source time) ──
+TOTAL_STEPS=${TOTAL_STEPS:-49}
+CURRENT_STEP=${CURRENT_STEP:-0}
+
+_run_step() {
+  local step_key="$1" step_name="$2" module="$3"
+  CURRENT_STEP=$((CURRENT_STEP + 1))
+  if _step_skip "$step_key" 2>/dev/null; then return 0; fi
+  _progress "$CURRENT_STEP/$TOTAL_STEPS" "$step_name"
+  if [ "${DRY_RUN:-false}" = "true" ]; then
+    info "[DRY] $step_name ($module)"
+    return 0
+  fi
+  # shellcheck disable=SC1090
+  local step_output step_exit
+  step_output="$(set +e; source "$module" 2>&1)" || step_exit=$?
+  if [ "${step_exit:-0}" -ne 0 ]; then
+    # Extract last meaningful error line for diagnostics
+    local error_line
+    error_line="$(echo "$step_output" | grep -E "(ERROR|error|Error|FAILED|failed|Failed|command not found|Permission denied)" | tail -1)"
+    if [ -n "$error_line" ]; then
+      warn "$step_name — FAILED at: $error_line"
+    else
+      warn "$step_name — FAILED (exit code: $step_exit)"
+    fi
+    # Mark as PARTIAL so next run knows to retry
+    _wal_checkpoint "$step_name" "$step_key" "PARTIAL"
+    return 1
+  fi
+  _wal_checkpoint "$step_name" "$step_key" "DONE"
+  log "$step_name — done"
+}
+
 if [ "$MODE" = "health" ]; then source "$SCRIPT_DIR/src/modes/health.sh"; fi
 if [ "$MODE" = "ci" ]; then source "$SCRIPT_DIR/src/modes/ci.sh"; fi
 if [ "$MODE" = "fix-zshrc" ]; then source "$SCRIPT_DIR/src/modes/fix-zshrc.sh"; fi
@@ -844,38 +879,7 @@ echo -e "${GREEN}     Mode: $MODE${NC}"
 echo -e "${GREEN}     Log:  $SETUP_LOG${NC}"
 echo -e "${GREEN}============================================================${NC}"
 
-# ── Execute steps ───────────────────────────────────────────────────────────
-TOTAL_STEPS=49
-CURRENT_STEP=0
-
-_run_step() {
-  local step_key="$1" step_name="$2" module="$3"
-  CURRENT_STEP=$((CURRENT_STEP + 1))
-  if _step_skip "$step_key" 2>/dev/null; then return 0; fi
-  _progress "$CURRENT_STEP/$TOTAL_STEPS" "$step_name"
-  if [ "${DRY_RUN:-false}" = "true" ]; then
-    info "[DRY] $step_name ($module)"
-    return 0
-  fi
-  # shellcheck disable=SC1090
-  local step_output step_exit
-  step_output="$(set +e; source "$module" 2>&1)" || step_exit=$?
-  if [ "${step_exit:-0}" -ne 0 ]; then
-    # Extract last meaningful error line for diagnostics
-    local error_line
-    error_line="$(echo "$step_output" | grep -E "(ERROR|error|Error|FAILED|failed|Failed|command not found|Permission denied)" | tail -1)"
-    if [ -n "$error_line" ]; then
-      warn "$step_name — FAILED at: $error_line"
-    else
-      warn "$step_name — FAILED (exit code: $step_exit)"
-    fi
-    # Mark as PARTIAL so next run knows to retry
-    _wal_checkpoint "$step_name" "$step_key" "PARTIAL"
-    return 1
-  fi
-  _wal_checkpoint "$step_name" "$step_key" "DONE"
-  log "$step_name — done"
-}
+# ── Execute steps (step runner is defined before mode dispatch) ─────────
 
 # ── Project-only init mode (--new <dir>) — exits after completion ───────────
 if [ "$MODE" = "new" ]; then source "$SCRIPT_DIR/src/modes/new.sh"; fi
@@ -956,6 +960,21 @@ _run_step step_context_guard "Context Guard (compression)" "$SCRIPT_DIR/src/lib/
 _run_step step_provider_discovery "Provider Auto-Discovery" "$SCRIPT_DIR/src/lib/58-provider-discovery.sh"
 _run_step step_local_memory "Local Memory (opencode-mem, opt-in)" "$SCRIPT_DIR/src/lib/59-local-memory.sh"
 _run_step step_daytona "Daytona Environment Practice" "$SCRIPT_DIR/src/lib/61-daytona.sh"
+
+# ── Software Factory modules (v16.0.0 — Waves 0-6) ────────────────────────
+# Error recovery & WAL locking are foundational: sourced early (see infra block).
+# These are sourced here so their functions are available to later steps and CLI.
+if [ "${SOFTWARE_FACTORY_ENABLED:-true}" != "false" ]; then
+  for _sf_mod in \
+    33-spec-registry 34-token-cache 35-debt-intent-registry \
+    41-model-policy 42-pii-guard 43-audit-chain 44-offline-bundle \
+    45-maintainability-score \
+    50-product-review 51-architecture-doc 52-program-design \
+    53-vertical-slices 54-agent-handoff; do
+    [ -f "$SCRIPT_DIR/src/lib/${_sf_mod}.sh" ] && source "$SCRIPT_DIR/src/lib/${_sf_mod}.sh" || true
+  done
+  unset _sf_mod
+fi
 [ "${BEST_PRACTICES_ENABLED:-true}" != "false" ] && _run_step step_best_practices "Best Practices Skills (smixs)" "$SCRIPT_DIR/src/lib/40-best-practices.sh"
 _run_step step_upstream_sync "Upstream Sync (submodules + pins)" "$SCRIPT_DIR/src/lib/99-upstream-sync.sh"
 

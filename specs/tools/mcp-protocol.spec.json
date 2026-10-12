@@ -1,0 +1,47 @@
+{
+  "$schema": "https://opencode.initializer/schemas/spec-v1.json",
+  "uri": "spec://tool/mcp-protocol@1.0.0",
+  "kind": "tool",
+  "name": "mcp-protocol",
+  "title": "MCP Protocol Configuration",
+  "description": "Model Context Protocol specification for AI tool integration",
+  "version": "1.0.0",
+  "status": "approved",
+  "created": "2026-01-01T00:00:00+00:00",
+  "updated": "2026-01-01T00:00:00+00:00",
+  "authors": ["AI Team"],
+  "reviewers": ["Security Team"],
+  "dependencies": ["spec://stack/core-infra@1.0.0"],
+  "tags": ["mcp", "protocol", "ai", "tools"],
+  "content": {
+    "requirements": [
+      "Support 24 MCP servers (GitHub, GitLab, Filesystem, Playwright, etc.)",
+      "Implement request/response timeout (30s default)",
+      "Retry logic with exponential backoff",
+      "Authentication via API keys or OAuth2",
+      "Rate limiting per server"
+    ],
+    "acceptance_criteria": [
+      "All 24 MCP servers connect successfully",
+      "Average response time < 500ms",
+      "Automatic reconnection on failure"
+    ],
+    "implementation_notes": [
+      "Use connection pooling for efficiency",
+      "Cache frequently accessed resources",
+      "Log all MCP interactions for audit"
+    ],
+    "test_strategy": [
+      "Mock MCP server tests",
+      "Integration tests with real servers",
+      "Load tests with 1000 concurrent requests"
+    ]
+  },
+  "metadata": {
+    "complexity": "high",
+    "priority": "critical",
+    "estimated_tokens": 4500,
+    "actual_tokens": 0,
+    "risk_level": "medium"
+  }
+}

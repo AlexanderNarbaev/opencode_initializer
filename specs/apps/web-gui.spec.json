@@ -1,0 +1,53 @@
+{
+  "$schema": "https://opencode.initializer/schemas/spec-v1.json",
+  "uri": "spec://app/web-gui@1.0.0",
+  "kind": "app",
+  "name": "web-gui",
+  "title": "Web GUI Application",
+  "description": "Web-based management interface for OpenCode Initializer",
+  "version": "1.0.0",
+  "status": "approved",
+  "created": "2026-01-01T00:00:00+00:00",
+  "updated": "2026-01-01T00:00:00+00:00",
+  "authors": ["Frontend Team"],
+  "reviewers": ["UX Team"],
+  "dependencies": [
+    "spec://stack/core-infra@1.0.0",
+    "spec://tool/mcp-protocol@1.0.0"
+  ],
+  "tags": ["web", "gui", "dashboard", "management"],
+  "content": {
+    "requirements": [
+      "React 19 with TypeScript",
+      "Port 4200 with HTTPS support",
+      "Authentication via OAuth2/OIDC",
+      "Real-time updates via WebSocket",
+      "Responsive design (mobile/desktop)",
+      "Dark/light theme support"
+    ],
+    "acceptance_criteria": [
+      "Lighthouse score > 90",
+      "First contentful paint < 1.5s",
+      "Zero accessibility violations (WCAG 2.1 AA)"
+    ],
+    "implementation_notes": [
+      "Use Vite for build tooling",
+      "TanStack Query for data fetching",
+      "Zustand for state management",
+      "TailwindCSS for styling"
+    ],
+    "test_strategy": [
+      "Unit tests with Vitest (80% coverage)",
+      "E2E tests with Playwright",
+      "Visual regression tests",
+      "Performance budgets in CI"
+    ]
+  },
+  "metadata": {
+    "complexity": "high",
+    "priority": "high",
+    "estimated_tokens": 6000,
+    "actual_tokens": 0,
+    "risk_level": "medium"
+  }
+}

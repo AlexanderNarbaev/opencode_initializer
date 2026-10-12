@@ -1,0 +1,48 @@
+{
+  "$schema": "https://opencode.initializer/schemas/spec-v1.json",
+  "uri": "spec://lang/bash-best-practices@1.0.0",
+  "kind": "lang",
+  "name": "bash-best-practices",
+  "title": "Bash Scripting Best Practices",
+  "description": "Coding standards and best practices for bash scripts in OpenCode",
+  "version": "1.0.0",
+  "status": "approved",
+  "created": "2026-01-01T00:00:00+00:00",
+  "updated": "2026-01-01T00:00:00+00:00",
+  "authors": ["Core Team"],
+  "reviewers": ["Security Team"],
+  "dependencies": [],
+  "tags": ["bash", "scripting", "standards", "security"],
+  "content": {
+    "requirements": [
+      "All scripts must start with #!/usr/bin/env bash",
+      "Use set -euo pipefail for strict mode",
+      "Quote all variable expansions: \"$var\"",
+      "Use local for function variables",
+      "Implement error handling with trap",
+      "Run shellcheck before commit (no warnings)"
+    ],
+    "acceptance_criteria": [
+      "100% of scripts pass shellcheck",
+      "No use of eval or unquoted variables",
+      "All functions documented with comments"
+    ],
+    "implementation_notes": [
+      "Use functions for reusability",
+      "Prefer [[ ]] over [ ] for conditionals",
+      "Use arrays instead of string parsing"
+    ],
+    "test_strategy": [
+      "shellcheck CI integration",
+      "bats unit tests for critical functions",
+      "Integration tests for full workflows"
+    ]
+  },
+  "metadata": {
+    "complexity": "low",
+    "priority": "high",
+    "estimated_tokens": 2000,
+    "actual_tokens": 0,
+    "risk_level": "low"
+  }
+}

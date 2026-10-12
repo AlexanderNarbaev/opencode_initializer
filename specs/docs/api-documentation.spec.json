@@ -1,0 +1,47 @@
+{
+  "$schema": "https://opencode.initializer/schemas/spec-v1.json",
+  "uri": "spec://docs/api-documentation@1.0.0",
+  "kind": "doc",
+  "name": "api-documentation",
+  "title": "API Documentation Standards",
+  "description": "Standards and templates for API documentation",
+  "version": "1.0.0",
+  "status": "approved",
+  "created": "2026-01-01T00:00:00+00:00",
+  "updated": "2026-01-01T00:00:00+00:00",
+  "authors": ["Documentation Team"],
+  "reviewers": ["Developer Experience Team"],
+  "dependencies": [],
+  "tags": ["documentation", "api", "standards"],
+  "content": {
+    "requirements": [
+      "All public APIs must have OpenAPI 3.0 spec",
+      "Include examples for all endpoints",
+      "Document error codes and responses",
+      "Provide curl/Python/Node.js examples",
+      "Keep changelog updated"
+    ],
+    "acceptance_criteria": [
+      "100% endpoint coverage",
+      "Examples tested in CI",
+      "Documentation builds without warnings"
+    ],
+    "implementation_notes": [
+      "Use Redocly for API docs rendering",
+      "Generate docs from code annotations",
+      "Version documentation with API"
+    ],
+    "test_strategy": [
+      "Validate OpenAPI spec in CI",
+      "Test examples against staging API",
+      "User feedback collection"
+    ]
+  },
+  "metadata": {
+    "complexity": "low",
+    "priority": "medium",
+    "estimated_tokens": 2500,
+    "actual_tokens": 0,
+    "risk_level": "low"
+  }
+}

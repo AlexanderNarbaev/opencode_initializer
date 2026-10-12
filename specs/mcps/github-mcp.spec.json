@@ -1,0 +1,47 @@
+{
+  "$schema": "https://opencode.initializer/schemas/spec-v1.json",
+  "uri": "spec://mcp/github-mcp@1.0.0",
+  "kind": "mcp",
+  "name": "github-mcp",
+  "title": "GitHub MCP Server",
+  "description": "Model Context Protocol server for GitHub integration",
+  "version": "1.0.0",
+  "status": "approved",
+  "created": "2026-01-01T00:00:00+00:00",
+  "updated": "2026-01-01T00:00:00+00:00",
+  "authors": ["Integration Team"],
+  "reviewers": ["Security Team"],
+  "dependencies": ["spec://tool/mcp-protocol@1.0.0"],
+  "tags": ["mcp", "github", "git", "integration"],
+  "content": {
+    "requirements": [
+      "Support GitHub API v3 (REST) and v4 (GraphQL)",
+      "Implement OAuth2 authentication flow",
+      "Provide tools: list_repos, get_pr, create_issue, search_code",
+      "Rate limiting: 5000 requests/hour (authenticated)",
+      "Cache responses for 5 minutes"
+    ],
+    "acceptance_criteria": [
+      "All 4 core tools functional",
+      "Authentication refresh works seamlessly",
+      "Error messages are descriptive"
+    ],
+    "implementation_notes": [
+      "Use octokit/rest.js for API calls",
+      "Store tokens encrypted at rest",
+      "Implement webhook support for real-time updates"
+    ],
+    "test_strategy": [
+      "Mock GitHub API with MSW",
+      "Integration tests with test organization",
+      "Security audit of token handling"
+    ]
+  },
+  "metadata": {
+    "complexity": "medium",
+    "priority": "high",
+    "estimated_tokens": 3500,
+    "actual_tokens": 0,
+    "risk_level": "medium"
+  }
+}

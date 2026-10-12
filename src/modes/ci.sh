@@ -8,6 +8,9 @@ set -euo pipefail
 if [ "$MODE" != "ci" ]; then return 0; fi
 
 section "CI/CD Headless Mode — Minimal AI Agent Setup"
+if [ "${DRY_RUN:-false}" = "true" ]; then
+  log "dry-run mode active — preview only, no changes will be made"
+fi
 log "CI mode: OpenCode CLI + Bun + essential MCPs only"
 log "Skipping: ZSH, Docker, Chrome, GUI tools, LLM runtimes, RAG"
 
@@ -40,7 +43,11 @@ CI_MCPS=(
   "@upstash/context7-mcp"
 )
 
-if command -v bun &>/dev/null; then
+if [ "${DRY_RUN:-false}" = "true" ]; then
+  for pkg in "${CI_MCPS[@]}"; do
+    _info_ci "[DRY] would add MCP package: $pkg"
+  done
+elif command -v bun &>/dev/null; then
   for pkg in "${CI_MCPS[@]}"; do
     _info_ci "Installing $pkg..."
     bun add -g "$pkg" 2>/dev/null && log "MCP: $pkg" || warn "MCP: $pkg failed (non-fatal)"
@@ -48,6 +55,18 @@ if command -v bun &>/dev/null; then
 fi
 
 # ── Step 5: Minimal opencode.json (CI-optimized) ────────────────────────
+if [ "${DRY_RUN:-false}" = "true" ]; then
+  _info_ci "[DRY] would generate minimal opencode.json for CI/CD (skipped)"
+  log "CI/CD headless dry-run complete — no changes made"
+  exit 0
+fi
+# Never clobber an existing full config with the minimal CI one (data-loss guard).
+_ci_cfg="${HOME}/.config/opencode/opencode.json"
+if [ -f "$_ci_cfg" ] && grep -qE '"(permission|lsp|agent)"[[:space:]]*:' "$_ci_cfg"; then
+  _info_ci "Existing full opencode.json detected — keeping it (CI minimal config not written)"
+  log "CI/CD headless setup complete"
+  exit 0
+fi
 _info_ci "Generating minimal opencode.json for CI/CD..."
 
 python3 -c "
