@@ -229,9 +229,12 @@ services:
       - full
 
   mcp-github:
-    image: node:20-alpine
+    # official github/github-mcp-server image (the deprecated legacy npm
+    # GitHub MCP package is replaced); entrypoint is
+    # /server/github-mcp-server with default CMD ["stdio"].
+    image: ghcr.io/github/github-mcp-server
     container_name: mcp-github
-    command: npx -y @modelcontextprotocol/server-github
+    command: stdio
     environment:
       - GITHUB_PERSONAL_ACCESS_TOKEN=${GITHUB_TOKEN}
     networks:

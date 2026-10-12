@@ -450,7 +450,6 @@
       }
     ],
     "opencode-auto-fallback",
-    "opencode-goal-mode",
     "opencode-swarm",
     "opencode-vibeguard",
     "opencode-devcontainers",
@@ -460,11 +459,8 @@
     "opencode-goal-plugin",
     "opencode-conductor",
     "opencode-zellij-namer",
-    "opencode-morph-plugin",
     "opencode-supermemory",
     "opencode-websearch-cited",
-    "opencode-firecrawl",
-    "opencode-plugin-otel",
     "opencode-token-tracker",
     "opencode-orchestrator",
     "opencode-daytona"
@@ -473,7 +469,9 @@
     "context7": {
       "type": "local",
       "command": [
-        "c7-mcp-server"
+        "npx",
+        "-y",
+        "@upstash/context7-mcp@4.3.0"
       ],
       "enabled": true
     },
@@ -609,7 +607,7 @@
       "command": [
         "npx",
         "-y",
-        "brave-search-mcp"
+        "@brave/brave-search-mcp-server@2.1.4"
       ],
       "enabled": false
     },
@@ -669,20 +667,7 @@
     "plan": {
       "mode": "primary",
       "model": "deepseek/deepseek-v4-flash",
-      "temperature": 0.1,
-      "permission": {
-        "edit": "deny",
-        "bash": "deny",
-        "read": "allow",
-        "glob": "allow",
-        "grep": "allow",
-        "write": "deny",
-        "webfetch": "allow",
-        "task": {
-          "researcher": "allow",
-          "explore": "allow"
-        }
-      }
+      "temperature": 0.1
     },
     "general": {
       "mode": "subagent",
@@ -692,26 +677,12 @@
     "explore": {
       "mode": "subagent",
       "model": "deepseek/deepseek-v4-flash",
-      "temperature": 0.1,
-      "permission": {
-        "edit": "deny",
-        "bash": "deny",
-        "write": "deny"
-      }
+      "temperature": 0.1
     },
     "code-reviewer": {
       "mode": "subagent",
       "model": "deepseek/deepseek-v4-pro",
-      "temperature": 0.1,
-      "permission": {
-        "edit": "deny",
-        "bash": {
-          "git diff *": "allow",
-          "git log *": "allow",
-          "*": "deny"
-        },
-        "task": "deny"
-      }
+      "temperature": 0.1
     },
     "compaction": {
       "mode": "primary",
