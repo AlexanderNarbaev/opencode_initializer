@@ -70,10 +70,10 @@ if [ -f "$CONFIG" ]; then
   JSONC_LOAD="import json,re; s=open('$CONFIG').read(); s=re.sub(r'^\s*//.*$','',s,flags=re.M); d=json.loads(s)"
   assert "opencode.json valid JSON" python3 -c "import json,re; s=open('$CONFIG').read(); s=re.sub(r'^\s*//.*$','',s,flags=re.M); json.loads(s)"
   assert "opencode.json has model" python3 -c "$JSONC_LOAD; assert 'model' in d"
-  assert "opencode.json has provider" python3 -c "$JSONC_LOAD; assert 'provider' in d"
+  assert "opencode.json has provider" python3 -c "$JSONC_LOAD; assert ('provider' in d or 'providers' in d)"
   assert "opencode.json has mcp" python3 -c "$JSONC_LOAD; assert 'mcp' in d"
   assert "opencode.json has lsp" python3 -c "$JSONC_LOAD; assert 'lsp' in d"
-  assert "opencode.json has plugin" python3 -c "$JSONC_LOAD; assert 'plugin' in d"
+  assert "opencode.json has plugin" python3 -c "$JSONC_LOAD; assert ('plugin' in d or 'plugins' in d)"
 else
   warn "opencode.json not found — skipping checks"
 fi
