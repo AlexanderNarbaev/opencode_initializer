@@ -776,7 +776,7 @@ WSLDIST
 fi
 
 # ── Auth + project dir ──────────────────────────────────────────────────────
-PROJECT_DIR="${PROJECT_DIR:-$HOME/projects}"
+PROJECT_DIR="${PROJECT_DIR:-/Projects}"
 export PROJECT_DIR
 API_KEY="${API_KEY:-}"
 DEEPSEEK_KEY="${DEEPSEEK_KEY:-}"
