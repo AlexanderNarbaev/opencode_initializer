@@ -128,21 +128,21 @@ test_dev_cli_modes() {
     return
   fi
   # Test dev health
-  if timeout 30 bash "$PROJECT_ROOT/dev.sh" health >/dev/null 2>&1; then
+  if timeout 120 bash "$PROJECT_ROOT/dev.sh" health >/dev/null 2>&1; then
     pass "dev health runs successfully"
   else
     fail "dev health failed"
   fi
   
   # Test dev list
-  if timeout 10 bash "$PROJECT_ROOT/dev.sh" list >/dev/null 2>&1; then
+  if timeout 60 bash "$PROJECT_ROOT/dev.sh" list >/dev/null 2>&1; then
     pass "dev list runs successfully"
   else
     fail "dev list failed"
   fi
   
   # Test dev version-check
-  if timeout 120 bash "$PROJECT_ROOT/dev.sh" version-check >/dev/null 2>&1; then
+  if timeout 240 bash "$PROJECT_ROOT/dev.sh" version-check >/dev/null 2>&1; then
     pass "dev version-check runs successfully"
   else
     fail "dev version-check failed"

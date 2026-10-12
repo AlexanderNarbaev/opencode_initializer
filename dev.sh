@@ -261,7 +261,11 @@ cmd_self_update() {
 
 cmd_version_check() {
   source "$SCRIPTS_DIR/src/lib/version-check.sh"
-  _check_versions
+  # _check_versions returns the UPDATE COUNT (informational, unit-tested in
+  # test_version_check.sh T14) — not an error code. The CLI must exit 0 when
+  # the check itself runs; "N updates available" is a successful check.
+  _check_versions || true
+  return 0
 }
 
 cmd_autoupdate() {
