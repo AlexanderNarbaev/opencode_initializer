@@ -12,14 +12,25 @@ set -euo pipefail
 #
 # Usage:
 #   source 45-maintainability-score.sh
-#   calculate_maintainability_score /path/to/project
+#   calculate_maintainability_score /path/to/project [text|json] [strict]
 #   render_maintainability_dashboard
+#   maintainability_ci_gate /path/to/project [threshold]
 #
 # Exit codes:
-#   0 - Score >= 85 (Excellent)
-#   1 - Score 70-84 (Good)
-#   2 - Score 50-69 (Needs Improvement)
-#   3 - Score < 50 (Critical)
+#   calculate_maintainability_score  0 = score computed (any band)
+#                                  non-zero = genuine failure (bad args, unwritable cache)
+#                                  With "strict" as $3 the legacy band codes are returned
+#                                  instead: 0 Excellent, 1 Good, 2 Needs Improvement,
+#                                  3 Critical.
+#   maintainability_ci_gate         0 = score >= threshold, 1 = below threshold
+#
+# Output contract: progress/summary logs go to STDERR, machine-readable results
+# go to STDOUT. With format=json, STDOUT carries the JSON document and nothing
+# else (`calculate_maintainability_score . json | jq`); with format=text it
+# carries the score banner.
+#
+# All scoring arithmetic is pure bash integer math (no `bc`, no floats), so the
+# result is identical on GNU/Linux and macOS bash 3.2.
 
 # NOTE: sourced by setup.sh — set -euo pipefail is idempotent there (setup.sh already strict).
 
@@ -53,16 +64,17 @@ WEIGHT_SPEC_CITATION=${WEIGHT_SPEC_CITATION:-10}
 # Utility Functions
 #------------------------------------------------------------------------------
 
+# NOTE: all logs go to stderr so that `$(metric_fn ...)` captures only the value.
 maint_log_info() {
-    echo -e "${COLOR_BLUE}[INFO]${COLOR_NC} $*"
+    echo -e "${COLOR_BLUE}[INFO]${COLOR_NC} $*" >&2
 }
 
 maint_log_success() {
-    echo -e "${COLOR_GREEN}[OK]${COLOR_NC} $*"
+    echo -e "${COLOR_GREEN}[OK]${COLOR_NC} $*" >&2
 }
 
 maint_log_warning() {
-    echo -e "${COLOR_YELLOW}[WARN]${COLOR_NC} $*"
+    echo -e "${COLOR_YELLOW}[WARN]${COLOR_NC} $*" >&2
 }
 
 maint_log_error() {
@@ -70,7 +82,66 @@ maint_log_error() {
 }
 
 ensure_cache_dir() {
-    mkdir -p "$MAINTAINABILITY_CACHE"
+    mkdir -p "$MAINTAINABILITY_CACHE" 2>/dev/null || {
+        maint_log_error "Cannot create cache dir: $MAINTAINABILITY_CACHE"
+        return 1
+    }
+}
+
+#------------------------------------------------------------------------------
+# Numeric sanitizers
+#
+# Every metric is coerced through these before it reaches $(( )) or [ -gt ].
+# Historically unsanitized values came from `bc` (which emits "3.00", ".25")
+# and from `grep -c ... || echo 0` (which emits "0\n0" when grep finds nothing
+# and still exits 1), producing:
+#     line 120: 3.00: arithmetic syntax error
+#     line 190: 0\n0 : arithmetic syntax error in expression
+#     SCORE: /100  (empty variable reaching the banner)
+#------------------------------------------------------------------------------
+
+# Coerce any value to a non-negative integer. First line only (kills "0\n0"),
+# truncate at the first non-digit (kills "3.00", ".25", "26.00", "abc"), empty → 0.
+_maint_int() {
+    local v="${1:-}"
+    v="${v%%$'\n'*}"
+    case "$v" in
+        '' ) v=0 ;;
+        *[!0-9]* ) v="${v%%[!0-9]*}" ;;
+    esac
+    printf '%s' "${v:-0}"
+}
+
+# Integer clamp: _maint_clamp <value> <lo> <hi>
+_maint_clamp() {
+    local v="$(_maint_int "$1")" lo="$(_maint_int "$2")" hi="$(_maint_int "$3")"
+    [ "$v" -lt "$lo" ] && v="$lo"
+    [ "$v" -gt "$hi" ] && v="$hi"
+    printf '%s' "$v"
+}
+
+# File size in bytes, portable across GNU stat / BSD stat. Empty → 0.
+_maint_filesize() {
+    local f="$1" sz=""
+    [ -f "$f" ] || { printf '0'; return 0; }
+    sz="$(stat -c%s "$f" 2>/dev/null)" || sz="$(stat -f%z "$f" 2>/dev/null)" || sz=""
+    printf '%s' "$(_maint_int "$sz")"
+}
+
+# Count non-zero lines in a stream/file, tolerating a missing path.
+# Never emits the "0\n0" produced by `grep -c ... || echo 0`.
+_maint_count_matches() {
+    local n
+    n="$(grep -c "$1" "$2" 2>/dev/null)" || n=0
+    printf '%s' "$(_maint_int "$n")"
+}
+
+# Ratio → integer percent (0..100), truncation toward zero. No floats.
+# _maint_ratio_pct <numerator> <denominator>; denominator 0 → 0
+_maint_ratio_pct() {
+    local num="$(_maint_int "$1")" den="$(_maint_int "$2")"
+    [ "$den" -eq 0 ] && { printf '0'; return 0; }
+    printf '%s' "$(( num * 100 / den ))"
 }
 
 #------------------------------------------------------------------------------
@@ -87,34 +158,34 @@ calculate_test_coverage() {
     local test_files=0
     local source_files=0
     
-    # Shell scripts
-    if command -v find &>/dev/null; then
-        source_files=$(find "$project_root" -name "*.sh" -type f 2>/dev/null | wc -l)
-        test_files=$(find "$project_root/tests" -name "test_*.sh" -type f 2>/dev/null | wc -l || echo 0)
+    if command -v find >/dev/null 2>&1; then
+        source_files=$(_maint_int "$(find "$project_root" -name "*.sh" -type f 2>/dev/null | wc -l)")
+        test_files=$(_maint_int "$(find "$project_root/tests" -name "test_*.sh" -type f 2>/dev/null | wc -l)")
+        
+        # Python files
+        local py_source
+        py_source=$(_maint_int "$(find "$project_root" -name "*.py" -not -path "*/tests/*" -not -path "*/venv/*" -type f 2>/dev/null | wc -l)")
+        local py_tests
+        py_tests=$(_maint_int "$(find "$project_root/tests" -name "test_*.py" -type f 2>/dev/null | wc -l)")
+        
+        source_files=$((source_files + py_source))
+        test_files=$((test_files + py_tests))
     fi
     
-    # Python files
-    local py_source=$(find "$project_root" -name "*.py" -not -path "*/tests/*" -not -path "*/venv/*" -type f 2>/dev/null | wc -l || echo 0)
-    local py_tests=$(find "$project_root/tests" -name "test_*.py" -type f 2>/dev/null | wc -l || echo 0)
-    
-    source_files=$((source_files + py_source))
-    test_files=$((test_files + py_tests))
-    
     if [ "$source_files" -gt 0 ]; then
-        # Ratio of test to source files (target: 1:1)
-        local ratio=$(echo "scale=2; $test_files / $source_files" | bc 2>/dev/null || echo "0")
-        
-        # Convert to 0-100 score (cap at 100)
-        if (( $(echo "$ratio >= 1.0" | bc -l 2>/dev/null || echo 0) )); then
+        # Ratio of test to source files (target: 1:1), integer percent.
+        if [ "$test_files" -ge "$source_files" ]; then
             coverage_score=100
         else
-            coverage_score=$(echo "scale=0; $ratio * 100" | bc 2>/dev/null || echo 0)
+            coverage_score=$((test_files * 100 / source_files))
         fi
     fi
     
     # Bonus for integration and e2e tests
-    local integration_tests=$(find "$project_root/tests/integration" -name "*.sh" -type f 2>/dev/null | wc -l || echo 0)
-    local e2e_tests=$(find "$project_root/tests/e2e" -name "*.sh" -type f 2>/dev/null | wc -l || echo 0)
+    local integration_tests
+    integration_tests=$(_maint_int "$(find "$project_root/tests/integration" -name "*.sh" -type f 2>/dev/null | wc -l)")
+    local e2e_tests
+    e2e_tests=$(_maint_int "$(find "$project_root/tests/e2e" -name "*.sh" -type f 2>/dev/null | wc -l)")
     
     if [ "$integration_tests" -gt 5 ]; then
         coverage_score=$((coverage_score + 5))
@@ -125,9 +196,9 @@ calculate_test_coverage() {
     fi
     
     # Cap at 100
-    [ "$coverage_score" -gt 100 ] && coverage_score=100
+    coverage_score=$(_maint_clamp "$coverage_score" 0 100)
     
-    echo "$coverage_score"
+    printf '%s' "$coverage_score"
 }
 
 calculate_documentation_score() {
@@ -146,30 +217,33 @@ calculate_documentation_score() {
     )
     
     local found_docs=0
+    local doc
     for doc in "${essential_docs[@]}"; do
         if [ -f "$project_root/$doc" ]; then
             found_docs=$((found_docs + 1))
             
-            # Bonus for non-empty files (>100 bytes)
-            local size=$(stat -f%z "$project_root/$doc" 2>/dev/null || stat -c%s "$project_root/$doc" 2>/dev/null || echo 0)
-            if [ "$size" -gt 1000 ]; then
+            # Bonus for non-empty files (>1000 bytes)
+            if [ "$(_maint_filesize "$project_root/$doc")" -gt 1000 ]; then
                 found_docs=$((found_docs + 1))
             fi
         fi
     done
     
+    # Integer percent of (found / possible). Previously `bc scale=0` truncated
+    # 5/10 to 0, so any project below 50% completeness scored a flat 0.
     local total_possible=$((${#essential_docs[@]} * 2))
-    doc_score=$(echo "scale=0; ($found_docs / $total_possible) * 100" | bc 2>/dev/null || echo 0)
+    doc_score=$(_maint_ratio_pct "$found_docs" "$total_possible")
     
     # Bonus for API docs, ADRs, runbooks
-    local adr_count=$(find "$project_root/docs/adr" -name "*.md" -type f 2>/dev/null | wc -l || echo 0)
+    local adr_count
+    adr_count=$(_maint_int "$(find "$project_root/docs/adr" -name "*.md" -type f 2>/dev/null | wc -l)")
     if [ "$adr_count" -gt 5 ]; then
         doc_score=$((doc_score + 10))
     fi
     
-    [ "$doc_score" -gt 100 ] && doc_score=100
+    doc_score=$(_maint_clamp "$doc_score" 0 100)
     
-    echo "$doc_score"
+    printf '%s' "$doc_score"
 }
 
 calculate_complexity_score() {
@@ -181,14 +255,18 @@ calculate_complexity_score() {
     # Average lines per function (target: <50)
     local total_lines=0
     local total_functions=0
+    local script lines functions
     
-    for script in $(find "$project_root/src" -name "*.sh" -type f 2>/dev/null); do
-        local lines=$(wc -l < "$script")
-        local functions=$(grep -c "^[a-z_]*() {" "$script" 2>/dev/null || echo 0)
-        
+    # while-read instead of `for $(find ...)` so filenames with spaces survive.
+    while IFS= read -r script; do
+        [ -f "$script" ] || continue
+        lines=$(_maint_int "$(wc -l < "$script" 2>/dev/null)")
+        functions=$(_maint_count_matches '^[a-z_]*() {' "$script")
         total_lines=$((total_lines + lines))
         total_functions=$((total_functions + functions))
-    done
+    done <<EOF
+$(find "$project_root/src" -name "*.sh" -type f 2>/dev/null)
+EOF
     
     if [ "$total_functions" -gt 0 ]; then
         local avg_lines=$((total_lines / total_functions))
@@ -202,21 +280,23 @@ calculate_complexity_score() {
         fi
     fi
     
-    # Deduct for deeply nested code (>4 levels)
-    local deep_nesting=$(grep -r "    " "$project_root/src" --include="*.sh" 2>/dev/null | wc -l || echo 0)
+    # Deduct for deeply nested code (>4 levels of indentation)
+    local deep_nesting
+    deep_nesting=$(_maint_int "$(grep -r "    " "$project_root/src" --include="*.sh" 2>/dev/null | wc -l)")
     if [ "$deep_nesting" -gt 100 ]; then
         complexity_score=$((complexity_score - 15))
     fi
     
     # Deduct for long lines (>120 chars)
-    local long_lines=$(grep -r '.\{120,\}' "$project_root/src" --include="*.sh" 2>/dev/null | wc -l || echo 0)
+    local long_lines
+    long_lines=$(_maint_int "$(grep -r '.\{120,\}' "$project_root/src" --include="*.sh" 2>/dev/null | wc -l)")
     if [ "$long_lines" -gt 50 ]; then
         complexity_score=$((complexity_score - 10))
     fi
     
-    [ "$complexity_score" -lt 0 ] && complexity_score=0
+    complexity_score=$(_maint_clamp "$complexity_score" 0 100)
     
-    echo "$complexity_score"
+    printf '%s' "$complexity_score"
 }
 
 calculate_debt_ratio_score() {
@@ -231,22 +311,25 @@ calculate_debt_ratio_score() {
     local total_debt=0
     
     if [ -f "$debt_file" ]; then
-        open_debt=$(grep -c '"status": "open"' "$debt_file" 2>/dev/null || echo 0)
-        total_debt=$(wc -l < "$debt_file" 2>/dev/null || echo 0)
+        open_debt=$(_maint_count_matches '"status": *"open"' "$debt_file")
+        total_debt=$(_maint_int "$(wc -l < "$debt_file" 2>/dev/null)")
     fi
     
     # Check for TODO/FIXME/HACK comments
-    local todo_count=$(grep -r "TODO\|FIXME\|HACK" "$project_root/src" --include="*.sh" 2>/dev/null | wc -l || echo 0)
+    local todo_count
+    todo_count=$(_maint_int "$(grep -r "TODO\|FIXME\|HACK" "$project_root/src" --include="*.sh" 2>/dev/null | wc -l)")
     
-    # Calculate ratio
+    # Calculate open-debt share as an integer percent (thresholds: >50/>30/>10).
+    # Previously this went through `bc -l` inside $(( )); a registry with no
+    # open entries produced the literal "0\n0" and killed the whole score.
     if [ "$total_debt" -gt 0 ]; then
-        local debt_ratio=$(echo "scale=2; $open_debt / $total_debt" | bc 2>/dev/null || echo 0)
+        local debt_pct=$((open_debt * 100 / total_debt))
         
-        if (( $(echo "$debt_ratio > 0.5" | bc -l 2>/dev/null || echo 0) )); then
+        if [ "$debt_pct" -gt 50 ]; then
             debt_score=40
-        elif (( $(echo "$debt_ratio > 0.3" | bc -l 2>/dev/null || echo 0) )); then
+        elif [ "$debt_pct" -gt 30 ]; then
             debt_score=60
-        elif (( $(echo "$debt_ratio > 0.1" | bc -l 2>/dev/null || echo 0) )); then
+        elif [ "$debt_pct" -gt 10 ]; then
             debt_score=80
         fi
     fi
@@ -258,9 +341,9 @@ calculate_debt_ratio_score() {
         debt_score=$((debt_score - 10))
     fi
     
-    [ "$debt_score" -lt 0 ] && debt_score=0
+    debt_score=$(_maint_clamp "$debt_score" 0 100)
     
-    echo "$debt_score"
+    printf '%s' "$debt_score"
 }
 
 calculate_spec_citation_score() {
@@ -270,34 +353,37 @@ calculate_spec_citation_score() {
     maint_log_info "Calculating spec citation compliance..."
     
     # Count spec:// URIs in code
-    local spec_refs=$(grep -r "spec://" "$project_root/src" --include="*.sh" 2>/dev/null | wc -l || echo 0)
+    local spec_refs
+    spec_refs=$(_maint_int "$(grep -r "spec://" "$project_root/src" --include="*.sh" 2>/dev/null | wc -l)")
     
     # Count specs in catalog
     local spec_catalog="$project_root/specs/catalog"
     local spec_count=0
     
     if [ -d "$spec_catalog" ]; then
-        spec_count=$(find "$spec_catalog" -name "*.md" -type f 2>/dev/null | wc -l || echo 0)
+        spec_count=$(_maint_int "$(find "$spec_catalog" -name "*.md" -type f 2>/dev/null | wc -l)")
     fi
     
     # Score based on citations per module
-    local module_count=$(find "$project_root/src/lib" -name "*.sh" -type f 2>/dev/null | wc -l || echo 0)
+    local module_count
+    module_count=$(_maint_int "$(find "$project_root/src/lib" -name "*.sh" -type f 2>/dev/null | wc -l)")
     
     if [ "$module_count" -gt 0 ] && [ "$spec_count" -gt 0 ]; then
-        local citations_per_module=$(echo "scale=2; $spec_refs / $module_count" | bc 2>/dev/null || echo 0)
+        # citations/module × 100, compared as an integer percent (>=300/200/100/50)
+        local cit_pct=$((spec_refs * 100 / module_count))
         
-        if (( $(echo "$citations_per_module >= 3" | bc -l 2>/dev/null || echo 0) )); then
+        if [ "$cit_pct" -ge 300 ]; then
             spec_score=100
-        elif (( $(echo "$citations_per_module >= 2" | bc -l 2>/dev/null || echo 0) )); then
+        elif [ "$cit_pct" -ge 200 ]; then
             spec_score=80
-        elif (( $(echo "$citations_per_module >= 1" | bc -l 2>/dev/null || echo 0) )); then
+        elif [ "$cit_pct" -ge 100 ]; then
             spec_score=60
-        elif (( $(echo "$citations_per_module >= 0.5" | bc -l 2>/dev/null || echo 0) )); then
+        elif [ "$cit_pct" -ge 50 ]; then
             spec_score=40
         fi
     fi
     
-    echo "$spec_score"
+    printf '%s' "$spec_score"
 }
 
 #------------------------------------------------------------------------------
@@ -307,18 +393,34 @@ calculate_spec_citation_score() {
 calculate_maintainability_score() {
     local project_root="${1:-.}"
     local output_format="${2:-text}"
+    # strict=1 restores the legacy band exit codes (0/1/2/3). Default is 0 for any
+    # successfully computed score — callers under `set -e` (setup.sh _run_step,
+    # dev CLI) must not treat "score 78 / GOOD" as a failure.
+    local strict="${3:-0}"
     
-    ensure_cache_dir
+    if [ ! -d "$project_root" ]; then
+        maint_log_error "Project root not found: $project_root"
+        return 1
+    fi
+    
+    ensure_cache_dir || return 1
     
     maint_log_info "Calculating maintainability score for: $project_root"
     maint_log_info "Using weights: Test=$WEIGHT_TEST_COVERAGE%, Doc=$WEIGHT_DOCUMENTATION%, Complexity=$WEIGHT_COMPLEXITY%, Debt=$WEIGHT_DEBT_RATIO%, Spec=$WEIGHT_SPEC_CITATION%"
     
-    # Calculate individual metrics
-    local test_coverage=$(calculate_test_coverage "$project_root")
-    local doc_score=$(calculate_documentation_score "$project_root")
-    local complexity_score=$(calculate_complexity_score "$project_root")
-    local debt_score=$(calculate_debt_ratio_score "$project_root")
-    local spec_score=$(calculate_spec_citation_score "$project_root")
+    # Calculate individual metrics (each echoes a bare integer)
+    local test_coverage doc_score complexity_score debt_score spec_score
+    test_coverage=$(calculate_test_coverage "$project_root") || return 1
+    doc_score=$(calculate_documentation_score "$project_root") || return 1
+    complexity_score=$(calculate_complexity_score "$project_root") || return 1
+    debt_score=$(calculate_debt_ratio_score "$project_root") || return 1
+    spec_score=$(calculate_spec_citation_score "$project_root") || return 1
+    
+    test_coverage=$(_maint_clamp "$test_coverage" 0 100)
+    doc_score=$(_maint_clamp "$doc_score" 0 100)
+    complexity_score=$(_maint_clamp "$complexity_score" 0 100)
+    debt_score=$(_maint_clamp "$debt_score" 0 100)
+    spec_score=$(_maint_clamp "$spec_score" 0 100)
     
     maint_log_info "Metrics:"
     maint_log_info "  Test Coverage:    $test_coverage/100"
@@ -327,42 +429,50 @@ calculate_maintainability_score() {
     maint_log_info "  Debt Ratio:       $debt_score/100"
     maint_log_info "  Spec Citations:   $spec_score/100"
     
-    # Calculate weighted score
-    local weighted_score=$(echo "scale=0; \
-        ($test_coverage * $WEIGHT_TEST_COVERAGE + \
-         $doc_score * $WEIGHT_DOCUMENTATION + \
-         $complexity_score * $WEIGHT_COMPLEXITY + \
-         $debt_score * $WEIGHT_DEBT_RATIO + \
-         $spec_score * $WEIGHT_SPEC_CITATION) / 100" | bc 2>/dev/null || echo 0)
+    # Weighted score — pure integer math, clamped to 0..100.
+    local w_test w_doc w_cx w_debt w_spec
+    w_test=$(_maint_int "$WEIGHT_TEST_COVERAGE")
+    w_doc=$(_maint_int "$WEIGHT_DOCUMENTATION")
+    w_cx=$(_maint_int "$WEIGHT_COMPLEXITY")
+    w_debt=$(_maint_int "$WEIGHT_DEBT_RATIO")
+    w_spec=$(_maint_int "$WEIGHT_SPEC_CITATION")
+    
+    local weighted_score
+    weighted_score=$(( (test_coverage * w_test + \
+                        doc_score * w_doc + \
+                        complexity_score * w_cx + \
+                        debt_score * w_debt + \
+                        spec_score * w_spec) / 100 ))
+    weighted_score=$(_maint_clamp "$weighted_score" 0 100)
     
     # Determine status
     local status=""
-    local exit_code=0
+    local band_code=0
     local color=""
     
     if [ "$weighted_score" -ge "$MAINTAINABILITY_THRESHOLD_EXCELLENT" ]; then
         status="EXCELLENT"
-        exit_code=0
+        band_code=0
         color="$COLOR_GREEN"
     elif [ "$weighted_score" -ge "$MAINTAINABILITY_THRESHOLD_GOOD" ]; then
         status="GOOD"
-        exit_code=1
+        band_code=1
         color="$COLOR_GREEN"
     elif [ "$weighted_score" -ge "$MAINTAINABILITY_THRESHOLD_WARNING" ]; then
         status="NEEDS IMPROVEMENT"
-        exit_code=2
+        band_code=2
         color="$COLOR_YELLOW"
     else
         status="CRITICAL"
-        exit_code=3
+        band_code=3
         color="$COLOR_RED"
     fi
     
     # Cache result
     local cache_file="$MAINTAINABILITY_CACHE/score_$(date +%Y%m%d).json"
-    cat > "$cache_file" <<EOF
+    if ! cat > "$cache_file" <<EOF
 {
-  "timestamp": "$(date -Iseconds)",
+  "timestamp": "$(date +%Y-%m-%dT%H:%M:%S%z)",
   "project": "$project_root",
   "overall_score": $weighted_score,
   "status": "$status",
@@ -374,28 +484,36 @@ calculate_maintainability_score() {
     "spec_citations": $spec_score
   },
   "weights": {
-    "test_coverage": $WEIGHT_TEST_COVERAGE,
-    "documentation": $WEIGHT_DOCUMENTATION,
-    "complexity": $WEIGHT_COMPLEXITY,
-    "debt_ratio": $WEIGHT_DEBT_RATIO,
-    "spec_citations": $WEIGHT_SPEC_CITATION
+    "test_coverage": $w_test,
+    "documentation": $w_doc,
+    "complexity": $w_cx,
+    "debt_ratio": $w_debt,
+    "spec_citations": $w_spec
   }
 }
 EOF
-    
-    # Output
-    echo ""
-    echo -e "${color}═══════════════════════════════════════════${COLOR_NC}"
-    echo -e "${color}  MAINTAINABILITY SCORE: $weighted_score/100${COLOR_NC}"
-    echo -e "${color}  STATUS: $status${COLOR_NC}"
-    echo -e "${color}═══════════════════════════════════════════${COLOR_NC}"
-    echo ""
-    
-    if [ "$output_format" = "json" ]; then
-        cat "$cache_file"
+    then
+        maint_log_error "Cannot write score cache: $cache_file"
+        return 1
     fi
     
-    return $exit_code
+    # Output. Logs already went to stderr. With format=json we emit ONLY the
+    # JSON document, so `calculate_maintainability_score . json | jq` works.
+    if [ "$output_format" = "json" ]; then
+        cat "$cache_file"
+    else
+        echo ""
+        echo -e "${color}═══════════════════════════════════════════${COLOR_NC}"
+        echo -e "${color}  MAINTAINABILITY SCORE: ${weighted_score}/100${COLOR_NC}"
+        echo -e "${color}  STATUS: ${status}${COLOR_NC}"
+        echo -e "${color}═══════════════════════════════════════════${COLOR_NC}"
+        echo ""
+    fi
+    
+    if [ "$strict" = "1" ]; then
+        return "$band_code"
+    fi
+    return 0
 }
 
 #------------------------------------------------------------------------------
@@ -408,22 +526,25 @@ render_maintainability_dashboard() {
     
     maint_log_info "Rendering maintainability dashboard..."
     
-    # Get current score
-    local current_score_json=$(calculate_maintainability_score "$project_root" "json" 2>/dev/null)
+    # Get current score (logs are on stderr; stdout carries banner + JSON)
+    local current_score_json
+    current_score_json=$(calculate_maintainability_score "$project_root" "json" 2>/dev/null) || true
     
     if [ -z "$current_score_json" ]; then
         maint_log_error "Failed to calculate current score"
         return 1
     fi
     
-    # Extract metrics
-    local overall=$(echo "$current_score_json" | grep '"overall_score"' | sed 's/.*: //' | tr -d ',')
-    local status=$(echo "$current_score_json" | grep '"status"' | sed 's/.*: "//' | tr -d '",')
-    local test_cov=$(echo "$current_score_json" | grep '"test_coverage"' | head -1 | sed 's/.*: //' | tr -d ',')
-    local doc=$(echo "$current_score_json" | grep '"documentation"' | sed 's/.*: //' | tr -d ',')
-    local complex=$(echo "$current_score_json" | grep '"complexity"' | sed 's/.*: //' | tr -d ',')
-    local debt=$(echo "$current_score_json" | grep '"debt_ratio"' | sed 's/.*: //' | tr -d ',')
-    local spec=$(echo "$current_score_json" | grep '"spec_citations"' | sed 's/.*: //' | tr -d ',')
+    # Extract metrics (coerced — a malformed field must not abort printf)
+    local overall status test_cov doc complex debt spec
+    overall=$(_maint_int "$(echo "$current_score_json" | grep '"overall_score"' | head -1 | sed 's/.*: //' | tr -d ',')")
+    status=$(echo "$current_score_json" | grep '"status"' | head -1 | sed 's/.*: "//' | tr -d '",')
+    [ -n "$status" ] || status="UNKNOWN"
+    test_cov=$(_maint_int "$(echo "$current_score_json" | grep '"test_coverage"' | head -1 | sed 's/.*: //' | tr -d ',')")
+    doc=$(_maint_int "$(echo "$current_score_json" | grep '"documentation"' | head -1 | sed 's/.*: //' | tr -d ',')")
+    complex=$(_maint_int "$(echo "$current_score_json" | grep '"complexity"' | head -1 | sed 's/.*: //' | tr -d ',')")
+    debt=$(_maint_int "$(echo "$current_score_json" | grep '"debt_ratio"' | head -1 | sed 's/.*: //' | tr -d ',')")
+    spec=$(_maint_int "$(echo "$current_score_json" | grep '"spec_citations"' | head -1 | sed 's/.*: //' | tr -d ',')")
     
     echo ""
     echo "╔════════════════════════════════════════════════════════╗"
@@ -431,11 +552,11 @@ render_maintainability_dashboard() {
     echo "╠════════════════════════════════════════════════════════╣"
     printf "║  Overall Score: %-35s ║\n" "$overall/100 ($status)"
     echo "╟────────────────────────────────────────────────────────╢"
-    printf "║  Test Coverage:   [%3d%%] %s\n" "$test_cov" "$(generate_bar $test_cov)"
-    printf "║  Documentation:   [%3d%%] %s\n" "$doc" "$(generate_bar $doc)"
-    printf "║  Complexity:      [%3d%%] %s\n" "$complex" "$(generate_bar $complex)"
-    printf "║  Debt Ratio:      [%3d%%] %s\n" "$debt" "$(generate_bar $debt)"
-    printf "║  Spec Citations:  [%3d%%] %s\n" "$spec" "$(generate_bar $spec)"
+    printf "║  Test Coverage:   [%3d%%] %s\n" "$test_cov" "$(generate_bar "$test_cov")"
+    printf "║  Documentation:   [%3d%%] %s\n" "$doc" "$(generate_bar "$doc")"
+    printf "║  Complexity:      [%3d%%] %s\n" "$complex" "$(generate_bar "$complex")"
+    printf "║  Debt Ratio:      [%3d%%] %s\n" "$debt" "$(generate_bar "$debt")"
+    printf "║  Spec Citations:  [%3d%%] %s\n" "$spec" "$(generate_bar "$spec")"
     echo "╟────────────────────────────────────────────────────────╢"
     echo "║  Thresholds: Excellent≥85, Good≥70, Warning≥50        ║"
     echo "╚════════════════════════════════════════════════════════╝"
@@ -443,15 +564,18 @@ render_maintainability_dashboard() {
 }
 
 generate_bar() {
-    local value=$1
+    local value
+    value=$(_maint_int "$1")
     local bar=""
     local filled=$((value / 5))
     local empty=$((20 - filled))
+    [ "$empty" -lt 0 ] && empty=0
+    local i
     
     for ((i=0; i<filled; i++)); do bar+="█"; done
     for ((i=0; i<empty; i++)); do bar+="░"; done
     
-    echo "$bar"
+    printf '%s' "$bar"
 }
 
 #------------------------------------------------------------------------------
@@ -460,13 +584,23 @@ generate_bar() {
 
 maintainability_ci_gate() {
     local project_root="${1:-.}"
-    local threshold="${2:-$MAINTAINABILITY_THRESHOLD_GOOD}"
+    local threshold
+    threshold=$(_maint_int "${2:-$MAINTAINABILITY_THRESHOLD_GOOD}")
     
     maint_log_info "Running maintainability CI gate (threshold: $threshold)..."
     
-    # Capture score without printing
-    local score_output=$(calculate_maintainability_score "$project_root" "json" 2>&1)
-    local score=$(echo "$score_output" | grep '"overall_score"' | sed 's/.*: //' | tr -d ',')
+    # Capture score without printing the banner
+    local score_output score
+    score_output=$(calculate_maintainability_score "$project_root" "json" 2>&1) || {
+        maint_log_error "Score calculation failed — CI gate FAILED"
+        return 1
+    }
+    score=$(_maint_int "$(echo "$score_output" | grep '"overall_score"' | head -1 | sed 's/.*: //' | tr -d ',')")
+    
+    if [ "$score" -eq 0 ] && ! echo "$score_output" | grep -q '"overall_score"'; then
+        maint_log_error "Could not read overall_score from score output — CI gate FAILED"
+        return 1
+    fi
     
     if [ "$score" -lt "$threshold" ]; then
         maint_log_error "Maintainability score ($score) below threshold ($threshold)"
@@ -484,23 +618,29 @@ maintainability_ci_gate() {
 #------------------------------------------------------------------------------
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    set +e
     case "${1:-help}" in
         calculate)
-            calculate_maintainability_score "${2:-.}" "${3:-text}"
+            calculate_maintainability_score "${2:-.}" "${3:-text}" "${4:-0}"
+            exit $?
             ;;
         dashboard)
             render_maintainability_dashboard "${2:-.}" "${3:-30}"
+            exit $?
             ;;
         ci-gate)
             maintainability_ci_gate "${2:-.}" "${3:-70}"
+            exit $?
             ;;
         help|*)
             echo "Usage: $0 {calculate|dashboard|ci-gate} [project_root] [options]"
             echo ""
             echo "Commands:"
-            echo "  calculate [root] [format]  - Calculate maintainability score"
+            echo "  calculate [root] [format] [strict]  - Calculate maintainability score"
+            echo "      format: text (default) | json"
+            echo "      strict: 1 = exit 0/1/2/3 by score band (default 0 = always 0 on success)"
             echo "  dashboard [root] [days]    - Render visual dashboard"
-            echo "  ci-gate [root] [threshold] - Run CI gate check"
+            echo "  ci-gate [root] [threshold] - Run CI gate check (exit 1 below threshold)"
             echo ""
             echo "Environment variables:"
             echo "  MAINTAINABILITY_CONFIG     - Config file path"
@@ -509,6 +649,9 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
             echo "  WEIGHT_COMPLEXITY          - Complexity weight (default: 20)"
             echo "  WEIGHT_DEBT_RATIO          - Debt ratio weight (default: 15)"
             echo "  WEIGHT_SPEC_CITATION       - Spec citation weight (default: 10)"
+            echo ""
+            echo "Logs go to stderr; the score banner and JSON go to stdout."
+            exit 0
             ;;
     esac
 fi

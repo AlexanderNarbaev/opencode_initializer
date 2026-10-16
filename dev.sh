@@ -56,7 +56,10 @@ if [ "${SKIP_MIRROR_RESOLVE:-false}" != "true" ] && {
 fi
 
 source "$SCRIPTS_DIR/src/lib/helpers.sh"
-source "$SCRIPTS_DIR/src/lib/00-core.sh"
+# 00-core.sh prints the OS/arch/package-manager banner via `info` (-> stdout)
+# at load time. Send it to stderr so machine-readable subcommands
+# (`dev maintainability json | jq`) pipe cleanly.
+source "$SCRIPTS_DIR/src/lib/00-core.sh" 1>&2
 CONFIG_FILE="${HOME}/.config/opencode-setup/setup.conf"
 # shellcheck disable=SC1090
 [ -f "$CONFIG_FILE" ] && source "$CONFIG_FILE"
@@ -96,6 +99,12 @@ usage() {
   echo "  dev docs [out.md]       Generate module documentation table (RU/EN)"
   echo "  dev skills [--json|--strict|--since N]  Audit installed skills vs auto-skills registration"
   echo "  dev context <models|status|check>  Report context-window usage vs model limits"
+  echo "  dev maintainability [report|json|dashboard|ci|history] [root]"
+  echo "                              Maintainability score (weights: tests/docs/complexity/debt/specs)"
+  echo "  dev spec [init|list|register|get|resolve|parse|check|catalog]"
+  echo "                              spec:// URI registry (Cognitive Artifacts)"
+  echo "  dev debt [list|add|resolve]       Technical-debt registry entries"
+  echo "  dev intent [list|add|show|stats]  Architectural-intent ledger"
 }
 
 cmd_list() {
@@ -1022,6 +1031,136 @@ cmd_docs() {
   done
 }
 
+# ── Software Factory: spec registry / debt+intent ledger / maintainability ──
+# Mirrors the bootstrap in setup.sh: these modules call log_info/log_warn/
+# log_error/log_debug (00y-logging.sh) and log_success (54-agent-handoff.sh),
+# none of which dev.sh had sourced — without this shim `spec list` died with
+# "log_warn: command not found".
+_sf_bootstrap_logging() {
+  if ! declare -f log_info >/dev/null 2>&1 || ! declare -f log_warn >/dev/null 2>&1; then
+    if [ -f "$SCRIPTS_DIR/src/lib/00y-logging.sh" ]; then
+      # shellcheck disable=SC1090
+      source "$SCRIPTS_DIR/src/lib/00y-logging.sh" || return 1
+    fi
+  fi
+  declare -f log_success >/dev/null 2>&1 || log_success() { log_info "$*"; }
+  return 0
+}
+
+# Report whether a Software Factory module is present. The modules themselves are
+# sourced by the dispatcher (top-level scope) on purpose: `source` inside a
+# function body makes the module's top-level `declare -a` local to that
+# function, which silently emptied VALID_PACKAGE_KINDS in 33-spec-registry.sh.
+_sf_available() {
+  [ -f "$SCRIPTS_DIR/src/lib/$1.sh" ]
+}
+
+# Resolve the project root that spec/debt/architecture commands operate on.
+_sf_root() {
+  if [ -n "${1:-}" ]; then printf '%s' "$1"; else printf '%s' "${OPENCODE_ROOT:-$SCRIPTS_DIR}"; fi
+}
+
+# dev maintainability [report|json|dashboard|ci|history] [root] [threshold]
+cmd_maintainability() {
+  local action="${2:-report}"
+  local root
+  root="$(_sf_root "${3:-}")"
+  _sf_available 45-maintainability-score || { err "45-maintainability-score.sh not found"; return 1; }
+  case "$action" in
+    report | "")
+      calculate_maintainability_score "$root" text 0
+      ;;
+    json)
+      # dev.sh sources 00-core.sh at load time, whose `info` banner lands on
+      # stdout; strip everything before the JSON document so `| jq` works.
+      calculate_maintainability_score "$root" json 0 | sed -n '/^{/,$p'
+      ;;
+    dashboard)
+      render_maintainability_dashboard "$root" "${4:-30}"
+      ;;
+    ci | ci-gate)
+      maintainability_ci_gate "$root" "${4:-$MAINTAINABILITY_THRESHOLD_GOOD}"
+      ;;
+    history)
+      if [ -d "$MAINTAINABILITY_CACHE" ]; then
+        local f
+        for f in "$MAINTAINABILITY_CACHE"/score_*.json; do
+          [ -f "$f" ] || continue
+          printf '%-10s %4s  %s
+' \
+            "$(basename "$f" .json | sed 's/^score_//')" \
+            "$(grep '"overall_score"' "$f" | head -1 | sed 's/.*: //' | tr -d ',')" \
+            "$(grep '"status"' "$f" | head -1 | sed 's/.*: "//; s/".*//')"
+        done
+      else
+        echo "No cached scores yet — run: dev maintainability"
+      fi
+      ;;
+    *)
+      err "Unknown: dev maintainability $action. Use: report|json|dashboard|ci|history"
+      ;;
+  esac
+}
+
+# dev spec [init|list|register|get|resolve|parse|check|catalog] [args...]
+cmd_spec() {
+  local action="${2:-list}"
+  _sf_available 33-spec-registry || { err "33-spec-registry.sh not found"; return 1; }
+  if [ $# -gt 2 ]; then shift 2; else shift $#; fi
+  # Bootstrap an empty catalog on first use so `dev spec list` is useful on a
+  # checkout that has the specs/ tree but no catalog.json yet.
+  case "$action" in
+    list | ls | get | resolve | check | catalog)
+      [ -f "${SPEC_CATALOG_FILE:-}" ] || init_spec_registry >/dev/null 2>&1 || true
+      ;;
+  esac
+  case "$action" in
+    catalog) update_spec_catalog ;;
+    *) spec_cli "$action" "$@" ;;
+  esac
+}
+
+# dev debt [list|add|resolve] [args...]
+cmd_debt() {
+  local action="${2:-list}"
+  _sf_available 35-debt-intent-registry || { err "35-debt-intent-registry.sh not found"; return 1; }
+  if [ $# -gt 2 ]; then shift 2; else shift $#; fi
+  [ -f "${DISCIPLINE_DIR}/debt.jsonl" ] || init_registry >/dev/null 2>&1 || true
+  case "$action" in
+    list | ls | "") debt_list "${1:-all}" "${2:-all}" ;;
+    add)
+      [ $# -lt 5 ] && { err "Usage: dev debt add <id> <type> <severity> <title> <description>"; return 1; }
+      debt_add "$@"
+      ;;
+    resolve)
+      [ $# -lt 2 ] && { err "Usage: dev debt resolve <id> <resolution>"; return 1; }
+      debt_resolve "$@"
+      ;;
+    *) err "Unknown: dev debt $action. Use: list|add|resolve" ;;
+  esac
+}
+
+# dev intent [list|add|show|stats] [args...]
+cmd_intent() {
+  local action="${2:-list}"
+  _sf_available 35-debt-intent-registry || { err "35-debt-intent-registry.sh not found"; return 1; }
+  if [ $# -gt 2 ]; then shift 2; else shift $#; fi
+  [ -f "${DISCIPLINE_DIR}/intent.jsonl" ] || init_registry >/dev/null 2>&1 || true
+  case "$action" in
+    list | ls | "") intent_list ;;
+    add | record)
+      [ $# -lt 5 ] && { err "Usage: dev intent add <id> <decision> <rationale> <alternatives-json> <revisit-condition>"; return 1; }
+      intent_record "$@"
+      ;;
+    show | render)
+      [ $# -lt 1 ] && { err "Usage: dev intent show <id>"; return 1; }
+      intent_render "$@"
+      ;;
+    stats) registry_stats ;;
+    *) err "Unknown: dev intent $action. Use: list|add|show|stats" ;;
+  esac
+}
+
 case "${1:-}" in
   install) cmd_install "${2:-}" ;;
   remove) cmd_remove "${2:-}" ;;
@@ -1049,6 +1188,26 @@ case "${1:-}" in
   docs) cmd_docs "${@}" ;;
   skills) cmd_skills "${@}" ;;
   context) cmd_context "${@}" ;;
+  maintainability)
+    _sf_bootstrap_logging
+    source "$SCRIPTS_DIR/src/lib/45-maintainability-score.sh"
+    cmd_maintainability "${@}"
+    ;;
+  spec)
+    _sf_bootstrap_logging
+    source "$SCRIPTS_DIR/src/lib/33-spec-registry.sh"
+    cmd_spec "${@}"
+    ;;
+  debt)
+    _sf_bootstrap_logging
+    source "$SCRIPTS_DIR/src/lib/35-debt-intent-registry.sh"
+    cmd_debt "${@}"
+    ;;
+  intent)
+    _sf_bootstrap_logging
+    source "$SCRIPTS_DIR/src/lib/35-debt-intent-registry.sh"
+    cmd_intent "${@}"
+    ;;
   -h | --help | help | "") usage ;;
-  *) err "Unknown: $1. Use: dev install|remove|update|health|list|config|self-update|version-check|autoupdate|infra|plugins|observability|models|doctor|backup|bundle|sandcastle|daytona|docs|skills|context" ;;
+  *) err "Unknown: $1. Use: dev install|remove|update|health|list|config|self-update|version-check|autoupdate|infra|plugins|observability|models|doctor|backup|bundle|sandcastle|daytona|docs|skills|context|maintainability|spec|debt|intent" ;;
 esac

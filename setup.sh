@@ -425,6 +425,14 @@ while [[ $# -gt 0 ]]; do case $1 in
     SKIP_DOTFILES=true
     shift
     ;;
+  --software-factory)
+    SOFTWARE_FACTORY_ENABLED=true SOFTWARE_FACTORY_REGISTRY=true SOFTWARE_FACTORY_GOVERNANCE=true
+    SOFTWARE_FACTORY_DESIGN=true SOFTWARE_FACTORY_SCORE=true; shift ;;
+  --no-software-factory) SOFTWARE_FACTORY_ENABLED=false; shift ;;
+  --software-factory-registry) SOFTWARE_FACTORY_REGISTRY=true; shift ;;
+  --software-factory-governance) SOFTWARE_FACTORY_GOVERNANCE=true; shift ;;
+  --software-factory-design) SOFTWARE_FACTORY_DESIGN=true; shift ;;
+  --software-factory-score) SOFTWARE_FACTORY_SCORE=true; shift ;;
   --with-postgres)
     INFRA_SERVICES="${INFRA_SERVICES:-}postgres "
     shift
@@ -533,6 +541,12 @@ Options:
   --devbox-skip       Skip Devbox (Nix-based isolated dev environments)
   --skip-caching      Skip Prompt Caching Stack (opencode-cache-* plugins)
   --dotfiles-skip     Skip chezmoi dotfiles manager installation
+  --software-factory    Full Software Factory wave (registries + governance + design + scoring)
+  --no-software-factory Skip every Software Factory step (modules stay sourced for `dev`)
+  --software-factory-registry    Only spec / debt+intent / token-cache registries
+  --software-factory-governance  Only model policy + PII guard + audit chain
+  --software-factory-design      Only product-review / architecture-doc / program-design dirs
+  --software-factory-score       Only the maintainability score step
   --with-postgres     Enable PostgreSQL 18 in Docker (needed for memory/plugins)
   --with-qdrant       Enable Qdrant vector DB (needed for code search / RAG)
   --with-redis        Enable Redis 7 cache (needed for sessions / PubSub)
@@ -562,11 +576,17 @@ done
 
 # ── Early-exit modes ─────────────────────────────────────────────────────────
 # ── Step runner (defined EARLY: modes/*.sh call _run_step at source time) ──
-TOTAL_STEPS=${TOTAL_STEPS:-49}
+# Progress denominator = executed `_run_step` call sites (67 static minus the 5
+# duplicated by the parallel/serial optional-modules branch). SF added 13.
+TOTAL_STEPS=${TOTAL_STEPS:-62}
 CURRENT_STEP=${CURRENT_STEP:-0}
 
 _run_step() {
   local step_key="$1" step_name="$2" module="$3"
+  # Optional 4th arg: function invoked right after the module is sourced, in the
+  # same subshell. SF modules only *define* functions, so without an entry point
+  # a `_run_step` on them is a no-op.
+  local step_entry="${4:-}"
   CURRENT_STEP=$((CURRENT_STEP + 1))
   if _step_skip "$step_key" 2>/dev/null; then return 0; fi
   _progress "$CURRENT_STEP/$TOTAL_STEPS" "$step_name"
@@ -576,7 +596,14 @@ _run_step() {
   fi
   # shellcheck disable=SC1090
   local step_output step_exit
-  step_output="$(set +e; source "$module" 2>&1)" || step_exit=$?
+  if [ -n "$step_entry" ]; then
+    step_output="$(set +e; source "$module" 2>&1; _sf_rc=$?
+      { [ "$_sf_rc" -eq 0 ] && declare -f "$step_entry" >/dev/null 2>&1; } \
+        && { "$step_entry"; _sf_rc=$?; } || _sf_rc=$?
+      exit "$_sf_rc")" || step_exit=$?
+  else
+    step_output="$(set +e; source "$module" 2>&1)" || step_exit=$?
+  fi
   if [ "${step_exit:-0}" -ne 0 ]; then
     # Extract last meaningful error line for diagnostics
     local error_line
@@ -963,19 +990,85 @@ _run_step step_provider_discovery "Provider Auto-Discovery" "$SCRIPT_DIR/src/lib
 _run_step step_local_memory "Local Memory (opencode-mem, opt-in)" "$SCRIPT_DIR/src/lib/59-local-memory.sh"
 _run_step step_daytona "Daytona Environment Practice" "$SCRIPT_DIR/src/lib/61-daytona.sh"
 
-# ── Software Factory modules (v16.0.0 — Waves 0-6) ────────────────────────
-# Error recovery & WAL locking are foundational: sourced early (see infra block).
-# These are sourced here so their functions are available to later steps and CLI.
+# ── Software Factory modules (v16.0.0 Waves 0-6) ────────────────────────────
+# v16.1.0: these 13 modules used to be ONLY sourced (zero _run_step calls), so the
+# whole wave was dead code at install time. They are real steps now. Tiers keep
+# the default install cheap — REGISTRY/GOVERNANCE/DESIGN only mkdir and write a
+# couple of small files, SCORE walks the whole source tree and is opt-in:
+#   SOFTWARE_FACTORY_ENABLED|REGISTRY|GOVERNANCE|DESIGN  (default true)
+#   SOFTWARE_FACTORY_SCORE                                (default false)
+# `--software-factory` turns every tier on, `--no-software-factory` all off.
 if [ "${SOFTWARE_FACTORY_ENABLED:-true}" != "false" ]; then
-  for _sf_mod in \
-    33-spec-registry 34-token-cache 35-debt-intent-registry \
-    41-model-policy 42-pii-guard 43-audit-chain 44-offline-bundle \
-    45-maintainability-score \
-    50-product-review 51-architecture-doc 52-program-design \
-    53-vertical-slices 54-agent-handoff; do
+  # Pin the data root to the checkout so `bash ~/setup.sh` from any directory
+  # writes to a predictable place.
+  [ -n "${OPENCODE_ROOT:-}" ] || OPENCODE_ROOT="$SCRIPT_DIR"
+  export OPENCODE_ROOT
+  # SF modules call log_info/log_warn/... (00y-logging.sh) and log_success
+  # (54-agent-handoff.sh), none of which setup.sh sourced — `spec list` died
+  # with "log_warn: command not found". Load the shims before the modules.
+  if ! declare -f log_info >/dev/null 2>&1; then
+    [ -f "$SCRIPT_DIR/src/lib/00y-logging.sh" ] && source "$SCRIPT_DIR/src/lib/00y-logging.sh" || true
+  fi
+  declare -f log_success >/dev/null 2>&1 || log_success() { log_info "$*"; }
+  for _sf_mod in 33-spec-registry 34-token-cache 35-debt-intent-registry \
+                 41-model-policy 42-pii-guard 43-audit-chain 44-offline-bundle \
+                 45-maintainability-score 50-product-review 51-architecture-doc \
+                 52-program-design 53-vertical-slices 54-agent-handoff; do
     [ -f "$SCRIPT_DIR/src/lib/${_sf_mod}.sh" ] && source "$SCRIPT_DIR/src/lib/${_sf_mod}.sh" || true
   done
   unset _sf_mod
+
+  # Entry points — called by _run_step inside the subshell that sources the
+  # module, so they see that module's variables.
+  _sf_mkdir()  { mkdir -p "$1"; _step_done "$2"; }
+  _sf_step_spec_registry()   { init_spec_registry;  _step_done step_sf_spec_registry; }
+  _sf_step_token_cache()     { init_token_cache;    _step_done step_sf_token_cache; }
+  _sf_step_debt_registry()   { init_registry;       _step_done step_sf_debt_registry; }
+  _sf_step_model_policy()    { model_policy_init;   _step_done step_sf_model_policy; }
+  _sf_step_audit_chain()     { audit_init && audit_log "software-factory-boot" "setup.sh"; _step_done step_sf_audit_chain; }
+  _sf_step_offline_bundle()  { [ -n "${_BUNDLE_DIR:-}" ] && mkdir -p "$_BUNDLE_DIR"; _step_done step_sf_offline_bundle; }
+  # No init function exists — assert redaction works instead of a silent no-op.
+  _sf_step_pii_guard()       { local _o; _o="$(pii_sanitize "mail john@example.com")"
+                                case "$_o" in *REDACTED*) ;; *) echo "pii_sanitize leak: $_o"; return 1 ;; esac
+                                pii_detect "john@example.com" || { echo "pii_detect miss"; return 1; }
+                                _step_done step_sf_pii_guard; }
+  _sf_step_maintainability() { calculate_maintainability_score "$OPENCODE_ROOT" text 0
+                                local _r=$?; _step_done step_sf_maintainability; return "$_r"; }
+  _sf_step_product_review()  { _sf_mkdir "${MODULE_50_DIR}" step_sf_product_review; mkdir -p "${MODULE_50_TEMPLATE_DIR}"; }
+  _sf_step_architecture_doc(){ _sf_mkdir "$MODULE_51_DIR" step_sf_architecture_doc; }
+  _sf_step_program_design()  { _sf_mkdir "$MODULE_52_DIR" step_sf_program_design; }
+  _sf_step_vertical_slices() { _sf_mkdir "$MODULE_53_DIR" step_sf_vertical_slices; }
+  _sf_step_agent_handoff()   { _sf_mkdir "$MODULE_54_DIR" step_sf_agent_handoff; }
+  # case dispatch instead of ${SOFTWARE_FACTORY_$1:-...} — indirect expansion
+  # with a default value is a bash "bad substitution".
+  _sf_tier() { case "$1" in
+      REGISTRY)   [ "${SOFTWARE_FACTORY_REGISTRY:-true}"   != "false" ] ;;
+      GOVERNANCE) [ "${SOFTWARE_FACTORY_GOVERNANCE:-true}" != "false" ] ;;
+      DESIGN)     [ "${SOFTWARE_FACTORY_DESIGN:-true}"     != "false" ] ;;
+    esac; }
+
+  if _sf_tier REGISTRY; then
+    _run_step step_sf_spec_registry "Software Factory: Spec Registry" "$SCRIPT_DIR/src/lib/33-spec-registry.sh" _sf_step_spec_registry
+    _run_step step_sf_token_cache "Software Factory: Token Cache" "$SCRIPT_DIR/src/lib/34-token-cache.sh" _sf_step_token_cache
+    _run_step step_sf_debt_registry "Software Factory: Debt/Intent Registry" "$SCRIPT_DIR/src/lib/35-debt-intent-registry.sh" _sf_step_debt_registry
+  fi
+  if _sf_tier GOVERNANCE; then
+    _run_step step_sf_model_policy "Software Factory: Model Policy" "$SCRIPT_DIR/src/lib/41-model-policy.sh" _sf_step_model_policy
+    _run_step step_sf_pii_guard "Software Factory: PII Guard" "$SCRIPT_DIR/src/lib/42-pii-guard.sh" _sf_step_pii_guard
+    _run_step step_sf_audit_chain "Software Factory: Audit Chain" "$SCRIPT_DIR/src/lib/43-audit-chain.sh" _sf_step_audit_chain
+    _run_step step_sf_offline_bundle "Software Factory: Offline Bundle" "$SCRIPT_DIR/src/lib/44-offline-bundle.sh" _sf_step_offline_bundle
+  fi
+  if _sf_tier DESIGN; then
+    _run_step step_sf_product_review "Software Factory: Product Review" "$SCRIPT_DIR/src/lib/50-product-review.sh" _sf_step_product_review
+    _run_step step_sf_architecture_doc "Software Factory: Architecture Doc" "$SCRIPT_DIR/src/lib/51-architecture-doc.sh" _sf_step_architecture_doc
+    _run_step step_sf_program_design "Software Factory: Program Design" "$SCRIPT_DIR/src/lib/52-program-design.sh" _sf_step_program_design
+    _run_step step_sf_vertical_slices "Software Factory: Vertical Slices" "$SCRIPT_DIR/src/lib/53-vertical-slices.sh" _sf_step_vertical_slices
+    _run_step step_sf_agent_handoff "Software Factory: Agent Handoff" "$SCRIPT_DIR/src/lib/54-agent-handoff.sh" _sf_step_agent_handoff
+  fi
+  # Scoring walks the whole source tree: opt-in only (default off).
+  if [ "${SOFTWARE_FACTORY_SCORE:-false}" = "true" ]; then
+    _run_step step_sf_maintainability "Software Factory: Maintainability Score" "$SCRIPT_DIR/src/lib/45-maintainability-score.sh" _sf_step_maintainability
+  fi
 fi
 [ "${BEST_PRACTICES_ENABLED:-true}" != "false" ] && _run_step step_best_practices "Best Practices Skills (smixs)" "$SCRIPT_DIR/src/lib/40-best-practices.sh"
 _run_step step_upstream_sync "Upstream Sync (submodules + pins)" "$SCRIPT_DIR/src/lib/99-upstream-sync.sh"
