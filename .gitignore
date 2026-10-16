@@ -17,3 +17,24 @@ __pycache__/
 .playwright-mcp/
 .sandcastle/
 site/
+
+# --- 2026-10-16 junk sweep (queue items #3/#4) ---
+.tmp_*
+*.bak
+*.bak-*
+opencode.json.bak-*
+research_versions.txt
+rel.json
+gates_report.txt
+lint_failed.log
+lint_local_report.txt
+final_validation.txt
+triage_report.txt
+out_syntax.txt
+.final.txt
+.codegraph/
+.npmrc
+.opencode/state/
+.opencode/goals/
+.opencode/docs/
+src/cockpit/opencode-cockpit
