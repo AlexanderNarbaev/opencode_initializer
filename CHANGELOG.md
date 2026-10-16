@@ -1,3 +1,20 @@
+## [Unreleased]
+
+### Bug Fixes
+
+* **lib:** repaired shellcheck warnings that fail the CI `Lint` workflow: quote-confused chunk-marker `echo` (SC2027) and `rm -rf "${TOKEN_CACHE_DIR}"/*`, which could expand to `/*` when the variable is unset (SC2115), in `src/lib/34-token-cache.sh`; replaced `ls | xargs` with `find -print0 | xargs -0` (SC2011) in `src/lib/53-vertical-slices.sh`.
+* **tests:** unit tests no longer execute privileged commands. `tests/unit/test_lynis.sh` sourced `src/lib/47-lynis.sh`, whose module body runs at source time, and its stub set lacked `sudo`/`apt-get`/`gpg` — so the suite really ran `sudo gpg --dearmor -o /usr/share/keyrings/cisofy-archive-keyring.gpg` and `sudo apt-get install -y lynis`. This hung the local run on an interactive `Overwrite? (y/N)` prompt (Ctrl-C cannot kill it — the child sudo owns the TTY) and silently installed lynis on passwordless-sudo CI. The test now mocks `sudo`, `doas`, `apt`, `apt-get`, `apt-key`, `add-apt-repository`, `dpkg`, `gpg` and exports an isolated `HOME`.
+
+### Features
+
+* **tests:** privilege sandbox (`tests/test_sandbox.sh`), sourced by the runner. PATH shims for `sudo`, `doas`, `apt`, `apt-get`, `apt-key`, `add-apt-repository`, `dpkg`, `dpkg-reconfigure`, `gpg` — created only for names present on the host — log every call and exit without side effects. Every intercepted call is reported per test and summarised at the end of the run, turning the log into a leak detector. `tee`, `systemctl`, `curl`, `git`, `brew` and `snap` are deliberately not shimmed.
+* **tests:** `tests/run_tests.sh` gains `--e2e`, `--privileged`, `--timeout N`, `--section NAME` and `-h|--help`, with env defaults `RUN_E2E=0`, `RUN_PRIVILEGED=0`, `TEST_TIMEOUT=300`. Each test now runs under a timeout (rc 124/137 fails loudly instead of hanging forever), the e2e section is skipped by default and counted separately, and `RUN_PRIVILEGED=1` disables the sandbox with a warning.
+* **tests:** `tests/unit/test_sandbox.sh` — 59 assertions covering the sandbox, the runner gates, shim interception behaviour and the lynis stubs.
+
+### Documentation
+
+* Documented the sandbox and the new runner flags in `AGENTS.md`, `docs/contributing/index.en.md`, `docs/contributing/index.ru.md` and `docs/adr/adr-009-test-strategy.md`, including the reminder that adding a unit test requires updating the doc counts gated by `scripts/check-doc-counts.sh` in the same commit.
+
 # [15.0.0](https://github.com/AlexanderNarbaev/opencode_initializer/compare/v14.0.0...v15.0.0) (2026-09-16)
 
 ### Features

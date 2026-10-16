@@ -54,8 +54,14 @@ cd opencode_initializer
 ### Testing
 
 ```bash
-# Full test suite
+# Full test suite (syntax + unit + integration; e2e is opt-in)
 bash tests/run_tests.sh
+
+# Include the heavy end-to-end suite
+bash tests/run_tests.sh --e2e          # or RUN_E2E=1
+
+# One section only
+bash tests/run_tests.sh --section unit
 
 # Syntax check only
 bash -n setup.sh
@@ -67,6 +73,30 @@ shellcheck setup.sh src/lib/*.sh src/modes/*.sh
 # Format check
 shfmt -d -i 2 -ci setup.sh src/lib/*.sh src/modes/*.sh
 ```
+
+#### Privilege sandbox
+
+Many unit tests `source` real modules from `src/lib/`, and a module body installs
+packages through `sudo`. `tests/run_tests.sh` therefore prepends shims for
+privilege-escalating binaries (`sudo`, `apt`, `apt-get`, `dpkg`, `gpg`, …) to
+`PATH`: every call is logged and nothing reaches the host. The runner prints an
+`⚠ intercepted:` line under any test that tried, plus a summary at the end, so
+the sandbox doubles as a leak detector.
+
+| Flag | Env | Default | Effect |
+|------|-----|---------|--------|
+| `--e2e` | `RUN_E2E` | `0` | Also run `tests/e2e/` (slow, may install things) |
+| `--privileged` | `RUN_PRIVILEGED` | `0` | Turn the sandbox OFF — tests really change the host |
+| `--timeout N` | `TEST_TIMEOUT` | `300` | Per-test wall-clock limit (a hung test is a failure, not a wedged suite) |
+| `--section NAME` | — | all | `syntax`, `unit`, `integration` or `e2e` |
+
+!!! warning "Only run `--privileged` on a throwaway box"
+    Without the sandbox, a test that sources `47-lynis.sh` or `48-auditd.sh`
+    really installs lynis and auditd and rewrites files under `/etc`.
+
+If you add a unit test that sources a module which escalates privilege, stub
+the binary in the test itself as well (see `tests/unit/test_lynis.sh`) — the
+sandbox is the second line of defence, not a substitute for good mocks.
 
 ### Pre-commit Hooks
 
