@@ -1,12 +1,86 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+# Dependabot version updates.
+#
+# This file used to be the untouched GitHub template: package-ecosystem was an
+# empty string, so Dependabot updated NOTHING while the file still looked like
+# active coverage in a security review. It is now wired to the two ecosystems
+# this repo actually declares manifests for:
+#   npm            -> package.json + package-lock.json (1 runtime dep, 8 dev deps)
+#   github-actions -> the 10 workflows in .github/workflows/
+#
+# Schedule: Sunday, off-peak. DeepSeek bills off-peak at HALF the peak rate, and
+# off-peak means every hour outside 01:00-04:00 and 06:00-10:00 UTC on weekdays
+# (weekends and Chinese public holidays are off-peak in full). Dependency bots
+# and the CI jobs they wake therefore run Sunday 05:00 UTC.
+# Source: https://api-docs.deepseek.com/quick_start/pricing
+#
+# Split of duties: renovate.json owns the update stream (grouping, labels,
+# auto-merge). Dependabot is the backstop — cooldown keeps it from duplicating
+# fresh Renovate PRs, and security updates ignore cooldown so CVEs always land.
+# See the cost_policy block in src/data/routing.json for the same window.
 
 version: 2
 updates:
-  - package-ecosystem: "" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  - package-ecosystem: "npm"
+    directory: "/"
     schedule:
       interval: "weekly"
-      
+      day: "sunday"
+      time: "05:00"
+      timezone: "Etc/UTC"
+    cooldown:
+      default-days: 14
+    open-pull-requests-limit: 5
+    versioning-strategy: "increase"
+    labels:
+      - "dependencies"
+      - "npm"
+    commit-message:
+      prefix: "chore(deps/npm)"
+    rebase-strategy: "disabled"
+    groups:
+      # devDependencies: every non-major bump lands as one reviewable PR
+      npm-non-major:
+        applies-to: version-updates
+        update-types:
+          - "minor"
+          - "patch"
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "@opencode-ai/plugin"
+    ignore:
+      # The one runtime dependency is pinned exactly on purpose (same "nothing
+      # floats" policy as src/data/plugins.json); a major bump must arrive as an
+      # explicit, reviewed PR against the OpenCode channel policy.
+      - dependency-name: "@opencode-ai/plugin"
+        update-types:
+          - "version-update:semver-major"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "05:10"
+      timezone: "Etc/UTC"
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 5
+    versioning-strategy: "widen"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "chore(deps/actions)"
+    rebase-strategy: "disabled"
+    groups:
+      # Action pins move as tag ranges (v4 -> v4.2.2): group the in-range bumps,
+      # leave major tag changes (v4 -> v5) as individual reviewable PRs.
+      actions-non-major:
+        applies-to: version-updates
+        update-types:
+          - "minor"
+          - "patch"
+        patterns:
+          - "*"
+
