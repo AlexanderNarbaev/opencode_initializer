@@ -69,7 +69,7 @@ EOF
 
 list_slices() {
     [[ -d "$MODULE_53_DIR" ]] || { echo "No slices yet."; return 0; }
-    ls -1 "$MODULE_53_DIR"/*.md 2>/dev/null | xargs -r -n1 basename
+    find "$MODULE_53_DIR" -maxdepth 1 -name '*.md' -type f -print0 2>/dev/null | xargs -0 -r -n1 basename | sort
 }
 
 main_vertical_slices() {

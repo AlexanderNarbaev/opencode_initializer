@@ -320,7 +320,7 @@ chunk_context() {
     
     # Output chunks
     for i in "${!chunks[@]}"; do
-        echo "===CHUNK_${i}==="${chunks[$i]}"===END_CHUNK_${i}==="
+        echo "===CHUNK_${i}===${chunks[$i]}===END_CHUNK_${i}==="
     done
 }
 
@@ -409,7 +409,7 @@ token_cli() {
             print_stats
             ;;
         clear)
-            rm -rf "${TOKEN_CACHE_DIR}"/*
+            rm -rf "${TOKEN_CACHE_DIR:?}"/*
             token_log_info "Cache cleared"
             ;;
         help|*)
