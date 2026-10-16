@@ -441,17 +441,6 @@
   },
   "plugin": [
     "opencode-codegraph",
-    [
-      "opencode-dcp",
-      {
-        "compress": {
-          "enabled": false
-        },
-        "prune": {
-          "enabled": false
-        }
-      }
-    ],
     "opencode-auto-fallback",
     "opencode-swarm",
     "opencode-vibeguard",
