@@ -588,12 +588,15 @@ _run_step() {
   # a `_run_step` on them is a no-op.
   local step_entry="${4:-}"
   CURRENT_STEP=$((CURRENT_STEP + 1))
-  if _step_skip "$step_key" 2>/dev/null; then return 0; fi
-  _progress "$CURRENT_STEP/$TOTAL_STEPS" "$step_name"
   if [ "${DRY_RUN:-false}" = "true" ]; then
+    # Dry-run prints the FULL plan: skip state left by previous real runs must
+    # not hide scheduled steps (a polluted ~/.cache/opencode-setup/progress
+    # once made CI's dry-run miss the Token Cache / Model Policy lines).
     info "[DRY] $step_name ($module)"
     return 0
   fi
+  if _step_skip "$step_key" 2>/dev/null; then return 0; fi
+  _progress "$CURRENT_STEP/$TOTAL_STEPS" "$step_name"
   # shellcheck disable=SC1090
   local step_output step_exit
   if [ -n "$step_entry" ]; then

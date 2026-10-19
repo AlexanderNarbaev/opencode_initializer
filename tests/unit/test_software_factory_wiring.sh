@@ -23,7 +23,14 @@ SETUP="$PROJECT_DIR/setup.sh"
 DEV="$PROJECT_DIR/dev.sh"
 LIB="$PROJECT_DIR/src/lib"
 FIXTURE="$(mktemp -d)"
-trap 'rm -rf "$FIXTURE"' EXIT
+# Hermetic HOME for the setup.sh dry-runs below: a polluted shared
+# ~/.cache/opencode-setup/progress must never hide scheduled steps. All
+# runtime state paths are $HOME-derived (helpers.sh:89 DL_CACHE,
+# 00-core.sh:190 PROGRESS="$DL_CACHE/progress", setup.sh:42 setup-log dir),
+# so a temp HOME fully isolates the dry-run from the host.
+# Single combined EXIT trap: a second trap on EXIT replaces the first.
+SFW_TMP="$(mktemp -d)"
+trap 'rm -rf "$FIXTURE" "$SFW_TMP"' EXIT
 
 SF_MODULES="33-spec-registry 34-token-cache 35-debt-intent-registry 41-model-policy 42-pii-guard 43-audit-chain 44-offline-bundle 45-maintainability-score 50-product-review 51-architecture-doc 52-program-design 53-vertical-slices 54-agent-handoff"
 
@@ -81,7 +88,7 @@ done
 # ── setup.sh: the default install must stay cheap ──────────────────────────
 # --software-factory-score is the only tier that walks the whole source tree,
 # so it must be opt-in. Assert it on a real dry-run.
-DRY_DEFAULT="$(SUDO_PASS="" SKIP_MIRROR_RESOLVE=true timeout 300 bash "$SETUP" --dry-run 2>&1 | sed -e 's/\x1b\[[0-9;]*m//g')"
+DRY_DEFAULT="$(SUDO_PASS="" SKIP_MIRROR_RESOLVE=true HOME="$SFW_TMP" timeout 300 bash "$SETUP" --dry-run 2>&1 | sed -e 's/\x1b\[[0-9;]*m//g')"
 assert "default dry-run does not run the maintainability scoring step" \
   "! printf '%s' \"\$DRY_DEFAULT\" | grep -q 'Software Factory: Maintainability Score'"
 # The cheap tiers (mkdir / tiny config files) ARE on by default — that is the
@@ -91,7 +98,7 @@ for step in "Spec Registry" "Token Cache" "Model Policy" "Audit Chain"; do
     "printf '%s' \"\$DRY_DEFAULT\" | grep -q 'Software Factory: $step'"
 done
 
-DRY_FULL="$(SUDO_PASS="" SKIP_MIRROR_RESOLVE=true timeout 300 bash "$SETUP" --dry-run --software-factory 2>&1 | sed -e 's/\x1b\[[0-9;]*m//g')"
+DRY_FULL="$(SUDO_PASS="" SKIP_MIRROR_RESOLVE=true HOME="$SFW_TMP" timeout 300 bash "$SETUP" --dry-run --software-factory 2>&1 | sed -e 's/\x1b\[[0-9;]*m//g')"
 for step in "Spec Registry" "Token Cache" "Debt/Intent Registry" "Model Policy" \
             "PII Guard" "Audit Chain" "Offline Bundle" "Product Review" \
             "Architecture Doc" "Program Design" "Vertical Slices" "Agent Handoff" \
@@ -100,7 +107,7 @@ for step in "Spec Registry" "Token Cache" "Debt/Intent Registry" "Model Policy" 
     "printf '%s' \"\$DRY_FULL\" | grep -q 'Software Factory: $step'"
 done
 
-DRY_OFF="$(SUDO_PASS="" SKIP_MIRROR_RESOLVE=true timeout 300 bash "$SETUP" --dry-run --no-software-factory 2>&1 | sed -e 's/\x1b\[[0-9;]*m//g')"
+DRY_OFF="$(SUDO_PASS="" SKIP_MIRROR_RESOLVE=true HOME="$SFW_TMP" timeout 300 bash "$SETUP" --dry-run --no-software-factory 2>&1 | sed -e 's/\x1b\[[0-9;]*m//g')"
 assert "--no-software-factory schedules nothing" \
   "! printf '%s' \"\$DRY_OFF\" | grep -q 'Software Factory:'"
 
