@@ -93,15 +93,17 @@ DRY_DEFAULT="$(SUDO_PASS="" SKIP_MIRROR_RESOLVE=true HOME="$SFW_TMP" timeout 300
 #   printf '%s' "$DRY_DEFAULT" | grep -q 'Software Factory: <tier>'
 # Under `set -o pipefail` that pipeline is unsafe once the capture exceeds the
 # pipe buffer: `grep -q` exits on the first match, the still-writing `printf`
-# producer receives EPIPE and dies with status 141 (128 + SIGPIPE), and
-# pipefail promotes 141 to the status of the whole pipeline. The assert then
-# failed even though the tier line WAS present in the capture. Which tier
-# failed depended on where the match sat in the capture, which is why CI
-# reported a rotating set of failing tier names across runs.
+# producer hits a closed pipe — it is either killed by SIGPIPE (status 141 =
+# 128 + SIGPIPE) or its builtin reports "write error: Broken pipe" and returns
+# non-zero — and pipefail promotes that producer status to the whole pipeline.
+# The assert then failed even though the tier line WAS present in the capture.
+# Which tier failed depended on where the match sat in the capture, which is
+# why CI reported a rotating set of failing tier names across runs.
 # The asserts below therefore consume the whole capture
 # (`grep '...' >/dev/null`), which never trips SIGPIPE.
 # Executable regression guard: tests/unit/test_pipefail_sigpipe.sh
-# (early-exit form => rc=141, full-read form => rc=0 on a >64 KiB capture).
+# (early-exit form => the producer is cut off although the match is present,
+# full-read form => clean rc=0 on a >64 KiB capture).
 assert "default dry-run does not run the maintainability scoring step" \
   "! printf '%s' \"\$DRY_DEFAULT\" | grep 'Software Factory: Maintainability Score' >/dev/null"
 # The cheap tiers (mkdir / tiny config files) ARE on by default — that is the

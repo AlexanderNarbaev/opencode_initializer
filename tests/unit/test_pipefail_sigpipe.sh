@@ -6,12 +6,14 @@
 #   A capture assertion of the form
 #       printf '%s' "$CAPTURE" | grep -q 'needle'
 #   is unsafe when the capture is larger than the pipe buffer. `grep -q`
-#   exits as soon as it finds a match, the still-writing `printf` producer
-#   receives EPIPE and dies with status 141 (128 + SIGPIPE), and `pipefail`
-#   promotes that 141 to the status of the whole pipeline. The assertion
-#   therefore fails even though the needle IS present. Which assertion
-#   failed depended on where the needle sat in the capture, which is why CI
-#   reported a rotating set of failing tier names.
+#   exits as soon as it finds a match; the still-writing `printf` producer
+#   then hits a closed pipe. Depending on the shell build the producer is
+#   either killed by SIGPIPE (status 141 = 128 + SIGPIPE) or its builtin
+#   reports "write error: Broken pipe" and returns non-zero. `pipefail`
+#   promotes that producer status to the whole pipeline, so the assertion
+#   fails (or becomes untrustworthy) even though the needle IS present.
+#   Which assertion failed depended on where the needle sat in the capture,
+#   which is why CI reported a rotating set of failing tier names.
 #
 # The safe form reads the whole stream and discards it:
 #       printf '%s' "$CAPTURE" | grep 'needle' >/dev/null
@@ -24,10 +26,19 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=/dev/null
 source "$SCRIPT_DIR/../test_lib.sh"
 
-trap cleanup_test EXIT
+finish() {
+  local rc=$?
+  if [ "$rc" -ne 0 ]; then
+    echo "pipefail_sigpipe: aborted with status $rc before completing all asserts"
+    exit "$rc"
+  fi
+  cleanup_test
+}
+
+trap finish EXIT
 
 # The payload must exceed any plausible pipe buffer (64 KiB on Linux, 16 KiB
-# on macOS) so that the SIGPIPE death is deterministic, not size-dependent.
+# on macOS) so that the hazard is deterministic, not size-dependent.
 CHUNK_WIDTH=1024
 CHUNK_COUNT=1024
 
@@ -36,31 +47,44 @@ make_payload() {
   local i
   printf -v chunk '%01024d' 0
   # The needle sits in the very first line, so an early-exit consumer stops
-  # reading almost immediately and the producer is killed mid-write.
-  printf 'NEEDLE_AT_FRONT\n'
+  # reading almost immediately and the producer is cut off mid-write.
+  printf 'NEEDLE_AT_FRONT\n' || return 1
   i=0
   while [ "$i" -lt "$CHUNK_COUNT" ]; do
-    printf '%s\n' "$chunk"
+    printf '%s\n' "$chunk" || return 1
     i=$((i + 1))
   done
 }
 
 printf 'pipefail_sigpipe: payload chunks=%s chunk_width=%s\n' "$CHUNK_COUNT" "$CHUNK_WIDTH"
 
-# --- Case 1: the early-exit capture (grep -q) is SIGPIPE-prone --------------
-EARLY_RC=0
-make_payload | grep -q 'NEEDLE_AT_FRONT'
-EARLY_RC=$?
-printf 'pipefail_sigpipe: early-exit (grep -q) pipeline rc=%s\n' "$EARLY_RC"
+BIG_CAPTURE="$(make_payload)"
+
+# --- Case 1: the early-exit capture (grep -q) cuts the producer off ---------
+# PIPESTATUS must be copied as the very next statement after the pipeline:
+# any later simple command (even an assignment) resets it. The producer's
+# fate is poisoned in both manifestations of the hazard — SIGPIPE death (141)
+# or a reported write error (non-zero) — while grep itself still reports the
+# match (rc=0).
+printf '%s' "$BIG_CAPTURE" 2>/dev/null | grep -q 'NEEDLE_AT_FRONT'
+EARLY_PS=("${PIPESTATUS[@]}")
+EARLY_PRODUCER_RC="${EARLY_PS[0]}"
+EARLY_GREP_RC="${EARLY_PS[1]}"
+printf 'pipefail_sigpipe: early-exit (grep -q) producer rc=%s grep rc=%s (pipeline status is poisoned although the match is present)\n' \
+  "$EARLY_PRODUCER_RC" "$EARLY_GREP_RC"
 
 # --- Case 2: the full-read capture always succeeds -------------------------
-FULL_RC=0
-make_payload | grep 'NEEDLE_AT_FRONT' >/dev/null
-FULL_RC=$?
-printf 'pipefail_sigpipe: full-read (grep >/dev/null) pipeline rc=%s\n' "$FULL_RC"
+printf '%s' "$BIG_CAPTURE" | grep 'NEEDLE_AT_FRONT' >/dev/null
+FULL_PS=("${PIPESTATUS[@]}")
+FULL_PRODUCER_RC="${FULL_PS[0]}"
+FULL_GREP_RC="${FULL_PS[1]}"
+printf 'pipefail_sigpipe: full-read (grep >/dev/null) producer rc=%s grep rc=%s\n' \
+  "$FULL_PRODUCER_RC" "$FULL_GREP_RC"
 
-assert "early-exit capture dies with SIGPIPE status 141" "[ '$EARLY_RC' -eq 141 ]"
-assert "full-read capture succeeds despite the large payload" "[ '$FULL_RC' -eq 0 ]"
+assert "early-exit consumer cuts the producer off although the match is present" \
+  "[ '$EARLY_PRODUCER_RC' -ne 0 ] && [ '$EARLY_GREP_RC' -eq 0 ]"
+assert "full-read consumer lets the producer finish the capture cleanly" \
+  "[ '$FULL_PRODUCER_RC' -eq 0 ] && [ '$FULL_GREP_RC' -eq 0 ]"
 
 # --- Case 3: the Software Factory wiring test must keep full-read captures -
 # Every large capture in that test is a $DRY_* variable. The hazard is an
