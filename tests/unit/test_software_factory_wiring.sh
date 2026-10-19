@@ -89,17 +89,29 @@ done
 # --software-factory-score is the only tier that walks the whole source tree,
 # so it must be opt-in. Assert it on a real dry-run.
 DRY_DEFAULT="$(SUDO_PASS="" SKIP_MIRROR_RESOLVE=true HOME="$SFW_TMP" timeout 300 bash "$SETUP" --dry-run 2>&1 | sed -e 's/\x1b\[[0-9;]*m//g')"
-# CI diagnostic: surface the captured dry-run's Software Factory lines in the
-# Actions log so an intermittent missing-step failure can be triaged remotely.
-# Harmless noise locally; remove after root-causing.
+# History: these asserts originally used `grep -q`; CI runs rotated failing
+# tier names run-to-run while the debug dump below PROVED the same capture
+# contained every line. SIGPIPE/pipefail could NOT be reproduced locally
+# (grep -q returned 0 at every size/offset on the dev machine), so the true
+# root cause is under active verification via the debug dump. The asserts now
+# consume the whole capture (`grep '...' >/dev/null`) — a safe superset fix —
+# while the debug block fingerprints the capture (len, sha256, per-tier
+# match counts, toolchain versions) so the next red run is triage-complete.
 printf 'DRY_DEBUG_SF_LINES:\n%s\n' "$(printf '%s' "$DRY_DEFAULT" | grep 'Software Factory' | head -16)"
+printf 'DRY_DEBUG_LEN=%s SHA=%s\n' "${#DRY_DEFAULT}" "$(printf '%s' "$DRY_DEFAULT" | sha256sum | cut -d' ' -f1)"
+printf 'DRY_DEBUG_BASH=%s GREP=%s PIPEFAIL=%s\n' "$BASH_VERSION" "$(grep --version | head -1)" \
+  "$(set -o | grep pipefail | tr -s ' ' | tail -c 30)"
+for step in "Spec Registry" "Token Cache" "Model Policy" "Audit Chain"; do
+  printf 'DRY_DEBUG_MATCH[%s]=%s\n' "$step" \
+    "$(printf '%s' "$DRY_DEFAULT" | grep -c "Software Factory: $step")"
+done
 assert "default dry-run does not run the maintainability scoring step" \
-  "! printf '%s' \"\$DRY_DEFAULT\" | grep -q 'Software Factory: Maintainability Score'"
+  "! printf '%s' \"\$DRY_DEFAULT\" | grep 'Software Factory: Maintainability Score' >/dev/null"
 # The cheap tiers (mkdir / tiny config files) ARE on by default — that is the
 # point of the wiring; only the tree-walking scoring step stays opt-in.
 for step in "Spec Registry" "Token Cache" "Model Policy" "Audit Chain"; do
   assert "default dry-run runs the cheap tier '$step'" \
-    "printf '%s' \"\$DRY_DEFAULT\" | grep -q 'Software Factory: $step'"
+    "printf '%s' \"\$DRY_DEFAULT\" | grep 'Software Factory: $step' >/dev/null"
 done
 
 DRY_FULL="$(SUDO_PASS="" SKIP_MIRROR_RESOLVE=true HOME="$SFW_TMP" timeout 300 bash "$SETUP" --dry-run --software-factory 2>&1 | sed -e 's/\x1b\[[0-9;]*m//g')"
@@ -108,12 +120,12 @@ for step in "Spec Registry" "Token Cache" "Debt/Intent Registry" "Model Policy" 
             "Architecture Doc" "Program Design" "Vertical Slices" "Agent Handoff" \
             "Maintainability Score"; do
   assert "--software-factory schedules '$step'" \
-    "printf '%s' \"\$DRY_FULL\" | grep -q 'Software Factory: $step'"
+    "printf '%s' \"\$DRY_FULL\" | grep 'Software Factory: $step' >/dev/null"
 done
 
 DRY_OFF="$(SUDO_PASS="" SKIP_MIRROR_RESOLVE=true HOME="$SFW_TMP" timeout 300 bash "$SETUP" --dry-run --no-software-factory 2>&1 | sed -e 's/\x1b\[[0-9;]*m//g')"
 assert "--no-software-factory schedules nothing" \
-  "! printf '%s' \"\$DRY_OFF\" | grep -q 'Software Factory:'"
+  "! printf '%s' \"\$DRY_OFF\" | grep 'Software Factory:' >/dev/null"
 
 # ── dev.sh: new subcommands exist and are dispatched exactly once ──────────
 for fn in cmd_maintainability cmd_spec cmd_debt cmd_intent; do
@@ -216,7 +228,7 @@ dev_run() { HOME="$SF_HOME" OPENCODE_ROOT="$SF_ROOT" SKIP_MIRROR_RESOLVE=true \
 
 out="$(dev_run maintainability)"
 assert "dev maintainability prints a numeric score" \
-  "printf '%s' \"\$out\" | sed -e 's/\\x1b\\[[0-9;]*m//g' | grep -qE 'MAINTAINABILITY SCORE: [0-9]+/100'"
+  "printf '%s' \"\$out\" | sed -e 's/\\x1b\\[[0-9;]*m//g' | grep -E 'MAINTAINABILITY SCORE: [0-9]+/100' >/dev/null"
 assert "dev maintainability exits 0" \
   "HOME='$SF_HOME' OPENCODE_ROOT='$SF_ROOT' SKIP_MIRROR_RESOLVE=true bash '$DEV' maintainability >/dev/null 2>&1"
 
@@ -228,10 +240,10 @@ fi
 # dev spec list must not fail with the missing log helper any more.
 spec_out="$(dev_run spec list)"
 assert "dev spec list runs without 'command not found'" \
-  "! printf '%s' \"\$spec_out\" | grep -q 'command not found'"
+  "! printf '%s' \"\$spec_out\" | grep 'command not found' >/dev/null"
 spec_err="$(HOME="$SF_HOME" OPENCODE_ROOT="$SF_ROOT" SKIP_MIRROR_RESOLVE=true bash "$DEV" spec list 2>&1 >/dev/null)"
 assert "dev spec list has no missing-helper error on stderr" \
-  "! printf '%s' \"\$spec_err\" | grep -q 'log_warn: command not found'"
+  "! printf '%s' \"\$spec_err\" | grep 'log_warn: command not found' >/dev/null"
 assert "dev spec register + list round-trips" \
   "dev_run spec register feat demo 'Demo' 'demo spec' 1.0.0 approved >/dev/null && dev_run spec list | grep -q 'spec://feat/demo'"
 
