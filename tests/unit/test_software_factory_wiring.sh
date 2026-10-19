@@ -89,6 +89,10 @@ done
 # --software-factory-score is the only tier that walks the whole source tree,
 # so it must be opt-in. Assert it on a real dry-run.
 DRY_DEFAULT="$(SUDO_PASS="" SKIP_MIRROR_RESOLVE=true HOME="$SFW_TMP" timeout 300 bash "$SETUP" --dry-run 2>&1 | sed -e 's/\x1b\[[0-9;]*m//g')"
+# CI diagnostic: surface the captured dry-run's Software Factory lines in the
+# Actions log so an intermittent missing-step failure can be triaged remotely.
+# Harmless noise locally; remove after root-causing.
+printf 'DRY_DEBUG_SF_LINES:\n%s\n' "$(printf '%s' "$DRY_DEFAULT" | grep 'Software Factory' | head -16)"
 assert "default dry-run does not run the maintainability scoring step" \
   "! printf '%s' \"\$DRY_DEFAULT\" | grep -q 'Software Factory: Maintainability Score'"
 # The cheap tiers (mkdir / tiny config files) ARE on by default — that is the
