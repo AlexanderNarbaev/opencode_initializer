@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+### Security
+
+* **deps:** closed all 10 Dependabot alerts (2 critical, 1 high, 6 moderate, 1 low) — all vulnerable packages are transitive dev-time dependencies in `package-lock.json`: `handlebars` 4.7.9→4.7.10 (critical, via `conventional-changelog-writer` reached from `@semantic-release/commit-analyzer` / `release-notes-generator`), and the five packages bundled inside `npm` itself (`brace-expansion` 5.0.9→5.0.12, `http-cache-semantics` 4.2.0→4.3.0, `ip-address` 10.5.0→10.7.2, `postcss-selector-parser` 7.1.4→7.1.6, `undici` 6.28.0→6.29.0). The bundled tree is fixed by the `npm` release itself, so it was moved via a package-wide `overrides.npm=11.21.1` pin (in-range for `@semantic-release/npm`'s `^11.6.2`); `npm audit fix --package-lock-only` alone could only bump `handlebars`. Runtime audit is now `found 0 vulnerabilities`; the remaining 10 `npm audit` HIGHs live exclusively in the `semantic-release` release toolchain (executed only by maintainers locally — no CI job invokes semantic-release — and not shipped) and are accepted without forcing a major downgrade.
+
 ### Bug Fixes
 
 * **setup:** `setup.sh --dry-run` now prints the FULL scheduled plan: the DRY_RUN early-return in `_run_step()` is checked before `_step_skip`, so skip state left in `~/.cache/opencode-setup/progress` by previous real runs no longer hides steps from the preview (this was the root cause of the CI `Tests` failure on `834c400c`: `test_software_factory_wiring.sh` 104 passed / 2 failed — the dry-run missed the Token Cache and Model Policy lines). The dry-run invocations in the wiring test now use a temporary `$HOME` (all runtime state paths are `$HOME`-derived: `helpers.sh` `DL_CACHE`, `00-core.sh` `PROGRESS="$DL_CACHE/progress"`), making the dry-run asserts hermetic, and the two `trap ... EXIT` lines are merged into one.
