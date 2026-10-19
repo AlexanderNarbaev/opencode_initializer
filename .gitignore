@@ -38,3 +38,6 @@ out_syntax.txt
 .opencode/goals/
 .opencode/docs/
 src/cockpit/opencode-cockpit
+
+# local diagnostic archives
+reports/
