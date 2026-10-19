@@ -46,7 +46,7 @@ One command installs everything: 6 languages, 146 shell modules, 24 MCP servers,
 | Model Router | 9 profiles | coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn, testing |
 | CLI Modes | 12 | full, reinit, new, health, update, upgrade, interactive, ci, fix-config, fix-zshrc, dry-run, airgap |
 | Infrastructure | 7 | PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer |
-| Tests | 139 | 120 unit + 13 integration + 6 e2e |
+| Tests | 140 | 121 unit + 13 integration + 6 e2e |
 | TOML Config | ✅ | Declarative config via setup.toml (precedence: CLI > env > toml > defaults) |
 | Fault Tolerance | ✅ | Per-step error recovery with PARTIAL state tracking |
 | WAL Race Fix | ✅ | Atomic writes via flock with mkdir fallback |
@@ -156,7 +156,7 @@ opencode_initializer/
 │   ├── oc-sdk.py              # Python SDK
 │   ├── embed-proxy.py         # Ollama → MemoryLayer embedding bridge
 │   └── ai-router.sh           # Model routing intelligence (+ ai-router.json config)
-├── tests/                     # Unit (120), integration (13), E2E (6) — 139 files
+├── tests/                     # Unit (121), integration (13), E2E (6) — 140 files
 ├── migrations/                # Timestamped, idempotent migrations
 ├── docs/                      # MkDocs Material documentation site (EN/RU)
 ├── .github/                   # CI workflows (test, shellcheck, build, security, docs)

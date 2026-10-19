@@ -89,22 +89,19 @@ done
 # --software-factory-score is the only tier that walks the whole source tree,
 # so it must be opt-in. Assert it on a real dry-run.
 DRY_DEFAULT="$(SUDO_PASS="" SKIP_MIRROR_RESOLVE=true HOME="$SFW_TMP" timeout 300 bash "$SETUP" --dry-run 2>&1 | sed -e 's/\x1b\[[0-9;]*m//g')"
-# History: these asserts originally used `grep -q`; CI runs rotated failing
-# tier names run-to-run while the debug dump below PROVED the same capture
-# contained every line. SIGPIPE/pipefail could NOT be reproduced locally
-# (grep -q returned 0 at every size/offset on the dev machine), so the true
-# root cause is under active verification via the debug dump. The asserts now
-# consume the whole capture (`grep '...' >/dev/null`) — a safe superset fix —
-# while the debug block fingerprints the capture (len, sha256, per-tier
-# match counts, toolchain versions) so the next red run is triage-complete.
-printf 'DRY_DEBUG_SF_LINES:\n%s\n' "$(printf '%s' "$DRY_DEFAULT" | grep 'Software Factory' | head -16)"
-printf 'DRY_DEBUG_LEN=%s SHA=%s\n' "${#DRY_DEFAULT}" "$(printf '%s' "$DRY_DEFAULT" | sha256sum | cut -d' ' -f1)"
-printf 'DRY_DEBUG_BASH=%s GREP=%s PIPEFAIL=%s\n' "$BASH_VERSION" "$(grep --version | head -1)" \
-  "$(set -o | grep pipefail | tr -s ' ' | tail -c 30)"
-for step in "Spec Registry" "Token Cache" "Model Policy" "Audit Chain"; do
-  printf 'DRY_DEBUG_MATCH[%s]=%s\n' "$step" \
-    "$(printf '%s' "$DRY_DEFAULT" | grep -c "Software Factory: $step")"
-done
+# Root cause (confirmed): these asserts originally used an early-exit capture,
+#   printf '%s' "$DRY_DEFAULT" | grep -q 'Software Factory: <tier>'
+# Under `set -o pipefail` that pipeline is unsafe once the capture exceeds the
+# pipe buffer: `grep -q` exits on the first match, the still-writing `printf`
+# producer receives EPIPE and dies with status 141 (128 + SIGPIPE), and
+# pipefail promotes 141 to the status of the whole pipeline. The assert then
+# failed even though the tier line WAS present in the capture. Which tier
+# failed depended on where the match sat in the capture, which is why CI
+# reported a rotating set of failing tier names across runs.
+# The asserts below therefore consume the whole capture
+# (`grep '...' >/dev/null`), which never trips SIGPIPE.
+# Executable regression guard: tests/unit/test_pipefail_sigpipe.sh
+# (early-exit form => rc=141, full-read form => rc=0 on a >64 KiB capture).
 assert "default dry-run does not run the maintainability scoring step" \
   "! printf '%s' \"\$DRY_DEFAULT\" | grep 'Software Factory: Maintainability Score' >/dev/null"
 # The cheap tiers (mkdir / tiny config files) ARE on by default — that is the
