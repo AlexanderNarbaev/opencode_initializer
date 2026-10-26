@@ -54,10 +54,21 @@
       "minimax",
       "xiaomi-token-plan-sgp",
       "opencode"
-    ]
+    ],
+    "agents": [
+      "build",
+      "plan",
+      "general",
+      "explore",
+      "code-reviewer",
+      "compaction",
+      "reviewer",
+      "docs"
+    ],
+    "marketplaces": "src/data/marketplaces.json"
   },
   "tests": {
-    "unit": 122,
+    "unit": 124,
     "integration": 13,
     "e2e": 6,
     "benchmark": 3
@@ -70,7 +81,8 @@
     "wired_into": [
       ".github/workflows/lint.yml",
       ".pre-commit-config.yaml"
-    ]
+    ],
+    "module_reachability": "scripts/audit-module-reachability.sh (baseline: src/data/dead-modules.baseline)"
   },
   "cleanup": {
     "removed_trash_gb": 115,

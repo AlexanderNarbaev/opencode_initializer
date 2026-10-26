@@ -2,24 +2,30 @@
   "$schema": "https://opencode.ai/plugins.json",
   "version": "1.0.0",
   "description": "Single Source of Truth (SSOT) for OpenCode plugin pins. Every entry mirrors one plugin of the live config (~/.config/opencode/opencode.json plugin array); versions of entries the live config leaves floating were resolved from the npm registry on 2026-10-16. Rule: no plugin is installed from a floating tag - bump the pin here first, then regenerate opencode.json. See src/data/README.md.",
-
   "channels": {
     "v1": {
       "binary": "1.19.x"
     },
     "v2": {
-      "binary": "2.0.27",
-      "status": "blocked-no-community-plugins"
+      "binary": "2.1.4",
+      "status": "verified-partial",
+      "verified": [
+        "@tarquinen/opencode-dcp",
+        "opencode-token-tracker",
+        "opencode-auto-fallback",
+        "opencode-supermemory",
+        "opencode-swarm",
+        "opencode-goal-plugin",
+        "opencode-orchestrator"
+      ],
+      "note": "Verified by actual load on 2.1.4 (2026-10-26). V1-only plugins fail with 'Plugin must export a default definition with an id and an effect or setup function'."
     }
   },
-
   "channel_notes": {
     "v1": "OpenCode 1.19.x is the latest dist-tag on npm (opencode-ai) and still ships patches. All community plugins below are loadable here; this is the channel every machine runs.",
     "v2": "OpenCode 2.0.27 exists only under beta/next/dev snapshot tags, not as a published 2.x release. It cannot load V1 community plugins, so the V2 channel is parked: do not install the v2 entries on a v1 binary."
   },
-
   "criticality": "critical=true marks a plugin whose absence degrades the harness itself (code intelligence, orchestration, context management, goal protocol). critical=false plugins are feature add-ons: their absence is a feature loss, not a harness break.",
-
   "plugins": [
     {
       "name": "opencode-codegraph",

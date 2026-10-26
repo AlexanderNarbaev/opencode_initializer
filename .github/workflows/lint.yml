@@ -62,3 +62,6 @@ jobs:
 
       - name: setup.sh line count matches README
         run: bash scripts/check-setup-lines.sh
+
+      - name: No new unreachable modules (dead-code ratchet)
+        run: bash scripts/audit-module-reachability.sh --baseline src/data/dead-modules.baseline

@@ -301,8 +301,9 @@ while [[ $# -gt 0 ]]; do case $1 in
     shift
     ;;
   --dry-run)
-    MODE="dry-run"
+    # --dry-run is a modifier, not a mode: keep an explicit mode (e.g. --agentic)
     DRY_RUN=true
+    [ "$MODE" = "full" ] && MODE="dry-run"
     shift
     ;;
   --fix-config)
@@ -425,6 +426,14 @@ while [[ $# -gt 0 ]]; do case $1 in
     SKIP_DOTFILES=true
     shift
     ;;
+  --agentic)
+    MODE="agentic"
+    shift
+    ;;
+  --agentic-check)
+    MODE="agentic-check"
+    shift
+    ;;
   --software-factory)
     SOFTWARE_FACTORY_ENABLED=true SOFTWARE_FACTORY_REGISTRY=true SOFTWARE_FACTORY_GOVERNANCE=true
     SOFTWARE_FACTORY_DESIGN=true SOFTWARE_FACTORY_SCORE=true; shift ;;
@@ -541,6 +550,8 @@ Options:
   --devbox-skip       Skip Devbox (Nix-based isolated dev environments)
   --skip-caching      Skip Prompt Caching Stack (opencode-cache-* plugins)
   --dotfiles-skip     Skip chezmoi dotfiles manager installation
+  --agentic           Install/verify the OpenCode v2 agentic stack (scripts/install-agentic-stack.sh)
+  --agentic-check     Verify the v2 agentic stack only (no changes)
   --software-factory    Full Software Factory wave (registries + governance + design + scoring)
   --no-software-factory Skip every Software Factory step (modules stay sourced for `dev`)
   --software-factory-registry    Only spec / debt+intent / token-cache registries
@@ -654,6 +665,16 @@ if [ "$MODE" = "print-config" ]; then
 fi
 if [ "$MODE" = "upgrade" ]; then source "$SCRIPT_DIR/src/modes/upgrade.sh"; fi
 if [ "$MODE" = "interactive" ]; then source "$SCRIPT_DIR/src/modes/interactive.sh"; fi
+
+# ── Agentic stack mode — delegates to the v2 installer/verifier ─────────────
+if [ "$MODE" = "agentic" ] || [ "$MODE" = "agentic-check" ]; then
+  STACK_ARGS=()
+  [ "$MODE" = "agentic-check" ] && STACK_ARGS+=(--check)
+  [ "${DRY_RUN:-false}" = "true" ] && STACK_ARGS+=(--dry-run)
+  section "OpenCode v2 agentic stack"
+  bash "$SCRIPT_DIR/scripts/install-agentic-stack.sh" "${STACK_ARGS[@]+"${STACK_ARGS[@]}"}"
+  exit $?
+fi
 
 # ── Sudo — authenticate before any sudo operations ──────────────────────────
 # Fix (P0.1): bash `read -p` writes prompt to STDERR, and `2>/dev/null` was

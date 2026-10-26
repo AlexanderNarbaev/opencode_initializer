@@ -36,7 +36,7 @@ opencode_initializer/
 │   └── systemd/        ← opencode-metrics.service unit
 ├── scripts/            ← utilities: har (meta-harness CLI), ai-router.sh, embed-proxy.py, pii-guard.py,
 │                         provider-check.sh, oc-{json,rpc,sdk,tui,metrics}, sync-{agents,providers,projects}, check-setup-lines.sh, deploy-pages.sh
-├── tests/              ← run_tests.sh + test_lib.sh + test_sandbox.sh; unit/ (122 files), integration/ (13), e2e/ (6)
+├── tests/              ← run_tests.sh + test_lib.sh + test_sandbox.sh; unit/ (124 files), integration/ (14), e2e/ (6)
 ├── migrations/         ← timestamped, idempotent migration scripts
 ├── upstream/           ← git submodules: opencode, mcp-servers, searxng, superpowers, skill-conductor
 ├── docs/               ← MkDocs source (EN + RU), plans/, research/, architecture/adr/
@@ -138,13 +138,23 @@ by `scripts/install-agentic-stack.sh`). V2 rules that differ from V1:
 
 Verify with `bash scripts/install-agentic-stack.sh --check`.
 
+Dead-code ratchet: `scripts/audit-module-reachability.sh` walks the real reference graph
+(`setup.sh`, `dev.sh`, `src/modes/*`, `scripts/*` → transitive `src/lib` references). Current state:
+97 reachable / 64 dead (60 of them covered only by unit tests). `src/data/dead-modules.baseline`
+freezes the known-dead set; CI fails only when a **new** unreachable module appears. Wire or delete
+modules, then drop their baseline line. Inspect with `bash scripts/audit-module-reachability.sh`.
+
+Marketplaces: `src/data/marketplaces.json` + `scripts/marketplace.sh` (`dev marketplace list|check|search`)
+list the curated plugin/MCP/skill registries (OpenCode ecosystem, official MCP Registry, Smithery,
+anthropics/skills, skills.sh, npm search). Install hints are part of the data.
+
 ### Data SSOT
 
 `src/data/providers.json`, `mcp-profiles.json`, `routing.json` are the single source of truth for providers, MCP profiles, and model routing; `26-providers.sh` and `18-opencode-json.sh` render configs from them.
 
 ### `dev` CLI (dev.sh)
 
-Post-install management: `install/remove <component>`, `update`, `health`, `doctor` (pre-session provider validation), `list`, `config`, `self-update`, `version-check`, `autoupdate`, `infra up|down|status`, `observability`, `gui` (port 4200), `metrics` (port 9464), `plugins list`, `isolated on|off|status`, `models <task>|install|list-local`, `bundle create|list|verify`, `backup create|list|restore`, `sandcastle review|status`, `docs`. Persistent config: `~/.config/opencode-setup/setup.conf`.
+Post-install management: `install/remove <component>`, `stack check|install|plan|template` (OpenCode v2 agentic stack), `marketplace list|json|check|search`, `update`, `health`, `doctor` (pre-session provider validation), `list`, `config`, `self-update`, `version-check`, `autoupdate`, `infra up|down|status`, `observability`, `gui` (port 4200), `metrics` (port 9464), `plugins list`, `isolated on|off|status`, `models <task>|install|list-local`, `bundle create|list|verify`, `backup create|list|restore`, `sandcastle review|status`, `docs`. Persistent config: `~/.config/opencode-setup/setup.conf`.
 
 ### `har` meta-harness (scripts/har)
 

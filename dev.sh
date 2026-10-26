@@ -784,6 +784,25 @@ cmd_context() {
   python3 "$SCRIPTS_DIR/scripts/context-budget.py" "${@}"
 }
 
+cmd_stack() {
+  # dispatch passes "stack" as $1 - strip it before delegating
+  [ "$#" -gt 0 ] && shift
+  local action="${1:-check}"
+  case "$action" in
+    check)    bash "$SCRIPTS_DIR/scripts/install-agentic-stack.sh" --check ;;
+    install)  bash "$SCRIPTS_DIR/scripts/install-agentic-stack.sh" ;;
+    plan|dry-run) bash "$SCRIPTS_DIR/scripts/install-agentic-stack.sh" --dry-run ;;
+    template) cat "$SCRIPTS_DIR/src/data/opencode.global.template.json" ;;
+    *) err "Unknown: dev stack $action (use: check|install|plan|template)" ;;
+  esac
+}
+
+cmd_marketplace() {
+  # dispatch passes "marketplace" as $1 - strip it before delegating
+  [ "$#" -gt 0 ] && shift
+  bash "$SCRIPTS_DIR/scripts/marketplace.sh" "${@:-list}"
+}
+
 cmd_bundle() {
   # shellcheck disable=SC1090
   source "$SCRIPTS_DIR/src/lib/46-offline-bundle.sh" 2>/dev/null || {
@@ -1187,6 +1206,8 @@ case "${1:-}" in
   daytona) cmd_daytona "${@}" ;;
   docs) cmd_docs "${@}" ;;
   skills) cmd_skills "${@}" ;;
+  stack) cmd_stack "${@}" ;;
+  marketplace|market) cmd_marketplace "${@}" ;;
   context) cmd_context "${@}" ;;
   maintainability)
     _sf_bootstrap_logging
@@ -1209,5 +1230,5 @@ case "${1:-}" in
     cmd_intent "${@}"
     ;;
   -h | --help | help | "") usage ;;
-  *) err "Unknown: $1. Use: dev install|remove|update|health|list|config|self-update|version-check|autoupdate|infra|plugins|observability|models|doctor|backup|bundle|sandcastle|daytona|docs|skills|context|maintainability|spec|debt|intent" ;;
+  *) err "Unknown: $1. Use: dev install|remove|update|health|list|config|self-update|version-check|autoupdate|infra|plugins|observability|models|doctor|backup|bundle|sandcastle|daytona|docs|skills|stack|marketplace|context|maintainability|spec|debt|intent" ;;
 esac

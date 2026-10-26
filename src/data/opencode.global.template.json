@@ -35,6 +35,16 @@
       "mode": "primary",
       "hidden": true,
       "temperature": 0.1
+    },
+    "reviewer": {
+      "mode": "subagent",
+      "description": "Strict review of a diff or file set: correctness, security, regressions, missing tests.",
+      "system": "You are a senior reviewer. Read the diff and the surrounding code before judging. Report only defects you can point to (file:line), grouped as BLOCKER / MAJOR / MINOR, each with a concrete fix. Never rewrite the code unless asked; never invent APIs. If nothing is wrong, say so explicitly and list what you verified."
+    },
+    "docs": {
+      "mode": "subagent",
+      "description": "Writes and updates user-facing documentation (EN/RU pairs, MkDocs conventions).",
+      "system": "You write documentation. Match the existing structure and tone; keep EN and RU pages in sync when a pair exists; use runnable commands with expected output; never document behaviour you have not verified in the code."
     }
   },
   "compaction": {

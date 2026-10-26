@@ -25,6 +25,16 @@
   `scripts/check-version-consistency.sh` + `tests/unit/test_agentic_stack_installer.sh`;
   version unified to 16.1.0; docs parity gate repaired; new gates wired into `lint.yml` and pre-commit.
 
+
+## Round 2 (same wave) — installation surface
+- [x] `setup.sh --agentic` / `--agentic-check`: orchestrator mode that installs/verifies the v2 stack.
+- [x] `--dry-run` is now a modifier, not a mode (`--agentic --dry-run` plans correctly).
+- [x] `dev stack check|install|plan|template`, `dev marketplace list|json|check|search`.
+- [x] `src/data/marketplaces.json` — curated plugin/MCP/skill registries (live-checked 2026-10-26).
+- [x] `scripts/audit-module-reachability.sh` + `src/data/dead-modules.baseline` — dead-code ratchet in CI.
+- [x] Two new subagents in the global config: `reviewer`, `docs`.
+- [x] `tests/unit/test_module_reachability.sh` (13) and `tests/unit/test_marketplace.sh` (16).
+
 ## Verification Evidence
 - `bash scripts/install-agentic-stack.sh --check` → all checks passed (7 MCP, 7 plugins, 43 skills)
 - `opencode run -m opencode-go/deepseek-v4.1-flash "Say OK"` → OK

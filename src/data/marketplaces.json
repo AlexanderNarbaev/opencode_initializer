@@ -1,0 +1,70 @@
+{
+  "version": "1.0.0",
+  "description": "Curated marketplaces and registries for the OpenCode agentic stack: plugins, MCP servers, skills. Consumed by scripts/marketplace.sh and `dev marketplace`.",
+  "marketplaces": [
+    {
+      "id": "opencode-ecosystem",
+      "kind": "plugins",
+      "title": "OpenCode Ecosystem",
+      "url": "https://opencode.ai/docs/ecosystem/",
+      "install": "opencode plugin add <package>",
+      "notes": "Official directory of OpenCode plugins and integrations."
+    },
+    {
+      "id": "opencode-plugins-docs",
+      "kind": "plugins",
+      "title": "OpenCode Plugins documentation",
+      "url": "https://opencode.ai/docs/plugins/",
+      "install": "opencode plugin add <package>",
+      "notes": "Plugin API, load order, local (~/.config/opencode/plugins) vs npm packages."
+    },
+    {
+      "id": "npm-opencode-plugins",
+      "kind": "plugins",
+      "title": "npm registry (opencode-plugin*)",
+      "url": "https://registry.npmjs.org/-/v1/search?text=opencode-plugin&size=20",
+      "install": "opencode plugin add <name>@<version>",
+      "notes": "Search API used by `dev marketplace search <query>`; pin exact versions in the config."
+    },
+    {
+      "id": "mcp-registry",
+      "kind": "mcp",
+      "title": "Official MCP Registry",
+      "url": "https://registry.modelcontextprotocol.io/",
+      "install": "opencode mcp add <name> -- <command>",
+      "notes": "Canonical registry of Model Context Protocol servers."
+    },
+    {
+      "id": "mcp-servers",
+      "kind": "mcp",
+      "title": "modelcontextprotocol/servers",
+      "url": "https://github.com/modelcontextprotocol/servers",
+      "install": "bunx -y @modelcontextprotocol/server-<name>",
+      "notes": "Reference implementations (filesystem, memory, sequential-thinking, ...)."
+    },
+    {
+      "id": "smithery",
+      "kind": "mcp",
+      "title": "Smithery",
+      "url": "https://smithery.ai/",
+      "install": "opencode mcp add <name> -- <server-command>",
+      "notes": "Large third-party MCP catalog; verify maintenance and permissions before enabling."
+    },
+    {
+      "id": "anthropic-skills",
+      "kind": "skills",
+      "title": "anthropics/skills",
+      "url": "https://github.com/anthropics/skills",
+      "install": "cp -r <skill> ~/.config/opencode/skills/",
+      "notes": "Reference Agent Skills (SKILL.md format) compatible with OpenCode."
+    },
+    {
+      "id": "skills-sh",
+      "kind": "skills",
+      "title": "skills.sh",
+      "url": "https://skills.sh/",
+      "install": "cp -r <skill> ~/.config/opencode/skills/",
+      "notes": "Community skills index; OpenCode discovers ~/.config/opencode/skills/<name>/SKILL.md."
+    }
+  ]
+}
