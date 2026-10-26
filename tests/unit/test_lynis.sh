@@ -52,6 +52,7 @@ run_sourced_test() {
     tee()       { cat >/dev/null; }
 
     export HOME="$TMPDIR"
+    export DRY_RUN=true
     mkdir -p "$HOME/.cache/opencode-setup"
 
     source "$M" 2>&1
@@ -67,7 +68,7 @@ a "module sources without fatal errors" "[ -n \"$SOURCED_OUTPUT\" ]"
 # SOURCE time, so every privilege-escalating binary it reaches for must be
 # stubbed below. Without `sudo`/`apt-get`/`gpg` stubs this test shells out to
 # the real package manager and apt prompts for a password on the TTY.
-STUBS='_step_skip() { return 1; }; _step_done() { return 0; }; section() { :; }; log() { :; }; warn() { :; }; info() { :; }; err() { :; }; _spin_start() { :; }; _spin_stop() { :; }; _curl() { :; }; _sudo() { :; }; command() { builtin command "$@"; }; sudo() { echo "mock-sudo: $*"; }; doas() { echo "mock-doas: $*"; }; apt() { echo "mock-apt: $*"; }; apt-get() { echo "mock-apt-get: $*"; }; apt-key() { echo "mock-apt-key: $*"; }; add-apt-repository() { echo "mock-aar: $*"; }; dpkg() { echo "mock-dpkg: $*"; }; gpg() { echo "mock-gpg: $*"; }; export HOME="'"$TMPDIR"'"'
+STUBS='export DRY_RUN=true; _step_skip() { return 1; }; _step_done() { return 0; }; section() { :; }; log() { :; }; warn() { :; }; info() { :; }; err() { :; }; _spin_start() { :; }; _spin_stop() { :; }; _curl() { :; }; _sudo() { :; }; command() { builtin command "$@"; }; sudo() { echo "mock-sudo: $*"; }; doas() { echo "mock-doas: $*"; }; apt() { echo "mock-apt: $*"; }; apt-get() { echo "mock-apt-get: $*"; }; apt-key() { echo "mock-apt-key: $*"; }; add-apt-repository() { echo "mock-aar: $*"; }; dpkg() { echo "mock-dpkg: $*"; }; gpg() { echo "mock-gpg: $*"; }; export HOME="'"$TMPDIR"'"'
 a "_lynis_install is a function" "bash -c '$STUBS; source \"$M\" 2>/dev/null; declare -f _lynis_install >/dev/null 2>&1'"
 a "_lynis_audit is a function" "bash -c '$STUBS; source \"$M\" 2>/dev/null; declare -f _lynis_audit >/dev/null 2>&1'"
 a "_lynis_setup_cron is a function" "bash -c '$STUBS; source \"$M\" 2>/dev/null; declare -f _lynis_setup_cron >/dev/null 2>&1'"

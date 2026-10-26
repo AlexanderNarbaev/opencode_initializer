@@ -393,3 +393,61 @@ docker compose -f ~/.local/share/opencode-init/infra/docker-compose.yml up -d po
 | Grafana | 3000 | `PORTS_GRAFANA` |
 | GUI | 4200 | `GUI_PORT` |
 | WebUI | 3080 | `PORTS_WEBUI` |
+
+
+---
+
+## CI on GitHub and GitVerse
+
+Both remotes are first-class: `origin` (GitHub) and `gitverse` (GitVerse, SSH).
+Push with `git push origin main && git push gitverse main`.
+
+### What the workflows do
+
+| Workflow | What runs | Notes |
+|---|---|---|
+| `test.yml` | `tests/run_tests.sh --section unit / integration / e2e` + python tests | The master runner adds the privilege sandbox (PATH shims for `sudo`/`apt-get`/`gpg`/…) and a per-test timeout, so a hanging test fails loudly instead of blocking the job. |
+| `lint.yml` / `shellcheck.yml` | ShellCheck at **severity=error** over modules/tests/tracked shell files | Install is portable: preinstalled binary → apt → `pip --break-system-packages` → dedicated venv (PEP 668 images). |
+| `security.yml` | Trivy CRITICAL/HIGH on the repo and `package-lock.json` | Dev-only transitive advisories are pinned through `overrides` in `package.json` (path-scoped when two major lines are involved). |
+| `docs.yml` | `mkdocs build --strict` + GitHub Pages deploy | Pages status must be `built`; the published H1 must match the canonical version. |
+| `build.yml` | `bun build --compile` of the GUI | |
+
+### Pre-push checklist
+
+```bash
+bash tests/run_tests.sh                 # 378 passing on a clean checkout
+bash scripts/check-doc-counts.sh        # counts in README/AGENTS/docs match code
+bash scripts/check-docs-parity.sh       # EN/RU pairs complete
+bash scripts/check-setup-lines.sh       # README line count == setup.sh
+bash scripts/audit-module-reachability.sh --baseline src/data/dead-modules.baseline
+shellcheck -S error $(git ls-files '*.sh')
+```
+
+### GitVerse specifics
+
+- GitVerse Actions runs the same workflows on an `act`-based container
+  (`gitverse/runner-image:ubuntu-latest`). It does **not** preinstall
+  `shellcheck`, and `pip install --user` is blocked by PEP 668 — the install
+  step in both lint workflows handles that.
+- Containers there often run as **root**; tests that rely on permission denial
+  (e.g. `chmod 000` + `cat`) skip themselves when `id -u` is 0.
+- Public API (verified 2026-10-26): base `https://api.gitverse.ru` (no `/api/v1`
+  prefix), headers `Authorization: Bearer <token>` and
+  `Accept: application/vnd.gitverse.object+json;version=1`. Examples:
+
+```bash
+curl -s -H "Authorization: Bearer $GITVERSE_TOKEN" \
+     -H "Accept: application/vnd.gitverse.object+json;version=1" \
+     https://api.gitverse.ru/user
+
+curl -s -H "Authorization: Bearer $GITVERSE_TOKEN" \
+     -H "Accept: application/vnd.gitverse.object+json;version=1" \
+     https://api.gitverse.ru/repos/AlexandrNarbaev/opencode_initializer/actions/runs
+
+# job log (plain text)
+curl -s -H "Authorization: Bearer $GITVERSE_TOKEN" \
+     -H "Accept: application/vnd.gitverse.object+json;version=1" \
+     https://api.gitverse.ru/repos/AlexandrNarbaev/opencode_initializer/actions/jobs/<job_id>/logs
+```
+
+- GitVerse CI is advisory for merges; GitHub is the authoritative gate.

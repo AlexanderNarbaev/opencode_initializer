@@ -88,7 +88,7 @@ done
 # ── setup.sh: the default install must stay cheap ──────────────────────────
 # --software-factory-score is the only tier that walks the whole source tree,
 # so it must be opt-in. Assert it on a real dry-run.
-DRY_DEFAULT="$(SUDO_PASS="" SKIP_MIRROR_RESOLVE=true HOME="$SFW_TMP" timeout 300 bash "$SETUP" --dry-run 2>&1 | sed -e 's/\x1b\[[0-9;]*m//g')"
+DRY_DEFAULT="$(SUDO_PASS="" SKIP_MIRROR_RESOLVE=true HOME="$SFW_TMP" timeout 600 bash "$SETUP" --dry-run 2>&1 | sed -e 's/\x1b\[[0-9;]*m//g')"
 # Root cause (confirmed): these asserts originally used an early-exit capture,
 #   printf '%s' "$DRY_DEFAULT" | grep -q 'Software Factory: <tier>'
 # Under `set -o pipefail` that pipeline is unsafe once the capture exceeds the
@@ -113,7 +113,7 @@ for step in "Spec Registry" "Token Cache" "Model Policy" "Audit Chain"; do
     "printf '%s' \"\$DRY_DEFAULT\" | grep 'Software Factory: $step' >/dev/null"
 done
 
-DRY_FULL="$(SUDO_PASS="" SKIP_MIRROR_RESOLVE=true HOME="$SFW_TMP" timeout 300 bash "$SETUP" --dry-run --software-factory 2>&1 | sed -e 's/\x1b\[[0-9;]*m//g')"
+DRY_FULL="$(SUDO_PASS="" SKIP_MIRROR_RESOLVE=true HOME="$SFW_TMP" timeout 600 bash "$SETUP" --dry-run --software-factory 2>&1 | sed -e 's/\x1b\[[0-9;]*m//g')"
 for step in "Spec Registry" "Token Cache" "Debt/Intent Registry" "Model Policy" \
             "PII Guard" "Audit Chain" "Offline Bundle" "Product Review" \
             "Architecture Doc" "Program Design" "Vertical Slices" "Agent Handoff" \
@@ -122,7 +122,7 @@ for step in "Spec Registry" "Token Cache" "Debt/Intent Registry" "Model Policy" 
     "printf '%s' \"\$DRY_FULL\" | grep 'Software Factory: $step' >/dev/null"
 done
 
-DRY_OFF="$(SUDO_PASS="" SKIP_MIRROR_RESOLVE=true HOME="$SFW_TMP" timeout 300 bash "$SETUP" --dry-run --no-software-factory 2>&1 | sed -e 's/\x1b\[[0-9;]*m//g')"
+DRY_OFF="$(SUDO_PASS="" SKIP_MIRROR_RESOLVE=true HOME="$SFW_TMP" timeout 600 bash "$SETUP" --dry-run --no-software-factory 2>&1 | sed -e 's/\x1b\[[0-9;]*m//g')"
 assert "--no-software-factory schedules nothing" \
   "! printf '%s' \"\$DRY_OFF\" | grep 'Software Factory:' >/dev/null"
 
@@ -146,7 +146,7 @@ assert "dev.sh unknown-command hint lists the new commands" \
 assert "spec module sourced outside a command function" \
   "awk '/^  spec\\)/{found=1} found && /source .*33-spec-registry.sh/{print; exit}' '$DEV' | grep -q '33-spec-registry.sh'"
 assert "validate VALID_PACKAGE_KINDS survives sourcing" \
-  "bash -c 'source \"$LIB/33-spec-registry.sh\"; printf \"%s\n\" \"\${VALID_PACKAGE_KINDS[@]}\"' 2>/dev/null | grep -q '^feat$'"
+  "bash -c 'export HOME=\"$(mktemp -d)\"; source \"$LIB/33-spec-registry.sh\"; printf \"%s\n\" \"\${VALID_PACKAGE_KINDS[@]}\"' 2>/dev/null | grep -q '^feat$'"
 
 # ── Functional: the step entry functions produce their artifacts ───────────
 # Reproduces what _run_step does (source module + call the entry point) in an

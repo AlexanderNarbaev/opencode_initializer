@@ -176,11 +176,17 @@ Single entrypoint unifying `opencode` + `dsh` (DeepSeek Harness) + `sandcastle` 
 
 ## CI & Quality Gates (`.github/workflows/`)
 
-- `test.yml` — syntax checks (bash/python/gofmt), go vet/test, unit+integration+e2e on push/PR to main.
-- `shellcheck.yml` — ShellCheck at severity=error on `**.sh` changes (shfmt job exists but is disabled — it breaks hyphenated array keys).
-- `security.yml` — Trivy (blocking on CRITICAL) + Qodana (advisory).
+- `test.yml` — unit/integration/python/e2e/container/benchmark jobs, each run through
+  `tests/run_tests.sh --section …` so the privilege sandbox and the per-test timeout apply;
+  `timeout-minutes` on every job; push/PR to main.
+- `lint.yml` / `shellcheck.yml` — ShellCheck at **severity=error**; the install step falls back
+  from a preinstalled binary to apt, `pip --break-system-packages`, then a venv (PEP 668 images).
+- `security.yml` — Trivy (blocking on CRITICAL/HIGH, `ignore-unfixed`) + Qodana (advisory).
 - `docs.yml` — MkDocs build + GitHub Pages deploy; `build.yml` — GUI binary; `sandcastle-review.yml` — automated PR review.
 - Pre-commit (`.pre-commit-config.yaml`): bash syntax, ShellCheck, secret scan, no-`grep -P` guard (macOS), README line-count check, Trivy CRITICAL.
+- GitVerse mirror runs the same workflows on an act-based container (no shellcheck in apt,
+  PEP 668, often root) — see `docs/runbook/operations-runbook.md` for the API endpoints and the
+  portability notes. GitHub is the authoritative gate.
 
 ## Coding Conventions (from CONTRIBUTING.md, enforced in CI)
 

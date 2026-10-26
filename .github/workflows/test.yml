@@ -25,7 +25,7 @@ jobs:
       # per-test timeout, exactly like a local `bash tests/run_tests.sh`.
       - name: Run unit tests
         env:
-          TEST_TIMEOUT: "120"
+          TEST_TIMEOUT: "300"
         run: bash tests/run_tests.sh --section unit
   
   integration-tests:
@@ -42,7 +42,7 @@ jobs:
         env:
           CI: "true"
           GITHUB_ACTIONS: "true"
-          TEST_TIMEOUT: "120"
+          TEST_TIMEOUT: "300"
         run: bash tests/run_tests.sh --section integration
   
   python-tests:

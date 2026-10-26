@@ -661,6 +661,11 @@ cmd_doctor() {
 # (only with --strict; otherwise always exits 0 to keep `dev state` scriptable).
 cmd_state() {
   section "Machine State"
+  # Informational command: a missing probe binary (ss, lsof, docker) must not
+  # abort the whole report through `set -e`.
+  local _had_errexit=0
+  case $- in *e*) _had_errexit=1;; esac
+  set +e
   local strict=0
   # Strip the leading "state" subcommand name if dispatch passed it.
   [ "${1:-}" = "state" ] && shift
@@ -765,6 +770,7 @@ cmd_state() {
       exit 1
     fi
   fi
+  [ "$_had_errexit" -eq 1 ] && set -e
   return 0
 }
 

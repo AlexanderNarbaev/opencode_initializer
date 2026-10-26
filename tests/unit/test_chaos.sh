@@ -122,8 +122,11 @@ RESTRICTED_FILE="$TEMP_DIR/restricted.txt"
 echo "secret" > "$RESTRICTED_FILE"
 chmod 000 "$RESTRICTED_FILE"
 
-# Try to read (should fail)
-if ! cat "$RESTRICTED_FILE" 2>/dev/null; then
+# Try to read (should fail) — root ignores mode bits, so the premise only
+# holds for an unprivileged user (act/GitVerse containers run as root).
+if [ "$(id -u)" -eq 0 ]; then
+  pass "permission-denied check skipped (running as root)"
+elif ! cat "$RESTRICTED_FILE" 2>/dev/null; then
   pass "Permission denied correctly detected"
 else
   fail "Permission denied not detected"

@@ -97,15 +97,17 @@ assert_contains "routing.json has fallback chains" "fallback" "$routing_content"
 # ── Test 6: Task profiles ───────────────────────────────────────────────────
 echo
 echo "6. Task profiles"
-assert_contains "routing.json has coding profile" "coding" "$routing_content"
-assert_contains "routing.json has reasoning profile" "reasoning" "$routing_content"
-assert_contains "routing.json has fast profile" "fast" "$routing_content"
+# Structural checks: a substring can appear (or vanish) by accident when the
+# file is reformatted; assert on the JSON keys instead.
+assert_exit "routing.json has coding profile" "0" "jq -e '.task_profiles | has(\"coding\")' $routing_file"
+assert_exit "routing.json has reasoning profile" "0" "jq -e '.task_profiles | has(\"reasoning\")' $routing_file"
+assert_exit "routing.json has fast profile" "0" "jq -e '.task_profiles | has(\"fast\")' $routing_file"
 
 # ── Test 7: Cost table ──────────────────────────────────────────────────────
 echo
 echo "7. Cost table"
 assert_contains "routing.json has cost_table" "cost_table" "$routing_content"
-assert_contains "routing.json has free models" "free" "$routing_content"
+assert_exit "routing.json has free models" "0" "jq -e '[.cost_table[] | select(.free == true)] | length > 0' $routing_file"
 
 # ── Test 8: MCP profiles ────────────────────────────────────────────────────
 echo
