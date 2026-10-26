@@ -66,10 +66,16 @@
       "docs"
     ],
     "marketplaces": "src/data/marketplaces.json",
-    "governance_plugin": "src/plugins/governance.js -> ~/.config/opencode/plugins/governance.js"
+    "governance_plugin": "src/plugins/governance.js -> ~/.config/opencode/plugins/governance.js",
+    "commands": [
+      "plan",
+      "review",
+      "test",
+      "commit"
+    ]
   },
   "tests": {
-    "unit": 125,
+    "unit": 126,
     "integration": 14,
     "e2e": 6,
     "benchmark": 3

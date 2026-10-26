@@ -133,7 +133,7 @@ opencode_initializer/
 │   ├── oc-sdk.py              # Python SDK
 │   ├── embed-proxy.py         # Мост Ollama → MemoryLayer embedding
 │   └── ai-router.sh           # Интеллектуальная маршрутизация моделей (+ конфиг ai-router.json)
-├── tests/                     # Unit (125), интеграционные (14), E2E (6) — 145 файл
+├── tests/                     # Unit (126), интеграционные (14), E2E (6) — 146 файл
 ├── migrations/                # Временные метки, идемпотентные миграции
 ├── docs/                      # Сайт документации MkDocs Material (EN/RU)
 ├── .github/                   # CI воркфлоу (test, shellcheck, build, security, docs)

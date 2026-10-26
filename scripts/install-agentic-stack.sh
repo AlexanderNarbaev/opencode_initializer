@@ -14,7 +14,8 @@
 #      from src/data/opencode.global.template.json, previous file backed up)
 #   8. Governance plugin          (src/plugins/governance.js -> global plugins dir:
 #      hash-chained audit, secret redaction, dangerous-command guard)
-#   9. Verification               (binaries present, config valid JSON, MCP
+#   9. Slash commands             (src/commands/*.md -> ~/.config/opencode/command/)
+#  10. Verification               (binaries present, config valid JSON, MCP
 #      executables start, `opencode --version` works)
 #
 # Usage:
@@ -206,8 +207,31 @@ else
   ok "plugin installed: $PLUGIN_DST"
 fi
 
-# ── 9. Verification ─────────────────────────────────────────────────────────
-hdr "9. Verification"
+# ── 9. Slash commands ───────────────────────────────────────────────────────
+hdr "9. Slash commands"
+CMDS_SRC="$SCRIPT_DIR/src/commands"
+CMDS_DST="$CONFIG_DIR/command"
+if [ ! -d "$CMDS_SRC" ]; then
+  miss "commands directory missing: $CMDS_SRC"
+else
+  mkdir -p "$CMDS_DST" 2>/dev/null || true
+  for f in "$CMDS_SRC"/*.md; do
+    [ -f "$f" ] || continue
+    name="$(basename "$f")"
+    if [ -f "$CMDS_DST/$name" ] && cmp -s "$f" "$CMDS_DST/$name"; then
+      ok "command installed: $name"
+    elif $CHECK_ONLY; then
+      miss "command not installed or outdated: $name"
+    elif $DRY_RUN; then
+      plan "cp $f -> $CMDS_DST/$name"
+    else
+      cp "$f" "$CMDS_DST/$name" && ok "command installed: $name"
+    fi
+  done
+fi
+
+# ── 10. Verification ────────────────────────────────────────────────────────
+hdr "10. Verification"
 if have opencode || [ -x "$HOME_DIR/.opencode/bin/opencode" ]; then
   ver=$("$HOME_DIR/.opencode/bin/opencode" --version 2>/dev/null || opencode --version 2>/dev/null)
   ok "opencode ${ver:-present}"
@@ -222,6 +246,17 @@ done
 for tool in "${UV_MCPS[@]}"; do
   [ -x "$UV_LOCAL_BIN/$tool" ] && ok "executable: $tool" || miss "executable: $tool"
 done
+
+cmd_count=0
+for f in "$CMDS_SRC"/*.md; do [ -f "$f" ] && cmd_count=$((cmd_count + 1)); done
+installed=0
+if [ -d "$CMDS_DST" ]; then
+  for f in "$CMDS_SRC"/*.md; do
+    [ -f "$f" ] || continue
+    cmp -s "$f" "$CMDS_DST/$(basename "$f")" && installed=$((installed + 1))
+  done
+fi
+[ "$installed" -eq "$cmd_count" ] && ok "commands: $installed/$cmd_count installed" || miss "commands: $installed/$cmd_count installed"
 
 if [ -f "$PLUGIN_DST" ]; then
   if command -v node >/dev/null 2>&1; then
