@@ -133,8 +133,12 @@ by `scripts/install-agentic-stack.sh`). V2 rules that differ from V1:
   `deploy/agentic-stack` services). `filesystem`/`fetch`/`playwright` are disabled because builtin tools cover them
   (context economy); `github`/`brave-search`/`notion`/`sentry` are disabled pending credentials;
   `sqlite` is disabled (upstream Python server is incompatible with the current MCP SDK).
-- Providers: only authenticated ones are enabled (`opencode-go`, `minimax-coding-plan`, `minimax`,
-  `xiaomi-token-plan-sgp`, `opencode`) via `enabled_providers`.
+- Providers: only authenticated ones are enabled via `enabled_providers` — **`opencode-go`,
+  `minimax-coding-plan`, `minimax`, `xiaomi-token-plan-sgp`, `deepseek`, `opencode`** (2026-10-26).
+  Keys live in `~/.config/opencode/secrets.env` (chmod 600) and
+  `~/.config/environment.d/90-opencode-secrets.conf` (chmod 600, so GUI-launched services get them);
+  `xai`/`moonshotai` keys are stored but the providers stay disabled until needed.
+  Never place a key in `opencode.json` or in this repo.
 - Skills: repo `.opencode/skills` is flattened into `~/.config/opencode/skills` (43 skills).
 
 Verify with `bash scripts/install-agentic-stack.sh --check`.

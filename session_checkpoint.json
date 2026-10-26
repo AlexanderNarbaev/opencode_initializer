@@ -133,5 +133,22 @@
     "memorylayer": "healthy",
     "compose": "deploy/agentic-stack/docker-compose.yml",
     "manager": "scripts/stack.sh"
+  },
+  "providers_authenticated": [
+    "opencode-go",
+    "minimax-coding-plan",
+    "minimax",
+    "xiaomi-token-plan-sgp",
+    "deepseek"
+  ],
+  "providers_extra_keys": [
+    "xai",
+    "moonshotai"
+  ],
+  "credentials": {
+    "store": "~/.local/share/opencode/auth.json (600)",
+    "env": "~/.config/opencode/secrets.env (600)",
+    "session": "~/.config/environment.d/90-opencode-secrets.conf (600)",
+    "github_cli": "gh keyring, account AlexanderNarbaev"
   }
 }
