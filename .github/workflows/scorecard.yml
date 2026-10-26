@@ -12,6 +12,9 @@ permissions: read-all
 jobs:
   analysis:
     name: Scorecard analysis
+    # ossf/scorecard-action and the SARIF upload are only mirrored on github.com;
+    # the GitVerse mirror cannot resolve them.
+    if: github.server_url == 'https://github.com'
     runs-on: ubuntu-latest
     permissions:
       security-events: write

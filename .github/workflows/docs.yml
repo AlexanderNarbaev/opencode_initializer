@@ -44,12 +44,13 @@ jobs:
           mkdocs build --strict
       
       - name: Upload artifact
+        if: github.server_url == 'https://github.com'
         uses: actions/upload-pages-artifact@v3
         with:
           path: site
   
   deploy:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.server_url == 'https://github.com' && github.ref == 'refs/heads/main' && github.event_name == 'push'
     needs: build
     runs-on: ubuntu-latest
     environment:
