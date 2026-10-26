@@ -103,8 +103,8 @@
     "sqlite MCP disabled (upstream incompatibility)",
     "github/brave-search/notion/sentry MCP disabled pending credentials"
   ],
-  "status": "v16.1.0 COMPLETE — machine recovered, v2 stack installable/verifiable, configs unified",
-  "last_commit": "833c84ea",
+  "status": "v16.1.0 COMPLETE — 97 live modules / 0 dead, v2 stack installable+verifiable, governance plugin and slash commands live",
+  "last_commit": "673a4d8b",
   "modules": {
     "live": 97,
     "quarantined": 64,
