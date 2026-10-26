@@ -79,8 +79,17 @@ test_dry_run_mode() {
     skip "dry-run mode (CI)"
     return
   fi
+  # Progress file must not gain completed steps during a dry-run
+  # (_step_done is a no-op while DRY_RUN=true).
+  local progress_file="$HOME/.cache/opencode-setup/progress"
+  local before=""
+  if [ -f "$progress_file" ]; then
+    before="$(cat "$progress_file" 2>/dev/null || true)"
+  fi
   # Test that dry-run mode runs without error
-  if timeout 30 bash "$PROJECT_ROOT/setup.sh" --dry-run >/dev/null 2>&1; then
+  # The full 48-step dry-run takes ~2 min on this host (measured 126s);
+  # the timeout is overridable via DRY_RUN_TIMEOUT for slower machines.
+  if timeout "${DRY_RUN_TIMEOUT:-240}" bash "$PROJECT_ROOT/setup.sh" --dry-run >/dev/null 2>&1; then
     pass "dry-run mode runs successfully"
   else
     fail "dry-run mode failed"
@@ -88,7 +97,17 @@ test_dry_run_mode() {
   
   # Test that dry-run mode doesn't make changes
   # (This is a basic check - in practice, you'd verify no files were modified)
-  pass "dry-run mode doesn't make changes (verified by timeout)"
+  if [ -f "$progress_file" ]; then
+    local after=""
+    after="$(cat "$progress_file" 2>/dev/null || true)"
+    if [ "$before" = "$after" ]; then
+      pass "dry-run mode doesn't make changes (no progress steps recorded)"
+    else
+      fail "dry-run mode recorded progress steps"
+    fi
+  else
+    pass "dry-run mode doesn't make changes (no progress file created)"
+  fi
 }
 
 test_dry_run_mode
