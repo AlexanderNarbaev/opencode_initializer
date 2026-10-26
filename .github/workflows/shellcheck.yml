@@ -18,7 +18,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install ShellCheck
-        run: sudo apt-get install -y shellcheck
+        run: |
+          if command -v shellcheck >/dev/null 2>&1; then
+            shellcheck --version
+            exit 0
+          fi
+          # GitHub runners ship it; other runners (act-based) may not have the
+          # package in their apt lists — fall back to the PyPI wheel.
+          if sudo -n apt-get install -y shellcheck 2>/dev/null; then exit 0; fi
+          python3 -m pip install --user shellcheck-py
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
       - name: Run ShellCheck on shell files
         run: |
           errors=0

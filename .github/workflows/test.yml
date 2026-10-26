@@ -18,8 +18,7 @@ jobs:
 
       - name: Install test prerequisites
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq jq
+          command -v jq >/dev/null 2>&1 || (sudo -n apt-get update -qq && sudo -n apt-get install -y -qq jq) || echo "jq not installable; tests will report if they need it"
           node --version || true
 
       # Run through the master runner: privilege sandbox (PATH shims) plus a
@@ -37,7 +36,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install test prerequisites
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq jq
+        run: command -v jq >/dev/null 2>&1 || (sudo -n apt-get update -qq && sudo -n apt-get install -y -qq jq) || true
 
       - name: Run integration tests
         env:
@@ -79,7 +78,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install test prerequisites
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq jq
+        run: command -v jq >/dev/null 2>&1 || (sudo -n apt-get update -qq && sudo -n apt-get install -y -qq jq) || true
 
       - name: Run E2E smoke tests
         env:
