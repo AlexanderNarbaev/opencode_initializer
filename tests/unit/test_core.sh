@@ -118,7 +118,7 @@ assert "_install_ca_certs defined" 'grep -q "_install_ca_certs()" "'"$C"'"'
 assert "_check_bash_version defined" 'grep -q "_check_bash_version()" "'"$C"'"'
 # BASH_VERSINFO is a built-in readonly array — cannot mock. Verify no warning on bash 5.x:
 core_no_warn=$(bash -c 'source "'"$C"'"' 2>&1 || true)
-assert "bash 5.x no version warning" '! echo "$core_no_warn" | grep -q "limited support"'
+assert "bash 5.x no version warning" '! grep -q "limited support" <<< "$core_no_warn"'
 
 # ── Bash version detection ────────────────────────────────────────────────
 assert "_check_bash_version defined" 'grep -q "_check_bash_version()" "'"$C"'"'

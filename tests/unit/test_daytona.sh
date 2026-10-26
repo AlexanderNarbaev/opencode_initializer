@@ -37,7 +37,7 @@ _curl() { return 1; }; _sudo() { return 0; }
   export HOME SKIP_DAYTONA
   info() { echo "$*"; }
   out="$(source "$MODULE" 2>&1)"
-  echo "$out" | grep -q "SKIP_DAYTONA=true" && exit 0 || exit 1
+  grep -q "SKIP_DAYTONA=true" <<< "$out" && exit 0 || exit 1
 ) && pass "SKIP_DAYTONA=true early-returns" || fail "SKIP_DAYTONA guard not honored"
 
 # Content assertions on the module
@@ -63,15 +63,15 @@ cat > "$TMP_HOME/.config/opencode/daytona/environments.json" <<'EOF'
 {"version":1,"managed_by":"test","defaults":{"cpu":2,"memory_gb":4,"disk_gb":10,"auto_stop_minutes":15,"target":"us"},"environments":[{"name":"dev-minimal","image":{"snapshot":"debian-slim"},"labels":["dev"]}]}
 EOF
 out="$(DAYTONA_ENVIRONMENTS="$TMP_HOME/.config/opencode/daytona/environments.json" bash "$WRAPPER" list 2>&1)"
-echo "$out" | grep -q "dev-minimal" && pass "daytona-env list renders entries" || fail "daytona-env list failed: $out"
+grep -q "dev-minimal" <<< "$out" && pass "daytona-env list renders entries" || fail "daytona-env list failed: $out"
 
 # create without daytona CLI → composes command, warns, non-zero exit
 if command -v daytona >/dev/null 2>&1; then
   pass "daytona CLI present (skip warn-path check)"
 else
   out="$(DAYTONA_ENVIRONMENTS="$TMP_HOME/.config/opencode/daytona/environments.json" bash "$WRAPPER" create dev-minimal 2>&1 || true)"
-  echo "$out" | grep -q "Composed: daytona create" && pass "create composes daytona command" || fail "create did not compose command: $out"
-  echo "$out" | grep -q "WARN: daytona CLI not found" && pass "create warns when CLI missing" || fail "create missing warn"
+  grep -q "Composed: daytona create" <<< "$out" && pass "create composes daytona command" || fail "create did not compose command: $out"
+  grep -q "WARN: daytona CLI not found" <<< "$out" && pass "create warns when CLI missing" || fail "create missing warn"
 fi
 
 rm -rf "$TMP_HOME"

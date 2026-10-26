@@ -30,8 +30,12 @@ on_disk=$(ls "$PROJECT_DIR"/src/lib/*.sh 2>/dev/null | wc -l | tr -d ' ')
 echo
 echo "=== Test 3: known modules land on the right side ==="
 [ "$dead" -eq 0 ] && pass "no unreachable modules in src/lib" || fail "$dead unreachable module(s) remain"
-[ -f "$PROJECT_DIR/src/lib/experimental/62-skill-registry.sh" ] \
-  && pass "62-skill-registry.sh is quarantined in src/lib/experimental" || fail "quarantine dir missing 62-skill-registry.sh"
+[ ! -d "$PROJECT_DIR/src/lib/experimental" ] \
+  && pass "quarantine directory removed (modules deleted, manifest kept)" || fail "quarantine directory still present"
+[ -f "$PROJECT_DIR/src/data/removed-modules.json" ] \
+  && pass "removed-modules.json records what was deleted" || fail "removed-modules manifest missing"
+[ "$(jq -r '.modules | length' "$PROJECT_DIR/src/data/removed-modules.json")" -eq 64 ] \
+  && pass "manifest lists 64 removed modules" || fail "manifest count is wrong"
 echo "$json" | jq -r '.dead_modules[]' | grep -qx '00-core.sh' \
   && fail "00-core.sh wrongly reported dead" || pass "00-core.sh not in dead list"
 echo "$json" | jq -r '.dead_modules[]' | grep -qx 'helpers.sh' \

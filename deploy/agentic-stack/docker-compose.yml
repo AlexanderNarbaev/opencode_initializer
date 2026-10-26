@@ -1,0 +1,133 @@
+# Agentic stack support services — local, loopback-only, resource-capped.
+#
+# qdrant     vector store      (memory, RAG, codegraph embeddings)
+# postgres   relational store  (sessions, memory, analytics)
+# chromadb   backing store for Muninn-style memory / RAG prototypes (profile: extras)
+#
+# Usage:
+#   docker compose -f deploy/agentic-stack/docker-compose.yml up -d
+#   docker compose -f deploy/agentic-stack/docker-compose.yml --profile extras up -d
+#   docker compose -f deploy/agentic-stack/docker-compose.yml ps
+#   docker compose -f deploy/agentic-stack/docker-compose.yml down
+#
+# Everything binds to 127.0.0.1 only; no external network is required.
+name: opencode-agentic-stack
+
+x-common: &common
+  restart: unless-stopped
+  networks: [stack]
+  security_opt:
+    - no-new-privileges:true
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+services:
+  qdrant:
+    <<: *common
+    image: qdrant/qdrant:v1.20.0
+    container_name: opencode-qdrant
+    ports:
+      - "127.0.0.1:6333:6333"
+      - "127.0.0.1:6334:6334"
+    volumes:
+      - ./data/qdrant:/qdrant/storage
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c ':> /dev/tcp/127.0.0.1/6333' || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1G
+
+  postgres:
+    <<: *common
+    image: postgres:17-alpine
+    container_name: opencode-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-opencode}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-opencode}
+      POSTGRES_DB: ${POSTGRES_DB:-opencode}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-opencode} -d ${POSTGRES_DB:-opencode}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1G
+
+  redis:
+    <<: *common
+    image: redis:7-alpine
+    container_name: opencode-redis
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - ./data/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+
+  memorylayer:
+    <<: *common
+    image: scitrera/memorylayer-server:latest
+    container_name: opencode-memorylayer
+    ports:
+      - "127.0.0.1:61001:61001"
+    volumes:
+      - ./data/memorylayer:/data
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1G
+
+  chromadb:
+    <<: *common
+    image: chromadb/chroma:1.0.15
+    container_name: opencode-chromadb
+    profiles: ["extras"]
+    environment:
+      IS_PERSISTENT: "TRUE"
+      ANONYMIZED_TELEMETRY: "FALSE"
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ./data/chromadb:/data
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c ':> /dev/tcp/127.0.0.1/8000' || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1G
+
+networks:
+  stack:
+    name: opencode-agentic-stack

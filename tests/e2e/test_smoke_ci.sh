@@ -34,14 +34,14 @@ test_dry_run_ci() {
   fi
   
   # Check that output contains expected sections
-  if echo "$output" | grep -q "Dry Run\|DRY_RUN\|dry-run"; then
+  if grep -q "Dry Run\|DRY_RUN\|dry-run" <<< "$output"; then
     pass "dry-run mode detected in output"
   else
     fail "dry-run mode not detected in output"
   fi
   
   # Check that no actual installation happened
-  if echo "$output" | grep -q "Installing\|Downloading"; then
+  if grep -q "Installing\|Downloading" <<< "$output"; then
     fail "dry-run mode performed actual installation"
   else
     pass "dry-run mode did not perform installation"
@@ -66,7 +66,7 @@ test_help() {
   fi
   
   # Check that help contains expected sections
-  if echo "$output" | grep -q "Usage\|Options\|Modes"; then
+  if grep -q "Usage\|Options\|Modes" <<< "$output"; then
     pass "help contains usage information"
   else
     fail "help missing usage information"

@@ -56,7 +56,114 @@
   "skills": [
     "__HOME__/.config/opencode/skills"
   ],
-  "lsp": true,
+  "lsp": {
+    "typescript": {
+      "command": [
+        "__HOME__/.bun/bin/typescript-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".ts",
+        ".tsx",
+        ".js",
+        ".jsx",
+        ".mjs",
+        ".cjs",
+        ".mts",
+        ".cts"
+      ]
+    },
+    "pyright": {
+      "command": [
+        "__HOME__/.bun/bin/pyright-langserver",
+        "--stdio"
+      ],
+      "extensions": [
+        ".py",
+        ".pyi"
+      ]
+    },
+    "gopls": {
+      "command": [
+        "__HOME__/go/bin/gopls",
+        "serve"
+      ],
+      "extensions": [
+        ".go"
+      ]
+    },
+    "bash": {
+      "command": [
+        "__HOME__/.bun/bin/bash-language-server",
+        "start"
+      ],
+      "extensions": [
+        ".sh",
+        ".bash",
+        ".zsh"
+      ]
+    },
+    "yaml": {
+      "command": [
+        "__HOME__/.bun/bin/yaml-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".yaml",
+        ".yml"
+      ]
+    },
+    "json": {
+      "command": [
+        "__HOME__/.bun/bin/vscode-json-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".json",
+        ".jsonc"
+      ]
+    },
+    "css": {
+      "command": [
+        "__HOME__/.bun/bin/vscode-css-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".css",
+        ".scss",
+        ".less"
+      ]
+    },
+    "html": {
+      "command": [
+        "__HOME__/.bun/bin/vscode-html-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".html",
+        ".htm"
+      ]
+    },
+    "dockerfile": {
+      "command": [
+        "__HOME__/.bun/bin/docker-langserver",
+        "--stdio"
+      ],
+      "extensions": [
+        ".dockerfile"
+      ]
+    },
+    "markdown": {
+      "command": [
+        "__HOME__/.bun/bin/vscode-markdown-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".md",
+        ".markdown"
+      ]
+    }
+  },
   "share": "disabled",
   "mcp": {
     "filesystem": {
@@ -164,6 +271,37 @@
       "type": "remote",
       "url": "https://mcp.sentry.dev/mcp",
       "enabled": false
+    },
+    "codegraph": {
+      "type": "local",
+      "command": [
+        "__HOME__/.bun/bin/codegraph",
+        "serve",
+        "--mcp"
+      ],
+      "enabled": true
+    },
+    "qdrant": {
+      "type": "local",
+      "command": [
+        "__HOME__/.local/bin/mcp-server-qdrant"
+      ],
+      "environment": {
+        "QDRANT_URL": "http://127.0.0.1:6333",
+        "COLLECTION_NAME": "opencode-memory",
+        "EMBEDDING_MODEL": "sentence-transformers/all-MiniLM-L6-v2"
+      },
+      "enabled": true
+    },
+    "postgres": {
+      "type": "local",
+      "command": [
+        "__HOME__/.bun/bin/bunx",
+        "-y",
+        "@modelcontextprotocol/server-postgres",
+        "postgresql://opencode:opencode@127.0.0.1:5432/opencode"
+      ],
+      "enabled": true
     }
   },
   "plugin": [

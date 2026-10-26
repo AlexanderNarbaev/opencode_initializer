@@ -5,7 +5,7 @@
 
 ## What This Project Is
 
-**OpenCode Initializer** — a one-command, AI-native bootstrap for development machines (WSL2/Linux primary, macOS best-effort). It installs and configures 6 language toolchains, Docker infrastructure, 24 MCP servers, 12 LSP servers, 21 OpenCode plugins, and 22 LLM providers, then wires them into a governed, auditable agent harness. Four deployment profiles: `personal`, `corporate`, `air-gapped`, `hybrid`.
+**OpenCode Initializer** — a one-command, AI-native bootstrap for development machines (WSL2/Linux primary, macOS best-effort). It installs and configures 6 language toolchains, Docker infrastructure, 24 MCP servers, 10 LSP servers, 21 OpenCode plugins, and 22 LLM providers, then wires them into a governed, auditable agent harness. Four deployment profiles: `personal`, `corporate`, `air-gapped`, `hybrid`.
 
 The codebase is overwhelmingly **Bash** (orchestrator + numbered modules), with small amounts of **Go** (Cockpit TUI, `src/cockpit/`), **JavaScript** (Web GUI, `src/gui/`), and **Python** (utility scripts in `scripts/`). There is no traditional build: "build" means syntax checks + tests; the only compiled artifact is the GUI binary (`bun build --compile`).
 
@@ -27,8 +27,7 @@ opencode_initializer/
 ├── mkdocs.yml          ← docs site config (material + i18n, EN/RU)
 ├── .env.example        ← API-key template (never commit real .env)
 ├── src/
-│   ├── lib/            ← 97 live shell modules (00–61, 99) + helpers/version-check/pre-session-check;
-│   │                     64 unreachable modules quarantined in src/lib/experimental/
+│   ├── lib/            ← 97 shell modules (00–61, 99) + helpers/version-check/pre-session-check
 │   ├── modes/          ← 6 mode scripts (ci, fix-zshrc, health, interactive, new, upgrade); other modes live inline in setup.sh
 │   ├── cockpit/        ← Cockpit TUI daemon (Go module, main.go)
 │   ├── gui/            ← Web GUI on port 4200 (server.js + index.html)
@@ -37,7 +36,7 @@ opencode_initializer/
 │   └── systemd/        ← opencode-metrics.service unit
 ├── scripts/            ← utilities: har (meta-harness CLI), ai-router.sh, embed-proxy.py, pii-guard.py,
 │                         provider-check.sh, oc-{json,rpc,sdk,tui,metrics}, sync-{agents,providers,projects}, check-setup-lines.sh, deploy-pages.sh
-├── tests/              ← run_tests.sh + test_lib.sh + test_sandbox.sh; unit/ (126 files), integration/ (14), e2e/ (6)
+├── tests/              ← run_tests.sh + test_lib.sh + test_sandbox.sh; unit/ (114 files), integration/ (11), e2e/ (6)
 ├── migrations/         ← timestamped, idempotent migration scripts
 ├── upstream/           ← git submodules: opencode, mcp-servers, searxng, superpowers, skill-conductor
 ├── docs/               ← MkDocs source (EN + RU), plans/, research/, architecture/adr/
@@ -49,7 +48,7 @@ opencode_initializer/
 ```bash
 # Syntax check everything (the primary gate)
 bash -n setup.sh dev.sh
-for f in src/lib/*.sh src/lib/experimental/*.sh src/modes/*.sh scripts/*.sh migrations/*.sh; do bash -n "$f"; done
+for f in src/lib/*.sh src/modes/*.sh scripts/*.sh migrations/*.sh; do bash -n "$f"; done
 for f in scripts/*.py; do python3 -m py_compile "$f"; done
 gofmt -l src/cockpit/*.go   # must output nothing
 
@@ -112,7 +111,7 @@ bash setup.sh --dry-run           # preview full bootstrap, no changes
 | `52–60` | Context-aware MCP/LSP selector, auto-triggering skills, task distribution, context/token bundle, GRACE semantic contracts, context guard (compression), provider auto-discovery, local memory, prompt caching (`60-caching.sh`) |
 | `99-upstream-sync.sh` | Sync providers/MCP/LSP/plugins from the `upstream/` git submodules |
 | `version-check.sh`, `pre-session-check.sh` | Helpers consumed by `dev version-check` and `dev doctor` |
-| `62–119` | **Not reachable from any entrypoint** (ecosystem/skill/agent/harness/PLA/RAG/perf/cloud/marketplace families). Covered only by unit tests. Treat as dead code until wired: see "Known Limitations". |
+| `62–119` | **Deleted 2026-10-26** — ecosystem/skill/agent/harness/PLA/RAG/perf/cloud/marketplace families that no entrypoint could reach. Recover any file via `src/data/removed-modules.json` (name -> last commit) and `git show <commit>:src/lib/experimental/<name>`. |
 | `41–51` (second family) | `41-constitution`, `42-hooks`, `43-governance`, `44-audit`, `45-pii-guard`, `46-offline-bundle`, `47-lynis`, `48-auditd`, `49-deepseek-harness`, `50-sandcastle`, `51-opencode-desktop` are `source`d by `setup.sh` but never executed by a step. |
 
 ### OpenCode v2 agentic stack (2026-10-26)
@@ -130,7 +129,8 @@ by `scripts/install-agentic-stack.sh`). V2 rules that differ from V1:
   `opencode-devcontainers`, `opencode-scheduler`, `opencode-background-agents`, `opencode-conductor`,
   `opencode-zellij-namer`, `opencode-websearch-cited`, `opencode-daytona`.
 - Working MCP set: `context7`, `sequential-thinking`, `memory`, `git`, `time`, `grep` (remote),
-  `chrome-devtools`. `filesystem`/`fetch`/`playwright` are disabled because builtin tools cover them
+  `chrome-devtools`, `codegraph`, `postgres`, `qdrant` (the last three are backed by the local
+  `deploy/agentic-stack` services). `filesystem`/`fetch`/`playwright` are disabled because builtin tools cover them
   (context economy); `github`/`brave-search`/`notion`/`sentry` are disabled pending credentials;
   `sqlite` is disabled (upstream Python server is incompatible with the current MCP SDK).
 - Providers: only authenticated ones are enabled (`opencode-go`, `minimax-coding-plan`, `minimax`,
@@ -141,10 +141,10 @@ Verify with `bash scripts/install-agentic-stack.sh --check`.
 
 Dead-code ratchet: `scripts/audit-module-reachability.sh` walks the real reference graph
 (`setup.sh`, `dev.sh`, `src/modes/*`, `scripts/*` → transitive `src/lib` references). Current state:
-**97 reachable / 0 dead**. The 64 modules that could never be reached from an entrypoint are
-quarantined in `src/lib/experimental/` (see its README); `src/data/dead-modules.baseline` is
-intentionally empty, so CI fails the moment a **new** unreachable module appears. Revive a module by
-fixing it, wiring an entrypoint, moving it back to `src/lib/`, and rerunning the audit.
+**97 reachable / 0 dead**. The 64 modules that could never be reached from an entrypoint were
+deleted (2026-10-26); `src/data/removed-modules.json` records every name with its last commit, so
+`git show <commit>:src/lib/experimental/<name>` recovers any of them. `src/data/dead-modules.baseline`
+is intentionally empty, so CI fails the moment a **new** unreachable module appears.
 
 Marketplaces: `src/data/marketplaces.json` + `scripts/marketplace.sh` (`dev marketplace list|check|search`)
 list the curated plugin/MCP/skill registries (OpenCode ecosystem, official MCP Registry, Smithery,

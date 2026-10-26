@@ -65,7 +65,7 @@ HOME="$TMP_HOME" ROUTING_JSON="$TMP_HOME/routing.json" python3 "$TOOL" check >/d
 
 # models subcommand lists deepseek row
 models_out="$(HOME="$TMP_HOME" ROUTING_JSON="$TMP_HOME/routing.json" python3 "$TOOL" models 2>&1)"
-echo "$models_out" | grep -q "deepseek/deepseek-v4-pro" && pass "models lists deepseek row" || fail "models missing deepseek row"
+grep -q "deepseek/deepseek-v4-pro" <<< "$models_out" && pass "models lists deepseek row" || fail "models missing deepseek row"
 
 # missing session dir → graceful, exit 0 (advisory)
 HOME="$TMP_HOME/.nonexistent" ROUTING_JSON="$TMP_HOME/routing.json" python3 "$TOOL" status >/dev/null 2>&1

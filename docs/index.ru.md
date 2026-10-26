@@ -22,13 +22,13 @@
 | Режимов CLI | 12 (full, health, interactive, ci, airgap и другие) |
 | Языков | 6 |
 | MCP-серверов | 24 |
-| LSP-серверов | 12 |
+| LSP-серверов | 10 |
 | Плагинов OpenCode | 21 |
 | AI-провайдеров | 22 (19 облачных + 3 локальных) |
 | Model Router | 9 профилей (coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn, testing) |
 | Инфраструктура | 7 сервисов (PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer) |
 | Web GUI | 9 разделов управления (порт 4200) |
-| Тестов | 140 файлов (126 unit + 14 integration + 6 e2e) |
+| Тестов | 140 файлов (114 unit + 11 integration + 6 e2e) |
 | Пакетных менеджеров | apt, dnf, pacman, apk, zypper, brew |
 | Архитектур | amd64, arm64 |
 
@@ -39,7 +39,7 @@
 - :fontawesome-solid-code: **6 языков программирования** — Java 25, Node.js 24, Python 3.14, Go 1.26, Rust (stable), .NET 10
 - :fontawesome-solid-robot: **24 MCP-серверов** — GitHub, GitLab, Filesystem, Playwright, Chrome DevTools, SQLite, Postgres, Memory, Excalidraw, Brave Search, Context7, Google Maps и другие
 - :fontawesome-solid-puzzle-piece: **21 плагин OpenCode** — codegraph, dcp, auto-fallback, goal-mode, swarm, vibeguard, devcontainers, worktree, scheduler, background-agents, goal-plugin, conductor, zellij-namer, morph-plugin, supermemory, websearch-cited, firecrawl, plugin-otel, token-tracker, orchestrator, daytona
-- :fontawesome-solid-gears: **12 LSP-серверов** — gopls, rust-analyzer, typescript, pyright, yaml, marksman, taplo, bash, dockerfile, css, html, json
+- :fontawesome-solid-gears: **10 LSP-серверов** — typescript, pyright, gopls, bash, yaml, json, css, html, dockerfile, markdown (все ставит `install-agentic-stack.sh`)
 - :fontawesome-solid-box: **Infrastructure as Code** — PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer через Docker Compose
 - :fontawesome-solid-display: **Cockpit TUI** — 8-вкладочный терминальный UI для управления сервером
 - :fontawesome-solid-shield-halved: **Isolated Circuit Mode** — air-gapped LLM с локальными бэкендами

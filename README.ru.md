@@ -5,7 +5,7 @@
 > **Рабочая модель:** Multi-Agent Framework v3.0 | **Волна:** [current_wave.md](./current_wave.md) | **Чекпоинт:** [session_checkpoint.json](./session_checkpoint.json)
 <p align="center">
   <b>AI-Native SDD Harness — среда разработки с ИИ-усилением в одну команду для WSL2, Linux и macOS. 4 профиля развёртывания.</b><br>
-  <sub>Оркестратор на 1322 строк · 97 модулей (+64 в карантине) · 12 режимов · 7 MCP · 7 плагинов · 12 LSP-серверов · 22 провайдера · air-gap · governance · PII guard · аудит · офлайн-пакет</sub>
+  <sub>Оркестратор на 1322 строк · 97 модулей (+64 в карантине) · 12 режимов · 7 MCP · 7 плагинов · 10 LSP-серверов · 22 провайдера · air-gap · governance · PII guard · аудит · офлайн-пакет</sub>
 </p>
 
 <p align="center">
@@ -26,7 +26,7 @@
 curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializer/main/setup.sh | bash -s -- --full
 ```
 
-Одна команда устанавливает всё: 6 языков, 146 shell-модулей, 24 MCP-сервера, 21 плагин OpenCode, 12 LSP-серверов, 22 AI-провайдера, инфраструктуру как код (PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer), Cockpit TUI (8 вкладок), Web GUI, Isolated Circuit Mode, авто-определение оборудования, Lynis CIS scanner, правила auditd для ядра и поиск SearXNG.
+Одна команда устанавливает всё: 6 языков, 146 shell-модулей, 24 MCP-сервера, 21 плагин OpenCode, 10 LSP-серверов, 22 AI-провайдера, инфраструктуру как код (PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer), Cockpit TUI (8 вкладок), Web GUI, Isolated Circuit Mode, авто-определение оборудования, Lynis CIS scanner, правила auditd для ядра и поиск SearXNG.
 
 [Полная документация](https://alexandernarbaev.github.io/opencode_initializer/)
 
@@ -133,7 +133,7 @@ opencode_initializer/
 │   ├── oc-sdk.py              # Python SDK
 │   ├── embed-proxy.py         # Мост Ollama → MemoryLayer embedding
 │   └── ai-router.sh           # Интеллектуальная маршрутизация моделей (+ конфиг ai-router.json)
-├── tests/                     # Unit (126), интеграционные (14), E2E (6) — 146 файл
+├── tests/                     # Unit (114), интеграционные (11), E2E (6) — 131 файл
 ├── migrations/                # Временные метки, идемпотентные миграции
 ├── docs/                      # Сайт документации MkDocs Material (EN/RU)
 ├── .github/                   # CI воркфлоу (test, shellcheck, build, security, docs)

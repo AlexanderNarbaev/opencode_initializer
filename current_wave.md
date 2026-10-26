@@ -46,6 +46,16 @@
 - [x] Syntax checks extended to `src/lib/experimental/*.sh` in the runner and AGENTS command.
 - [x] `tests/unit/test_governance_plugin.sh` (32 assertions).
 
+
+## Round 4 (same wave) — limits from the model, services, LSP, dead code gone
+- [x] `scripts/model-limits.py` + models.dev: routing.json limits are derived, not typed
+      (16 values rewritten; `check` fails on drift; local-only models stay explicit overrides).
+- [x] `deploy/agentic-stack` compose (qdrant v1.20.0, postgres 17, redis 7, memorylayer, chromadb)
+      + `scripts/stack.sh` (adopted/compose modes). Live: qdrant 1.20.0, postgres 17.11, redis, memorylayer.
+- [x] New MCP servers connected: qdrant, postgres, codegraph.
+- [x] 10 LSP servers installed and configured with absolute commands; installer step 10.
+- [x] 64 dead modules + 19 orphan tests/benchmarks deleted; manifest `src/data/removed-modules.json`.
+
 ## Verification Evidence
 - `bash scripts/install-agentic-stack.sh --check` → all checks passed (7 MCP, 7 plugins, 43 skills)
 - `opencode run -m opencode-go/deepseek-v4.1-flash "Say OK"` → OK

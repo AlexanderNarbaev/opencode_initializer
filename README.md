@@ -5,7 +5,7 @@
 > **Operating Model:** Multi-Agent Framework v3.0 | **Wave:** [current_wave.md](./current_wave.md) | **Checkpoint:** [session_checkpoint.json](./session_checkpoint.json)
 <p align="center">
   <b>AI-Native SDD Harness — one-command AI-enhanced development environment for WSL2, Linux, and macOS. 4 deployment profiles.</b><br>
-  <sub>1322-line orchestrator · 97 modules (+64 quarantined) · 12 modes · 7 MCPs · 7 plugins · 12 LSP servers · 22 providers · air-gap · governance · PII guard · audit trail · offline bundle · APM · SBOM · cosign</sub>
+  <sub>1322-line orchestrator · 97 modules (+64 quarantined) · 12 modes · 7 MCPs · 7 plugins · 10 LSP servers · 22 providers · air-gap · governance · PII guard · audit trail · offline bundle · APM · SBOM · cosign</sub>
 </p>
 
 <p align="center">
@@ -26,7 +26,7 @@
 curl -fsSL https://raw.githubusercontent.com/AlexanderNarbaev/opencode_initializer/main/setup.sh | bash -s -- --full
 ```
 
-One command installs everything: 6 languages, 146 shell modules, 24 MCP servers, 21 OpenCode plugins, 12 LSP servers, 22 AI providers, infrastructure as code (PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer), Cockpit TUI (8 tabs), Web GUI, Isolated Circuit Mode, hardware auto-detection, Lynis CIS scanner, auditd kernel rules, and SearXNG web search.
+One command installs everything: 6 languages, 146 shell modules, 24 MCP servers, 21 OpenCode plugins, 10 LSP servers, 22 AI providers, infrastructure as code (PostgreSQL + Qdrant + Redis + Prometheus + Grafana + Node Exporter + MemoryLayer), Cockpit TUI (8 tabs), Web GUI, Isolated Circuit Mode, hardware auto-detection, Lynis CIS scanner, auditd kernel rules, and SearXNG web search.
 
 [Full Documentation](https://alexandernarbaev.github.io/opencode_initializer/)
 
@@ -156,7 +156,7 @@ opencode_initializer/
 │   ├── oc-sdk.py              # Python SDK
 │   ├── embed-proxy.py         # Ollama → MemoryLayer embedding bridge
 │   └── ai-router.sh           # Model routing intelligence (+ ai-router.json config)
-├── tests/                     # Unit (126), integration (14), E2E (6) — 146 files
+├── tests/                     # Unit (114), integration (11), E2E (6) — 131 files
 ├── migrations/                # Timestamped, idempotent migrations
 ├── docs/                      # MkDocs Material documentation site (EN/RU)
 ├── .github/                   # CI workflows (test, shellcheck, build, security, docs)

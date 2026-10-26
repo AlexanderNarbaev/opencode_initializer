@@ -48,24 +48,49 @@ _wal_agent_log() {
   local rationale="${3:-}"
   local confidence="${4:-0.85}"
   local mode="${5:-S1}"
-  local now impact_json prev_hash entry_hash
-  now=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-  impact_json="[]"
+  local impact_json="[]"
   mkdir -p "$(dirname "$WAL_AGENT_FILE")"
 
-  # Hash-chain: get previous hash
-  prev_hash="genesis"
-  if [ -f "$WAL_AGENT_FILE" ] && [ -s "$WAL_AGENT_FILE" ]; then
-    prev_hash=$(tail -1 "$WAL_AGENT_FILE" | jq -r '.hash // "genesis"' 2>/dev/null || echo "genesis")
+  # The hash chain must be computed INSIDE the lock: reading tail -1 outside it
+  # makes concurrent writers chain to the same prev_hash (and, with an unlocked
+  # fallback, occasionally duplicate a line). One lock covers read + hash + write.
+  _wal_log_one() {
+    local now prev_hash entry_hash entry_line
+    now=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    prev_hash="genesis"
+    if [ -f "$WAL_AGENT_FILE" ] && [ -s "$WAL_AGENT_FILE" ]; then
+      prev_hash=$(tail -1 "$WAL_AGENT_FILE" | jq -r '.hash // "genesis"' 2>/dev/null || echo "genesis")
+    fi
+    entry_hash=$(echo -n "${prev_hash}${now}${domain}${decision}${confidence}" | _sha256 | awk '{print $1}')
+    entry_line=$(printf '{"ts":"%s","domain":"%s","decision":"%s","rationale":"%s","impact":%s,"confidence":%s,"mode":"%s","prev_hash":"%s","hash":"%s"}' \
+      "$now" "$domain" "$decision" "$rationale" "$impact_json" "$confidence" "$mode" "$prev_hash" "$entry_hash")
+    printf '%s\n' "$entry_line" >> "$WAL_AGENT_FILE"
+  }
+
+  local lockfile="${WAL_AGENT_FILE}.lock"
+  if command -v flock >/dev/null 2>&1; then
+    (
+      exec 9>>"$lockfile"
+      flock -w 10 -x 9 2>/dev/null || true
+      _wal_log_one
+      exec 9>&-
+    )
+    return 0
   fi
 
-  # Compute entry hash: SHA-256(prev + ts + domain + decision + confidence)
-  entry_hash=$(echo -n "${prev_hash}${now}${domain}${decision}${confidence}" | _sha256 | awk '{print $1}')
-
-  local entry_line
-  entry_line=$(printf '{"ts":"%s","domain":"%s","decision":"%s","rationale":"%s","impact":%s,"confidence":%s,"mode":"%s","prev_hash":"%s","hash":"%s"}' \
-    "$now" "$domain" "$decision" "$rationale" "$impact_json" "$confidence" "$mode" "$prev_hash" "$entry_hash")
-  _wal_locked_append "$WAL_AGENT_FILE" "$entry_line"
+  # macOS / no flock: mkdir spinlock (100 × 20 ms = 2 s)
+  local lockdir="${lockfile}.d" attempt=1
+  while [ "$attempt" -le 100 ]; do
+    if mkdir "$lockdir" 2>/dev/null; then
+      _wal_log_one
+      rmdir "$lockdir" 2>/dev/null
+      return 0
+    fi
+    sleep 0.02
+    attempt=$((attempt + 1))
+  done
+  warn "_wal_agent_log: lock timeout — appending unlocked"
+  _wal_log_one
 }
 
 # ── WAL rotation: gzip archive when >10MB (S5.2.3.3) ───────────────────────

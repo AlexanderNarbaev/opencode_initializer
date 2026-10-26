@@ -33,20 +33,20 @@ assert "har ralph: dispatch case"     "grep -qE '^[[:space:]]*ralph[)]' '$HAR'"
 
 # ── Version ───────────────────────────────────────────────────────────────
 ver_out="$(bash "$HAR" version 2>/dev/null)"
-assert "har version rc=0 + 1.1.0" '[ "$(bash "$HAR" version >/dev/null 2>&1; echo $?)" = "0" ] && echo "$ver_out" | grep -q "1.1.0"'
+assert "har version rc=0 + 1.1.0" '[ "$(bash "$HAR" version >/dev/null 2>&1; echo $?)" = "0" ] && grep -q "1.1.0" <<< "$ver_out"'
 
 # ── Help / arg parsing (non-mutating) ─────────────────────────────────────
 help_out="$(bash "$HAR" ralph --help 2>/dev/null)"
 assert "ralph --help rc=0"           '[ "$(bash "$HAR" ralph --help >/dev/null 2>&1; echo $?)" = "0" ]'
-assert "ralph --help mentions loop"  'echo "$help_out" | grep -q "Bounded health-convergence loop"'
-assert "ralph --help mentions --max" 'echo "$help_out" | grep -q -- "--max"'
-assert "ralph --help mentions --dry-run" 'echo "$help_out" | grep -q -- "--dry-run"'
+assert "ralph --help mentions loop"  'grep -q "Bounded health-convergence loop" <<< "$help_out"'
+assert "ralph --help mentions --max" 'grep -q -- "--max" <<< "$help_out"'
+assert "ralph --help mentions --dry-run" 'grep -q -- "--dry-run" <<< "$help_out"'
 
 # ── Bad option / missing setup ────────────────────────────────────────────
 assert "ralph unknown option rc=2" '[ "$(bash "$HAR" ralph --badopt >/dev/null 2>&1; echo $?)" = "2" ]'
 missing_out="$(bash "$HAR" ralph --setup /nonexistent/setup.sh 2>&1 || true)"
 assert "ralph missing setup rc=2"    '[ "$(bash "$HAR" ralph --setup /nonexistent/setup.sh >/dev/null 2>&1; echo $?)" = "2" ]'
-assert "ralph missing setup message" 'echo "$missing_out" | grep -q "setup.sh not found"'
+assert "ralph missing setup message" 'grep -q "setup.sh not found" <<< "$missing_out"'
 
 # ── Hermetic convergence via stub setup.sh ────────────────────────────────
 # Stub A: always healthy -> converges immediately.
@@ -89,7 +89,7 @@ dry_out="$(bash "$HAR" ralph --max 2 --dry-run --setup "$TMPDIR/sick.sh" 2>&1 ||
 # Dry-run reports what it WOULD heal but never applies heals, so it cannot
 # converge on a permanently-unhealthy stub -> exits 1 with the would-heal hints.
 assert "ralph --dry-run rc=1 (no converge)" '[ "$(bash "$HAR" ralph --max 2 --dry-run --setup "$TMPDIR/sick.sh" >/dev/null 2>&1; echo $?)" = "1" ]'
-assert "ralph --dry-run reports would-heal" 'echo "$dry_out" | grep -q "would heal"'
+assert "ralph --dry-run reports would-heal" 'grep -q "would heal" <<< "$dry_out"'
 
 # Stub D: permanently unhealthy, no dry-run -> does not converge, rc=1.
 assert "ralph: non-convergence rc=1" '[ "$(bash "$HAR" ralph --max 2 --setup "$TMPDIR/sick.sh" >/dev/null 2>&1; echo $?)" = "1" ]'

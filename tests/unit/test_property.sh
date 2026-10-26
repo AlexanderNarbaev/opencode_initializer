@@ -40,7 +40,7 @@ with open('$TEMP_TOML', 'rb') as f:
 print(json.dumps(d['features']))
 " 2>/dev/null)
 
-  if echo "$result" | grep -q '"docker": true' && echo "$result" | grep -q '"rust": false'; then
+  if grep -q '"docker": true' <<< "$result" && grep -q '"rust": false' <<< "$result"; then
     pass "Boolean values preserved in TOML round-trip"
   else
     fail "Boolean values not preserved: $result"
@@ -69,7 +69,7 @@ test_case "Version strings follow semver"
 
 versions=("v8.0.0" "v7.0.0" "v3.5.0" "v10.2.3")
 for ver in "${versions[@]}"; do
-  if echo "$ver" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+  if grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$' <<< "$ver"; then
     pass "Version $ver is valid semver"
   else
     fail "Version $ver is not valid semver"

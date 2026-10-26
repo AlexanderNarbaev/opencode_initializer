@@ -22,13 +22,13 @@
 | CLI modes | 12 (full, health, interactive, ci, airgap, and more) |
 | Languages | 6 |
 | MCP servers | 24 |
-| LSP servers | 12 |
+| LSP servers | 10 |
 | OpenCode plugins | 21 |
 | AI providers | 22 (19 cloud + 3 local) |
 | Model Router | 9 task profiles (coding, reasoning, fast, agentic, budget, vision, isolated, ru_cn, testing) |
 | Infrastructure | 7 services (PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer) |
 | Web GUI | 9 management sections (port 4200) |
-| Test suite | 140 files (126 unit + 14 integration + 6 e2e) |
+| Test suite | 140 files (114 unit + 11 integration + 6 e2e) |
 | Package managers | apt, dnf, pacman, apk, zypper, brew |
 | Architectures | amd64, arm64 |
 
@@ -39,7 +39,7 @@ A single script that turns a fresh Linux/WSL2 machine into a production-ready de
 - **6 programming languages** — Java 25, Node.js 24, Python 3.14, Go 1.26, Rust (stable), .NET 10
 - **24 MCP servers** — GitHub, GitLab, Filesystem, Playwright, Chrome DevTools, SQLite, Postgres, Memory, Excalidraw, Brave Search, Context7, Google Maps, and more
 - **21 OpenCode plugins** — codegraph, dcp, auto-fallback, goal-mode, swarm, vibeguard, devcontainers, worktree, scheduler, background-agents, goal-plugin, conductor, zellij-namer, morph-plugin, supermemory, websearch-cited, firecrawl, plugin-otel, token-tracker, orchestrator, daytona
-- **12 LSP servers** — gopls, rust-analyzer, typescript, pyright, yaml, marksman, taplo, bash, dockerfile, css, html, json
+- **10 LSP servers** — typescript, pyright, gopls, bash, yaml, json, css, html, dockerfile, markdown (all installed by `install-agentic-stack.sh`)
 - **Infrastructure as Code** — PostgreSQL, Qdrant, Redis, Prometheus, Grafana, Node Exporter, MemoryLayer via Docker Compose
 - **Cockpit TUI** — 8-tab terminal UI for server management
 - **Isolated Circuit Mode** — air-gapped LLM operation with local backends

@@ -1,0 +1,264 @@
+{
+  "version": "1.0.0",
+  "removed_on": "2026-10-26",
+  "reason": "never reachable from any entrypoint; half-working when called directly; history preserves every file",
+  "how_to_recover": "git log --all -- src/lib/experimental/<name>  (or the commit recorded here) then `git show <commit>:src/lib/experimental/<name>`",
+  "modules": [
+    {
+      "name": "00u-telemetry.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "00v-age-encryption.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "00w-shell-integrations.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "00x-chezmoi.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "00x-config.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "01b-linux-platform.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "100-harness-subagents.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "101-pla-orchestrator.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "102-pla-extract.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "103-pla-analyze.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "104-pla-verify.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "105-pla-synthesize.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "106-pla-coordinate.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "107-rag-hybrid.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "108-rag-bm25.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "109-rag-vector.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "110-rag-fusion.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "111-perf-optimizer.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "112-cache-manager.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "113-security-hardening.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "114-vulnerability-scan.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "115-scalability.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "116-load-balancer.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "117-cloud-sync.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "118-marketplace-api.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "119-ecosystem-integration.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "62-skill-registry.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "63-skill-manager.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "64-skill-security.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "65-skill-eval.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "66-agent-orchestrator.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "67-agent-pipeline.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "68-agent-mesh.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "69-agent-protocol.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "70-context-engine.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "71-memory-layer.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "72-rbac.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "73-governance.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "74-compliance.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "75-security-posture.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "76-analytics.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "77-observability.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "78-marketplace.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "79-plugin-manager.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "80-templates.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "81-integrations.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "82-connectors.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "83-context-engineering.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "84-learning.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "85-automation.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "86-sandbox.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "87-cicd-integration.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "88-workflow-engine.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "89-security-policies.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "90-secrets-manager.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "91-harness-core.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "92-harness-tools.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "93-harness-memory.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "94-harness-context.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "95-harness-prompt.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "96-harness-state.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "97-harness-errors.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "98-harness-guardrails.sh",
+      "last_commit": "088f32be 2026-10-26"
+    },
+    {
+      "name": "99-harness-verify.sh",
+      "last_commit": "088f32be 2026-10-26"
+    }
+  ]
+}

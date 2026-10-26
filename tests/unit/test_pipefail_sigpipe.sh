@@ -113,3 +113,16 @@ printf 'pipefail_sigpipe: test_software_factory_wiring.sh root-cause comment occ
   "$SF_ROOT_CAUSE_COUNT"
 assert "Software Factory wiring test documents the confirmed root cause" \
   "[ '$SF_ROOT_CAUSE_COUNT' -ge 1 ]"
+
+# --- Case 6: no test may use the early-exit pipeline on a captured variable --
+# `echo "$capture" | grep -q ...` kills the producer with SIGPIPE under
+# `set -o pipefail`, making the assertion fail even when the match is present.
+# Captured variables must be fed with a here-string: `grep -q ... <<< "$capture"`.
+TEST_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+HAZARD_TOTAL=0
+for f in "$TEST_ROOT"/unit/*.sh "$TEST_ROOT"/integration/*.sh "$TEST_ROOT"/e2e/*.sh; do
+  n="$(grep -v '^[[:space:]]*#' "$f" | grep -cE 'echo "\$[A-Za-z_][A-Za-z0-9_]*"[[:space:]]*\|[[:space:]]*grep[[:space:]]+-[A-Za-z]*q' || true)"
+  HAZARD_TOTAL=$((HAZARD_TOTAL + n))
+done
+printf 'pipefail_sigpipe: early-exit pipelines over captured variables=%s\n' "$HAZARD_TOTAL"
+assert "no test pipes a captured variable into grep -q" "[ '$HAZARD_TOTAL' -eq 0 ]"

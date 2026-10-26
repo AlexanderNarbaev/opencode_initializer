@@ -41,7 +41,7 @@ assert_exit() {
 assert_contains() {
   TOTAL=$((TOTAL + 1))
   local desc="$1" needle="$2" haystack="$3"
-  if echo "$haystack" | grep -q "$needle"; then
+  if grep -q "$needle" <<< "$haystack"; then
     PASS=$((PASS + 1))
     printf "  ${GREEN}✓${NC} %s\n" "$desc"
   else

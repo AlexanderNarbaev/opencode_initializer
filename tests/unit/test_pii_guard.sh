@@ -136,7 +136,7 @@ fi
 
 # Test 12: _pii_redact replaces email with mask
 REDACT_EMAIL=$(_pii_redact "email: user@example.com")
-if echo "$REDACT_EMAIL" | grep -q '\[REDACTED\]' && ! echo "$REDACT_EMAIL" | grep -q 'user@example.com'; then
+if grep -q '\[REDACTED\]' <<< "$REDACT_EMAIL" && ! grep -q 'user@example.com' <<< "$REDACT_EMAIL"; then
   echo "PASS: _pii_redact masks email"
   PASS=$((PASS+1))
 else
@@ -146,7 +146,7 @@ fi
 
 # Test 13: _pii_redact replaces phone with mask
 REDACT_PHONE=$(_pii_redact "call +79161234567")
-if echo "$REDACT_PHONE" | grep -q '\[REDACTED\]' && ! echo "$REDACT_PHONE" | grep -q '+79161234567'; then
+if grep -q '\[REDACTED\]' <<< "$REDACT_PHONE" && ! grep -q '+79161234567' <<< "$REDACT_PHONE"; then
   echo "PASS: _pii_redact masks phone"
   PASS=$((PASS+1))
 else
@@ -156,7 +156,7 @@ fi
 
 # Test 14: _pii_redact preserves non-PII text
 REDACT_CLEAN=$(_pii_redact "hello world")
-if echo "$REDACT_CLEAN" | grep -q 'hello world' && ! echo "$REDACT_CLEAN" | grep -q '\[REDACTED\]'; then
+if grep -q 'hello world' <<< "$REDACT_CLEAN" && ! grep -q '\[REDACTED\]' <<< "$REDACT_CLEAN"; then
   echo "PASS: _pii_redact preserves clean text"
   PASS=$((PASS+1))
 else

@@ -51,14 +51,14 @@ ISO_OUTPUT=$( (
   _check_versions 2>&1
   echo "EXIT_CODE=$?"
 ) )
-ISO_EXIT=$(echo "$ISO_OUTPUT" | grep 'EXIT_CODE=' | cut -d= -f2)
+ISO_EXIT=$(grep 'EXIT_CODE=' <<< "$ISO_OUTPUT" | cut -d= -f2)
 [ "${ISO_EXIT:-1}" -eq 0 ] && { echo "PASS: ISOLATED_CIRCUIT mode returns 0"; PASS=$((PASS + 1)); } || { echo "FAIL: ISOLATED_CIRCUIT mode returned ${ISO_EXIT:-error}"; FAIL=$((FAIL + 1)); }
 
 # ── T9: ISOLATED mode shows 'isolated' in output ────────────────────────────
-echo "$ISO_OUTPUT" | grep -qi 'isolated' && { echo "PASS: ISOLATED mode mentions isolated/air-gap"; PASS=$((PASS + 1)); } || { echo "FAIL: ISOLATED mode missing isolation mention"; FAIL=$((FAIL + 1)); }
+grep -qi 'isolated' <<< "$ISO_OUTPUT" && { echo "PASS: ISOLATED mode mentions isolated/air-gap"; PASS=$((PASS + 1)); } || { echo "FAIL: ISOLATED mode missing isolation mention"; FAIL=$((FAIL + 1)); }
 
 # ── T10: ISOLATED mode shows local versions ─────────────────────────────────
-{ echo "$ISO_OUTPUT" | grep -qE 'Local: (Rust|Go|Node|Python|Bun|Ollama|Zig)'; } && { echo "PASS: ISOLATED mode shows local tool versions"; PASS=$((PASS + 1)); } || { echo "FAIL: ISOLATED mode missing local version output"; FAIL=$((FAIL + 1)); }
+{ grep -qE 'Local: (Rust|Go|Node|Python|Bun|Ollama|Zig)' <<< "$ISO_OUTPUT"; } && { echo "PASS: ISOLATED mode shows local tool versions"; PASS=$((PASS + 1)); } || { echo "FAIL: ISOLATED mode missing local version output"; FAIL=$((FAIL + 1)); }
 
 # ── T11: Normal mode starts and produces tool output (header + at least some tools) ──
 NORMAL_OUTPUT=$(timeout 60 bash -c "
@@ -66,25 +66,25 @@ NORMAL_OUTPUT=$(timeout 60 bash -c "
   _check_versions 2>&1
   echo \"EXIT_CODE=\$?\"
 " 2>/dev/null || echo "EXIT_CODE=TIMEOUT")
-{ echo "$NORMAL_OUTPUT" | grep -q 'Version Check' && echo "$NORMAL_OUTPUT" | grep -qE '(OK|UPDATE):'; } && { echo "PASS: normal mode produces tool version output"; PASS=$((PASS + 1)); } || { echo "FAIL: normal mode produced no tool output"; FAIL=$((FAIL + 1)); }
+{ grep -q 'Version Check' <<< "$NORMAL_OUTPUT" && grep -qE '(OK|UPDATE):' <<< "$NORMAL_OUTPUT"; } && { echo "PASS: normal mode produces tool version output"; PASS=$((PASS + 1)); } || { echo "FAIL: normal mode produced no tool output"; FAIL=$((FAIL + 1)); }
 
 # ── T12: Normal mode output has header ──────────────────────────────────────
-echo "$NORMAL_OUTPUT" | grep -q 'Version Check' && { echo "PASS: normal mode has Version Check header"; PASS=$((PASS + 1)); } || { echo "FAIL: normal mode missing header"; FAIL=$((FAIL + 1)); }
+grep -q 'Version Check' <<< "$NORMAL_OUTPUT" && { echo "PASS: normal mode has Version Check header"; PASS=$((PASS + 1)); } || { echo "FAIL: normal mode missing header"; FAIL=$((FAIL + 1)); }
 
 # ── T13: When completed (not timed out), summary has update count ───────────
-if echo "$NORMAL_OUTPUT" | grep -q 'EXIT_CODE=TIMEOUT'; then
+if grep -q 'EXIT_CODE=TIMEOUT' <<< "$NORMAL_OUTPUT"; then
   echo "PASS: normal mode summary skipped (npm timeout)"; PASS=$((PASS + 1))
-elif echo "$NORMAL_OUTPUT" | grep -qE '[0-9]+ update\(s\) available'; then
+elif grep -qE '[0-9]+ update\(s\) available' <<< "$NORMAL_OUTPUT"; then
   echo "PASS: normal mode has update count summary"; PASS=$((PASS + 1))
 else
   echo "FAIL: normal mode missing update count summary"; FAIL=$((FAIL + 1))
 fi
 
 # ── T14: Return value is numeric when completed ─────────────────────────────
-if echo "$NORMAL_OUTPUT" | grep -q 'EXIT_CODE=TIMEOUT'; then
+if grep -q 'EXIT_CODE=TIMEOUT' <<< "$NORMAL_OUTPUT"; then
   echo "PASS: exit code check skipped (npm timeout)"; PASS=$((PASS + 1))
 else
-  NORMAL_EXIT=$(echo "$NORMAL_OUTPUT" | grep 'EXIT_CODE=' | grep -v TIMEOUT | cut -d= -f2)
+  NORMAL_EXIT=$(grep 'EXIT_CODE=' <<< "$NORMAL_OUTPUT" | grep -v TIMEOUT | cut -d= -f2)
   if [ "${NORMAL_EXIT:-999}" -ge 0 ] 2>/dev/null; then
     echo "PASS: return value is non-negative (got $NORMAL_EXIT)"; PASS=$((PASS + 1))
   else

@@ -97,7 +97,7 @@ fi
 
 # ── Test 6: _hooks_run with empty hook type → warns + returns 1 ──────────────
 OUTPUT=$(run_hooks_test '_hooks_run ""' 2>&1) || true
-if echo "$OUTPUT" | grep -q "hook_type required"; then
+if grep -q "hook_type required" <<< "$OUTPUT"; then
   echo "PASS: _hooks_run with empty type warns"
   PASS=$((PASS+1))
 else
@@ -135,7 +135,7 @@ exit 0
 EOF
 chmod +x "$HOME/.config/opencode/hooks/pre-request/10-test-hook.sh"
 HOOK_OUTPUT=$(run_hooks_test '_hooks_run pre-request' 2>&1) || true
-if echo "$HOOK_OUTPUT" | grep -q "HOOK_RAN_SUCCESS"; then
+if grep -q "HOOK_RAN_SUCCESS" <<< "$HOOK_OUTPUT"; then
   echo "PASS: _hooks_run executes hook successfully"
   PASS=$((PASS+1))
 else
@@ -151,8 +151,8 @@ exit 1
 EOF
 chmod +x "$HOME/.config/opencode/hooks/pre-request/10-test-hook.sh"
 HOOK_OUTPUT=$(run_hooks_test '_hooks_run pre-request' 2>&1) || true
-if echo "$HOOK_OUTPUT" | grep -q "Hook rejected" && \
-   echo "$HOOK_OUTPUT" | grep -q "HOOK_REJECT_MESSAGE"; then
+if grep -q "Hook rejected" <<< "$HOOK_OUTPUT" && \
+   grep -q "HOOK_REJECT_MESSAGE" <<< "$HOOK_OUTPUT"; then
   echo "PASS: _hooks_run warns on hook rejection"
   PASS=$((PASS+1))
 else
@@ -168,8 +168,8 @@ exit 0
 EOF
 chmod -x "$HOME/.config/opencode/hooks/pre-request/10-test-hook.sh"
 HOOK_OUTPUT=$(run_hooks_test '_hooks_run pre-request' 2>&1) || true
-if echo "$HOOK_OUTPUT" | grep -q "not executable" && \
-   ! echo "$HOOK_OUTPUT" | grep -q "SHOULD_NOT_RUN"; then
+if grep -q "not executable" <<< "$HOOK_OUTPUT" && \
+   ! grep -q "SHOULD_NOT_RUN" <<< "$HOOK_OUTPUT"; then
   echo "PASS: _hooks_run skips non-executable hooks"
   PASS=$((PASS+1))
 else
@@ -185,7 +185,7 @@ exit 0
 EOF
 chmod +x "$HOME/.config/opencode/hooks/pre-request/10-test-hook.sh"
 WRAP_OUT=$(run_hooks_test _hooks_pre_request 2>&1)
-if echo "$WRAP_OUT" | grep -q "PRE_REQUEST_HOOK"; then
+if grep -q "PRE_REQUEST_HOOK" <<< "$WRAP_OUT"; then
   echo "PASS: _hooks_pre_request wrapper works"
   PASS=$((PASS+1))
 else
@@ -201,7 +201,7 @@ exit 0
 EOF
 chmod +x "$HOME/.config/opencode/hooks/post-response/10-audit-hook.sh"
 WRAP_OUT=$(run_hooks_test _hooks_post_response 2>&1)
-if echo "$WRAP_OUT" | grep -q "POST_RESPONSE_HOOK"; then
+if grep -q "POST_RESPONSE_HOOK" <<< "$WRAP_OUT"; then
   echo "PASS: _hooks_post_response wrapper works"
   PASS=$((PASS+1))
 else
@@ -217,7 +217,7 @@ exit 0
 EOF
 chmod +x "$HOME/.config/opencode/hooks/pre-commit/10-lint-hook.sh"
 WRAP_OUT=$(run_hooks_test _hooks_pre_commit 2>&1)
-if echo "$WRAP_OUT" | grep -q "PRE_COMMIT_HOOK"; then
+if grep -q "PRE_COMMIT_HOOK" <<< "$WRAP_OUT"; then
   echo "PASS: _hooks_pre_commit wrapper works"
   PASS=$((PASS+1))
 else
@@ -233,7 +233,7 @@ exit 0
 EOF
 chmod +x "$HOME/.config/opencode/hooks/on-error/10-notify-hook.sh"
 WRAP_OUT=$(run_hooks_test _hooks_on_error 2>&1)
-if echo "$WRAP_OUT" | grep -q "ON_ERROR_HOOK"; then
+if grep -q "ON_ERROR_HOOK" <<< "$WRAP_OUT"; then
   echo "PASS: _hooks_on_error wrapper works"
   PASS=$((PASS+1))
 else
@@ -259,8 +259,8 @@ EOF
 chmod +x "$HOME/.config/opencode/hooks/pre-request/20-last.sh"
 
 HOOK_OUTPUT=$(run_hooks_test '_hooks_run pre-request' 2>&1) || true
-FIRST_POS=$(echo "$HOOK_OUTPUT" | grep -n "FIRST" | head -1 | cut -d: -f1)
-LAST_POS=$(echo "$HOOK_OUTPUT" | grep -n "LAST" | head -1 | cut -d: -f1)
+FIRST_POS=$(grep -n "FIRST" <<< "$HOOK_OUTPUT" | head -1 | cut -d: -f1)
+LAST_POS=$(grep -n "LAST" <<< "$HOOK_OUTPUT" | head -1 | cut -d: -f1)
 if [ "${FIRST_POS:-0}" -gt 0 ] && [ "${LAST_POS:-0}" -gt 0 ] && \
    [ "$FIRST_POS" -lt "$LAST_POS" ]; then
   echo "PASS: Multiple hooks execute in filename order (FIRST=$FIRST_POS, LAST=$LAST_POS)"
@@ -279,9 +279,9 @@ EOF
 chmod +x "$HOME/.config/opencode/hooks/pre-request/05-first.sh"
 
 HOOK_OUTPUT=$(run_hooks_test '_hooks_run pre-request' 2>&1) || true
-if echo "$HOOK_OUTPUT" | grep -q "FAIL_FIRST" && \
-   ! echo "$HOOK_OUTPUT" | grep -q "LAST" && \
-   echo "$HOOK_OUTPUT" | grep -q "Hook rejected"; then
+if grep -q "FAIL_FIRST" <<< "$HOOK_OUTPUT" && \
+   ! grep -q "LAST" <<< "$HOOK_OUTPUT" && \
+   grep -q "Hook rejected" <<< "$HOOK_OUTPUT"; then
   echo "PASS: Failing hook stops further execution"
   PASS=$((PASS+1))
 else
@@ -291,7 +291,7 @@ fi
 
 # ── Test 18: HOOKS_DIR is set and exported ───────────────────────────────────
 HOOKS_DIR_VAL=$(run_hooks_test 'echo "$HOOKS_DIR"')
-if echo "$HOOKS_DIR_VAL" | grep -q "hooks"; then
+if grep -q "hooks" <<< "$HOOKS_DIR_VAL"; then
   echo "PASS: HOOKS_DIR exported (value=$HOOKS_DIR_VAL)"
   PASS=$((PASS+1))
 else
@@ -303,7 +303,7 @@ fi
 HOOK_TYPES=$(run_hooks_test '_hooks_setup_dirs >/dev/null; ls "$HOOKS_DIR"' 2>&1)
 TYPE_COUNT=0
 for htype in pre-request post-response pre-commit on-error; do
-  if echo "$HOOK_TYPES" | grep -q "$htype"; then
+  if grep -q "$htype" <<< "$HOOK_TYPES"; then
     TYPE_COUNT=$((TYPE_COUNT + 1))
   fi
 done
@@ -320,9 +320,9 @@ STUB_PII=$(cat "$HOME/.config/opencode/hooks/10-pii-check.sh")
 STUB_AUDIT=$(cat "$HOME/.config/opencode/hooks/50-audit-log.sh")
 STUB_POLICY=$(cat "$HOME/.config/opencode/hooks/20-policy-check.sh")
 PII_OK=0; AUDIT_OK=0; POLICY_OK=0
-echo "$STUB_PII" | grep -q "PII" && PII_OK=1
-echo "$STUB_AUDIT" | grep -q "audit" && AUDIT_OK=1
-echo "$STUB_POLICY" | grep -q "policy" && POLICY_OK=1
+grep -q "PII" <<< "$STUB_PII" && PII_OK=1
+grep -q "audit" <<< "$STUB_AUDIT" && AUDIT_OK=1
+grep -q "policy" <<< "$STUB_POLICY" && POLICY_OK=1
 if [ "$PII_OK" -eq 1 ] && [ "$AUDIT_OK" -eq 1 ] && [ "$POLICY_OK" -eq 1 ]; then
   echo "PASS: Stub templates contain meaningful content"
   PASS=$((PASS+1))

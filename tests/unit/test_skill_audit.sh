@@ -53,8 +53,8 @@ run_audit() {
 out="$(run_audit 2>&1)"
 rc=$?
 [ "$rc" -eq 0 ] && pass "smoke exits 0" || fail "smoke exit non-zero: $rc"
-echo "$out" | grep -q 'SKILLS AUDIT SUMMARY:' && pass "summary line present" || fail "summary line missing"
-echo "$out" | grep -q 'broken=1 unregistered=1 oversize=1' && pass "counts broken=1 unregistered=1 oversize=1" || fail "unexpected counts: $(echo "$out" | grep 'SKILLS AUDIT SUMMARY')"
+grep -q 'SKILLS AUDIT SUMMARY:' <<< "$out" && pass "summary line present" || fail "summary line missing"
+grep -q 'broken=1 unregistered=1 oversize=1' <<< "$out" && pass "counts broken=1 unregistered=1 oversize=1" || fail "unexpected counts: $(grep 'SKILLS AUDIT SUMMARY' <<< "$out")"
 
 # --json smoke: parses via python3 json.loads
 json_out="$(run_audit --json 2>&1)"

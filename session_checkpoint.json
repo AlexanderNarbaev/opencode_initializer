@@ -35,7 +35,10 @@
       "git",
       "time",
       "grep",
-      "chrome-devtools"
+      "chrome-devtools",
+      "codegraph",
+      "postgres",
+      "qdrant"
     ],
     "mcp_disabled": {
       "filesystem": "duplicate of builtin tools",
@@ -72,13 +75,25 @@
       "review",
       "test",
       "commit"
+    ],
+    "lsp_servers": [
+      "typescript",
+      "pyright",
+      "gopls",
+      "bash",
+      "yaml",
+      "json",
+      "css",
+      "html",
+      "dockerfile",
+      "markdown"
     ]
   },
   "tests": {
-    "unit": 126,
-    "integration": 14,
+    "unit": 114,
+    "integration": 11,
     "e2e": 6,
-    "benchmark": 3
+    "benchmark": 1
   },
   "gates": {
     "version_consistency": "scripts/check-version-consistency.sh",
@@ -107,7 +122,16 @@
   "last_commit": "673a4d8b",
   "modules": {
     "live": 97,
-    "quarantined": 64,
+    "removed": 64,
     "unreachable": 0
+  },
+  "model_limits": "derived from models.dev via scripts/model-limits.py (routing.json synced)",
+  "services": {
+    "qdrant": "1.20.0",
+    "postgres": "17.11",
+    "redis": "7",
+    "memorylayer": "healthy",
+    "compose": "deploy/agentic-stack/docker-compose.yml",
+    "manager": "scripts/stack.sh"
   }
 }

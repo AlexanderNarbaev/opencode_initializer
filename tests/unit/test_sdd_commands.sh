@@ -67,28 +67,28 @@ cat > "$TMP_PROJECT/.opencode/todo.md" << 'EOF'
 EOF
 
 output=$(bash "$TMP_PROJECT/.opencode/commands/tasks.sh" 2>&1 || true)
-if echo "$output" | grep -q "FR requirements: 3"; then
+if grep -q "FR requirements: 3" <<< "$output"; then
   echo "PASS: /tasks reports 3 FRs"
   PASS=$((PASS + 1))
 else
   echo "FAIL: /tasks FR count wrong: $output"
   FAIL=$((FAIL + 1))
 fi
-if echo "$output" | grep -q "SC scenarios: 2"; then
+if grep -q "SC scenarios: 2" <<< "$output"; then
   echo "PASS: /tasks reports 2 SCs"
   PASS=$((PASS + 1))
 else
   echo "FAIL: /tasks SC count wrong"
   FAIL=$((FAIL + 1))
 fi
-if echo "$output" | grep -q "Done: 1"; then
+if grep -q "Done: 1" <<< "$output"; then
   echo "PASS: /tasks reports 1 done"
   PASS=$((PASS + 1))
 else
   echo "FAIL: /tasks done count wrong"
   FAIL=$((FAIL + 1))
 fi
-if echo "$output" | grep -q "Pending: 1"; then
+if grep -q "Pending: 1" <<< "$output"; then
   echo "PASS: /tasks reports 1 pending"
   PASS=$((PASS + 1))
 else
@@ -129,7 +129,7 @@ else
   echo "FAIL: /analyze exits 0 despite divergence"
   FAIL=$((FAIL + 1))
 fi
-if echo "$analyze_output" | grep -q "FR-099"; then
+if grep -q "FR-099" <<< "$analyze_output"; then
   echo "PASS: /analyze reports unsatisfied FR-099"
   PASS=$((PASS + 1))
 else
@@ -149,14 +149,14 @@ cat > "$TMP_PROJECT/.opencode/todo.md" << 'EOF'
 EOF
 
 impl_output=$(bash "$TMP_PROJECT/.opencode/commands/implement.sh" 2>&1 || true)
-if echo "$impl_output" | grep -q "IMPL-01"; then
+if grep -q "IMPL-01" <<< "$impl_output"; then
   echo "PASS: /implement shows first pending task"
   PASS=$((PASS + 1))
 else
   echo "FAIL: /implement missing IMPL-01: $impl_output"
   FAIL=$((FAIL + 1))
 fi
-if echo "$impl_output" | grep -q "Build login page"; then
+if grep -q "Build login page" <<< "$impl_output"; then
   echo "PASS: /implement shows task description"
   PASS=$((PASS + 1))
 else
@@ -172,7 +172,7 @@ cat > "$TMP_PROJECT/.opencode/todo.md" << 'EOF'
 EOF
 
 impl_output2=$(bash "$TMP_PROJECT/.opencode/commands/implement.sh" 2>&1 || true)
-if echo "$impl_output2" | grep -q "All tasks complete"; then
+if grep -q "All tasks complete" <<< "$impl_output2"; then
   echo "PASS: /implement reports all complete"
   PASS=$((PASS + 1))
 else

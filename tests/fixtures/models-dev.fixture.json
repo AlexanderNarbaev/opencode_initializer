@@ -1,0 +1,19 @@
+{
+  "acme": {
+    "id": "acme",
+    "name": "Acme",
+    "models": {
+      "big": {
+        "id": "big",
+        "name": "Big",
+        "limit": { "context": 123456, "output": 4096 }
+      }
+    }
+  },
+  "other": {
+    "id": "other",
+    "models": {
+      "small": { "id": "small", "limit": { "context": 8192, "output": 2048 } }
+    }
+  }
+}

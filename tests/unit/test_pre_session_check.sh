@@ -164,42 +164,42 @@ PRE_OUTPUT=$(timeout 10 bash -c '
   _pre_session 2>&1
   echo "EXIT=$?"
 ' 2>/dev/null || echo "EXIT=TIMEOUT")
-echo "$PRE_OUTPUT" | grep -q 'Pre-Session Check' && \
+grep -q 'Pre-Session Check' <<< "$PRE_OUTPUT" && \
   { echo "PASS: _pre_session shows header (runs without fatal error)"; PASS=$((PASS + 1)); } || \
   { echo "FAIL: _pre_session header missing or crashed (got: $(echo "$PRE_OUTPUT" | head -3))"; FAIL=$((FAIL + 1)); }
 
 # ── T22: _pre_session shows Cloud Providers section ─────────────────────────
-echo "$PRE_OUTPUT" | grep -q 'Cloud Providers' && \
+grep -q 'Cloud Providers' <<< "$PRE_OUTPUT" && \
   { echo "PASS: _pre_session shows Cloud Providers section"; PASS=$((PASS + 1)); } || \
   { echo "FAIL: _pre_session missing Cloud Providers section"; FAIL=$((FAIL + 1)); }
 
 # ── T23: _pre_session shows Local Backends section ──────────────────────────
-echo "$PRE_OUTPUT" | grep -q 'Local Backends' && \
+grep -q 'Local Backends' <<< "$PRE_OUTPUT" && \
   { echo "PASS: _pre_session shows Local Backends section"; PASS=$((PASS + 1)); } || \
   { echo "FAIL: _pre_session missing Local Backends section"; FAIL=$((FAIL + 1)); }
 
 # ── T24: _pre_session shows MCP Servers section ─────────────────────────────
-echo "$PRE_OUTPUT" | grep -q 'MCP Servers' && \
+grep -q 'MCP Servers' <<< "$PRE_OUTPUT" && \
   { echo "PASS: _pre_session shows MCP Servers section"; PASS=$((PASS + 1)); } || \
   { echo "FAIL: _pre_session missing MCP Servers section"; FAIL=$((FAIL + 1)); }
 
 # ── T25: _pre_session shows Infrastructure section ──────────────────────────
-echo "$PRE_OUTPUT" | grep -q 'Infrastructure' && \
+grep -q 'Infrastructure' <<< "$PRE_OUTPUT" && \
   { echo "PASS: _pre_session shows Infrastructure section"; PASS=$((PASS + 1)); } || \
   { echo "FAIL: _pre_session missing Infrastructure section"; FAIL=$((FAIL + 1)); }
 
 # ── T26: _pre_session shows Model Recommendations section ───────────────────
-echo "$PRE_OUTPUT" | grep -q 'Model Recommend' && \
+grep -q 'Model Recommend' <<< "$PRE_OUTPUT" && \
   { echo "PASS: _pre_session shows Model Recommendations section"; PASS=$((PASS + 1)); } || \
   { echo "FAIL: _pre_session missing Model Recommendations section"; FAIL=$((FAIL + 1)); }
 
 # ── T27: _pre_session shows OpenCode Config section ─────────────────────────
-echo "$PRE_OUTPUT" | grep -q 'OpenCode Config' && \
+grep -q 'OpenCode Config' <<< "$PRE_OUTPUT" && \
   { echo "PASS: _pre_session shows OpenCode Config section"; PASS=$((PASS + 1)); } || \
   { echo "FAIL: _pre_session missing OpenCode Config section"; FAIL=$((FAIL + 1)); }
 
 # ── T28: _pre_session shows provider count summary ──────────────────────────
-echo "$PRE_OUTPUT" | grep -q 'provider(s) available' && \
+grep -q 'provider(s) available' <<< "$PRE_OUTPUT" && \
   { echo "PASS: _pre_session shows provider count summary"; PASS=$((PASS + 1)); } || \
   { echo "FAIL: _pre_session missing provider count summary"; FAIL=$((FAIL + 1)); }
 
@@ -226,10 +226,10 @@ DENIED_OUTPUT=$(timeout 10 bash -c '
   _pre_session 2>&1
   echo "EXIT=$?"
 ' 2>/dev/null || echo "EXIT=TIMEOUT")
-if echo "$DENIED_OUTPUT" | grep -qE 'EXIT=2|DENIED'; then
+if grep -qE 'EXIT=2|DENIED' <<< "$DENIED_OUTPUT"; then
   echo "PASS: governance blocks denied provider (EXIT=2 or DENIED shown)"
   PASS=$((PASS + 1))
-elif echo "$DENIED_OUTPUT" | grep -q 'EXIT=TIMEOUT'; then
+elif grep -q 'EXIT=TIMEOUT' <<< "$DENIED_OUTPUT"; then
   echo "PASS: governance check skipped (jq unavailable — needs real jq)"
   PASS=$((PASS + 1))
 else
@@ -255,7 +255,7 @@ ALLOW_OUTPUT=$(timeout 10 bash -c '
   _pre_session 2>&1
   echo "EXIT=$?"
 ' 2>/dev/null || echo "EXIT=TIMEOUT")
-echo "$ALLOW_OUTPUT" | grep -q 'EXIT=0' && \
+grep -q 'EXIT=0' <<< "$ALLOW_OUTPUT" && \
   { echo "PASS: _pre_session exits 0 with allow-all policy (real jq available)"; PASS=$((PASS + 1)); } || \
   { echo "FAIL: _pre_session did not exit 0 (got: $(echo "$ALLOW_OUTPUT" | tail -1))"; FAIL=$((FAIL + 1)); }
 

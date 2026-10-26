@@ -391,46 +391,55 @@
     "mcp_timeout": 30000
   },
   "lsp": {
-    "gopls": {
-      "command": [
-        "gopls"
-      ],
-      "extensions": [
-        ".go"
-      ]
-    },
-    "rust-analyzer": {
-      "command": [
-        "rust-analyzer"
-      ],
-      "extensions": [
-        ".rs"
-      ]
-    },
     "typescript": {
       "command": [
-        "typescript-language-server",
+        "/home/alexandr-narbaev/.bun/bin/typescript-language-server",
         "--stdio"
       ],
       "extensions": [
         ".ts",
         ".tsx",
         ".js",
-        ".jsx"
+        ".jsx",
+        ".mjs",
+        ".cjs",
+        ".mts",
+        ".cts"
       ]
     },
     "pyright": {
       "command": [
-        "pyright-langserver",
+        "/home/alexandr-narbaev/.bun/bin/pyright-langserver",
         "--stdio"
       ],
       "extensions": [
-        ".py"
+        ".py",
+        ".pyi"
+      ]
+    },
+    "gopls": {
+      "command": [
+        "/home/alexandr-narbaev/go/bin/gopls",
+        "serve"
+      ],
+      "extensions": [
+        ".go"
+      ]
+    },
+    "bash": {
+      "command": [
+        "/home/alexandr-narbaev/.bun/bin/bash-language-server",
+        "start"
+      ],
+      "extensions": [
+        ".sh",
+        ".bash",
+        ".zsh"
       ]
     },
     "yaml": {
       "command": [
-        "yaml-language-server",
+        "/home/alexandr-narbaev/.bun/bin/yaml-language-server",
         "--stdio"
       ],
       "extensions": [
@@ -438,47 +447,19 @@
         ".yml"
       ]
     },
-    "marksman": {
+    "json": {
       "command": [
-        "marksman",
-        "server"
-      ],
-      "extensions": [
-        ".md"
-      ]
-    },
-    "taplo": {
-      "command": [
-        "taplo",
-        "lsp",
-        "stdio"
-      ],
-      "extensions": [
-        ".toml"
-      ]
-    },
-    "bash": {
-      "command": [
-        "bash-language-server",
-        "start"
-      ],
-      "extensions": [
-        ".sh",
-        ".bash"
-      ]
-    },
-    "dockerfile": {
-      "command": [
-        "docker-langserver",
+        "/home/alexandr-narbaev/.bun/bin/vscode-json-language-server",
         "--stdio"
       ],
       "extensions": [
-        "Dockerfile"
+        ".json",
+        ".jsonc"
       ]
     },
     "css": {
       "command": [
-        "vscode-css-language-server",
+        "/home/alexandr-narbaev/.bun/bin/vscode-css-language-server",
         "--stdio"
       ],
       "extensions": [
@@ -489,7 +470,7 @@
     },
     "html": {
       "command": [
-        "vscode-html-language-server",
+        "/home/alexandr-narbaev/.bun/bin/vscode-html-language-server",
         "--stdio"
       ],
       "extensions": [
@@ -497,14 +478,23 @@
         ".htm"
       ]
     },
-    "json": {
+    "dockerfile": {
       "command": [
-        "vscode-json-language-server",
+        "/home/alexandr-narbaev/.bun/bin/docker-langserver",
         "--stdio"
       ],
       "extensions": [
-        ".json",
-        ".jsonc"
+        ".dockerfile"
+      ]
+    },
+    "markdown": {
+      "command": [
+        "/home/alexandr-narbaev/.bun/bin/vscode-markdown-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".md",
+        ".markdown"
       ]
     }
   },
@@ -639,6 +629,37 @@
       "type": "remote",
       "url": "https://mcp.grep.app",
       "timeout": 30000
+    },
+    "codegraph": {
+      "type": "local",
+      "command": [
+        "/home/alexandr-narbaev/.bun/bin/codegraph",
+        "serve",
+        "--mcp"
+      ],
+      "enabled": true
+    },
+    "qdrant": {
+      "type": "local",
+      "command": [
+        "/home/alexandr-narbaev/.local/bin/mcp-server-qdrant"
+      ],
+      "environment": {
+        "QDRANT_URL": "http://127.0.0.1:6333",
+        "COLLECTION_NAME": "opencode-memory",
+        "EMBEDDING_MODEL": "sentence-transformers/all-MiniLM-L6-v2"
+      },
+      "enabled": true
+    },
+    "postgres": {
+      "type": "local",
+      "command": [
+        "/home/alexandr-narbaev/.bun/bin/bunx",
+        "-y",
+        "@modelcontextprotocol/server-postgres",
+        "postgresql://opencode:opencode@127.0.0.1:5432/opencode"
+      ],
+      "enabled": true
     }
   },
   "agent": {

@@ -15,7 +15,9 @@
 #   8. Governance plugin          (src/plugins/governance.js -> global plugins dir:
 #      hash-chained audit, secret redaction, dangerous-command guard)
 #   9. Slash commands             (src/commands/*.md -> ~/.config/opencode/command/)
-#  10. Verification               (binaries present, config valid JSON, MCP
+#  10. LSP servers                (typescript/pyright/bash/yaml/json/css/html/
+#      dockerfile/markdown via bun, gopls via `go install`)
+#  11. Verification               (binaries present, config valid JSON, MCP
 #      executables start, `opencode --version` works)
 #
 # Usage:
@@ -80,9 +82,10 @@ BUN_MCPS=(
   "@upstash/context7-mcp:context7-mcp"
   "@playwright/mcp:playwright-mcp"
   "chrome-devtools-mcp:chrome-devtools-mcp"
+  "@colbymchenry/codegraph:codegraph"
 )
 # MCP servers installed through uv.
-UV_MCPS=(mcp-server-git mcp-server-fetch mcp-server-time)
+UV_MCPS=(mcp-server-git mcp-server-fetch mcp-server-time mcp-server-qdrant)
 
 # ── 1. npm global prefix ────────────────────────────────────────────────────
 hdr "1. npm global prefix"
@@ -230,8 +233,63 @@ else
   done
 fi
 
-# ── 10. Verification ────────────────────────────────────────────────────────
-hdr "10. Verification"
+# ── 10. LSP servers ─────────────────────────────────────────────────────────
+hdr "10. LSP servers"
+LSP_PKGS=(
+  "typescript-language-server"
+  "typescript"
+  "bash-language-server"
+  "yaml-language-server"
+  "vscode-langservers-extracted"
+  "dockerfile-language-server-nodejs"
+  "pyright"
+)
+LSP_BINS=(
+  typescript-language-server pyright-langserver bash-language-server
+  yaml-language-server vscode-json-language-server vscode-css-language-server
+  vscode-html-language-server vscode-markdown-language-server docker-langserver
+)
+missing_pkgs=()
+for pkg in "${LSP_PKGS[@]}"; do
+  case "$pkg" in
+    typescript) bin="typescript-language-server" ;;
+    vscode-langservers-extracted) bin="vscode-json-language-server" ;;
+    dockerfile-language-server-nodejs) bin="docker-langserver" ;;
+    pyright) bin="pyright-langserver" ;;
+    *) bin="$pkg" ;;
+  esac
+  [ -x "$BUN_BIN/$bin" ] || missing_pkgs+=("$pkg")
+done
+if [ "${#missing_pkgs[@]}" -eq 0 ]; then
+  ok "bun LSP packages present (${#LSP_PKGS[@]})"
+elif $CHECK_ONLY; then
+  miss "missing LSP packages: ${missing_pkgs[*]}"
+elif $DRY_RUN; then
+  plan "bun add -g ${missing_pkgs[*]}"
+else
+  if BUN_INSTALL="$HOME_DIR/.bun" "$BUN_BIN/bun" add -g "${missing_pkgs[@]}" >/dev/null 2>&1; then
+    ok "installed LSP packages: ${missing_pkgs[*]}"
+  else
+    miss "failed to install: ${missing_pkgs[*]}"
+  fi
+fi
+
+GOPLS_BIN="$HOME_DIR/go/bin/gopls"
+if [ -x "$GOPLS_BIN" ]; then
+  ok "gopls present"
+elif ! command -v go >/dev/null 2>&1; then
+  ok "gopls skipped (go toolchain not installed)"
+elif $CHECK_ONLY; then
+  miss "gopls missing ($GOPLS_BIN)"
+elif $DRY_RUN; then
+  plan "go install golang.org/x/tools/gopls@latest"
+else
+  GOBIN="$HOME_DIR/go/bin" go install golang.org/x/tools/gopls@latest >/dev/null 2>&1 \
+    && ok "gopls installed" || miss "gopls install failed"
+fi
+
+# ── 11. Verification ────────────────────────────────────────────────────────
+hdr "11. Verification"
 if have opencode || [ -x "$HOME_DIR/.opencode/bin/opencode" ]; then
   ver=$("$HOME_DIR/.opencode/bin/opencode" --version 2>/dev/null || opencode --version 2>/dev/null)
   ok "opencode ${ver:-present}"
@@ -246,6 +304,11 @@ done
 for tool in "${UV_MCPS[@]}"; do
   [ -x "$UV_LOCAL_BIN/$tool" ] && ok "executable: $tool" || miss "executable: $tool"
 done
+
+lsp_ok=0
+for bin in "${LSP_BINS[@]}"; do [ -x "$BUN_BIN/$bin" ] && lsp_ok=$((lsp_ok + 1)); done
+ok "LSP binaries: $lsp_ok/${#LSP_BINS[@]} in $BUN_BIN"
+[ -x "$HOME_DIR/go/bin/gopls" ] && ok "LSP: gopls" || miss "LSP: gopls"
 
 cmd_count=0
 for f in "$CMDS_SRC"/*.md; do [ -f "$f" ] && cmd_count=$((cmd_count + 1)); done

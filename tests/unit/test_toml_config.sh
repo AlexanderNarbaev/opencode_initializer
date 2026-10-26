@@ -135,7 +135,7 @@ echo "6. _toml_print_resolved — output format"
 output="$(_toml_print_resolved "$TMP_DIR/test.toml")"
 assert_exit "print_resolved succeeds" "0" '_toml_print_resolved "$TMP_DIR/test.toml"'
 # Check it contains expected keys
-if echo "$output" | grep -q "meta.version = 2.0.0"; then
+if grep -q "meta.version = 2.0.0" <<< "$output"; then
   PASS=$((PASS + 1)); TOTAL=$((TOTAL + 1))
   printf "  ${GREEN}✓${NC} print_resolved contains meta.version\n"
 else

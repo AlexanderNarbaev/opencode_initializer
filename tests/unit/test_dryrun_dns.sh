@@ -75,8 +75,8 @@ fi
 echo "INFO: extracted DNS DRY_RUN guard block ($BLOCK_LINES lines, starting at line $DNS_IF_LINE)"
 
 # Test 5: setup.sh WSL2 DNS block has DRY_RUN guard (S1.4.1)
-if echo "$DNS_BLOCK" | grep -q 'DRY_RUN' && \
-   echo "$DNS_BLOCK" | grep -q 'skip WSL2 DNS'; then
+if grep -q 'DRY_RUN' <<< "$DNS_BLOCK" && \
+   grep -q 'skip WSL2 DNS' <<< "$DNS_BLOCK"; then
   echo "PASS: setup.sh DNS block has DRY_RUN guard"
   PASS=$((PASS+1))
 else
@@ -85,8 +85,8 @@ else
 fi
 
 # Test 6: DNS block has elif branch (guard + conditional execution)
-if echo "$DNS_BLOCK" | grep -q 'elif.*resolv.conf' && \
-   echo "$DNS_BLOCK" | grep -q 'sudo tee.*resolv.conf'; then
+if grep -q 'elif.*resolv.conf' <<< "$DNS_BLOCK" && \
+   grep -q 'sudo tee.*resolv.conf' <<< "$DNS_BLOCK"; then
   echo "PASS: DNS block has elif guard + sudo tee in conditional branch"
   PASS=$((PASS+1))
 else
@@ -108,7 +108,7 @@ echo "=== Extended DRY_RUN guard checks (S1.4.2) ==="
 
 # Test 8: The DRY_RUN guard uses 'info' (not 'echo' or bare message)
 # This ensures the message goes through the standard logging channel
-if echo "$DNS_BLOCK" | grep -qE 'info.*\[DRY\].*skip WSL2 DNS'; then
+if grep -qE 'info.*\[DRY\].*skip WSL2 DNS' <<< "$DNS_BLOCK"; then
   echo "PASS: DRY_RUN guard uses info() logging function"
   PASS=$((PASS + 1))
 else
@@ -118,7 +118,7 @@ fi
 
 # Test 9: sudo appears ONLY in elif branch (never on DRY_RUN path)
 # Check that the first 2 lines (if + info) don't contain 'sudo'
-if echo "$DNS_BLOCK" | grep -q 'elif.*resolv.conf' && \
+if grep -q 'elif.*resolv.conf' <<< "$DNS_BLOCK" && \
    ! echo "$DNS_BLOCK" | head -2 | grep -q 'sudo'; then
   echo "PASS: sudo only in elif branch, never on DRY_RUN path"
   PASS=$((PASS + 1))
@@ -140,10 +140,10 @@ else
 fi
 
 # Test 11: Full DRY_RUN block structure: if → info → elif → sudo → fi
-if echo "$DNS_BLOCK" | grep -q 'if.*DRY_RUN' && \
-   echo "$DNS_BLOCK" | grep -q 'elif.*resolv.conf' && \
-   echo "$DNS_BLOCK" | grep -q 'sudo tee.*resolv.conf' && \
-   echo "$DNS_BLOCK" | grep -q '^[[:space:]]*fi[[:space:]]*$'; then
+if grep -q 'if.*DRY_RUN' <<< "$DNS_BLOCK" && \
+   grep -q 'elif.*resolv.conf' <<< "$DNS_BLOCK" && \
+   grep -q 'sudo tee.*resolv.conf' <<< "$DNS_BLOCK" && \
+   grep -q '^[[:space:]]*fi[[:space:]]*$' <<< "$DNS_BLOCK"; then
   echo "PASS: complete if/elif/fi structure around DNS fix"
   PASS=$((PASS + 1))
 else
