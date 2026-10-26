@@ -40,6 +40,8 @@
     "semantic-release": "^25.0.9"
   },
   "overrides": {
-    "npm": "11.21.1"
+    "npm": "11.21.1",
+    "toml": "5.0.1",
+    "zod": "4.6.6"
   }
 }
