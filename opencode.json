@@ -1,7 +1,7 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "mimo/mimo-v2.6-pro",
-  "small_model": "deepseek/deepseek-v4-flash",
+  "model": "opencode-go/deepseek-v4-pro",
+  "small_model": "opencode-go/deepseek-v4.1-flash",
   "default_agent": "build",
   "autoupdate": true,
   "compaction": {
@@ -509,21 +509,6 @@
     }
   },
   "plugin": [
-    "opencode-codegraph@0.1.38",
-    "opencode-auto-fallback@0.4.61",
-    "opencode-swarm@7.197.3",
-    "opencode-vibeguard@0.1.0",
-    "opencode-devcontainers@0.5.1",
-    "opencode-scheduler@1.3.0",
-    "opencode-background-agents@0.1.1",
-    "opencode-goal-plugin@0.11.0",
-    "opencode-conductor@1.0.6",
-    "opencode-zellij-namer@1.1.3",
-    "opencode-supermemory@2.0.17",
-    "opencode-websearch-cited@1.2.0",
-    "opencode-token-tracker@2.0.0",
-    "opencode-orchestrator@2.0.15",
-    "opencode-daytona@0.1.1",
     [
       "@tarquinen/opencode-dcp@3.2.0",
       {
@@ -539,7 +524,13 @@
           "minTokens": 500000
         }
       }
-    ]
+    ],
+    "opencode-token-tracker@2.0.0",
+    "opencode-auto-fallback@0.4.61",
+    "opencode-supermemory@2.0.17",
+    "opencode-swarm@7.197.3",
+    "opencode-goal-plugin@0.11.0",
+    "opencode-orchestrator@2.0.15"
   ],
   "mcp": {
     "context7": {
@@ -548,16 +539,14 @@
         "npx",
         "-y",
         "@upstash/context7-mcp@4.3.0"
-      ],
-      "enabled": true
+      ]
     },
     "git": {
       "type": "local",
       "command": [
         "uvx",
         "mcp-server-git"
-      ],
-      "enabled": true
+      ]
     },
     "memory": {
       "type": "local",
@@ -565,8 +554,7 @@
         "npx",
         "-y",
         "@modelcontextprotocol/server-memory"
-      ],
-      "enabled": true
+      ]
     },
     "fetch": {
       "type": "local",
@@ -574,15 +562,14 @@
         "uvx",
         "mcp-server-fetch"
       ],
-      "enabled": true
+      "enabled": false
     },
     "time": {
       "type": "local",
       "command": [
         "uvx",
         "mcp-server-time"
-      ],
-      "enabled": true
+      ]
     },
     "filesystem": {
       "type": "local",
@@ -590,44 +577,14 @@
         "/home/alexandr-narbaev/.bun/bin/mcp-server-filesystem",
         "/home/alexandr-narbaev/Projects/opencode_initializer"
       ],
-      "enabled": true
-    },
-    "agentic-tools": {
-      "type": "local",
-      "command": [
-        "/home/alexandr-narbaev/.bun/bin/agentic-tools-mcp"
-      ],
-      "enabled": true
-    },
-    "codegraph": {
-      "type": "local",
-      "command": [
-        "codegraph",
-        "serve",
-        "--mcp"
-      ],
-      "enabled": true
+      "enabled": false
     },
     "playwright": {
       "type": "local",
       "command": [
         "/home/alexandr-narbaev/.bun/bin/playwright-mcp"
       ],
-      "enabled": true
-    },
-    "agent-browser": {
-      "type": "local",
-      "command": [
-        "/home/alexandr-narbaev/.bun/bin/agent-browser-mcp-server"
-      ],
-      "enabled": true
-    },
-    "loopsense": {
-      "type": "local",
-      "command": [
-        "/home/alexandr-narbaev/.bun/bin/loopsense"
-      ],
-      "enabled": true
+      "enabled": false
     },
     "github": {
       "type": "local",
@@ -635,7 +592,7 @@
         "/home/alexandr-narbaev/.local/bin/github-mcp-server",
         "stdio"
       ],
-      "enabled": true,
+      "enabled": false,
       "environment": {
         "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PERSONAL_ACCESS_TOKEN}"
       }
@@ -644,15 +601,7 @@
       "type": "local",
       "command": [
         "/home/alexandr-narbaev/.bun/bin/mcp-server-sequential-thinking"
-      ],
-      "enabled": true
-    },
-    "memorylayer": {
-      "type": "local",
-      "command": [
-        "/home/alexandr-narbaev/.bun/bin/memorylayer-mcp"
-      ],
-      "enabled": true
+      ]
     },
     "chrome-devtools": {
       "type": "local",
@@ -660,8 +609,7 @@
         "npx",
         "-y",
         "chrome-devtools-mcp"
-      ],
-      "enabled": true
+      ]
     },
     "brave-search": {
       "type": "local",
@@ -671,22 +619,6 @@
         "@brave/brave-search-mcp-server@2.1.4"
       ],
       "enabled": false
-    },
-    "sqlite": {
-      "type": "local",
-      "command": [
-        "uvx",
-        "mcp-server-sqlite"
-      ],
-      "enabled": true
-    },
-    "excalidraw": {
-      "type": "local",
-      "command": [
-        "uvx",
-        "excalidraw-architect-mcp"
-      ],
-      "enabled": true
     },
     "notion": {
       "type": "local",
@@ -706,7 +638,6 @@
     "grep": {
       "type": "remote",
       "url": "https://mcp.grep.app",
-      "enabled": false,
       "timeout": 30000
     }
   },
@@ -736,5 +667,12 @@
       "hidden": true,
       "temperature": 0.1
     }
-  }
+  },
+  "enabled_providers": [
+    "opencode-go",
+    "minimax-coding-plan",
+    "minimax",
+    "xiaomi-token-plan-sgp",
+    "opencode"
+  ]
 }

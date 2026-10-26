@@ -1,25 +1,42 @@
 # Current Wave Status
 
-> Last updated: 2026-08-24T22:36:00Z
+> Last updated: 2026-10-26T17:20:00Z
 
 ## Status: ✅ COMPLETE
 
 ## Active Wave
-- **Wave:** v3.3.0 — Daytona practice, skills actualization, context-budget monitoring, Pages IA
-- **Source:** user directive (iterative team waves); research dossier 2026-08-24 (daytonaio releases v0.190.0, plugin catalog, model-limit table)
+- **Wave:** v16.1.0 — OpenCode v2.1.4 migration + machine recovery + reproducible agentic stack
+- **Source:** user directive (recover a half-purged machine, unify project configs, make the repo the installer)
 
-## Completed in v3.3.0
-- [x] Wave 1 — Daytona: module 61 + daytona-env + dev/health wiring + tests + docs EN/RU (504449b)
-- [x] Wave 2 — Skills: skill-audit tool + dev skills + tests + docs EN/RU (8c6acab)
-- [x] Wave 3 — Context: context-budget.py from routing.json SSOT + budget block in context-guard.json + tests + docs EN/RU (1b54bcf)
-- [x] Wave 4 — Pages IA: i18n parity gate in CI, 9 pages → .en.md pairs, Operations/Working-Documents nav, zero orphans (b77ff56)
-- [x] Wave 5 — Release: version 3.3.0 canonical, CHANGELOG, wave log, machine --health applied
+## Completed in v16.1.0
+- [x] Diagnosed the real breakage: OpenCode 2.1.4 was installed but the global config was an empty V1 stub,
+  `~/.npm-global` was empty, Bun/uv were purged, and 15 of 21 MCP servers pointed at binaries that no longer existed.
+- [x] Restored prerequisites: npm prefix, Bun 1.4.4, uv 0.13.5, six Bun MCP servers, three uv MCP servers.
+- [x] Rebuilt the global config in the **V2 shape** (flat `mcp`, flat `plugin`, `enabled_providers`);
+  7 MCP servers and 7 plugins verified by actual load (not by config parsing).
+- [x] Classified plugins empirically: 7 load on V2, 9 V1-only plugins fail with
+  `Plugin must export a default definition with an id and an effect or setup function` and were removed.
+- [x] Skills: 43 repo skills flattened into `~/.config/opencode/skills`; global `AGENTS.md` added.
+- [x] Projects: all `~/Projects/*` configs reduced to a minimal V2 file that inherits the global stack;
+  130 `*.bak` files removed.
+- [x] Cleanup: 115 GB `_trash/`, `.legacy-backup/`, 15 repo artifacts, stray agent workspace — removed
+  (secrets/auth preserved first in `~/.cache/opencode-recovery/`).
+- [x] Repo: `scripts/install-agentic-stack.sh` + `src/data/opencode.global.template.json` +
+  `scripts/check-version-consistency.sh` + `tests/unit/test_agentic_stack_installer.sh`;
+  version unified to 16.1.0; docs parity gate repaired; new gates wired into `lint.yml` and pre-commit.
 
 ## Verification Evidence
-- bash tests/run_tests.sh: 264 passed / 0 failed (post Wave 1; suite re-run at release)
-- scripts/check-doc-counts.sh OK (unit=85 intg=6 e2e=5 providers=22 lsp=12)
-- scripts/check-docs-parity.sh OK (30 locale pairs)
-- mkdocs build exit 0, zero 'not included in nav'
+- `bash scripts/install-agentic-stack.sh --check` → all checks passed (7 MCP, 7 plugins, 43 skills)
+- `opencode run -m opencode-go/deepseek-v4.1-flash "Say OK"` → OK
+- `opencode mcp` log: `mcp connected` for context7, sequential-thinking, memory, git, time, grep, chrome-devtools
+- `bash scripts/check-doc-counts.sh` → OK (unit=122 intg=13 e2e=6 providers=22 lsp=12)
+- `bash scripts/check-docs-parity.sh` → OK (32 locale pairs)
+- `bash scripts/check-setup-lines.sh` → OK (1296)
+- `bash scripts/check-version-consistency.sh` → OK (16.1.0)
+- `bash tests/run_tests.sh` → see CHANGELOG entry for this wave
 
-## Previous Waves (Archived)
-See git history for v2.0.x–v3.2.0.
+## Open issues carried forward
+- 64 of 161 `src/lib` modules remain unreachable from any entrypoint (`62–119`, `41–51` second family).
+- `sqlite` MCP disabled: upstream `mcp-server-sqlite` is incompatible with the current MCP SDK.
+- `github`/`brave-search`/`notion`/`sentry` MCP servers disabled pending credentials.
+- `setup.sh` still installs the V1 stack; the V2 path is `scripts/install-agentic-stack.sh`.

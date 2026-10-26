@@ -143,9 +143,14 @@ if [ ! -s "$AUDIT_WAL" ]; then
 fi
 
 # ── Run rotation check ──────────────────────────────────────────────────────
-_audit_rotate
-
-_step_done step_audit
+# Main — executed only when the module is run directly. When setup.sh sources it
+# for its functions, or when --dry-run is active, the body must not mutate the host.
+if [ "${SETUP_LIB_ONLY:-false}" = "true" ] || [ "${DRY_RUN:-false}" = "true" ]; then
+  : # library mode / dry run — main() intentionally skipped
+else
+  _audit_rotate
+  _step_done step_audit
+fi
 log "Audit trail active — WAL: $AUDIT_WAL (max ${AUDIT_MAX_SIZE_MB}MB)"
 
 # ── Exports ──────────────────────────────────────────────────────────────────

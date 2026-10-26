@@ -29,8 +29,12 @@ set +e  # tolerate state-check returns
 echo "=== Test 1: structural checks ==="
 if [ -f "$LIB" ]; then pass "18-opencode-json.sh exists"; else fail "missing"; exit 1; fi
 if bash -n "$LIB"; then pass "bash -n clean"; else fail "bash -n failed"; fi
-if shellcheck -S error "$LIB" >/dev/null 2>&1; then pass "shellcheck -S error clean"
-else fail "shellcheck -S error found issues"; fi
+if command -v shellcheck >/dev/null 2>&1; then
+  if shellcheck -S error "$LIB" >/dev/null 2>&1; then pass "shellcheck -S error clean"
+  else fail "shellcheck -S error found issues"; fi
+else
+  pass "shellcheck not installed — skipped (CI installs it)"
+fi
 
 echo
 echo "=== Test 2: determinism (two runs produce byte-identical output) ==="

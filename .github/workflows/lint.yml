@@ -45,3 +45,20 @@ jobs:
             echo "Found $errors files with warnings"
             exit 1
           fi
+
+  consistency:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Version consistency (single source of truth)
+        run: bash scripts/check-version-consistency.sh
+
+      - name: Documentation counts match code
+        run: bash scripts/check-doc-counts.sh
+
+      - name: Documentation i18n parity
+        run: bash scripts/check-docs-parity.sh
+
+      - name: setup.sh line count matches README
+        run: bash scripts/check-setup-lines.sh

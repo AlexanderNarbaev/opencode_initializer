@@ -16,19 +16,48 @@ set -euo pipefail
 
 # ---------------------------------------------------------------------------
 # Allowlist: bare (non-suffixed) .md files that are intentionally single-locale.
+# Policy: user-facing docs (index, getting-started, guides, user-guide, reference,
+# advanced, faq, contributing, changelog, comparison) MUST be bilingual pairs;
+# reference/working documents (ADRs, module refs, dated plans, audits, runbooks,
+# research notes, PR descriptions) are intentionally single-locale.
 # Paths are relative to docs/ and use forward slashes.
 # ---------------------------------------------------------------------------
 ALLOWLIST_FILES="
 docs/VERSIONS.md
 docs/manual-steps.md
+docs/cli.md
+docs/PROJECT-REVIEW.md
+docs/VISION-2027.md
+docs/AIPDLC-INTEGRATION.md
+docs/DEEP-INTEGRATION-PLAN.md
+docs/DEVELOPMENT-PLAN-2027.md
+docs/ECOSYSTEM-INTEGRATION-GUIDE.md
+docs/ECOSYSTEM-INTEGRATION-SUMMARY.md
+docs/FINAL-REPORT.md
+docs/IMPLEMENTATION-PLAN-2026.md
+docs/IMPROVEMENT-PLAN.md
+docs/MASTER-IMPLEMENTATION-PLAN.md
 docs/operations/orchestrator-patch.md
+docs/runbook/operations-runbook.md
+docs/api/cli-reference.md
+docs/audit/full-audit.md
 docs/audit/2026-08-22-full-audit.md
+docs/container/README.md
+docs/waves/PR_DESCRIPTION.md
 "
 
 # Directory prefixes (relative to docs/) whose entire subtree may hold bare .md
 # working documents (dated plans, research notes, ADRs, superpowers specs).
 ALLOWLIST_DIRS="
+adr/
+architecture/
 architecture/adr/
+modules/
+audit/
+api/
+container/
+runbook/
+waves/
 plans/
 research/
 superpowers/

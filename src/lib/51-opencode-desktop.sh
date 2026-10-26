@@ -283,9 +283,15 @@ _check_opencode_desktop() {
 }
 
 # ── Main ─────────────────────────────────────────────────────────────────────
-_install_opencode_desktop || true
-_configure_opencode_desktop
-_check_opencode_desktop || true
+# Main — executed only when the module is run directly. When setup.sh sources it
+# for its functions, or when --dry-run is active, the body must not mutate the host.
+if [ "${SETUP_LIB_ONLY:-false}" = "true" ] || [ "${DRY_RUN:-false}" = "true" ]; then
+  : # library mode / dry run — main() intentionally skipped
+else
+  _install_opencode_desktop || true
+  _configure_opencode_desktop
+  _check_opencode_desktop || true
+fi
 
 _step_done step_opencode_desktop
 log "OpenCode Desktop configured"

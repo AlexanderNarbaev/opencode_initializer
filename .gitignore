@@ -41,3 +41,8 @@ src/cockpit/opencode-cockpit
 
 # local diagnostic archives
 reports/
+
+# purge session 2026-10-23
+_trash/
+.legacy-backup/
+.purge-state.md

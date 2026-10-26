@@ -40,6 +40,14 @@ repos:
         pass_filenames: false
         always_run: true
 
+
+      - id: version-consistency
+        name: Version consistency
+        entry: bash scripts/check-version-consistency.sh
+        language: script
+        pass_filenames: false
+        always_run: true
+
       - id: trivy-critical
         name: Trivy CRITICAL check
         entry: bash -c 'command -v trivy >/dev/null && trivy fs --severity CRITICAL --exit-code 1 --skip-dirs tests . || echo "[pre-commit] Trivy not installed — skipping"'

@@ -1,7 +1,7 @@
 # apm.yml — AI Package Manager manifest
 # https://github.com/microsoft/apm
 name: opencode-initializer
-version: 8.0.0
+version: 16.1.0
 description: AI-Native SDD Harness — one-command AI-enhanced development environment
 
 # Project metadata

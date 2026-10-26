@@ -1,0 +1,169 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "opencode-go/deepseek-v4-pro",
+  "small_model": "opencode-go/deepseek-v4.1-flash",
+  "default_agent": "build",
+  "enabled_providers": [
+    "opencode-go",
+    "minimax-coding-plan",
+    "minimax",
+    "xiaomi-token-plan-sgp",
+    "opencode"
+  ],
+  "agents": {
+    "build": {
+      "mode": "primary",
+      "temperature": 0.6
+    },
+    "plan": {
+      "mode": "primary",
+      "temperature": 0.1
+    },
+    "general": {
+      "mode": "subagent",
+      "temperature": 0.2
+    },
+    "explore": {
+      "mode": "subagent",
+      "temperature": 0.1
+    },
+    "code-reviewer": {
+      "mode": "subagent",
+      "temperature": 0.1
+    },
+    "compaction": {
+      "mode": "primary",
+      "hidden": true,
+      "temperature": 0.1
+    }
+  },
+  "compaction": {
+    "auto": true,
+    "keep": {
+      "tokens": 30000
+    }
+  },
+  "skills": [
+    "__HOME__/.config/opencode/skills"
+  ],
+  "lsp": true,
+  "share": "disabled",
+  "mcp": {
+    "filesystem": {
+      "type": "local",
+      "command": [
+        "__HOME__/.bun/bin/mcp-server-filesystem",
+        "__HOME__/Projects"
+      ],
+      "enabled": false
+    },
+    "sequential-thinking": {
+      "type": "local",
+      "command": [
+        "__HOME__/.bun/bin/mcp-server-sequential-thinking"
+      ]
+    },
+    "memory": {
+      "type": "local",
+      "command": [
+        "__HOME__/.bun/bin/mcp-server-memory"
+      ],
+      "environment": {
+        "MEMORY_FILE_PATH": "__HOME__/.local/share/opencode/memory.json"
+      }
+    },
+    "context7": {
+      "type": "local",
+      "command": [
+        "__HOME__/.bun/bin/context7-mcp"
+      ]
+    },
+    "playwright": {
+      "type": "local",
+      "command": [
+        "__HOME__/.bun/bin/playwright-mcp"
+      ],
+      "enabled": false
+    },
+    "chrome-devtools": {
+      "type": "local",
+      "command": [
+        "__HOME__/.bun/bin/chrome-devtools-mcp"
+      ]
+    },
+    "git": {
+      "type": "local",
+      "command": [
+        "__HOME__/.local/bin/mcp-server-git"
+      ]
+    },
+    "fetch": {
+      "type": "local",
+      "command": [
+        "__HOME__/.local/bin/mcp-server-fetch"
+      ],
+      "enabled": false
+    },
+    "time": {
+      "type": "local",
+      "command": [
+        "__HOME__/.local/bin/mcp-server-time"
+      ]
+    },
+    "sqlite": {
+      "type": "local",
+      "command": [
+        "__HOME__/.local/bin/mcp-server-sqlite",
+        "--db-path",
+        "__HOME__/.local/share/opencode/agent-memory.db"
+      ],
+      "enabled": false
+    },
+    "grep": {
+      "type": "remote",
+      "url": "https://mcp.grep.app",
+      "enabled": true
+    },
+    "github": {
+      "type": "local",
+      "command": [
+        "__HOME__/.local/bin/github-mcp-server",
+        "stdio"
+      ],
+      "enabled": false
+    },
+    "brave-search": {
+      "type": "local",
+      "command": [
+        "__HOME__/.bun/bin/bunx",
+        "-y",
+        "@brave/brave-search-mcp-server@2.1.4"
+      ],
+      "enabled": false
+    },
+    "notion": {
+      "type": "local",
+      "command": [
+        "__HOME__/.bun/bin/bunx",
+        "-y",
+        "@notionhq/notion-mcp-server"
+      ],
+      "enabled": false
+    },
+    "sentry": {
+      "type": "remote",
+      "url": "https://mcp.sentry.dev/mcp",
+      "enabled": false
+    }
+  },
+  "plugin": [
+    "@tarquinen/opencode-dcp@3.2.0",
+    "opencode-token-tracker@2.0.0",
+    "opencode-auto-fallback@0.4.61",
+    "opencode-supermemory@2.0.17",
+    "opencode-swarm@7.197.3",
+    "opencode-goal-plugin@0.11.0",
+    "opencode-orchestrator@2.0.15"
+  ],
+  "$comment": "Template rendered by scripts/install-agentic-stack.sh — __HOME__ is replaced with the target HOME."
+}

@@ -1,11 +1,11 @@
 [EN](README.md) | [RU](README.ru.md)
 
-# OpenCode Initializer v15.0.0
+# OpenCode Initializer v16.1.0
 
 > **Operating Model:** Multi-Agent Framework v3.0 | **Wave:** [current_wave.md](./current_wave.md) | **Checkpoint:** [session_checkpoint.json](./session_checkpoint.json)
 <p align="center">
   <b>AI-Native SDD Harness — one-command AI-enhanced development environment for WSL2, Linux, and macOS. 4 deployment profiles.</b><br>
-  <sub>1179-line orchestrator · 146 modules · 12 modes ·   24 MCPs · 21 plugins · 12 LSP servers · 22 providers · air-gap · governance · PII guard · audit trail · offline bundle · APM · SBOM · cosign</sub>
+  <sub>1301-line orchestrator · 161 modules · 12 modes · 7 MCPs · 7 plugins · 12 LSP servers · 22 providers · air-gap · governance · PII guard · audit trail · offline bundle · APM · SBOM · cosign</sub>
 </p>
 
 <p align="center">
@@ -156,7 +156,7 @@ opencode_initializer/
 │   ├── oc-sdk.py              # Python SDK
 │   ├── embed-proxy.py         # Ollama → MemoryLayer embedding bridge
 │   └── ai-router.sh           # Model routing intelligence (+ ai-router.json config)
-├── tests/                     # Unit (121), integration (13), E2E (6) — 140 files
+├── tests/                     # Unit (122), integration (13), E2E (6) — 141 files
 ├── migrations/                # Timestamped, idempotent migrations
 ├── docs/                      # MkDocs Material documentation site (EN/RU)
 ├── .github/                   # CI workflows (test, shellcheck, build, security, docs)

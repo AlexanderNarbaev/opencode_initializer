@@ -124,12 +124,17 @@ _check_deepseek_harness() {
 }
 
 # ── Main ─────────────────────────────────────────────────────────────────────
-_install_deepseek_harness
-if command -v dsh &>/dev/null; then
-  _configure_deepseek_harness
-  _deepseek_harness_service
-  _check_deepseek_harness
+# Main — executed only when the module is run directly. When setup.sh sources it
+# for its functions, or when --dry-run is active, the body must not mutate the host.
+if [ "${SETUP_LIB_ONLY:-false}" = "true" ] || [ "${DRY_RUN:-false}" = "true" ]; then
+  : # library mode / dry run — main() intentionally skipped
+else
+  _install_deepseek_harness
+  if command -v dsh &>/dev/null; then
+    _configure_deepseek_harness
+    _deepseek_harness_service
+    _check_deepseek_harness
+  fi
+  _step_done step_deepseek_harness
+  log "DeepSeek Harness configured — run 'npx @deepseek-ai/dsh web' or the user service"
 fi
-
-_step_done step_deepseek_harness
-log "DeepSeek Harness configured — run 'npx @deepseek-ai/dsh web' or the user service"

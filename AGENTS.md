@@ -9,7 +9,7 @@
 
 The codebase is overwhelmingly **Bash** (orchestrator + numbered modules), with small amounts of **Go** (Cockpit TUI, `src/cockpit/`), **JavaScript** (Web GUI, `src/gui/`), and **Python** (utility scripts in `scripts/`). There is no traditional build: "build" means syntax checks + tests; the only compiled artifact is the GUI binary (`bun build --compile`).
 
-Current status: **v3.3.0** (canonical version — README, CHANGELOG, `package.json`, `SCRIPT_VERSION` aligned). Recent work: context/token/cost management stack (modules 53–60), Daytona environment practice (module 61), skills audit and model-aware context budget tooling.
+Current status: **v16.1.0** (canonical version — README, CHANGELOG, `package.json`, `SCRIPT_VERSION`, `.version`, `pyproject.toml`, `apm.yml`, `src/cli.sh` aligned; enforced by `scripts/check-version-consistency.sh`). Recent work: OpenCode **v2.1.4** migration (config shape `mcp`/`plugin`, V2-compatible plugin set), reproducible agentic stack installer (`scripts/install-agentic-stack.sh`), per-project config unification under `~/Projects`, docs-parity gate repair.
 
 ## Язык общения
 
@@ -19,7 +19,7 @@ Current status: **v3.3.0** (canonical version — README, CHANGELOG, `package.js
 
 ```
 opencode_initializer/
-├── setup.sh            ← orchestrator (~726 lines, 48 steps): parses CLI, sources modules, dispatches modes
+├── setup.sh            ← orchestrator (1296 lines, 71 `_run_step` calls): parses CLI, sources modules, dispatches modes
 ├── dev.sh              ← post-install CLI (`dev install|health|update|infra|models|bundle|backup|...`)
 ├── opencode.json       ← generated OpenCode config template (22 providers, MCP registry)
 ├── package.json        ← only builds the GUI binary; dep: @opencode-ai/plugin
@@ -27,7 +27,7 @@ opencode_initializer/
 ├── mkdocs.yml          ← docs site config (material + i18n, EN/RU)
 ├── .env.example        ← API-key template (never commit real .env)
 ├── src/
-│   ├── lib/            ← 64 shell files: numbered modules 00–60 (+99) + helpers.sh + version-check.sh + pre-session-check.sh
+│   ├── lib/            ← 161 shell files: numbered modules 00–61, 99–119 + helpers.sh + version-check.sh + pre-session-check.sh
 │   ├── modes/          ← 6 mode scripts (ci, fix-zshrc, health, interactive, new, upgrade); other modes live inline in setup.sh
 │   ├── cockpit/        ← Cockpit TUI daemon (Go module, main.go)
 │   ├── gui/            ← Web GUI on port 4200 (server.js + index.html)
@@ -36,7 +36,7 @@ opencode_initializer/
 │   └── systemd/        ← opencode-metrics.service unit
 ├── scripts/            ← utilities: har (meta-harness CLI), ai-router.sh, embed-proxy.py, pii-guard.py,
 │                         provider-check.sh, oc-{json,rpc,sdk,tui,metrics}, sync-{agents,providers,projects}, check-setup-lines.sh, deploy-pages.sh
-├── tests/              ← run_tests.sh + test_lib.sh + test_sandbox.sh; unit/ (121 files), integration/ (13), e2e/ (6)
+├── tests/              ← run_tests.sh + test_lib.sh + test_sandbox.sh; unit/ (122 files), integration/ (13), e2e/ (6)
 ├── migrations/         ← timestamped, idempotent migration scripts
 ├── upstream/           ← git submodules: opencode, mcp-servers, searxng, superpowers, skill-conductor
 ├── docs/               ← MkDocs source (EN + RU), plans/, research/, architecture/adr/
@@ -86,7 +86,7 @@ bash setup.sh --dry-run           # preview full bootstrap, no changes
 4. Early-exit modes (`health`, `ci`, `fix-zshrc`, `fix-config`, `upgrade`, `interactive`, `new`) `source` their file from `src/modes/` (or run inline for `fix-config`).
 5. Sudo is authenticated up front: passwordless → `SUDO_PASS` env → interactive TTY prompt with 30 s timeout (`-s/--sudo-pass` is deprecated).
 6. Network preflight: WSL2 DNS fix (8.8.8.8/1.1.1.1), WSL2 proxy auto-detection from the Windows registry, per-service reachability checks with apt fallbacks.
-7. Executes 48 numbered steps via `_run_step <key> <name> <module>`, which honors the progress file (completed steps are skipped on re-run), supports `--dry-run`, continues past failures, and writes a WAL checkpoint per step. Independent optional modules (RAG, WebUI, mise, just, SearXNG) run in parallel when `PARALLEL_INSTALL=true`.
+7. Executes 71 `_run_step` calls (37 unconditional, the rest behind flags/tiers) via `_run_step <key> <name> <module>`, which honors the progress file (completed steps are skipped on re-run), supports `--dry-run`, continues past failures, and writes a WAL checkpoint per step. Independent optional modules (RAG, WebUI, mise, just, SearXNG) run in parallel when `PARALLEL_INSTALL=true`.
 8. Modules `41–51` are **sourced with existence guards but not executed by the orchestrator** — they provide functions (`_offline_bundle_run`, governance/audit/PII helpers) consumed by `dev.sh`, other modules, and `scripts/pii-guard.py`. `--airgap` triggers `_offline_bundle_run` when available.
 
 ### Module conventions (`src/lib/NN-name.sh`)
@@ -111,6 +111,32 @@ bash setup.sh --dry-run           # preview full bootstrap, no changes
 | `52–60` | Context-aware MCP/LSP selector, auto-triggering skills, task distribution, context/token bundle, GRACE semantic contracts, context guard (compression), provider auto-discovery, local memory, prompt caching (`60-caching.sh`) |
 | `99-upstream-sync.sh` | Sync providers/MCP/LSP/plugins from the `upstream/` git submodules |
 | `version-check.sh`, `pre-session-check.sh` | Helpers consumed by `dev version-check` and `dev doctor` |
+| `62–119` | **Not reachable from any entrypoint** (ecosystem/skill/agent/harness/PLA/RAG/perf/cloud/marketplace families). Covered only by unit tests. Treat as dead code until wired: see "Known Limitations". |
+| `41–51` (second family) | `41-constitution`, `42-hooks`, `43-governance`, `44-audit`, `45-pii-guard`, `46-offline-bundle`, `47-lynis`, `48-auditd`, `49-deepseek-harness`, `50-sandcastle`, `51-opencode-desktop` are `source`d by `setup.sh` but never executed by a step. |
+
+### OpenCode v2 agentic stack (2026-10-26)
+
+The machine is configured for **OpenCode 2.1.4**. The canonical global config is
+`src/data/opencode.global.template.json` (rendered to `~/.config/opencode/opencode.json`
+by `scripts/install-agentic-stack.sh`). V2 rules that differ from V1:
+
+- `mcp` is a flat map (`"<name>": {type, command, enabled}`); `mcp.servers` is NOT read.
+- `plugin` is a flat array; plugins must export a default definition with `id` + `effect`/`setup`.
+- Model-level `reasoning`/`temperature` and `watcher`/`tool_output` are rejected (normalized away).
+- V2-compatible plugins (verified by actual load): `@tarquinen/opencode-dcp`, `opencode-token-tracker`,
+  `opencode-auto-fallback`, `opencode-supermemory`, `opencode-swarm`, `opencode-goal-plugin`,
+  `opencode-orchestrator`. V1-only (fail to load on V2): `opencode-codegraph`, `opencode-vibeguard`,
+  `opencode-devcontainers`, `opencode-scheduler`, `opencode-background-agents`, `opencode-conductor`,
+  `opencode-zellij-namer`, `opencode-websearch-cited`, `opencode-daytona`.
+- Working MCP set: `context7`, `sequential-thinking`, `memory`, `git`, `time`, `grep` (remote),
+  `chrome-devtools`. `filesystem`/`fetch`/`playwright` are disabled because builtin tools cover them
+  (context economy); `github`/`brave-search`/`notion`/`sentry` are disabled pending credentials;
+  `sqlite` is disabled (upstream Python server is incompatible with the current MCP SDK).
+- Providers: only authenticated ones are enabled (`opencode-go`, `minimax-coding-plan`, `minimax`,
+  `xiaomi-token-plan-sgp`, `opencode`) via `enabled_providers`.
+- Skills: repo `.opencode/skills` is flattened into `~/.config/opencode/skills` (43 skills).
+
+Verify with `bash scripts/install-agentic-stack.sh --check`.
 
 ### Data SSOT
 
@@ -193,7 +219,7 @@ The primary agent operates as a **Universal AI Coprocessor** (`.opencode/skills/
 
 - **Optimized for WSL2/Linux**; macOS paths are best-effort (needs `brew install bash grep`; Docker Desktop for infra modules; no launchd equivalents for systemd user services). Windows-native is unsupported.
 - `declare -A` is fully eliminated from code (0 usages; only historical mentions in comments) — parallel indexed arrays and case-dispatch lookups are used instead.
-- Canonical version: **v15.0.0** (README, CHANGELOG, `package.json`, `SCRIPT_VERSION` aligned).
+- Canonical version: **v16.1.0** (enforced by `scripts/check-version-consistency.sh`).
 - `docs/`, `site/`, `upstream/`, `.opencode/skills/` are large; prefer targeted Grep/Glob over broad walks.
 
 ## Permanent Goals (Mandatory for Every Commit)

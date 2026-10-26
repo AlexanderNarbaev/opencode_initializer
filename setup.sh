@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================================
-#  Ultimate Dev Machine Bootstrap v2.0.0 — Modular
+#  Ultimate Dev Machine Bootstrap v16.1.0 — Modular
 set -euo pipefail
 IFS=$'\n\t'
 shopt -s inherit_errexit 2>/dev/null || true
@@ -1079,6 +1079,10 @@ _run_step step_upstream_sync "Upstream Sync (submodules + pins)" "$SCRIPT_DIR/sr
 # ── Future modules (Wave 2-3 registration — sourced but not executed yet) ────
 # These modules will be wired into _run_step by their owners in subsequent waves.
 # Source guards ensure they load only when the module file exists (offline-safe).
+# SETUP_LIB_ONLY stops their top-level bodies from self-executing at source time
+# (they used to run npm install / lynis / auditd during --dry-run and tests).
+SETUP_LIB_ONLY=true
+export SETUP_LIB_ONLY
 [ -f "$SCRIPT_DIR/src/lib/41-constitution.sh" ] && source "$SCRIPT_DIR/src/lib/41-constitution.sh" || true
 [ -f "$SCRIPT_DIR/src/lib/42-hooks.sh" ] && source "$SCRIPT_DIR/src/lib/42-hooks.sh" || true
 [ -f "$SCRIPT_DIR/src/lib/43-governance.sh" ] && source "$SCRIPT_DIR/src/lib/43-governance.sh" || true
@@ -1090,6 +1094,7 @@ _run_step step_upstream_sync "Upstream Sync (submodules + pins)" "$SCRIPT_DIR/sr
 [ -f "$SCRIPT_DIR/src/lib/49-deepseek-harness.sh" ] && source "$SCRIPT_DIR/src/lib/49-deepseek-harness.sh" || true
 [ -f "$SCRIPT_DIR/src/lib/50-sandcastle.sh" ] && source "$SCRIPT_DIR/src/lib/50-sandcastle.sh" || true
 [ -f "$SCRIPT_DIR/src/lib/51-opencode-desktop.sh" ] && source "$SCRIPT_DIR/src/lib/51-opencode-desktop.sh" || true
+unset SETUP_LIB_ONLY
 
 # ── Air-gap mode: trigger offline bundle if available ────────────────────────
 if [ "$MODE" = "airgap" ]; then

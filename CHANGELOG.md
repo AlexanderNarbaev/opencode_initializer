@@ -1,5 +1,27 @@
 ## [Unreleased]
 
+### Features
+
+* **stack:** `scripts/install-agentic-stack.sh` — idempotent installer/verifier for the OpenCode **v2.1.4** agentic stack: npm global prefix, Bun, uv, six Bun-installed MCP servers (filesystem/memory/sequential-thinking/context7/playwright/chrome-devtools), three uv-installed MCP servers (git/fetch/time), 43 global skills, and the rendered global config. `--check` is hermetic (no writes, no npm invocation), `--dry-run` prints the plan and exits 0 without changes.
+* **stack:** `src/data/opencode.global.template.json` — canonical global config template (`__HOME__`-parameterized) with the verified V2 shape: flat `mcp` map, flat `plugin` array, `enabled_providers` limited to the authenticated providers (`opencode-go`, `minimax-coding-plan`, `minimax`, `xiaomi-token-plan-sgp`, `opencode`), six agents, compaction policy.
+* **config:** V2 compatibility is now empirical, not assumed: plugins that actually load on 2.1.4 are `@tarquinen/opencode-dcp`, `opencode-token-tracker`, `opencode-auto-fallback`, `opencode-supermemory`, `opencode-swarm`, `opencode-goal-plugin`, `opencode-orchestrator`; the V1-only set (`opencode-codegraph`, `opencode-vibeguard`, `opencode-devcontainers`, `opencode-scheduler`, `opencode-background-agents`, `opencode-conductor`, `opencode-zellij-namer`, `opencode-websearch-cited`, `opencode-daytona`) fails with `Plugin must export a default definition with an id and an effect or setup function` and is removed from the live configs. Documented in `AGENTS.md`.
+* **config:** working MCP set is `context7`, `sequential-thinking`, `memory`, `git`, `time`, `grep` (remote) and `chrome-devtools`; `filesystem`/`fetch`/`playwright` are disabled as duplicates of builtin tools (context economy), `github`/`brave-search`/`notion`/`sentry` pending credentials, `sqlite` disabled because the upstream Python server is incompatible with the current MCP SDK (`Server has no attribute list_resources`).
+* **gates:** `scripts/check-version-consistency.sh` — one canonical version (from `package.json`) enforced across `.version`, `SCRIPT_VERSION`, `pyproject.toml`, `apm.yml`, `CLI_VERSION`, the `setup.sh` header and the README/docs H1; wired into `lint.yml` and the pre-commit config.
+* **tests:** `tests/unit/test_agentic_stack_installer.sh` (18 assertions) — template validity, `--check` hermeticity, `--dry-run` contract, version-gate agreement.
+
+### Bug Fixes
+
+* **docs:** `check-docs-parity.sh` allowlist now matches the real tree (`adr/`, `modules/`, `architecture/`, `audit/`, `api/`, `container/`, `runbook/`, `waves/` plus the single-locale root working documents). Gate went from 52 gaps to `OK (32 locale pairs)`; it was never wired into CI, so the drift had been invisible.
+* **docs:** README/README.ru hero line corrected to the real numbers (1296-line orchestrator, 161 modules) — `check-setup-lines.sh` passes again.
+* **tests:** `test_opencode_json_diff.sh` no longer fails on machines without `shellcheck`; it skips with an explicit message (CI still installs it).
+* **repo hygiene:** removed 115 GB `_trash/`, `.legacy-backup/` (secrets/auth copied to `~/.cache/opencode-recovery/` first), 15 repo `*.bak`/`.tmp_*` artifacts, 130 `opencode.json.bak-*` files across `~/Projects`, and a stray agent workspace under `docs/`.
+
+### Breaking Changes
+
+* **version:** canonical version bumped to **16.1.0** across `package.json`, `.version`, `SCRIPT_VERSION`, `pyproject.toml`, `apm.yml`, `CLI_VERSION`, `setup.sh`, README and docs index (they previously disagreed: 15.0.0, v2.1.0, 2.0.0, 12.0.0, 8.0.0, 15.1.0).
+* **config:** every project under `~/Projects` now has a minimal `opencode.json` (`$schema` + `instructions: ["AGENTS.md"]`) and inherits the global v2 stack instead of carrying a frozen V1 copy with 20 providers and 21 MCP servers.
+
+
 ### Security
 
 * **deps:** closed all 10 Dependabot alerts (2 critical, 1 high, 6 moderate, 1 low) — all vulnerable packages are transitive dev-time dependencies in `package-lock.json`: `handlebars` 4.7.9→4.7.10 (critical, via `conventional-changelog-writer` reached from `@semantic-release/commit-analyzer` / `release-notes-generator`), and the five packages bundled inside `npm` itself (`brace-expansion` 5.0.9→5.0.12, `http-cache-semantics` 4.2.0→4.3.0, `ip-address` 10.5.0→10.7.2, `postcss-selector-parser` 7.1.4→7.1.6, `undici` 6.28.0→6.29.0). The bundled tree is fixed by the `npm` release itself, so it was moved via a package-wide `overrides.npm=11.21.1` pin (in-range for `@semantic-release/npm`'s `^11.6.2`); `npm audit fix --package-lock-only` alone could only bump `handlebars`. Runtime audit is now `found 0 vulnerabilities`; the remaining 10 `npm audit` HIGHs live exclusively in the `semantic-release` release toolchain (executed only by maintainers locally — no CI job invokes semantic-release — and not shipped) and are accepted without forcing a major downgrade.

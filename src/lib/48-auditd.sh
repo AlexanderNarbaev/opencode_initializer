@@ -61,8 +61,14 @@ RULES
 }
 
 # Main
-_auditd_install
-_auditd_apply_rules
+# Main — executed only when the module is run directly. When setup.sh sources it
+# for its functions, or when --dry-run is active, the body must not mutate the host.
+if [ "${SETUP_LIB_ONLY:-false}" = "true" ] || [ "${DRY_RUN:-false}" = "true" ]; then
+  : # library mode / dry run — main() intentionally skipped
+else
+  _auditd_install
+  _auditd_apply_rules
+fi
 
 _step_done step_auditd
 log "Kernel audit daemon active"

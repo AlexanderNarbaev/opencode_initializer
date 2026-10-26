@@ -4,7 +4,7 @@
 set -euo pipefail
 
 # ── CLI Configuration ────────────────────────────────────────────────────────
-CLI_VERSION="15.1.0"
+CLI_VERSION="16.1.0"
 CLI_NAME="opencode"
 CLI_DESCRIPTION="OpenCode Initializer — AI-native development platform"
 
