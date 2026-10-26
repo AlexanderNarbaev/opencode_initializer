@@ -17,7 +17,7 @@ _step_done() { return 0; }
 _gate() { return 0; }
 
 # Source the module
-source "$PROJECT_DIR/src/lib/01b-linux-platform.sh" 2>/dev/null || {
+source "$PROJECT_DIR/src/lib/experimental/01b-linux-platform.sh" 2>/dev/null || {
   echo "  FAIL: Could not source 01b-linux-platform.sh" >&2
   FAIL=$((FAIL + 1))
   echo "RESULTS: $PASS pass, $FAIL fail"

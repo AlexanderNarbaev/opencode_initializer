@@ -17,7 +17,7 @@ assert() {
   fi
 }
 
-MODULE="$PROJECT_DIR/src/lib/119-ecosystem-integration.sh"
+MODULE="$PROJECT_DIR/src/lib/experimental/119-ecosystem-integration.sh"
 
 echo "=== Testing 119-ecosystem-integration.sh ==="
 

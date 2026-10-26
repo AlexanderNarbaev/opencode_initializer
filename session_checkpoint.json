@@ -65,10 +65,11 @@
       "reviewer",
       "docs"
     ],
-    "marketplaces": "src/data/marketplaces.json"
+    "marketplaces": "src/data/marketplaces.json",
+    "governance_plugin": "src/plugins/governance.js -> ~/.config/opencode/plugins/governance.js"
   },
   "tests": {
-    "unit": 124,
+    "unit": 125,
     "integration": 14,
     "e2e": 6,
     "benchmark": 3
@@ -82,7 +83,7 @@
       ".github/workflows/lint.yml",
       ".pre-commit-config.yaml"
     ],
-    "module_reachability": "scripts/audit-module-reachability.sh (baseline: src/data/dead-modules.baseline)"
+    "module_reachability": "scripts/audit-module-reachability.sh (baseline intentionally empty)"
   },
   "cleanup": {
     "removed_trash_gb": 115,
@@ -97,5 +98,10 @@
     "github/brave-search/notion/sentry MCP disabled pending credentials"
   ],
   "status": "v16.1.0 COMPLETE — machine recovered, v2 stack installable/verifiable, configs unified",
-  "last_commit": "833c84ea"
+  "last_commit": "833c84ea",
+  "modules": {
+    "live": 97,
+    "quarantined": 64,
+    "unreachable": 0
+  }
 }

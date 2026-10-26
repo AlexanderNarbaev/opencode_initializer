@@ -12,7 +12,9 @@
 #   6. Global skills              (~/.config/opencode/skills, flattened)
 #   7. Global config              (~/.config/opencode/opencode.json, rendered
 #      from src/data/opencode.global.template.json, previous file backed up)
-#   8. Verification               (binaries present, config valid JSON, MCP
+#   8. Governance plugin          (src/plugins/governance.js -> global plugins dir:
+#      hash-chained audit, secret redaction, dangerous-command guard)
+#   9. Verification               (binaries present, config valid JSON, MCP
 #      executables start, `opencode --version` works)
 #
 # Usage:
@@ -186,8 +188,26 @@ else
   fi
 fi
 
-# ── 8. Verification ─────────────────────────────────────────────────────────
-hdr "8. Verification"
+# ── 8. Governance plugin ────────────────────────────────────────────────────
+hdr "8. Governance plugin"
+PLUGIN_SRC="$SCRIPT_DIR/src/plugins/governance.js"
+PLUGIN_DST="$CONFIG_DIR/plugins/governance.js"
+if [ ! -f "$PLUGIN_SRC" ]; then
+  miss "governance plugin missing: $PLUGIN_SRC"
+elif [ -f "$PLUGIN_DST" ] && cmp -s "$PLUGIN_SRC" "$PLUGIN_DST"; then
+  ok "plugin installed: $PLUGIN_DST"
+elif $CHECK_ONLY; then
+  miss "plugin not installed or outdated: $PLUGIN_DST"
+elif $DRY_RUN; then
+  plan "cp $PLUGIN_SRC -> $PLUGIN_DST"
+else
+  mkdir -p "$CONFIG_DIR/plugins"
+  cp "$PLUGIN_SRC" "$PLUGIN_DST"
+  ok "plugin installed: $PLUGIN_DST"
+fi
+
+# ── 9. Verification ─────────────────────────────────────────────────────────
+hdr "9. Verification"
 if have opencode || [ -x "$HOME_DIR/.opencode/bin/opencode" ]; then
   ver=$("$HOME_DIR/.opencode/bin/opencode" --version 2>/dev/null || opencode --version 2>/dev/null)
   ok "opencode ${ver:-present}"
@@ -202,6 +222,16 @@ done
 for tool in "${UV_MCPS[@]}"; do
   [ -x "$UV_LOCAL_BIN/$tool" ] && ok "executable: $tool" || miss "executable: $tool"
 done
+
+if [ -f "$PLUGIN_DST" ]; then
+  if command -v node >/dev/null 2>&1; then
+    node --check "$PLUGIN_DST" 2>/dev/null && ok "governance plugin parses" || miss "governance plugin syntax error"
+  else
+    ok "governance plugin present (node not installed, syntax check skipped)"
+  fi
+else
+  miss "governance plugin not installed"
+fi
 
 if [ -f "$CONFIG_FILE" ]; then
   enabled=$(jq -r '[.mcp // {} | to_entries[] | select(.value.enabled != false)] | length' "$CONFIG_FILE" 2>/dev/null || echo 0)

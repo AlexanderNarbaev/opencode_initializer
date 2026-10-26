@@ -155,7 +155,7 @@ if want_section syntax; then
 echo
 echo "=== Syntax Tests (bash -n) ==="
 
-for f in "$PROJECT_DIR/setup.sh" "$PROJECT_DIR/dev.sh" "$PROJECT_DIR/src/lib/"*.sh "$PROJECT_DIR/src/modes/"*.sh; do
+for f in "$PROJECT_DIR/setup.sh" "$PROJECT_DIR/dev.sh" "$PROJECT_DIR/src/lib/"*.sh "$PROJECT_DIR/src/lib/experimental/"*.sh "$PROJECT_DIR/src/modes/"*.sh; do
   [ -f "$f" ] || continue
   run_test "Syntax: $(basename "$f")" "bash -n '$f'"
 done

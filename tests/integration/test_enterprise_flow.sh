@@ -7,12 +7,12 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 source "$PROJECT_ROOT/src/lib/helpers.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/72-rbac.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/73-governance.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/74-compliance.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/75-security-posture.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/76-analytics.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/77-observability.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/72-rbac.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/73-governance.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/74-compliance.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/75-security-posture.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/76-analytics.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/77-observability.sh" 2>/dev/null || true
 
 TESTS=0 PASSED=0 FAILED=0
 

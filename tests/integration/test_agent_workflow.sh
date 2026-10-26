@@ -7,10 +7,10 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 source "$PROJECT_ROOT/src/lib/helpers.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/66-agent-orchestrator.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/67-agent-pipeline.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/68-agent-mesh.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/69-agent-protocol.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/66-agent-orchestrator.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/67-agent-pipeline.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/68-agent-mesh.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/69-agent-protocol.sh" 2>/dev/null || true
 
 TESTS=0 PASSED=0 FAILED=0
 

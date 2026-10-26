@@ -6,11 +6,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 source "$PROJECT_ROOT/src/lib/helpers.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/78-marketplace.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/79-plugin-manager.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/80-templates.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/81-integrations.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/82-connectors.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/78-marketplace.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/79-plugin-manager.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/80-templates.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/81-integrations.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/82-connectors.sh" 2>/dev/null || true
 
 TESTS=0 PASSED=0 FAILED=0
 

@@ -6,7 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 source "$PROJECT_ROOT/src/lib/helpers.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/71-memory-layer.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/71-memory-layer.sh" 2>/dev/null || true
 
 section "Performance Benchmark: Memory Operations"
 

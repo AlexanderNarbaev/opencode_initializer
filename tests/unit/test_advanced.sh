@@ -7,8 +7,8 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 source "$PROJECT_ROOT/src/lib/helpers.sh" 2>/dev/null || true
 source "$PROJECT_ROOT/src/gui/dashboard.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/117-cloud-sync.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/118-marketplace-api.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/117-cloud-sync.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/118-marketplace-api.sh" 2>/dev/null || true
 
 TESTS=0 PASSED=0 FAILED=0
 

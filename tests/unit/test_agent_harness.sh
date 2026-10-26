@@ -6,14 +6,14 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 source "$PROJECT_ROOT/src/lib/helpers.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/83-context-engineering.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/84-learning.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/85-automation.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/86-sandbox.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/87-cicd-integration.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/88-workflow-engine.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/89-security-policies.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/90-secrets-manager.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/83-context-engineering.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/84-learning.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/85-automation.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/86-sandbox.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/87-cicd-integration.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/88-workflow-engine.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/89-security-policies.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/90-secrets-manager.sh" 2>/dev/null || true
 
 TESTS=0 PASSED=0 FAILED=0
 

@@ -6,16 +6,16 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 source "$PROJECT_ROOT/src/lib/helpers.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/91-harness-core.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/92-harness-tools.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/93-harness-memory.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/94-harness-context.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/95-harness-prompt.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/96-harness-state.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/97-harness-errors.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/98-harness-guardrails.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/99-harness-verify.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/100-harness-subagents.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/91-harness-core.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/92-harness-tools.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/93-harness-memory.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/94-harness-context.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/95-harness-prompt.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/96-harness-state.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/97-harness-errors.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/98-harness-guardrails.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/99-harness-verify.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/100-harness-subagents.sh" 2>/dev/null || true
 
 TESTS=0 PASSED=0 FAILED=0
 

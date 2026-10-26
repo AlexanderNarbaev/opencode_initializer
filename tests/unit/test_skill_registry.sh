@@ -7,7 +7,7 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # Source helpers and test lib
 source "$PROJECT_ROOT/src/lib/helpers.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/62-skill-registry.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/62-skill-registry.sh" 2>/dev/null || true
 
 TESTS=0
 PASSED=0

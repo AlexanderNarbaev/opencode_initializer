@@ -10,7 +10,7 @@ source "$_script_dir/src/lib/helpers.sh" 2>/dev/null || true
 # shellcheck source=/dev/null
 source "$_script_dir/src/lib/00-core.sh" 2>/dev/null || true
 # shellcheck source=/dev/null
-source "$_script_dir/src/lib/00x-config.sh" 2>/dev/null || true
+source "$_script_dir/src/lib/experimental/00x-config.sh" 2>/dev/null || true
 
 assert_eq() {
   TOTAL=$((TOTAL + 1))
@@ -56,8 +56,8 @@ echo
 
 # ── Test 1: Module exists and has valid syntax ──────────────────────────────
 echo "1. Module structure"
-assert_exit "00x-config.sh exists" "0" "[ -f $_script_dir/src/lib/00x-config.sh ]"
-assert_exit "00x-config.sh syntax OK" "0" "bash -n $_script_dir/src/lib/00x-config.sh"
+assert_exit "00x-config.sh exists" "0" "[ -f $_script_dir/src/lib/experimental/00x-config.sh ]"
+assert_exit "00x-config.sh syntax OK" "0" "bash -n $_script_dir/src/lib/experimental/00x-config.sh"
 
 # ── Test 2: Functions defined ───────────────────────────────────────────────
 echo

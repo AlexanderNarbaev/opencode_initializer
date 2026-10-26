@@ -27,7 +27,8 @@ opencode_initializer/
 ├── mkdocs.yml          ← docs site config (material + i18n, EN/RU)
 ├── .env.example        ← API-key template (never commit real .env)
 ├── src/
-│   ├── lib/            ← 161 shell files: numbered modules 00–61, 99–119 + helpers.sh + version-check.sh + pre-session-check.sh
+│   ├── lib/            ← 97 live shell modules (00–61, 99) + helpers/version-check/pre-session-check;
+│   │                     64 unreachable modules quarantined in src/lib/experimental/
 │   ├── modes/          ← 6 mode scripts (ci, fix-zshrc, health, interactive, new, upgrade); other modes live inline in setup.sh
 │   ├── cockpit/        ← Cockpit TUI daemon (Go module, main.go)
 │   ├── gui/            ← Web GUI on port 4200 (server.js + index.html)
@@ -36,7 +37,7 @@ opencode_initializer/
 │   └── systemd/        ← opencode-metrics.service unit
 ├── scripts/            ← utilities: har (meta-harness CLI), ai-router.sh, embed-proxy.py, pii-guard.py,
 │                         provider-check.sh, oc-{json,rpc,sdk,tui,metrics}, sync-{agents,providers,projects}, check-setup-lines.sh, deploy-pages.sh
-├── tests/              ← run_tests.sh + test_lib.sh + test_sandbox.sh; unit/ (124 files), integration/ (14), e2e/ (6)
+├── tests/              ← run_tests.sh + test_lib.sh + test_sandbox.sh; unit/ (125 files), integration/ (14), e2e/ (6)
 ├── migrations/         ← timestamped, idempotent migration scripts
 ├── upstream/           ← git submodules: opencode, mcp-servers, searxng, superpowers, skill-conductor
 ├── docs/               ← MkDocs source (EN + RU), plans/, research/, architecture/adr/
@@ -48,7 +49,7 @@ opencode_initializer/
 ```bash
 # Syntax check everything (the primary gate)
 bash -n setup.sh dev.sh
-for f in src/lib/*.sh src/modes/*.sh scripts/*.sh migrations/*.sh; do bash -n "$f"; done
+for f in src/lib/*.sh src/lib/experimental/*.sh src/modes/*.sh scripts/*.sh migrations/*.sh; do bash -n "$f"; done
 for f in scripts/*.py; do python3 -m py_compile "$f"; done
 gofmt -l src/cockpit/*.go   # must output nothing
 
@@ -140,9 +141,10 @@ Verify with `bash scripts/install-agentic-stack.sh --check`.
 
 Dead-code ratchet: `scripts/audit-module-reachability.sh` walks the real reference graph
 (`setup.sh`, `dev.sh`, `src/modes/*`, `scripts/*` → transitive `src/lib` references). Current state:
-97 reachable / 64 dead (60 of them covered only by unit tests). `src/data/dead-modules.baseline`
-freezes the known-dead set; CI fails only when a **new** unreachable module appears. Wire or delete
-modules, then drop their baseline line. Inspect with `bash scripts/audit-module-reachability.sh`.
+**97 reachable / 0 dead**. The 64 modules that could never be reached from an entrypoint are
+quarantined in `src/lib/experimental/` (see its README); `src/data/dead-modules.baseline` is
+intentionally empty, so CI fails the moment a **new** unreachable module appears. Revive a module by
+fixing it, wiring an entrypoint, moving it back to `src/lib/`, and rerunning the audit.
 
 Marketplaces: `src/data/marketplaces.json` + `scripts/marketplace.sh` (`dev marketplace list|check|search`)
 list the curated plugin/MCP/skill registries (OpenCode ecosystem, official MCP Registry, Smithery,

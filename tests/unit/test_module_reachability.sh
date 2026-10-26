@@ -22,14 +22,16 @@ echo "$json" | jq empty 2>/dev/null && pass "output is valid JSON" || fail "outp
 total=$(echo "$json" | jq -r '.total // 0')
 reachable=$(echo "$json" | jq -r '.reachable // 0')
 dead=$(echo "$json" | jq -r '.dead // 0')
-[ "$total" -gt 100 ] && pass "module total reported ($total)" || fail "implausible module total: $total"
+on_disk=$(ls "$PROJECT_DIR"/src/lib/*.sh 2>/dev/null | wc -l | tr -d ' ')
+[ "$total" -eq "$on_disk" ] && pass "module total matches src/lib ($total)" || fail "total $total != on-disk $on_disk"
 [ "$reachable" -gt 0 ] && pass "reachable modules reported ($reachable)" || fail "no reachable modules"
 [ $((reachable + dead)) -eq "$total" ] && pass "reachable + dead == total" || fail "reachable + dead != total"
 
 echo
 echo "=== Test 3: known modules land on the right side ==="
-echo "$json" | jq -r '.dead_modules[]' | grep -qx '62-skill-registry.sh' \
-  && pass "62-skill-registry.sh reported as dead" || fail "62-skill-registry.sh not reported dead"
+[ "$dead" -eq 0 ] && pass "no unreachable modules in src/lib" || fail "$dead unreachable module(s) remain"
+[ -f "$PROJECT_DIR/src/lib/experimental/62-skill-registry.sh" ] \
+  && pass "62-skill-registry.sh is quarantined in src/lib/experimental" || fail "quarantine dir missing 62-skill-registry.sh"
 echo "$json" | jq -r '.dead_modules[]' | grep -qx '00-core.sh' \
   && fail "00-core.sh wrongly reported dead" || pass "00-core.sh not in dead list"
 echo "$json" | jq -r '.dead_modules[]' | grep -qx 'helpers.sh' \
@@ -40,8 +42,13 @@ echo "=== Test 4: baseline semantics ==="
 [ -f "$BASELINE" ] && pass "baseline file exists" || fail "baseline file missing"
 bash "$AUDIT" --baseline "$BASELINE" >/dev/null 2>&1
 [ $? -eq 0 ] && pass "current baseline passes" || fail "current baseline should pass"
-empty="$(mktemp)"; bash "$AUDIT" --baseline "$empty" >/dev/null 2>&1
-[ $? -eq 1 ] && pass "empty baseline fails (new dead detected)" || fail "empty baseline should fail"
+empty="$(mktemp)"
+bash "$AUDIT" --baseline "$empty" >/dev/null 2>&1; rc_empty=$?
+if [ "$dead" -gt 0 ]; then
+  [ "$rc_empty" -eq 1 ] && pass "empty baseline fails (new dead detected)" || fail "empty baseline should fail"
+else
+  [ "$rc_empty" -eq 0 ] && pass "empty baseline passes (no dead modules left)" || fail "empty baseline should pass with 0 dead"
+fi
 rm -f "$empty"
 
 echo

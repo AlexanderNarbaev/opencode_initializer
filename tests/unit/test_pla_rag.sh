@@ -6,16 +6,16 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 source "$PROJECT_ROOT/src/lib/helpers.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/101-pla-orchestrator.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/102-pla-extract.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/103-pla-analyze.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/104-pla-verify.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/105-pla-synthesize.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/106-pla-coordinate.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/107-rag-hybrid.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/108-rag-bm25.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/109-rag-vector.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/110-rag-fusion.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/101-pla-orchestrator.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/102-pla-extract.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/103-pla-analyze.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/104-pla-verify.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/105-pla-synthesize.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/106-pla-coordinate.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/107-rag-hybrid.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/108-rag-bm25.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/109-rag-vector.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/110-rag-fusion.sh" 2>/dev/null || true
 
 TESTS=0 PASSED=0 FAILED=0
 

@@ -7,10 +7,10 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 source "$PROJECT_ROOT/src/lib/helpers.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/62-skill-registry.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/63-skill-manager.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/64-skill-security.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/65-skill-eval.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/62-skill-registry.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/63-skill-manager.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/64-skill-security.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/65-skill-eval.sh" 2>/dev/null || true
 
 TESTS=0 PASSED=0 FAILED=0
 

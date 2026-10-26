@@ -6,12 +6,12 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 source "$PROJECT_ROOT/src/lib/helpers.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/111-perf-optimizer.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/112-cache-manager.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/113-security-hardening.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/114-vulnerability-scan.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/115-scalability.sh" 2>/dev/null || true
-source "$PROJECT_ROOT/src/lib/116-load-balancer.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/111-perf-optimizer.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/112-cache-manager.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/113-security-hardening.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/114-vulnerability-scan.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/115-scalability.sh" 2>/dev/null || true
+source "$PROJECT_ROOT/src/lib/experimental/116-load-balancer.sh" 2>/dev/null || true
 
 TESTS=0 PASSED=0 FAILED=0
 

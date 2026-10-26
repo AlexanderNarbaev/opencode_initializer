@@ -35,6 +35,17 @@
 - [x] Two new subagents in the global config: `reviewer`, `docs`.
 - [x] `tests/unit/test_module_reachability.sh` (13) and `tests/unit/test_marketplace.sh` (16).
 
+
+## Round 3 (same wave) — governance + quarantine
+- [x] `src/plugins/governance.js` — real v2 plugin: hash-chained audit, secret/PII redaction,
+      dangerous-command guard. Verified live (`plugin.load → tool.execute.before → tool.execute.after`,
+      chain valid).
+- [x] Installer step 8 installs and syntax-checks the plugin; `--check` verifies it.
+- [x] 64 unreachable modules quarantined in `src/lib/experimental/` (README documents status and revival
+      path); `src/lib` is 97 modules, 97 reachable, 0 dead; baseline intentionally empty.
+- [x] Syntax checks extended to `src/lib/experimental/*.sh` in the runner and AGENTS command.
+- [x] `tests/unit/test_governance_plugin.sh` (32 assertions).
+
 ## Verification Evidence
 - `bash scripts/install-agentic-stack.sh --check` → all checks passed (7 MCP, 7 plugins, 43 skills)
 - `opencode run -m opencode-go/deepseek-v4.1-flash "Say OK"` → OK
