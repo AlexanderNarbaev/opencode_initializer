@@ -119,7 +119,7 @@
     "github/brave-search/notion/sentry MCP disabled pending credentials"
   ],
   "status": "v16.1.0 COMPLETE — 97 live modules / 0 dead, v2 stack installable+verifiable, governance plugin and slash commands live",
-  "last_commit": "673a4d8b",
+  "last_commit": "5a8f21e6",
   "modules": {
     "live": 97,
     "removed": 64,
