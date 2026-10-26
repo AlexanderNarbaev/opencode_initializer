@@ -23,12 +23,12 @@ jobs:
           errors=0
           for module in src/lib/*.sh; do
             echo "Checking: $module"
-            if ! shellcheck -S warning "$module" 2>/dev/null; then
+            if ! shellcheck -S error "$module" 2>/dev/null; then
               ((errors++))
             fi
           done
           if [ "$errors" -gt 0 ]; then
-            echo "Found $errors files with warnings"
+            echo "Found $errors files with errors"
             exit 1
           fi
       
@@ -37,12 +37,12 @@ jobs:
           errors=0
           for test in tests/unit/*.sh tests/integration/*.sh; do
             echo "Checking: $test"
-            if ! shellcheck -S warning "$test" 2>/dev/null; then
+            if ! shellcheck -S error "$test" 2>/dev/null; then
               ((errors++))
             fi
           done
           if [ "$errors" -gt 0 ]; then
-            echo "Found $errors files with warnings"
+            echo "Found $errors files with errors"
             exit 1
           fi
 

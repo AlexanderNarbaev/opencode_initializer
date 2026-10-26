@@ -80,7 +80,7 @@ done
 NEW_DEAD=()
 if [ -n "$BASELINE" ] && [ -f "$BASELINE" ]; then
   for m in "${DEAD[@]}"; do
-    grep -qxF "$m" "$BASELINE" || grep -qE "^[[:space:]]*$m[[:space:]]*(#.*)?$" "$BASELINE" || NEW_DEAD+=("$m")
+    grep -qxF "$m" "$BASELINE" || grep -qE "^[[:space:]]*${m}[[:space:]]*(#.*)?$" "$BASELINE" || NEW_DEAD+=("$m")
   done
 fi
 
