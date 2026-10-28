@@ -5,7 +5,7 @@
 > **Operating Model:** Multi-Agent Framework v3.0 | **Wave:** [current_wave.md](./current_wave.md) | **Checkpoint:** [session_checkpoint.json](./session_checkpoint.json)
 <p align="center">
   <b>AI-Native SDD Harness — one-command AI-enhanced development environment for WSL2, Linux, and macOS. 4 deployment profiles.</b><br>
-  <sub>1322-line orchestrator · 97 modules (+64 quarantined) · 12 modes · 7 MCPs · 7 plugins · 10 LSP servers · 22 providers · air-gap · governance · PII guard · audit trail · offline bundle · APM · SBOM · cosign</sub>
+  <sub>1324-line orchestrator · 97 modules (+64 quarantined) · 12 modes · 7 MCPs · 7 plugins · 10 LSP servers · 22 providers · air-gap · governance · PII guard · audit trail · offline bundle · APM · SBOM · cosign</sub>
 </p>
 
 <p align="center">

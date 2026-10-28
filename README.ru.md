@@ -5,7 +5,7 @@
 > **Рабочая модель:** Multi-Agent Framework v3.0 | **Волна:** [current_wave.md](./current_wave.md) | **Чекпоинт:** [session_checkpoint.json](./session_checkpoint.json)
 <p align="center">
   <b>AI-Native SDD Harness — среда разработки с ИИ-усилением в одну команду для WSL2, Linux и macOS. 4 профиля развёртывания.</b><br>
-  <sub>Оркестратор на 1322 строк · 97 модулей (+64 в карантине) · 12 режимов · 7 MCP · 7 плагинов · 10 LSP-серверов · 22 провайдера · air-gap · governance · PII guard · аудит · офлайн-пакет</sub>
+  <sub>Оркестратор на 1324 строк · 97 модулей (+64 в карантине) · 12 режимов · 7 MCP · 7 плагинов · 10 LSP-серверов · 22 провайдера · air-gap · governance · PII guard · аудит · офлайн-пакет</sub>
 </p>
 
 <p align="center">
