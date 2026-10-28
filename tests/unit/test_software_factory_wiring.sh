@@ -125,6 +125,16 @@ for step in "Spec Registry" "Token Cache" "Debt/Intent Registry" "Model Policy" 
     "grep -F 'Software Factory: $step' '$FIXTURE/dry-full.log' >/dev/null"
 done
 
+# Diagnostics: when a scheduling assertion fails, show what the plan actually
+# contained (the file is already captured, so this costs nothing).
+if ! grep -qF 'Software Factory: Maintainability Score' "$FIXTURE/dry-full.log"; then
+  echo "  --- dry-run diagnostics ---"
+  echo "  Software Factory lines: $(grep -c 'Software Factory:' "$FIXTURE/dry-full.log" 2>/dev/null || echo 0)"
+  echo "  last lines of dry-full.log:"
+  tail -20 "$FIXTURE/dry-full.log" 2>/dev/null | sed 's/^/    | /'
+  echo "  --- end diagnostics ---"
+fi
+
 DRY_OFF="$(SUDO_PASS="" SKIP_MIRROR_RESOLVE=true HOME="$SFW_TMP" timeout 600 bash "$SETUP" --dry-run --no-software-factory 2>&1 | sed -e 's/\x1b\[[0-9;]*m//g')"
 assert "--no-software-factory schedules nothing" \
   "! printf '%s' \"\$DRY_OFF\" | grep 'Software Factory:' >/dev/null"
