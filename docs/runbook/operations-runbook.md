@@ -457,3 +457,11 @@ curl -s -H "Authorization: Bearer $GITVERSE_TOKEN" \
 ```
 
 - GitVerse CI is advisory for merges; GitHub is the authoritative gate.
+- Pages deployment is GitHub-only by design: the `upload-pages-artifact` and
+  `deploy-pages` steps are guarded by `github.server_url == 'https://github.com'`,
+  and GitVerse publishes through its own `build-and-deploy-pages` workflow.
+  The MkDocs **build** still runs on every mirror push, so a broken docs tree
+  fails there too.
+- As of 2026-10-28 the full `test.yml` matrix (unit, integration, python, e2e,
+  container, benchmarks) is green on both remotes; see the run history on
+  either repository.
