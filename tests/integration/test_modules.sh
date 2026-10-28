@@ -47,7 +47,7 @@ for f in "$PROJECT_DIR/src/lib/"*.sh; do
     assert "$fname is helper (no number)" "true"
   else
     assert "$fname follows NN-name pattern" \
-      "echo '$fname' | grep -qE '^[0-9]{2,3}[a-z]?(-[a-z0-9-]+)?\.sh$'"
+      "grep -qE '^[0-9]{2,3}[a-z]?(-[a-z0-9-]+)?\.sh$' <<< '$fname'"
   fi
 done
 

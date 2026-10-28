@@ -61,10 +61,10 @@ CONFIG_OUT=$(bash -c "$STUBS; source '$A' 2>/dev/null; export DSH_CONFIG_DIR='$T
 
 assert "cordis.yml created" "[ -f '$TMPDIR/cordis.yml' ]"
 assert "cordis.yml is non-empty" "[ -s '$TMPDIR/cordis.yml' ]"
-assert "cordis.yml has pre-session-check" "echo '$CONFIG_OUT' | grep -q 'pre-session-check'"
-assert "cordis.yml has pii-guard" "echo '$CONFIG_OUT' | grep -q 'pii-guard'"
-assert "cordis.yml has wal-checkpoint" "echo '$CONFIG_OUT' | grep -q 'wal-checkpoint'"
-assert "cordis.yml references catalog" "echo '$CONFIG_OUT' | grep -q 'config-catalog.md'"
+assert "cordis.yml has pre-session-check" "grep -q 'pre-session-check' <<< '$CONFIG_OUT'"
+assert "cordis.yml has pii-guard" "grep -q 'pii-guard' <<< '$CONFIG_OUT'"
+assert "cordis.yml has wal-checkpoint" "grep -q 'wal-checkpoint' <<< '$CONFIG_OUT'"
+assert "cordis.yml references catalog" "grep -q 'config-catalog.md' <<< '$CONFIG_OUT'"
 
 echo "test_dsh_plugins: $TESTS_PASS passed, $TESTS_FAIL failed"
 [ "$TESTS_FAIL" -eq 0 ] || exit 1

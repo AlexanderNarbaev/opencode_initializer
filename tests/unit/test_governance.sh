@@ -145,7 +145,7 @@ assert 'deepseek' in filtered, 'deepseek should still be present'
 print(f'OK: {len(filtered)}/{len(all_providers)} providers after filtering')
 " 2>&1)
 echo "  $PY_VERIFY"
-assert "python verify: xai filtered" "echo '$PY_VERIFY' | grep -q 'OK'"
+assert "python verify: xai filtered" "grep -q 'OK' <<< '$PY_VERIFY'"
 
 # ── Test K: Backward compat — no policy → all providers allowed ───────────────
 rm -f "$PF"

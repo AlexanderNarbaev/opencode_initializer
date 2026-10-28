@@ -112,7 +112,7 @@ else
   fail "dev state --strict exited $rc_strict (expected 0 or 1)"
 fi
 # Port/docker sections only exist on a host with Docker; CI containers may not.
-if command -v docker >/dev/null 2>&1; then
+if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
   if grep -q "BOUND" <<< "$out_strict"; then
     pass "dev state shows port bindings"
   else

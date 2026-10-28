@@ -107,11 +107,11 @@ run_functional() {
 }
 FUNC_OUT=$(run_functional "$TMPDIR")
 
-assert "provider fallback is no-sandbox" "echo '$FUNC_OUT' | grep -q 'provider=no-sandbox'"
-assert "scaffold creates main.ts" "echo '$FUNC_OUT' | grep -q 'main.ts=yes'"
-assert "scaffold creates prompt.md" "echo '$FUNC_OUT' | grep -q 'prompt.md=yes'"
-assert "configure creates .env" "echo '$FUNC_OUT' | grep -q '^\.env=yes'"
-assert "configure creates .env.example" "echo '$FUNC_OUT' | grep -q '.env.example=yes'"
+assert "provider fallback is no-sandbox" "grep -q 'provider=no-sandbox' <<< '$FUNC_OUT'"
+assert "scaffold creates main.ts" "grep -q 'main.ts=yes' <<< '$FUNC_OUT'"
+assert "scaffold creates prompt.md" "grep -q 'prompt.md=yes' <<< '$FUNC_OUT'"
+assert "configure creates .env" "grep -q '^\.env=yes' <<< '$FUNC_OUT'"
+assert "configure creates .env.example" "grep -q '.env.example=yes' <<< '$FUNC_OUT'"
 
 # ── 11. Functions defined after sourcing (with stubs) ────────────────────
 STUBS='_step_skip() { return 1; }; _step_done() { return 0; }; section() { :; }; log() { :; }; warn() { :; }; info() { :; }; _spin_start() { :; }; _spin_stop() { :; }; command() { if [ "$1" = "-v" ]; then return 1; fi; builtin command "$@"; }; export PROJECT_DIR=/tmp'

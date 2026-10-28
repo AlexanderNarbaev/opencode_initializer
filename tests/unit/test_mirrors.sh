@@ -47,7 +47,7 @@ assert "_mirror_url is defined" "type _mirror_url &>/dev/null"
 if command -v curl &>/dev/null; then
   MIRROR_RESULT=$(_mirror_url "https://example.com" 2>/dev/null || echo "FALLBACK")
   assert "_mirror_url returns string" "[ -n '$MIRROR_RESULT' ]"
-  assert "_mirror_url returns https URL" "echo '$MIRROR_RESULT' | grep -q 'https'"
+  assert "_mirror_url returns https URL" "grep -q 'https' <<< '$MIRROR_RESULT'"
 else
   assert "_mirror_url skip (no curl)" "true"
   assert "_mirror_url skip (no curl)" "true"
@@ -57,7 +57,7 @@ fi
 for var in GITHUB_MIRROR NPM_REGISTRY PYPI_MIRROR DOCKER_MIRROR GO_MIRROR RUSTUP_MIRROR ZIG_MIRROR JAVA_MIRROR; do
   val="${!var}"
   assert "$var is set" "[ -n '$val' ]"
-  assert "$var is https URL" "echo '$val' | grep -qE '^https://'"
+  assert "$var is https URL" "grep -qE '^https://' <<< '$val'"
 done
 
 # ── GITHUB_MIRROR is a known mirror domain ─────────────────────────────

@@ -121,7 +121,7 @@ assert "Software Factory wiring test documents the confirmed root cause" \
 TEST_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 HAZARD_TOTAL=0
 for f in "$TEST_ROOT"/unit/*.sh "$TEST_ROOT"/integration/*.sh "$TEST_ROOT"/e2e/*.sh; do
-  n="$(grep -v '^[[:space:]]*#' "$f" | grep -cE 'echo "\$[A-Za-z_][A-Za-z0-9_]*"[[:space:]]*\|[[:space:]]*grep[[:space:]]+-[A-Za-z]*q' || true)"
+  n="$(grep -v '^[[:space:]]*#' "$f" | grep -cE '(echo "\$[A-Za-z_][A-Za-z0-9_]*"|echo '\''\$[A-Za-z_][A-Za-z0-9_]*'\''|printf '\''%s'\'' "\$[A-Za-z_][A-Za-z0-9_]*")[[:space:]]*\|[[:space:]]*grep[[:space:]]+-[A-Za-z]*q' || true)"
   HAZARD_TOTAL=$((HAZARD_TOTAL + n))
 done
 printf 'pipefail_sigpipe: early-exit pipelines over captured variables=%s\n' "$HAZARD_TOTAL"

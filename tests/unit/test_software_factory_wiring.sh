@@ -113,13 +113,16 @@ for step in "Spec Registry" "Token Cache" "Model Policy" "Audit Chain"; do
     "printf '%s' \"\$DRY_DEFAULT\" | grep 'Software Factory: $step' >/dev/null"
 done
 
-DRY_FULL="$(SUDO_PASS="" SKIP_MIRROR_RESOLVE=true HOME="$SFW_TMP" timeout 600 bash "$SETUP" --dry-run --software-factory 2>&1 | sed -e 's/\x1b\[[0-9;]*m//g')"
+# Capture to a file (no pipe): a slow runner must not truncate the plan, and a
+# failed run still leaves the diagnostics on disk.
+SUDO_PASS="" SKIP_MIRROR_RESOLVE=true HOME="$SFW_TMP" timeout 600 bash "$SETUP" --dry-run --software-factory >"$FIXTURE/dry-full.log" 2>&1 || true
+DRY_FULL="$(sed -e 's/\x1b\[[0-9;]*m//g' "$FIXTURE/dry-full.log")"
 for step in "Spec Registry" "Token Cache" "Debt/Intent Registry" "Model Policy" \
             "PII Guard" "Audit Chain" "Offline Bundle" "Product Review" \
             "Architecture Doc" "Program Design" "Vertical Slices" "Agent Handoff" \
             "Maintainability Score"; do
   assert "--software-factory schedules '$step'" \
-    "printf '%s' \"\$DRY_FULL\" | grep 'Software Factory: $step' >/dev/null"
+    "grep -F 'Software Factory: $step' '$FIXTURE/dry-full.log' >/dev/null"
 done
 
 DRY_OFF="$(SUDO_PASS="" SKIP_MIRROR_RESOLVE=true HOME="$SFW_TMP" timeout 600 bash "$SETUP" --dry-run --no-software-factory 2>&1 | sed -e 's/\x1b\[[0-9;]*m//g')"
@@ -134,8 +137,9 @@ for verb in maintainability spec debt intent; do
   n="$(grep -c "^  $verb)$" "$DEV")"
   assert "dev.sh dispatches '$verb' exactly once" "[ '$n' -eq 1 ]"
 done
+bash "$DEV" --help >"$FIXTURE/dev-help.log" 2>&1 || true
 assert "dev.sh documents the new commands" \
-  "bash '$DEV' --help 2>&1 | grep -q 'dev maintainability'"
+  "grep -q 'dev maintainability' '$FIXTURE/dev-help.log'"
 assert "dev.sh unknown-command hint lists the new commands" \
   "grep -q 'maintainability|spec|debt|intent' '$DEV'"
 
