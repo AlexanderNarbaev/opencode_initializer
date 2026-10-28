@@ -430,7 +430,13 @@ shellcheck -S error $(git ls-files '*.sh')
   `shellcheck`, and `pip install --user` is blocked by PEP 668 — the install
   step in both lint workflows handles that.
 - Containers there often run as **root**; tests that rely on permission denial
-  (e.g. `chmod 000` + `cat`) skip themselves when `id -u` is 0.
+  (e.g. `chmod 000` + `cat`) skip themselves when `id -u` is 0, and the test job
+  exports `OPENCODE_ALLOW_ROOT=1` because `setup.sh` refuses to run as root
+  otherwise (a human running `sudo bash setup.sh` still gets the guard).
+- Tests must not read captured output through early-exit pipelines
+  (`echo "$VAR" | grep -q`, `printf '%s' "$VAR" | grep -q`): under `pipefail`
+  the producer dies of SIGPIPE and the assertion flips at random. Use
+  `grep -q PATTERN <<< "$VAR"`; `tests/unit/test_pipefail_sigpipe.sh` ratchets it.
 - Public API (verified 2026-10-26): base `https://api.gitverse.ru` (no `/api/v1`
   prefix), headers `Authorization: Bearer <token>` and
   `Accept: application/vnd.gitverse.object+json;version=1`. Examples:

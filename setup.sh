@@ -680,7 +680,9 @@ fi
 # Fix (P0.1): bash `read -p` writes prompt to STDERR, and `2>/dev/null` was
 # swallowing that prompt — making this hang forever with no visible indicator.
 # New: try passwordless sudo first, then env, then TTY prompt with -t 30 timeout.
-[ "$EUID" -eq 0 ] && err "Do not run as root."
+if [ "$EUID" -eq 0 ] && [ "${OPENCODE_ALLOW_ROOT:-false}" != "true" ] && [ "${OPENCODE_ALLOW_ROOT:-false}" != "1" ]; then
+  err "Do not run as root (set OPENCODE_ALLOW_ROOT=1 to allow it in a container)."
+fi
 
 _sudo_prompt_ok() {
   # 1) passwordless sudo (NOPASSWD / already cached)

@@ -88,7 +88,7 @@ done
 # ── setup.sh: the default install must stay cheap ──────────────────────────
 # --software-factory-score is the only tier that walks the whole source tree,
 # so it must be opt-in. Assert it on a real dry-run.
-DRY_DEFAULT="$(SUDO_PASS="" SKIP_MIRROR_RESOLVE=true HOME="$SFW_TMP" timeout 600 bash "$SETUP" --dry-run 2>&1 | sed -e 's/\x1b\[[0-9;]*m//g')"
+DRY_DEFAULT="$(SUDO_PASS="" SKIP_MIRROR_RESOLVE=true OPENCODE_ALLOW_ROOT=1 HOME="$SFW_TMP" timeout 600 bash "$SETUP" --dry-run 2>&1 | sed -e 's/\x1b\[[0-9;]*m//g')"
 # Root cause (confirmed): these asserts originally used an early-exit capture,
 #   printf '%s' "$DRY_DEFAULT" | grep -q 'Software Factory: <tier>'
 # Under `set -o pipefail` that pipeline is unsafe once the capture exceeds the
@@ -115,7 +115,7 @@ done
 
 # Capture to a file (no pipe): a slow runner must not truncate the plan, and a
 # failed run still leaves the diagnostics on disk.
-SUDO_PASS="" SKIP_MIRROR_RESOLVE=true HOME="$SFW_TMP" timeout 600 bash "$SETUP" --dry-run --software-factory >"$FIXTURE/dry-full.log" 2>&1 || true
+SUDO_PASS="" SKIP_MIRROR_RESOLVE=true OPENCODE_ALLOW_ROOT=1 HOME="$SFW_TMP" timeout 600 bash "$SETUP" --dry-run --software-factory >"$FIXTURE/dry-full.log" 2>&1 || true
 DRY_FULL="$(sed -e 's/\x1b\[[0-9;]*m//g' "$FIXTURE/dry-full.log")"
 for step in "Spec Registry" "Token Cache" "Debt/Intent Registry" "Model Policy" \
             "PII Guard" "Audit Chain" "Offline Bundle" "Product Review" \
@@ -135,7 +135,7 @@ if ! grep -qF 'Software Factory: Maintainability Score' "$FIXTURE/dry-full.log";
   echo "  --- end diagnostics ---"
 fi
 
-DRY_OFF="$(SUDO_PASS="" SKIP_MIRROR_RESOLVE=true HOME="$SFW_TMP" timeout 600 bash "$SETUP" --dry-run --no-software-factory 2>&1 | sed -e 's/\x1b\[[0-9;]*m//g')"
+DRY_OFF="$(SUDO_PASS="" SKIP_MIRROR_RESOLVE=true OPENCODE_ALLOW_ROOT=1 HOME="$SFW_TMP" timeout 600 bash "$SETUP" --dry-run --no-software-factory 2>&1 | sed -e 's/\x1b\[[0-9;]*m//g')"
 assert "--no-software-factory schedules nothing" \
   "! printf '%s' \"\$DRY_OFF\" | grep 'Software Factory:' >/dev/null"
 
