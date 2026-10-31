@@ -1,0 +1,123 @@
+# Your patch layer for this dsh profile, applied after every bundle layer:
+# a top-level YAML array of loader patch entries (id-targeted config
+# overrides, disables, and insert lists; `!!js` expressions allowed).
+#
+# Managed by the opencode_initializer DSH setup (2026-10-31). Keep the
+# llm-pi-ai provider list in sync with the machine's token plans.
+- id: ui-settings-general
+  name: "@deepseek-ai/dsh-client-ui-settings-general"
+  config:
+    welcomeNoticeVersion: 2026-09-28.1
+
+# ── Model routes ───────────────────────────────────────────────────────────
+# Direct DeepSeek route (llm-deepseek) discovers deepseek-v4-pro and
+# deepseek-flash from https://api.deepseek.com/models using DEEPSEEK_API_KEY.
+# The pi-ai adapter adds the alternate token-plan routes.
+- id: llm-pi-ai
+  name: "@deepseek-ai/dsh-llm-pi-ai"
+  config:
+    providers:
+      xiaomi-token-plan-sgp:
+        apiKeyEnv: XIAOMI_API_KEY
+        models:
+          - id: mimo-v2.6-flash
+            name: MiMo-V2.6-Flash
+            contextWindow: 1048576
+            maxTokens: 131072
+            input:
+              - text
+              - image
+          - id: mimo-v2.6-pro
+            name: MiMo-V2.6-Pro
+            contextWindow: 1048576
+            maxTokens: 131072
+            input:
+              - text
+              - image
+      minimax:
+        apiKeyEnv: MINIMAX_API_KEY
+        models:
+          - id: MiniMax-M3
+            name: MiniMax-M3
+            contextWindow: 1000000
+            maxTokens: 524288
+            input:
+              - text
+              - image
+          - id: MiniMax-M3.1-Flash
+            name: MiniMax-M3.1-Flash
+            contextWindow: 1000000
+            maxTokens: 524288
+            input:
+              - text
+              - image
+
+- id: agent-default-model
+  name: "@deepseek-ai/dsh-agent-default-model"
+  config:
+    provider: deepseek-official
+    model: deepseek-v4-pro
+    reasoningEffort: max
+
+# ── MCP servers ────────────────────────────────────────────────────────────
+# New rows need an explicit `insert` block; id+name alone is treated as an
+# override of an existing row. Tools appear as mcp__<serverName>__<tool>.
+- insert:
+    - id: mcp-context7
+      name: "@deepseek-ai/dsh-mcp-client"
+      config:
+        serverName: context7
+        transport: stdio
+        command: npx
+        args:
+          - "-y"
+          - "@upstash/context7-mcp"
+        toolCallTimeoutMs: 120000
+
+    - id: mcp-sequential-thinking
+      name: "@deepseek-ai/dsh-mcp-client"
+      config:
+        serverName: sequential_thinking
+        transport: stdio
+        command: npx
+        args:
+          - "-y"
+          - "@modelcontextprotocol/server-sequential-thinking"
+        toolCallTimeoutMs: 60000
+
+    - id: mcp-memory
+      name: "@deepseek-ai/dsh-mcp-client"
+      config:
+        serverName: memory
+        transport: stdio
+        command: npx
+        args:
+          - "-y"
+          - "@modelcontextprotocol/server-memory"
+        env:
+          MEMORY_FILE_PATH: __HOME__/.dsh/mcp/memory.json
+        toolCallTimeoutMs: 60000
+
+# ── UI ─────────────────────────────────────────────────────────────────────
+- id: ui-theme
+  name: "@deepseek-ai/dsh-client-ui-theme"
+  config:
+    preference: dark
+- id: web
+  name: "@deepseek-ai/dsh-web"
+  config:
+    searchProvider: deepseek-search-api
+    fetchProvider: deepseek-fetch-api
+- id: subagent-model-selection-settings
+  name: "@deepseek-ai/dsh-tool-subagent/model-selection-settings"
+  config:
+    enabled: true
+    allowedModels:
+      - provider: xiaomi-token-plan-sgp
+        model: mimo-v2.6-flash
+      - provider: xiaomi-token-plan-sgp
+        model: mimo-v2.6-pro
+      - provider: minimax
+        model: MiniMax-M3
+      - provider: minimax
+        model: MiniMax-M3.1-Flash

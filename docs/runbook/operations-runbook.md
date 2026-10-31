@@ -397,6 +397,53 @@ docker compose -f ~/.local/share/opencode-init/infra/docker-compose.yml up -d po
 
 ---
 
+## DeepSeek Harness (DSH) profile
+
+The machine runs DSH 0.2.1-rc.2 as the primary agent harness (`dsh web` on
+`http://127.0.0.1:3080`). Its configuration is reproducible from this repo:
+
+```bash
+bash scripts/dsh-setup.sh --check    # read-only verification (default)
+bash scripts/dsh-setup.sh --apply    # render templates + link skills + validate
+bash scripts/dsh-setup.sh --dry-run  # print planned actions
+```
+
+What the script manages under `$DSH_HOME` (default `~/.dsh`):
+
+| Path | Content |
+|---|---|
+| `profiles/web/cordis.patch.yml` | rendered from [`src/data/dsh/cordis.patch.web.yml`](../src/data/dsh/cordis.patch.web.yml): DeepSeek default route, token-plan alternates, three MCP servers, dark theme |
+| `AGENTS.md` | user-global instructions, rendered from [`src/data/dsh/AGENTS.md`](../src/data/dsh/AGENTS.md) |
+| `skills` → `~/.config/opencode/skills` | shared skill library (43 skills; DSH shows 49 with its bundled `dsh-badge`) |
+| `mcp/memory.json` | knowledge-graph storage for the `memory` MCP server |
+
+Model routes:
+
+- `deepseek-official/deepseek-v4-pro` — default (1,048,576 context, 393,216 max output, reasoning `max`);
+  `deepseek-official/deepseek-flash` for cheap fan-out.
+- `llm-pi-ai` alternates: `xiaomi-token-plan-sgp` (MiMo-V2.6) and `minimax` (MiniMax-M3).
+- DeepSeek discovery reads `DEEPSEEK_API_KEY` from the launch environment, so start
+  `dsh web` from a shell that sourced `~/.config/opencode/secrets.env`.
+
+MCP servers (hot-reloadable, no restart): `context7` (library docs),
+`sequential_thinking`, and `memory`; tools appear as `mcp__<server>__<tool>`.
+Editing `cordis.patch.yml` triggers DSH's HMR recomposition; the running session
+keeps its history and gains the new tools on the next turn.
+
+Verification:
+
+```bash
+dsh --profile web --dump-config | grep -E 'id: (mcp-|agent-default-model)'
+bash scripts/dsh-setup.sh --check
+```
+
+Upgrading DSH (`npm install -g @deepseek-ai/dsh@0.2.1-rc.5`) requires the npm
+mirror to resolve ~86 dependencies; when the registry is slow, the install
+times out and the old version stays active. The configuration above is
+version-independent within the 0.2.x line.
+
+---
+
 ## CI on GitHub and GitVerse
 
 Both remotes are first-class: `origin` (GitHub) and `gitverse` (GitVerse, SSH).
