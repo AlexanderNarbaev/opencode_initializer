@@ -62,7 +62,7 @@ done
 
 # ── GITHUB_MIRROR is a known mirror domain ─────────────────────────────
 assert "GITHUB_MIRROR is known domain" \
-  'echo "'"$GITHUB_MIRROR"'" | grep -qE "github\.com|fastgit\.xyz|ghproxy\.com"'
+  "grep -qE 'github\.com|fastgit\.xyz|ghproxy\.com' <<< '$GITHUB_MIRROR'"
 
 # ── NPM_REGISTRY host ──────────────────────────────────────────────────
 NPM_HOST=$(echo "$NPM_REGISTRY" | sed 's|https://||;s|/.*||')

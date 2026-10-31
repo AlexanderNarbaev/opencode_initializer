@@ -50,7 +50,7 @@ CLARITY_OUT="$(
   source "$MODULE" 2>/dev/null || true
   _grace_clarity_score "$TDIR/prompt.txt"
 )"
-printf '%s\n' "$CLARITY_OUT" | grep -q "clarity:" && pass "clarity score runs" || fail "clarity score FAIL"
+grep -q "clarity:" <<< "$CLARITY_OUT" && pass "clarity score runs" || fail "clarity score FAIL"
 
 # Cleanup
 rm -rf "$TDIR"

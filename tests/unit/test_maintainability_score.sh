@@ -105,13 +105,13 @@ assert "calculate_maintainability_score exits 0"    "[ '$rc' -eq 0 ]"
 assert "banner prints MAINTAINABILITY SCORE: N/100" "printf '%s\n' \"\$banner_plain\" | grep -qE 'MAINTAINABILITY SCORE: [0-9]+/100'"
 assert "banner never prints an empty score"        "! printf '%s\n' \"\$banner_plain\" | grep -q 'SCORE: /100'"
 assert "banner prints a STATUS band"               "printf '%s\n' \"\$banner_plain\" | grep -qE 'STATUS: (EXCELLENT|GOOD|NEEDS IMPROVEMENT|CRITICAL)'"
-assert "score was extracted"                       "printf '%s' \"\$score\" | grep -qE '^[0-9]+$'"
+assert "score was extracted"                       "grep -qE '^[0-9]+$' <<< \"\$score\""
 assert "score is inside 0..100"                    "[ '$score' -ge 0 ] && [ '$score' -le 100 ]"
 
 # No arithmetic / comparison errors anywhere on stderr.
 err_out="$(calculate_maintainability_score "$PROJ" text 2>&1 >/dev/null)"
-assert "no arithmetic syntax error"        "! printf '%s' \"\$err_out\" | grep -qi 'arithmetic syntax error'"
-assert "no integer-expression diagnostic" "! printf '%s' \"\$err_out\" | grep -qi 'integer expression expected'"
+assert "no arithmetic syntax error"        "! grep -qi 'arithmetic syntax error' <<< \"\$err_out\""
+assert "no integer-expression diagnostic" "! grep -qi 'integer expression expected' <<< \"\$err_out\""
 
 # A well-covered fixture must not be scored as CRITICAL.
 assert "fixture project is not CRITICAL" "! printf '%s\n' \"\$banner_plain\" | grep -q 'STATUS: CRITICAL'"
@@ -129,7 +129,7 @@ fi
 # ── Empty project (no src/, no tests/) still yields a number ────────────────
 mkdir -p "$FIXTURE/empty"
 empty_banner="$(calculate_maintainability_score "$FIXTURE/empty" text 2>/dev/null | sed -e 's/\x1b\[[0-9;]*m//g')"
-assert "empty project banner has a number" "printf '%s' \"\$empty_banner\" | grep -qE 'MAINTAINABILITY SCORE: [0-9]+/100'"
+assert "empty project banner has a number" "grep -qE 'MAINTAINABILITY SCORE: [0-9]+/100' <<< \"\$empty_banner\""
 
 # ── Genuine failures return non-zero, not the legacy band codes ─────────────
 calculate_maintainability_score "$FIXTURE/does-not-exist" text >/dev/null 2>&1
@@ -144,8 +144,8 @@ assert "strict mode returns a band code 0..3" "[ '$strict_rc' -ge 0 ] && [ '$str
 
 # ── Dashboard and CI gate ────────────────────────────────────────────────────
 dash="$(render_maintainability_dashboard "$PROJ" 2>/dev/null | sed -e 's/\x1b\[[0-9;]*m//g')"
-assert "dashboard prints an overall score" "printf '%s' \"\$dash\" | grep -qE 'Overall Score: [0-9]+/100'"
-assert "dashboard does not abort on empty fields" "! printf '%s' \"\$dash\" | grep -q 'Overall Score: /100'"
+assert "dashboard prints an overall score" "grep -qE 'Overall Score: [0-9]+/100' <<< \"\$dash\""
+assert "dashboard does not abort on empty fields" "! grep -q 'Overall Score: /100' <<< \"\$dash\""
 
 maintainability_ci_gate "$PROJ" 1 >/dev/null 2>&1
 assert "ci gate passes at threshold 1" "[ $? -eq 0 ]"

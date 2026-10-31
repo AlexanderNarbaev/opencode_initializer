@@ -61,9 +61,9 @@ check "runner sets cleanup trap"      "grep -q 'trap sandbox_cleanup EXIT' '$RUN
 # ── 4. --help exits 0 and documents the gates ──────────────────────────────
 out=$(bash "$RUNNER" --help 2>&1); rc=$?
 check "--help exits 0"                "[ $rc -eq 0 ]"
-check "--help mentions --e2e"         "printf '%s' \"\$out\" | grep -q -e '--e2e'"
-check "--help mentions --privileged"  "printf '%s' \"\$out\" | grep -q -e '--privileged'"
-check "--help mentions RUN_PRIVILEGED" "printf '%s' \"\$out\" | grep -q 'RUN_PRIVILEGED'"
+check "--help mentions --e2e"         "grep -q -e '--e2e' <<< \"\$out\""
+check "--help mentions --privileged"  "grep -q -e '--privileged' <<< \"\$out\""
+check "--help mentions RUN_PRIVILEGED" "grep -q 'RUN_PRIVILEGED' <<< \"\$out\""
 check "--unknown flag exits 2"        "bash '$RUNNER' --nope >/dev/null 2>&1; [ \$? -eq 2 ]"
 
 # ── 5. Behavioural: shims intercept sudo and mutate nothing ────────────────
@@ -81,13 +81,13 @@ beh=$(RUN_PRIVILEGED=0 bash -c "
 " 2>&1)
 _beh_dir=$(printf '%s\n' "$beh" | sed -n 's/^dir=//p' | head -1)
 
-check "sandbox activates when RUN_PRIVILEGED=0" "printf '%s' \"\$beh\" | grep -q '^active=1\$'"
+check "sandbox activates when RUN_PRIVILEGED=0" "grep -q '^active=1\$' <<< \"\$beh\""
 check "sandbox dir is created"                "[ -n '$_beh_dir' ]"
-check "sudo resolves inside the sandbox dir"  "printf '%s' \"\$beh\" | grep -qE '^which_sudo=.*test-sandbox\..*/sudo\$'"
-check "shimmed sudo returns success"           "printf '%s' \"\$beh\" | grep -q '^rc=0\$'"
-check "shimmed sudo never ran apt-get"        "printf '%s' \"\$beh\" | grep -q '^sudo apt-get install -y somepkg\$'"
-check "apt-get was not reached directly"      "! printf '%s' \"\$beh\" | grep -q '^apt-get install'"
-check "cleanup clears TEST_SANDBOX_DIR"       "printf '%s' \"\$beh\" | grep -q '^dir_after=\[\]\$'"
+check "sudo resolves inside the sandbox dir"  "grep -qE '^which_sudo=.*test-sandbox\..*/sudo\$' <<< \"\$beh\""
+check "shimmed sudo returns success"           "grep -q '^rc=0\$' <<< \"\$beh\""
+check "shimmed sudo never ran apt-get"        "grep -q '^sudo apt-get install -y somepkg\$' <<< \"\$beh\""
+check "apt-get was not reached directly"      "! grep -q '^apt-get install' <<< \"\$beh\""
+check "cleanup clears TEST_SANDBOX_DIR"       "grep -q '^dir_after=\[\]\$' <<< \"\$beh\""
 check "cleanup removes the sandbox dir"       "[ ! -d '$_beh_dir' ]"
 
 # A real privileged command must NOT be reachable inside the sandbox.
@@ -99,7 +99,7 @@ REAL=$(RUN_PRIVILEGED=0 bash -c "
   case \"\$p\" in *test-sandbox*|*_sandbox_shim) echo SHIMMED ;; *) echo \"REAL:\$p\" ;; esac
   sandbox_cleanup
 " 2>&1)
-check "sudo is shimmed, never the real binary" "printf '%s' \"\$REAL\" | grep -q '^SHIMMED\$'"
+check "sudo is shimmed, never the real binary" "grep -q '^SHIMMED\$' <<< \"\$REAL\""
 
 # ── 6. Behavioural: RUN_PRIVILEGED=1 disables the sandbox ─────────────────
 PRIV=$(RUN_PRIVILEGED=1 bash -c "
@@ -108,14 +108,14 @@ PRIV=$(RUN_PRIVILEGED=1 bash -c "
   echo \"active=\$TEST_SANDBOX_ACTIVE\"
   echo \"log=\${TEST_SANDBOX_LOG:-empty}\"
 " 2>/dev/null)
-check "RUN_PRIVILEGED=1 leaves sandbox off" "printf '%s' \"\$PRIV\" | grep -q '^active=0\$'"
-check "RUN_PRIVILEGED=1 creates no log"     "printf '%s' \"\$PRIV\" | grep -q '^log=empty\$'"
+check "RUN_PRIVILEGED=1 leaves sandbox off" "grep -q '^active=0\$' <<< \"\$PRIV\""
+check "RUN_PRIVILEGED=1 creates no log"     "grep -q '^log=empty\$' <<< \"\$PRIV\""
 check "RUN_PRIVILEGED=1 warns loudly"       "RUN_PRIVILEGED=1 bash -c \". '$SANDBOX'; sandbox_init\" 2>&1 | grep -q 'RUN_PRIVILEGED=1'"
 
 # ── 7. Behavioural: e2e gate skips by default ──────────────────────────────
 SEC=$(bash "$RUNNER" --section e2e 2>&1)
-check "--section e2e skips without --e2e"  "printf '%s' \"\$SEC\" | grep -q 'SKIP'"
-check "--section e2e counts skipped files" "printf '%s' \"\$SEC\" | grep -qE '[1-9][0-9]* skipped'"
+check "--section e2e skips without --e2e"  "grep -q 'SKIP' <<< \"\$SEC\""
+check "--section e2e counts skipped files" "grep -qE '[1-9][0-9]* skipped' <<< \"\$SEC\""
 
 # ── 8. 47-lynis.sh stubs out every privileged binary it can reach ─────────
 LYNIS="$PROJECT_DIR/tests/unit/test_lynis.sh"

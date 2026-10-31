@@ -105,12 +105,12 @@ DRY_DEFAULT="$(SUDO_PASS="" SKIP_MIRROR_RESOLVE=true OPENCODE_ALLOW_ROOT=1 HOME=
 # (early-exit form => the producer is cut off although the match is present,
 # full-read form => clean rc=0 on a >64 KiB capture).
 assert "default dry-run does not run the maintainability scoring step" \
-  "! printf '%s' \"\$DRY_DEFAULT\" | grep 'Software Factory: Maintainability Score' >/dev/null"
+  "! grep 'Software Factory: Maintainability Score' >/dev/null <<< \"\$DRY_DEFAULT\""
 # The cheap tiers (mkdir / tiny config files) ARE on by default — that is the
 # point of the wiring; only the tree-walking scoring step stays opt-in.
 for step in "Spec Registry" "Token Cache" "Model Policy" "Audit Chain"; do
   assert "default dry-run runs the cheap tier '$step'" \
-    "printf '%s' \"\$DRY_DEFAULT\" | grep 'Software Factory: $step' >/dev/null"
+    "grep 'Software Factory: $step' >/dev/null <<< \"\$DRY_DEFAULT\""
 done
 
 # Capture to a file (no pipe): a slow runner must not truncate the plan, and a
@@ -137,7 +137,7 @@ fi
 
 DRY_OFF="$(SUDO_PASS="" SKIP_MIRROR_RESOLVE=true OPENCODE_ALLOW_ROOT=1 HOME="$SFW_TMP" timeout 600 bash "$SETUP" --dry-run --no-software-factory 2>&1 | sed -e 's/\x1b\[[0-9;]*m//g')"
 assert "--no-software-factory schedules nothing" \
-  "! printf '%s' \"\$DRY_OFF\" | grep 'Software Factory:' >/dev/null"
+  "! grep 'Software Factory:' >/dev/null <<< \"\$DRY_OFF\""
 
 # ── dev.sh: new subcommands exist and are dispatched exactly once ──────────
 for fn in cmd_maintainability cmd_spec cmd_debt cmd_intent; do
@@ -253,10 +253,10 @@ fi
 # dev spec list must not fail with the missing log helper any more.
 spec_out="$(dev_run spec list)"
 assert "dev spec list runs without 'command not found'" \
-  "! printf '%s' \"\$spec_out\" | grep 'command not found' >/dev/null"
+  "! grep 'command not found' >/dev/null <<< \"\$spec_out\""
 spec_err="$(HOME="$SF_HOME" OPENCODE_ROOT="$SF_ROOT" SKIP_MIRROR_RESOLVE=true bash "$DEV" spec list 2>&1 >/dev/null)"
 assert "dev spec list has no missing-helper error on stderr" \
-  "! printf '%s' \"\$spec_err\" | grep 'log_warn: command not found' >/dev/null"
+  "! grep 'log_warn: command not found' >/dev/null <<< \"\$spec_err\""
 assert "dev spec register + list round-trips" \
   "dev_run spec register feat demo 'Demo' 'demo spec' 1.0.0 approved >/dev/null && dev_run spec list | grep -q 'spec://feat/demo'"
 
