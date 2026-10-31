@@ -40,6 +40,16 @@ case "${1:-}" in
     ;;
 esac
 
+# Resolve the binary once: non-login shells often miss ~/.npm-global/bin.
+DSH_BIN="${DSH_BIN:-}"
+if [ -z "$DSH_BIN" ]; then
+  if command -v dsh >/dev/null 2>&1; then
+    DSH_BIN="$(command -v dsh)"
+  elif [ -x "$HOME/.npm-global/bin/dsh" ]; then
+    DSH_BIN="$HOME/.npm-global/bin/dsh"
+  fi
+fi
+
 PASS=0
 FAIL=0
 CHANGED=0
@@ -58,10 +68,10 @@ render "$AGENTS_TEMPLATE" > "$tmpdir/AGENTS.md"
 echo "DeepSeek Harness profile: $PROFILE (DSH_HOME=$DSH_HOME)"
 
 # ── Prerequisites ─────────────────────────────────────────────────────────
-if command -v dsh >/dev/null 2>&1; then
-  pass "dsh binary present ($(dsh --version 2>/dev/null | head -1))"
+if [ -n "$DSH_BIN" ]; then
+  pass "dsh binary present ($("$DSH_BIN" --version 2>/dev/null | head -1))"
 else
-  fail "dsh binary not on PATH"
+  fail "dsh binary not found (PATH or ~/.npm-global/bin)"
 fi
 
 [ -f "$PATCH_TEMPLATE" ] && [ -f "$AGENTS_TEMPLATE" ] \
@@ -95,8 +105,8 @@ if [ "$MODE" = "check" ]; then
   [ "$agents_state" = "current" ] && pass "user AGENTS.md current" || fail "user AGENTS.md $agents_state ($AGENTS_TARGET)"
   [ "$skills_state" = "current" ] && pass "skills symlink current" || fail "skills symlink $skills_state ($DSH_HOME/skills)"
   [ "$mcp_state" = "current" ] && pass "memory dir present" || fail "memory dir missing ($DSH_HOME/mcp)"
-  if command -v dsh >/dev/null 2>&1 && [ "$patch_state" = "current" ]; then
-    if dsh --profile "$PROFILE" --dump-config >/dev/null 2>"$tmpdir/dump.err"; then
+  if [ -n "$DSH_BIN" ] && [ "$patch_state" = "current" ]; then
+    if "$DSH_BIN" --profile "$PROFILE" --dump-config >/dev/null 2>"$tmpdir/dump.err"; then
       pass "profile composes (dsh --dump-config)"
     else
       fail "profile does not compose: $(head -1 "$tmpdir/dump.err")"
@@ -148,8 +158,8 @@ else
     pass "skills symlink already current"
   fi
 
-  if command -v dsh >/dev/null 2>&1; then
-    if dsh --profile "$PROFILE" --dump-config >/dev/null 2>"$tmpdir/dump.err"; then
+  if [ -n "$DSH_BIN" ]; then
+    if "$DSH_BIN" --profile "$PROFILE" --dump-config >/dev/null 2>"$tmpdir/dump.err"; then
       pass "profile composes (dsh --dump-config)"
     else
       fail "profile does not compose: $(head -1 "$tmpdir/dump.err")"
