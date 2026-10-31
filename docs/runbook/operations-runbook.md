@@ -412,8 +412,8 @@ What the script manages under `$DSH_HOME` (default `~/.dsh`):
 
 | Path | Content |
 |---|---|
-| `profiles/web/cordis.patch.yml` | rendered from [`src/data/dsh/cordis.patch.web.yml`](../src/data/dsh/cordis.patch.web.yml): DeepSeek default route, token-plan alternates, three MCP servers, dark theme |
-| `AGENTS.md` | user-global instructions, rendered from [`src/data/dsh/AGENTS.md`](../src/data/dsh/AGENTS.md) |
+| `profiles/web/cordis.patch.yml` | rendered from `src/data/dsh/cordis.patch.web.yml`: DeepSeek default route, token-plan alternates, three MCP servers, dark theme |
+| `AGENTS.md` | user-global instructions, rendered from `src/data/dsh/AGENTS.md` |
 | `skills` → `~/.config/opencode/skills` | shared skill library (43 skills; DSH shows 49 with its bundled `dsh-badge`) |
 | `mcp/memory.json` | knowledge-graph storage for the `memory` MCP server |
 
