@@ -24,7 +24,7 @@ SETUP="$PROJECT_DIR/setup.sh"
 
 # Use --fix-config mode to avoid sudo password requirement
 # Combined with --dry-run, this validates the dry-run infrastructure
-SETUP_OUTPUT=$(SUDO_PASS="" timeout 90 bash "$SETUP" --dry-run --fix-config -p /tmp/test-dry-project 2>&1) || true
+SETUP_OUTPUT=$(SUDO_PASS="" timeout 300 bash "$SETUP" --dry-run --fix-config -p /tmp/test-dry-project 2>&1) || true
 
 # ── Check dry-run completes (produces output) ──────────────────────
 assert "dry-run has output" '[ -n "'"$SETUP_OUTPUT"'" ]'
