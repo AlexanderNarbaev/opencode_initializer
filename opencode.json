@@ -1,7 +1,7 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "opencode-go/deepseek-v4-pro",
-  "small_model": "opencode-go/deepseek-v4.1-flash",
+  "model": "xiaomi-token-plan-sgp/mimo-v2.6-pro",
+  "small_model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
   "default_agent": "build",
   "autoupdate": true,
   "compaction": {
@@ -665,46 +665,83 @@
   "agent": {
     "build": {
       "mode": "primary",
-      "temperature": 0.6
+      "temperature": 0.6,
+      "model": "xiaomi-token-plan-sgp/mimo-v2.6-pro"
     },
     "plan": {
       "mode": "primary",
-      "temperature": 0.1
+      "temperature": 0.1,
+      "model": "minimax-coding-plan/MiniMax-M3"
     },
     "general": {
       "mode": "subagent",
-      "temperature": 0.2
+      "temperature": 0.2,
+      "model": "xiaomi-token-plan-sgp/mimo-v2.6-flash"
     },
     "explore": {
       "mode": "subagent",
-      "temperature": 0.1
+      "temperature": 0.1,
+      "model": "xiaomi-token-plan-sgp/mimo-v2.6-flash"
     },
     "code-reviewer": {
       "mode": "subagent",
-      "temperature": 0.1
+      "temperature": 0.1,
+      "model": "minimax-coding-plan/MiniMax-M3"
     },
     "compaction": {
       "mode": "primary",
       "hidden": true,
-      "temperature": 0.1
+      "temperature": 0.1,
+      "model": "xiaomi-token-plan-sgp/mimo-v2.6-flash"
     },
     "reviewer": {
       "mode": "subagent",
       "description": "Strict review of a diff or file set: correctness, security, regressions, missing tests.",
-      "system": "You are a senior reviewer. Read the diff and the surrounding code before judging. Report only defects you can point to (file:line), grouped as BLOCKER / MAJOR / MINOR, each with a concrete fix. Never rewrite the code unless asked; never invent APIs. If nothing is wrong, say so explicitly and list what you verified."
+      "system": "You are a senior reviewer. Read the diff and the surrounding code before judging. Report only defects you can point to (file:line), grouped as BLOCKER / MAJOR / MINOR, each with a concrete fix. Never rewrite the code unless asked; never invent APIs. If nothing is wrong, say so explicitly and list what you verified.",
+      "model": "minimax-coding-plan/MiniMax-M3"
     },
     "docs": {
       "mode": "subagent",
       "description": "Writes and updates user-facing documentation (EN/RU pairs, MkDocs conventions).",
-      "system": "You write documentation. Match the existing structure and tone; keep EN and RU pages in sync when a pair exists; use runnable commands with expected output; never document behaviour you have not verified in the code."
+      "system": "You write documentation. Match the existing structure and tone; keep EN and RU pages in sync when a pair exists; use runnable commands with expected output; never document behaviour you have not verified in the code.",
+      "model": "xiaomi-token-plan-sgp/mimo-v2.6-flash"
     }
   },
   "enabled_providers": [
-    "opencode-go",
     "minimax-coding-plan",
-    "minimax",
     "xiaomi-token-plan-sgp",
-    "deepseek",
-    "opencode"
+    "deepseek"
+  ],
+  "policies": [
+    {
+      "action": "provider.use",
+      "resource": "minimax",
+      "effect": "deny"
+    },
+    {
+      "action": "provider.use",
+      "resource": "minimax/*",
+      "effect": "deny"
+    },
+    {
+      "action": "provider.use",
+      "resource": "opencode",
+      "effect": "deny"
+    },
+    {
+      "action": "provider.use",
+      "resource": "opencode-go",
+      "effect": "deny"
+    },
+    {
+      "action": "provider.use",
+      "resource": "opencode-go/*",
+      "effect": "deny"
+    },
+    {
+      "action": "provider.use",
+      "resource": "opencode/*",
+      "effect": "deny"
+    }
   ]
 }

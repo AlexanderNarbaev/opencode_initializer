@@ -417,11 +417,13 @@ What the script manages under `$DSH_HOME` (default `~/.dsh`):
 | `skills` → `~/.config/opencode/skills` | shared skill library (43 skills; DSH shows 49 with its bundled `dsh-badge`) |
 | `mcp/memory.json` | knowledge-graph storage for the `memory` MCP server |
 
-Model routes:
+Model routes (cost-first):
 
-- `deepseek-official/deepseek-v4-pro` — default (1,048,576 context, 393,216 max output, reasoning `max`);
-  `deepseek-official/deepseek-flash` for cheap fan-out.
-- `llm-pi-ai` alternates: `xiaomi-token-plan-sgp` (MiMo-V2.6) and `minimax` (MiniMax-M3).
+- `xiaomi-token-plan-sgp/mimo-v2.6-pro` — default (prepaid MiMo token plan, 1M context);
+  `mimo-v2.6-flash` for quick work.
+- `llm-pi-ai` alternates: `minimax` (MiniMax token plan). DeepSeek remains a selectable
+  route (`deepseek-official/deepseek-v4-pro` / `deepseek-flash`) but is **not** the default:
+  it is pay-as-you-go with a $10/month budget.
 - DeepSeek discovery reads `DEEPSEEK_API_KEY` from the launch environment, so start
   `dsh web` from a shell that sourced `~/.config/opencode/secrets.env`.
 
@@ -442,6 +444,43 @@ install is 0.2.1-rc.5). The install resolves ~86 dependencies through the npm
 mirror; when the registry is slow, retry rather than falling back to an older
 version. Restarting `dsh web` keeps sessions on disk, so they resume after the
 upgrade; the profile patch above survives upgrades.
+
+---
+
+## Cost policy and model routing
+
+The machine runs on two **prepaid token plans**; DeepSeek is the only metered
+provider and is capped at **$10/month** (pay-as-you-go).
+
+| Route | Role | Marginal cost |
+|---|---|---|
+| `xiaomi-token-plan-sgp/mimo-v2.6-pro` | default for coding, agentic work, planning | 0 (prepaid) |
+| `xiaomi-token-plan-sgp/mimo-v2.6-flash` | fast lookups, compaction, small edits, testing | 0 (prepaid) |
+| `minimax-coding-plan/MiniMax-M3` | deep reasoning, reviews, architecture, debugging | 0 (prepaid) |
+| `deepseek/deepseek-flash` | last-resort fallback only | metered (budgeted) |
+| `deepseek/deepseek-v4-pro` | deliberate escalation only | metered (budgeted) |
+
+OpenCode enforces this with `enabled_providers` (`xiaomi-token-plan-sgp`,
+`minimax-coding-plan`, `deepseek`) plus `policies` that **deny** `opencode-go`
+(expired key), `opencode` and `minimax` (metered routes). Per-agent models are set
+in `~/.config/opencode/opencode.json` (`build` → MiMo Pro, `plan`/`reviewer` →
+MiniMax-M3, `explore`/`compaction`/`docs` → MiMo Flash). `src/data/routing.json`
+mirrors the same matrix for `ai-router.sh` and `dev models`.
+
+DSH defaults to MiMo Pro; DeepSeek stays available in the model selector but is
+never the default.
+
+Spend tracking:
+
+```bash
+python3 scripts/ai-usage.py                 # last 30 days, human table
+python3 scripts/ai-usage.py --days 7 --json # machine-readable
+python3 scripts/ai-usage.py --budget 10     # DeepSeek budget override
+```
+
+It reads `~/.config/opencode/logs/token-tracker/tokens.jsonl`, separates
+**billable spend** from **prepaid plan value**, prints the DeepSeek budget gauge,
+and exits `1` once the budget is reached (cron/monitoring friendly).
 
 ---
 

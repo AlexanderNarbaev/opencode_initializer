@@ -36,7 +36,7 @@ opencode_initializer/
 │   └── systemd/        ← opencode-metrics.service unit
 ├── scripts/            ← utilities: har (meta-harness CLI), ai-router.sh, embed-proxy.py, pii-guard.py,
 │                         provider-check.sh, oc-{json,rpc,sdk,tui,metrics}, sync-{agents,providers,projects}, check-setup-lines.sh, deploy-pages.sh
-├── tests/              ← run_tests.sh + test_lib.sh + test_sandbox.sh; unit/ (115 files), integration/ (11), e2e/ (6)
+├── tests/              ← run_tests.sh + test_lib.sh + test_sandbox.sh; unit/ (116 files), integration/ (11), e2e/ (6)
 ├── migrations/         ← timestamped, idempotent migration scripts
 ├── upstream/           ← git submodules: opencode, mcp-servers, searxng, superpowers, skill-conductor
 ├── docs/               ← MkDocs source (EN + RU), plans/, research/, architecture/adr/
@@ -133,8 +133,13 @@ by `scripts/install-agentic-stack.sh`). V2 rules that differ from V1:
   `deploy/agentic-stack` services). `filesystem`/`fetch`/`playwright` are disabled because builtin tools cover them
   (context economy); `github`/`brave-search`/`notion`/`sentry` are disabled pending credentials;
   `sqlite` is disabled (upstream Python server is incompatible with the current MCP SDK).
-- Providers: only authenticated ones are enabled via `enabled_providers` — **`opencode-go`,
-  `minimax-coding-plan`, `minimax`, `xiaomi-token-plan-sgp`, `deepseek`, `opencode`** (2026-10-26).
+- Providers (cost-first, 2026-11-01): `enabled_providers` is **`xiaomi-token-plan-sgp`,
+  `minimax-coding-plan`, `deepseek`**. The two token plans are prepaid and carry no marginal
+  cost; DeepSeek is pay-as-you-go with a **$10/month budget** and is only a fallback
+  (`deepseek/deepseek-flash`, never `v4-pro` unless deliberately escalated). `opencode-go`
+  (key expired), `opencode` and `minimax` (metered) are denied via `policies` and excluded
+  from `enabled_providers`; `~/.config/opencode/logs/token-tracker/tokens.jsonl` records every
+  call and `scripts/ai-usage.py` reports billable vs prepaid spend.
   Keys live in `~/.config/opencode/secrets.env` (chmod 600) and
   `~/.config/environment.d/90-opencode-secrets.conf` (chmod 600, so GUI-launched services get them);
   `xai`/`moonshotai` keys are stored but the providers stay disabled until needed.

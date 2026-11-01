@@ -3,14 +3,16 @@
   "version": "1.1.0",
   "description": "v1.1.0 retires the deepseek-v4-flash alias (see retired_models), restates DeepSeek as metered with an off-peak/peak price split (see cost_policy), and marks minimax small_model explicitly unset. Single Source of Truth (SSOT) for task→model routing. Consolidates the three formerly divergent tables: 36-model-router.sh task-profiles.json, scripts/ai-router.json, and .opencode/opencode-swarm.json agent map. The providers section mirrors src/data/providers.json (routing-relevant fields only). See src/data/README.md.",
   "defaults": {
-    "default_provider": "deepseek",
-    "default_model": "deepseek/deepseek-v4-pro",
-    "fast_model": "deepseek/deepseek-flash",
+    "default_provider": "xiaomi-token-plan-sgp",
+    "default_model": "xiaomi-token-plan-sgp/mimo-v2.6-pro",
+    "fast_model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
     "fallback_chain": [
-      "deepseek",
-      "zai",
-      "minimax"
-    ]
+      "xiaomi-token-plan-sgp",
+      "minimax-coding-plan",
+      "minimax",
+      "deepseek"
+    ],
+    "policy": "Prepaid token plans first (Xiaomi MiMo, MiniMax). DeepSeek is pay-as-you-go: last-resort fallback only, deepseek-flash unless explicitly escalated to deepseek-v4-pro."
   },
   "retired_models": {
     "deepseek-v4-flash": {
@@ -27,9 +29,9 @@
   "complexity_rules": {
     "simple": {
       "max_tokens": 2000,
-      "provider": "deepseek",
-      "model": "deepseek/deepseek-flash",
-      "cost_per_1k": 0.00014,
+      "provider": "xiaomi-token-plan-sgp",
+      "model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
+      "cost_per_1k": 0.0,
       "examples": [
         "fix typo",
         "add comment",
@@ -39,9 +41,9 @@
     },
     "medium": {
       "max_tokens": 8000,
-      "provider": "deepseek",
-      "model": "deepseek/deepseek-v4-pro",
-      "cost_per_1k": 0.00055,
+      "provider": "xiaomi-token-plan-sgp",
+      "model": "xiaomi-token-plan-sgp/mimo-v2.6-pro",
+      "cost_per_1k": 0.0,
       "examples": [
         "implement feature",
         "refactor module",
@@ -51,164 +53,157 @@
     },
     "complex": {
       "max_tokens": 64000,
-      "provider": "deepseek",
-      "model": "deepseek/deepseek-v4-pro",
+      "provider": "minimax-coding-plan",
+      "model": "minimax-coding-plan/MiniMax-M3",
       "thinking": true,
-      "cost_per_1k": 0.00219,
+      "cost_per_1k": 0.0,
       "examples": [
-        "system design",
-        "architecture review",
-        "debug complex bug",
-        "security audit"
+        "design architecture",
+        "debug deep issue",
+        "security audit",
+        "multi-file refactor"
       ]
     }
   },
   "task_routing": {
     "code_generation": {
-      "provider": "deepseek",
-      "model": "deepseek-v4-pro"
+      "provider": "xiaomi-token-plan-sgp",
+      "model": "mimo-v2.6-pro"
     },
     "code_review": {
-      "provider": "deepseek",
-      "model": "deepseek-flash"
+      "provider": "minimax-coding-plan",
+      "model": "MiniMax-M3"
     },
     "testing": {
-      "provider": "deepseek",
-      "model": "deepseek-flash"
+      "provider": "xiaomi-token-plan-sgp",
+      "model": "mimo-v2.6-flash"
     },
     "documentation": {
-      "provider": "deepseek",
-      "model": "deepseek-flash"
+      "provider": "xiaomi-token-plan-sgp",
+      "model": "mimo-v2.6-flash"
     },
     "architecture": {
-      "provider": "deepseek",
-      "model": "deepseek-v4-pro",
+      "provider": "minimax-coding-plan",
+      "model": "MiniMax-M3",
       "thinking": true
     },
     "security_audit": {
-      "provider": "deepseek",
-      "model": "deepseek-v4-pro",
+      "provider": "minimax-coding-plan",
+      "model": "MiniMax-M3",
       "thinking": true
     },
     "devops": {
-      "provider": "deepseek",
-      "model": "deepseek-flash"
+      "provider": "xiaomi-token-plan-sgp",
+      "model": "mimo-v2.6-flash"
     },
     "ui_design": {
-      "provider": "xai",
-      "model": "grok-4.3"
+      "provider": "xiaomi-token-plan-sgp",
+      "model": "mimo-v2.6-pro"
     },
     "research": {
-      "provider": "deepseek",
-      "model": "deepseek-v4-pro",
+      "provider": "xiaomi-token-plan-sgp",
+      "model": "mimo-v2.6-pro",
       "thinking": true
     },
     "refactoring": {
-      "provider": "deepseek",
-      "model": "deepseek-v4-pro"
+      "provider": "xiaomi-token-plan-sgp",
+      "model": "mimo-v2.6-pro"
     },
     "debugging": {
-      "provider": "deepseek",
-      "model": "deepseek-v4-pro"
+      "provider": "minimax-coding-plan",
+      "model": "MiniMax-M3",
+      "thinking": true
     },
     "data_analysis": {
-      "provider": "deepseek",
-      "model": "deepseek-v4-pro"
+      "provider": "xiaomi-token-plan-sgp",
+      "model": "mimo-v2.6-pro"
     }
   },
   "task_profiles": {
     "coding": {
       "description": "Primary coding, implementation, refactoring",
-      "model": "deepseek/deepseek-v4-pro",
-      "small_model": "deepseek/deepseek-flash",
+      "model": "xiaomi-token-plan-sgp/mimo-v2.6-pro",
+      "small_model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
       "fallback": [
-        "zai/glm-5.2",
-        "anthropic/claude-opus-4-8"
+        "minimax-coding-plan/MiniMax-M3",
+        "deepseek/deepseek-flash"
       ],
-      "rationale": "DeepSeek V4 Pro: best price/performance for coding, 1M context. Metered, NOT free: $0.66/M input and $1.98/M output off-peak, doubled during peak hours (01:00-04:00 and 06:00-10:00 UTC, Mon-Fri) — schedule heavy batches outside that window."
+      "rationale": "Xiaomi MiMo-V2.6-Pro on the prepaid token plan: 1M context, no marginal cost. DeepSeek Flash is the paid fallback only."
     },
     "reasoning": {
       "description": "Complex reasoning, architecture, planning",
-      "model": "anthropic/claude-opus-4-8",
-      "small_model": "anthropic/claude-sonnet-4-6",
+      "model": "minimax-coding-plan/MiniMax-M3",
+      "small_model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
       "fallback": [
-        "zai/glm-5.2",
-        "openai/gpt-5.5",
-        "deepseek/deepseek-v4-pro"
+        "xiaomi-token-plan-sgp/mimo-v2.6-pro",
+        "deepseek/deepseek-flash"
       ],
-      "rationale": "Claude Opus 4.8: deepest reasoning, 1M context, tool use"
+      "rationale": "MiniMax-M3 on the coding token plan for the deepest reasoning; Xiaomi Pro as the second prepaid route."
     },
     "fast": {
       "description": "Quick answers, exploration, compaction",
-      "model": "deepseek/deepseek-flash",
-      "small_model": "deepseek/deepseek-flash",
+      "model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
+      "small_model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
       "fallback": [
-        "zai/glm-5-turbo",
-        "google/gemini-3.5-flash",
-        "groq/llama-4-maverick"
+        "minimax-coding-plan/MiniMax-M3.1-Flash",
+        "deepseek/deepseek-flash"
       ],
-      "rationale": "DeepSeek Flash: fastest, cheapest metered tier, 1M context. Metered, NOT free: $0.15/M input and $0.60/M output off-peak ($0.003/M cache hit), doubled during peak hours (01:00-04:00 and 06:00-10:00 UTC, Mon-Fri)."
+      "rationale": "MiMo-V2.6-Flash: fastest prepaid tier for exploration, compaction and small edits."
     },
     "agentic": {
       "description": "Tool use, multi-step workflows, autonomous agents",
-      "model": "deepseek/deepseek-v4-pro",
-      "small_model": "deepseek/deepseek-flash",
+      "model": "xiaomi-token-plan-sgp/mimo-v2.6-pro",
+      "small_model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
       "fallback": [
-        "zai/glm-5.2",
-        "anthropic/claude-opus-4-8"
+        "minimax-coding-plan/MiniMax-M3",
+        "deepseek/deepseek-flash"
       ],
-      "rationale": "DeepSeek V4 Pro: best agentic tool use, 1M context. Metered, NOT free: $0.66/M input and $1.98/M output off-peak, doubled during peak hours (01:00-04:00 and 06:00-10:00 UTC, Mon-Fri)."
+      "rationale": "MiMo-V2.6-Pro: best prepaid agentic tool use, 1M context."
     },
     "budget": {
       "description": "Cost-sensitive tasks, bulk operations",
-      "model": "zai/glm-5.2",
-      "small_model": "zai/glm-5-turbo",
+      "model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
+      "small_model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
       "fallback": [
-        "deepseek/deepseek-flash",
-        "google/gemini-3.5-flash",
-        "groq/llama-4-maverick"
+        "minimax-coding-plan/MiniMax-M3.1-Flash"
       ],
-      "rationale": "GLM-5.2: free tier, 1M context, open weights, strong coding"
+      "rationale": "Cheapest prepaid route; no paid fallback for bulk work."
     },
     "vision": {
       "description": "Image analysis, multimodal tasks",
-      "model": "google/gemini-3.5-flash",
-      "small_model": "google/gemini-3.1-flash-lite",
+      "model": "xiaomi-token-plan-sgp/mimo-v2.6-pro",
+      "small_model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
       "fallback": [
-        "anthropic/claude-opus-4-8",
-        "openai/gpt-5.5"
+        "minimax-coding-plan/MiniMax-M3",
+        "deepseek/deepseek-flash"
       ],
-      "rationale": "Gemini 3.5 Flash: best multimodal, 1M context, free tier"
+      "rationale": "MiMo-V2.6-Pro accepts text+image on the prepaid plan."
     },
     "isolated": {
-      "description": "Air-gapped operation (Isolated Circuit Mode)",
+      "description": "Offline / air-gapped work",
       "model": "ollama/qwen3:32b",
       "small_model": "ollama/qwen3:14b",
-      "fallback": [
-        "ollama/qwen3:14b",
-        "ollama/qwen3:1.8b"
-      ],
-      "rationale": "Qwen3 32B: best local coding model, fits in 20GB VRAM"
+      "fallback": [],
+      "rationale": "Local only; never reaches a cloud provider when ISOLATED_CIRCUIT=true."
     },
     "ru_cn": {
-      "description": "Optimized for Russian/Chinese language tasks",
-      "model": "zai/glm-5.2",
-      "small_model": "zai/glm-5-turbo",
+      "description": "Russian/Chinese language work",
+      "model": "xiaomi-token-plan-sgp/mimo-v2.6-pro",
+      "small_model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
       "fallback": [
-        "deepseek/deepseek-v4-pro",
-        "alibaba/qwen3.7-plus"
+        "minimax-coding-plan/MiniMax-M3"
       ],
-      "rationale": "GLM-5.2: best RU/CN language support, free tier, open weights"
+      "rationale": "MiMo-V2.6-Pro has strong ru/zh coverage on the prepaid plan."
     },
     "testing": {
-      "description": "Test generation, QA, verification, coverage",
-      "model": "deepseek/deepseek-flash",
-      "small_model": "deepseek/deepseek-flash",
+      "description": "Test generation and fixes",
+      "model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
+      "small_model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
       "fallback": [
-        "zai/glm-5.2",
-        "groq/llama-4-maverick"
+        "minimax-coding-plan/MiniMax-M3.1-Flash",
+        "deepseek/deepseek-flash"
       ],
-      "rationale": "RECONCILED 2026-08-17: ai-router.json routed testing→xai/grok-4.3 and swarm mapped test_engineer→opencode/gpt-5-nano. Unified to deepseek-flash (cheapest metered tier, high-volume/low-complexity; keep test batches inside the off-peak window where rates halve)."
+      "rationale": "Fast prepaid model for routine test work; DeepSeek Flash only if plans fail."
     }
   },
   "cost_table": {
@@ -328,6 +323,46 @@
       "context": 131072,
       "free": true,
       "local": true
+    },
+    "xiaomi-token-plan-sgp/mimo-v2.6-pro": {
+      "input": 0,
+      "output": 0,
+      "cache_read": 0,
+      "context": 1048576,
+      "free": true,
+      "prepaid": true,
+      "max_output_tokens": 131072,
+      "plan": "Xiaomi MiMo token plan"
+    },
+    "xiaomi-token-plan-sgp/mimo-v2.6-flash": {
+      "input": 0,
+      "output": 0,
+      "cache_read": 0,
+      "context": 1048576,
+      "free": true,
+      "prepaid": true,
+      "max_output_tokens": 131072,
+      "plan": "Xiaomi MiMo token plan"
+    },
+    "minimax-coding-plan/MiniMax-M3": {
+      "input": 0,
+      "output": 0,
+      "cache_read": 0,
+      "context": 1000000,
+      "free": true,
+      "prepaid": true,
+      "max_output_tokens": 524288,
+      "plan": "MiniMax token plan"
+    },
+    "minimax-coding-plan/MiniMax-M3.1-Flash": {
+      "input": 0,
+      "output": 0,
+      "cache_read": 0,
+      "context": 1000000,
+      "free": true,
+      "prepaid": true,
+      "max_output_tokens": 524288,
+      "plan": "MiniMax token plan"
     }
   },
   "cost_policy": {
@@ -341,48 +376,54 @@
     "deepseek_rule": "Off-peak rates are half of the peak rates.",
     "verified": "2026-10-16",
     "source": "https://api-docs.deepseek.com/quick_start/pricing",
-    "scheduling": "Batch LLM work (CI, test generation, repo maintenance, dependency updates) inside the off-peak window; .github/dependabot.yml is scheduled Sunday 05:00 UTC for exactly this reason."
+    "scheduling": "Batch LLM work (CI, test generation, repo maintenance, dependency updates) inside the off-peak window; .github/dependabot.yml is scheduled Sunday 05:00 UTC for exactly this reason.",
+    "monthly_budgets": {
+      "currency": "USD",
+      "deepseek": 10.0
+    },
+    "routing_rule": "Prepaid token plans are the default and carry no marginal cost. DeepSeek is pay-as-you-go with a $10/month budget: it is the last fallback and prefers deepseek-flash; reserve deepseek-v4-pro for a deliberate escalation.",
+    "paid_fallback": "deepseek/deepseek-flash"
   },
   "agents": {
     "developer": {
-      "model": "deepseek/deepseek-v4-pro",
+      "model": "xiaomi-token-plan-sgp/mimo-v2.6-pro",
       "temperature": 0.2
     },
     "architect": {
-      "model": "deepseek/deepseek-v4-pro",
+      "model": "minimax-coding-plan/MiniMax-M3",
       "temperature": 0.1
     },
     "analyst": {
-      "model": "deepseek/deepseek-v4-pro",
+      "model": "xiaomi-token-plan-sgp/mimo-v2.6-pro",
       "temperature": 0.1
     },
     "researcher": {
-      "model": "deepseek/deepseek-v4-pro",
+      "model": "xiaomi-token-plan-sgp/mimo-v2.6-pro",
       "temperature": 0.3
     },
     "security": {
-      "model": "deepseek/deepseek-v4-pro",
+      "model": "minimax-coding-plan/MiniMax-M3",
       "temperature": 0.1
     },
     "pm": {
-      "model": "deepseek/deepseek-flash",
+      "model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
       "temperature": 0.2
     },
     "devops": {
-      "model": "deepseek/deepseek-flash",
+      "model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
       "temperature": 0.2
     },
     "reviewer": {
-      "model": "deepseek/deepseek-flash",
+      "model": "minimax-coding-plan/MiniMax-M3",
       "temperature": 0.1
     },
-    "qa": {
-      "model": "deepseek/deepseek-flash",
+    "docs": {
+      "model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
       "temperature": 0.2
     },
-    "designer": {
-      "model": "xai/grok-4.3",
-      "temperature": 0.5
+    "tester": {
+      "model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
+      "temperature": 0.2
     }
   },
   "providers": {

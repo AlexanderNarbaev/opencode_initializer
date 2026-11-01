@@ -22,9 +22,11 @@ This file is loaded for every DSH session on this machine as the user-global
   exported into DSH's environment at launch.
 - Main repositories live under `~/Projects`; `~/Projects/opencode_initializer`
   is the bootstrap/automation repo (`setup.sh`, `dev.sh`, `scripts/`).
-- DeepSeek routes: `deepseek-official/deepseek-v4-pro` (default) and
-  `deepseek-official/deepseek-flash`; alternate token plans are exposed through
-  `llm-pi-ai` (xiaomi-token-plan-sgp, minimax).
+- Default route: `xiaomi-token-plan-sgp/mimo-v2.6-pro` (prepaid MiMo token plan).
+  Alternates: `minimax` (MiniMax token plan) and the metered `deepseek-official` routes
+  (`deepseek-v4-pro` / `deepseek-flash`). DeepSeek is pay-as-you-go with a $10/month
+  budget, so it is never the default: use it only when the prepaid plans are unavailable
+  or the task explicitly needs a DeepSeek model.
 
 ## Work discipline
 

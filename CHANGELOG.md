@@ -32,6 +32,9 @@
 
 ### Added
 
+* **Cost-first model routing for OpenCode and DSH (2026-11-01):** prepaid Xiaomi MiMo and MiniMax token plans are now the default routes (MiMo Pro for coding/agentic, MiMo Flash for fast/compaction/testing, MiniMax-M3 for reasoning/review), while DeepSeek stays a pay-as-you-go fallback under a **$10/month** budget. `enabled_providers` is trimmed to the two plans plus DeepSeek, and `policies` deny the expired `opencode-go` key and the metered `opencode`/`minimax` routes. Per-agent models are pinned in the OpenCode config; `src/data/routing.json` carries the same matrix (defaults, task profiles, task routing, complexity rules, prepaid cost-table entries, `monthly_budgets`).
+* `scripts/ai-usage.py` — token/spend report over the token-tracker JSONL: billable vs prepaid value, DeepSeek budget gauge, `--json`, `--days`, `--budget`; exits `1` at/over budget. Covered by `tests/unit/test_ai_usage.sh` (11 hermetic assertions).
+* DSH now defaults to `xiaomi-token-plan-sgp/mimo-v2.6-pro` (prepaid); DeepSeek remains selectable but is not the default.
 * **DeepSeek Harness provisioning:** `scripts/dsh-setup.sh` (check/apply/dry-run) renders `src/data/dsh/cordis.patch.web.yml` and `src/data/dsh/AGENTS.md` into `$DSH_HOME`, links the shared skill library, and validates the composed profile with `dsh --dump-config`. The profile sets `deepseek-official/deepseek-v4-pro` (reasoning `max`) as the default route, keeps the Xiaomi/MiniMax token-plan alternatives, and mounts three MCP servers (`context7`, `sequential_thinking`, `memory`). Verified live: all three servers connected, 49 skills visible, knowledge graph persisted to `~/.dsh/mcp/memory.json`, no restart needed.
 * `tests/unit/test_dsh_setup.sh` — 22 hermetic assertions (temp HOME, stubbed `dsh`), covering apply/check/dry-run, placeholder rendering, drift backups and missing-profile failure.
 

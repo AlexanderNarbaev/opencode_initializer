@@ -55,9 +55,10 @@
 - id: agent-default-model
   name: "@deepseek-ai/dsh-agent-default-model"
   config:
-    provider: deepseek-official
-    model: deepseek-v4-pro
-    reasoningEffort: max
+    # Prepaid token plan first; DeepSeek stays available as a selectable route
+    # but is not the default (pay-as-you-go budget: $10/month).
+    provider: xiaomi-token-plan-sgp
+    model: mimo-v2.6-pro
 
 # ── MCP servers ────────────────────────────────────────────────────────────
 # New rows need an explicit `insert` block; id+name alone is treated as an
