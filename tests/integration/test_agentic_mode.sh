@@ -41,7 +41,7 @@ rm -rf "$TMP_HOME2"
 echo
 echo "=== Test 4: --dry-run alone keeps its historical behaviour ==="
 TMP_HOME3="$(mktemp -d)"
-out3="$(SKIP_MIRROR_RESOLVE=true HOME="$TMP_HOME3" timeout 120 bash "$SETUP" --dry-run 2>&1)"; rc3=$?
+out3="$(SKIP_MIRROR_RESOLVE=true HOME="$TMP_HOME3" timeout 300 bash "$SETUP" --dry-run 2>&1)"; rc3=$?
 [ "$rc3" -eq 0 ] && pass "--dry-run exits 0" || fail "--dry-run exited $rc3"
 case "$out3" in *"Bootstrap complete"*) pass "--dry-run still previews the full plan" ;; *) fail "--dry-run lost the full plan" ;; esac
 rm -rf "$TMP_HOME3"

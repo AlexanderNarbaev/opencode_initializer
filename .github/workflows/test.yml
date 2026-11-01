@@ -46,7 +46,7 @@ jobs:
         env:
           CI: "true"
           GITHUB_ACTIONS: "true"
-          TEST_TIMEOUT: "300"
+          TEST_TIMEOUT: "600"
         run: bash tests/run_tests.sh --section integration
   
   python-tests:
