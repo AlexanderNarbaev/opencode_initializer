@@ -588,11 +588,6 @@ cmd_models() {
   local task="${2:-}"
   local ROUTER="$HOME/.config/opencode/model-router/recommend.sh"
 
-  if [ ! -f "$ROUTER" ]; then
-    err "Model router not installed. Run: bash setup.sh --full"
-    return 1
-  fi
-
   if [ -z "$task" ]; then
     section "Available Task Profiles"
     echo "  coding     — Primary coding, implementation, refactoring"
@@ -646,7 +641,33 @@ cmd_models() {
     return 0
   fi
 
-  bash "$ROUTER" "$task"
+  if [ -f "$ROUTER" ]; then
+    bash "$ROUTER" "$task"
+    return $?
+  fi
+
+  # Fallback: the routing.json SSOT works without the optional router install.
+  local routing="$SCRIPT_DIR/src/data/routing.json"
+  if ! command -v jq >/dev/null 2>&1 || [ ! -f "$routing" ]; then
+    err "Model router not installed and jq/routing.json unavailable. Run: bash setup.sh --full"
+    return 1
+  fi
+  local model small fallback rationale
+  model="$(jq -r --arg t "$task" '.task_profiles[$t].model // empty' "$routing")"
+  if [ -z "$model" ]; then
+    err "Unknown task profile: $task"
+    echo "  Available: $(jq -r '.task_profiles | keys | join(", ")' "$routing")"
+    return 1
+  fi
+  section "Recommended model for: $task"
+  echo "  Model:        $model"
+  small="$(jq -r --arg t "$task" '.task_profiles[$t].small_model // empty' "$routing")"
+  [ -n "$small" ] && echo "  Small model:  $small"
+  fallback="$(jq -r --arg t "$task" '(.task_profiles[$t].fallback // []) | join(" -> ")' "$routing")"
+  [ -n "$fallback" ] && echo "  Fallback:     $fallback"
+  rationale="$(jq -r --arg t "$task" '.task_profiles[$t].rationale // empty' "$routing")"
+  [ -n "$rationale" ] && echo "  Why:          $rationale"
+  return 0
 }
 
 cmd_doctor() {

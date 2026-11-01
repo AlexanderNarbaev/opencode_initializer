@@ -121,7 +121,8 @@ _pre_session() {
 import json; d=json.load(open('$cfg'))
 print(f\"  Model: {d.get('model','?')}\")
 print(f\"  Small: {d.get('small_model','?')}\")
-print(f\"  Providers: {len(d.get('provider',{}))}  MCPs: {len(d.get('mcp',{}))}  LSPs: {len(d.get('lsp',{}))}  Plugins: {len(d.get('plugin',[]))}\")
+providers = d.get('enabled_providers') or list(d.get('provider', {}))
+print(f\"  Providers: {len(providers)}  MCPs: {len(d.get('mcp',{}))}  LSPs: {len(d.get('lsp',{}))}  Plugins: {len(d.get('plugin',[]))}\")
 isolated = d.get('experimental',{}).get('model_router_dir', '')
 if isolated:
     print(f\"  Model Router: {isolated}\")
