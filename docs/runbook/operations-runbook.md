@@ -399,7 +399,7 @@ docker compose -f ~/.local/share/opencode-init/infra/docker-compose.yml up -d po
 
 ## DeepSeek Harness (DSH) profile
 
-The machine runs DSH 0.2.1-rc.2 as the primary agent harness (`dsh web` on
+The machine runs DSH 0.2.1-rc.5 as the primary agent harness (`dsh web` on
 `http://127.0.0.1:3080`). Its configuration is reproducible from this repo:
 
 ```bash
@@ -437,10 +437,11 @@ dsh --profile web --dump-config | grep -E 'id: (mcp-|agent-default-model)'
 bash scripts/dsh-setup.sh --check
 ```
 
-Upgrading DSH (`npm install -g @deepseek-ai/dsh@0.2.1-rc.5`) requires the npm
-mirror to resolve ~86 dependencies; when the registry is slow, the install
-times out and the old version stays active. The configuration above is
-version-independent within the 0.2.x line.
+DSH is upgraded with `npm install -g @deepseek-ai/dsh@<version>` (the current
+install is 0.2.1-rc.5). The install resolves ~86 dependencies through the npm
+mirror; when the registry is slow, retry rather than falling back to an older
+version. Restarting `dsh web` keeps sessions on disk, so they resume after the
+upgrade; the profile patch above survives upgrades.
 
 ---
 
