@@ -22,10 +22,16 @@ cat > "$TMP/bin/dsh" <<'STUB'
 case "${1:-}" in
   --version) echo "0.2.1-rc.2" ;;
   --profile) exit 0 ;;
+  plugin)
+    [ -n "${DSH_TEST_PLUGIN_LOG:-}" ] && echo "$*" >> "$DSH_TEST_PLUGIN_LOG"
+    exit 0
+    ;;
 esac
 exit 0
 STUB
 chmod +x "$TMP/bin/dsh"
+printf '#!/usr/bin/env bash\nexit 0\n' > "$TMP/bin/pnpm"
+chmod +x "$TMP/bin/pnpm"
 
 export HOME="$FAKE_HOME"
 export DSH_HOME="$FAKE_HOME/.dsh"
@@ -36,6 +42,7 @@ echo "=== Test 1: script is present and parses ==="
 bash -n "$SCRIPT" 2>/dev/null && pass "syntax" || fail "syntax"
 [ -f "$PROJECT_DIR/src/data/dsh/cordis.patch.web.yml" ] && pass "profile template exists" || fail "profile template missing"
 [ -f "$PROJECT_DIR/src/data/dsh/AGENTS.md" ] && pass "AGENTS template exists" || fail "AGENTS template missing"
+[ -f "$PROJECT_DIR/src/data/dsh/plugins.txt" ] && pass "plugin manifest exists" || fail "plugins.txt missing"
 
 echo
 echo "=== Test 2: --apply provisions a fresh DSH home ==="
@@ -58,11 +65,40 @@ grep -q 'mcp-memory' "$patch_file" && pass "memory MCP entry present" || fail "m
 grep -q '__HOME__' "$DSH_HOME/AGENTS.md" && fail "AGENTS.md still contains placeholder" || pass "AGENTS.md rendered"
 
 echo
-echo "=== Test 4: --check passes after apply ==="
-bash "$SCRIPT" --check >/dev/null 2>&1 && pass "--check exits 0" || fail "--check failed after apply"
+echo "=== Test 4: --check reports missing plugins ==="
+out="$(bash "$SCRIPT" --check 2>&1)"; rc=$?
+[ "$rc" -ne 0 ] && pass "--check fails while plugins are absent" || fail "--check passed without plugins"
+grep -q 'missing plugins' <<< "$out" && pass "check names the missing plugins" || fail "check does not report plugins"
 
 echo
-echo "=== Test 5: drift is backed up and repaired ==="
+echo "=== Test 5: --apply --plugins installs the manifest ==="
+PLUG_HOME="$TMP/plug"
+export DSH_TEST_PLUGIN_LOG="$TMP/plugin-add.log"
+out="$(DSH_HOME="$PLUG_HOME" bash "$SCRIPT" --apply --plugins 2>&1)"; rc=$?
+[ "$rc" -eq 0 ] && pass "--apply --plugins exits 0" || fail "--apply --plugins exited $rc: $out"
+want="$(grep -vE '^[[:space:]]*(#|$)' "$PROJECT_DIR/src/data/dsh/plugins.txt" | wc -l | tr -d ' ')"
+got="$(wc -l < "$DSH_TEST_PLUGIN_LOG" 2>/dev/null | tr -d ' ')"
+[ "${got:-0}" -eq "$want" ] && pass "all $want plugins passed to dsh plugin add" || fail "plugin add calls: ${got:-0}/$want"
+while IFS= read -r name; do
+  [ -n "$name" ] || continue
+  grep -q "add $name$" "$DSH_TEST_PLUGIN_LOG" 2>/dev/null && pass "add $name" || fail "missing add $name"
+done < <(grep -vE '^[[:space:]]*(#|$)' "$PROJECT_DIR/src/data/dsh/plugins.txt")
+
+echo
+echo "=== Test 6: --check passes once plugins are recorded ==="
+python3 - "$DSH_HOME/profiles/web/package.json" "$PROJECT_DIR/src/data/dsh/plugins.txt" <<'PY'
+import json, sys, pathlib
+deps = [l.strip() for l in pathlib.Path(sys.argv[2]).read_text().splitlines()
+        if l.strip() and not l.startswith('#')]
+profile = {"name": "dsh-profile-web", "private": True,
+           "dependencies": {d: "^1.0.0" for d in deps},
+           "dsh": {"profile": {"bundles": []}}}
+pathlib.Path(sys.argv[1]).write_text(json.dumps(profile, indent=2) + "\n")
+PY
+bash "$SCRIPT" --check >/dev/null 2>&1 && pass "--check exits 0 with plugins recorded" || fail "--check failed after recording plugins"
+
+echo
+echo "=== Test 7: drift is backed up and repaired ==="
 echo '# manual drift' >> "$patch_file"
 out="$(bash "$SCRIPT" --apply 2>&1)"; rc=$?
 [ "$rc" -eq 0 ] && pass "re-apply exits 0" || fail "re-apply exited $rc"
@@ -71,7 +107,7 @@ ls "$DSH_HOME/profiles/web"/cordis.patch.yml.bak.* >/dev/null 2>&1 \
 grep -q 'manual drift' "$patch_file" && fail "drift not repaired" || pass "drift repaired"
 
 echo
-echo "=== Test 6: --dry-run changes nothing ==="
+echo "=== Test 8: --dry-run changes nothing ==="
 DRY_HOME="$TMP/dry"
 DSH_HOME="$DRY_HOME" bash "$SCRIPT" --dry-run >/dev/null 2>&1; rc=$?
 [ "$rc" -eq 0 ] && pass "--dry-run exits 0" || fail "--dry-run exited $rc"
@@ -79,7 +115,7 @@ DSH_HOME="$DRY_HOME" bash "$SCRIPT" --dry-run >/dev/null 2>&1; rc=$?
 [ -e "$DRY_HOME/AGENTS.md" ] && fail "--dry-run wrote AGENTS.md" || pass "--dry-run did not write AGENTS.md"
 
 echo
-echo "=== Test 7: --check fails on a missing profile ==="
+echo "=== Test 9: --check fails on a missing profile ==="
 DSH_HOME="$TMP/empty" bash "$SCRIPT" --check >/dev/null 2>&1; rc=$?
 [ "$rc" -ne 0 ] && pass "--check fails when profile absent" || fail "--check passed with no profile"
 

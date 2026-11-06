@@ -145,6 +145,12 @@ by `scripts/install-agentic-stack.sh`). V2 rules that differ from V1:
   `xai`/`moonshotai` keys are stored but the providers stay disabled until needed.
   Never place a key in `opencode.json` or in this repo.
 - Skills: repo `.opencode/skills` is flattened into `~/.config/opencode/skills` (43 skills).
+- Community plugins (curated in `src/data/dsh/plugins.txt`, installed with
+  `scripts/dsh-setup.sh --apply --plugins`; HMR loads them without a restart):
+  `dshmarket` (marketplace), `dsh-cost-meter` (spend/plan quotas), `dsh-context`
+  (context insight), `dsh-diff-approval` (diff review), `dsh-free-search`
+  (keyless multi-engine search), `@yolk_vat-y/dsh-project-memory` (persistent
+  project memory).
 
 Verify with `bash scripts/install-agentic-stack.sh --check`.
 

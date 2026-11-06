@@ -1,0 +1,22 @@
+# Curated community plugins for the DSH web profile.
+# Installed by: scripts/dsh-setup.sh --apply --plugins
+# Verified on DSH 0.2.1-rc.5 (engines/peer ranges checked before install).
+# One npm package name per line; comments and blank lines are ignored.
+
+# Marketplace UI: browse, search and one-click install community plugins.
+dshmarket
+
+# Cost control: per-session cost, daily spend, historical usage and token-plan quotas.
+dsh-cost-meter
+
+# Context insight: dashboard/command showing how the context is built and evolves.
+dsh-context
+
+# Control: review pending edits with a whole-file diff and Keep/Revert.
+dsh-diff-approval
+
+# Capability: keyless multi-engine web search (Bing/DDG/SearXNG/DeepSeek/...).
+dsh-free-search
+
+# Memory: persistent project memory (docs, code symbols, tasks, lessons, decisions).
+@yolk_vat-y/dsh-project-memory

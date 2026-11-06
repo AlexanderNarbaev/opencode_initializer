@@ -7,9 +7,11 @@
 # alone, changed files are backed up first.
 #
 # Usage:
-#   scripts/dsh-setup.sh --check      # read-only verification (default)
-#   scripts/dsh-setup.sh --apply      # write templates + symlink + validate
-#   scripts/dsh-setup.sh --dry-run    # print planned actions, change nothing
+#   scripts/dsh-setup.sh --check             # read-only verification (default)
+#   scripts/dsh-setup.sh --apply             # write templates + symlink + validate
+#   scripts/dsh-setup.sh --apply --plugins   # also install missing community plugins
+#   scripts/dsh-setup.sh --dry-run           # print planned actions, change nothing
+#   scripts/dsh-setup.sh --plugins --check   # include plugin presence in the check
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -20,25 +22,29 @@ PATCH_TEMPLATE="$TEMPLATE_DIR/cordis.patch.web.yml"
 AGENTS_TEMPLATE="$TEMPLATE_DIR/AGENTS.md"
 PATCH_TARGET="$DSH_HOME/profiles/$PROFILE/cordis.patch.yml"
 AGENTS_TARGET="$DSH_HOME/AGENTS.md"
+PLUGINS_FILE="$TEMPLATE_DIR/plugins.txt"
+PROFILE_DEPS="$DSH_HOME/profiles/$PROFILE/package.json"
 SKILLS_SOURCE="$HOME/.config/opencode/skills"
 [ -d "$SKILLS_SOURCE" ] || SKILLS_SOURCE="$REPO_ROOT/.opencode/skills"
 
 MODE="check"
-case "${1:-}" in
-  --check)   MODE="check" ;;
-  --apply)   MODE="apply" ;;
-  --dry-run) MODE="dry-run" ;;
-  -h|--help)
-    sed -n '2,14p' "$0" | sed 's/^# \{0,1\}//'
-    exit 0
-    ;;
-  "")
-    ;;
-  *)
-    echo "unknown option: $1 (use --check, --apply or --dry-run)" >&2
-    exit 2
-    ;;
-esac
+WANT_PLUGINS=0
+for arg in "$@"; do
+  case "$arg" in
+    --check)   MODE="check" ;;
+    --apply)   MODE="apply" ;;
+    --dry-run) MODE="dry-run" ;;
+    --plugins) WANT_PLUGINS=1 ;;
+    -h|--help)
+      sed -n '2,15p' "$0" | sed 's/^# \{0,1\}//'
+      exit 0
+      ;;
+    *)
+      echo "unknown option: $arg (use --check, --apply, --dry-run, --plugins)" >&2
+      exit 2
+      ;;
+  esac
+done
 
 # Resolve the binary once: non-login shells often miss ~/.npm-global/bin.
 DSH_BIN="${DSH_BIN:-}"
@@ -50,6 +56,11 @@ if [ -z "$DSH_BIN" ]; then
   fi
 fi
 
+PNPM_BIN="${PNPM_BIN:-$(command -v pnpm 2>/dev/null || true)}"
+if [ -z "$PNPM_BIN" ] && [ -x "$HOME/.npm-global/bin/pnpm" ]; then
+  PNPM_BIN="$HOME/.npm-global/bin/pnpm"
+fi
+
 PASS=0
 FAIL=0
 CHANGED=0
@@ -59,6 +70,29 @@ fail() { FAIL=$((FAIL + 1)); printf '  FAIL %s\n' "$1" >&2; }
 plan() { CHANGED=$((CHANGED + 1)); printf '  PLAN %s\n' "$1"; }
 
 render() { sed "s|__HOME__|$HOME|g" "$1"; }
+
+read_plugin_list() {
+  [ -f "$PLUGINS_FILE" ] || return 0
+  grep -vE '^[[:space:]]*(#|$)' "$PLUGINS_FILE" | sed 's/[[:space:]]*$//'
+}
+
+plugin_installed() {
+  local name="$1"
+  [ -f "$PROFILE_DEPS" ] || return 1
+  if command -v jq >/dev/null 2>&1; then
+    jq -e --arg p "$name" '.dependencies // {} | has($p)' "$PROFILE_DEPS" >/dev/null 2>&1
+  else
+    grep -q "\"$name\"" "$PROFILE_DEPS"
+  fi
+}
+
+missing_plugins() {
+  local name
+  while IFS= read -r name; do
+    [ -n "$name" ] || continue
+    plugin_installed "$name" || printf '%s\n' "$name"
+  done < <(read_plugin_list)
+}
 
 tmpdir="$(mktemp -d)"
 trap 'rm -rf "$tmpdir"' EXIT
@@ -74,9 +108,11 @@ else
   fail "dsh binary not found (PATH or ~/.npm-global/bin)"
 fi
 
-[ -f "$PATCH_TEMPLATE" ] && [ -f "$AGENTS_TEMPLATE" ] \
-  && pass "templates present (src/data/dsh/)" \
-  || fail "templates missing under $TEMPLATE_DIR"
+if [ -f "$PATCH_TEMPLATE" ] && [ -f "$AGENTS_TEMPLATE" ] && [ -f "$PLUGINS_FILE" ]; then
+  pass "templates present (src/data/dsh/)"
+else
+  fail "templates missing under $TEMPLATE_DIR"
+fi
 
 [ -d "$SKILLS_SOURCE" ] \
   && pass "skill library present ($SKILLS_SOURCE)" \
@@ -105,6 +141,13 @@ if [ "$MODE" = "check" ]; then
   [ "$agents_state" = "current" ] && pass "user AGENTS.md current" || fail "user AGENTS.md $agents_state ($AGENTS_TARGET)"
   [ "$skills_state" = "current" ] && pass "skills symlink current" || fail "skills symlink $skills_state ($DSH_HOME/skills)"
   [ "$mcp_state" = "current" ] && pass "memory dir present" || fail "memory dir missing ($DSH_HOME/mcp)"
+  plugin_total="$(read_plugin_list | sed '/^$/d' | wc -l | tr -d ' ')"
+  plugin_missing="$(missing_plugins)"
+  if [ -z "$plugin_missing" ]; then
+    pass "plugins installed ($plugin_total)"
+  else
+    fail "missing plugins: $(printf '%s ' $plugin_missing)(run --apply --plugins)"
+  fi
   if [ -n "$DSH_BIN" ] && [ "$patch_state" = "current" ]; then
     if "$DSH_BIN" --profile "$PROFILE" --dump-config >/dev/null 2>"$tmpdir/dump.err"; then
       pass "profile composes (dsh --dump-config)"
@@ -123,6 +166,10 @@ else
         mcp)    [ "$mcp_state" = "current" ] || plan "create $DSH_HOME/mcp" ;;
       esac
     done
+    while IFS= read -r name; do
+      [ -n "$name" ] || continue
+      plugin_installed "$name" || plan "install plugin $name"
+    done < <(read_plugin_list)
     [ "$CHANGED" -eq 0 ] && echo "  nothing to change"
     echo "dsh: dry-run — no files written"
     exit 0
@@ -156,6 +203,28 @@ else
     pass "skills symlink -> $SKILLS_SOURCE"
   else
     pass "skills symlink already current"
+  fi
+
+  plugin_missing="$(missing_plugins)"
+  if [ -n "$plugin_missing" ]; then
+    if [ "$WANT_PLUGINS" -eq 1 ]; then
+      if [ -z "$DSH_BIN" ] || [ -z "$PNPM_BIN" ]; then
+        fail "plugin install needs pnpm and dsh on PATH (npm i -g pnpm)"
+      else
+        while IFS= read -r name; do
+          [ -n "$name" ] || continue
+          if PATH="$(dirname "$PNPM_BIN"):$PATH" "$DSH_BIN" plugin --profile "$PROFILE" add "$name" >/dev/null 2>&1; then
+            pass "installed plugin $name"
+          else
+            fail "plugin install failed: $name"
+          fi
+        done <<< "$plugin_missing"
+      fi
+    else
+      echo "  INFO plugins missing (run --apply --plugins): $(printf '%s ' $plugin_missing)"
+    fi
+  else
+    pass "plugins already installed"
   fi
 
   if [ -n "$DSH_BIN" ]; then

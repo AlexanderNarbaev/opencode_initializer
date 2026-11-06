@@ -432,10 +432,36 @@ MCP servers (hot-reloadable, no restart): `context7` (library docs),
 Editing `cordis.patch.yml` triggers DSH's HMR recomposition; the running session
 keeps its history and gains the new tools on the next turn.
 
+Community plugins (curated in `src/data/dsh/plugins.txt`, installed by
+`scripts/dsh-setup.sh --apply --plugins` and hot-loaded by HMR):
+
+| Plugin | What it adds |
+|---|---|
+| `dshmarket` | in-app marketplace: browse/search/install community plugins |
+| `dsh-cost-meter` | per-session cost, daily spend, history, token-plan quotas |
+| `dsh-context` | context dashboard/command: what the context is made of |
+| `dsh-diff-approval` | pending-edit review with whole-file diff, Keep/Revert |
+| `dsh-free-search` | keyless multi-engine search (`multi_search`, `research`, …) |
+| `@yolk_vat-y/dsh-project-memory` | persistent project memory: docs, symbols, tasks, lessons |
+
+```bash
+# check everything (templates + skills + plugins + composition)
+bash scripts/dsh-setup.sh --check
+
+# reproduce the machine state, including plugins
+dsh plugin --profile web add dshmarket dsh-cost-meter ...   # or:
+bash scripts/dsh-setup.sh --apply --plugins
+```
+
+The built-in Discover page can also consume the public catalog index
+`https://cdn.jsdelivr.net/npm/dsh-plugin-catalog/index.json` (format 1), which
+is faster than the GitHub Pages mirrors. Client-side plugin UI appears after a
+page refresh; server-side tools/skills are available immediately.
+
 Verification:
 
 ```bash
-dsh --profile web --dump-config | grep -E 'id: (mcp-|agent-default-model)'
+dsh --profile web --dump-config | grep -E 'id: (mcp-|agent-default-model|dsh-market|cost-meter|dsh-context|diff-approval|web-search-free|project-memory)'
 bash scripts/dsh-setup.sh --check
 ```
 
