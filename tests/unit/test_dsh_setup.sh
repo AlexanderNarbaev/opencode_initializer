@@ -60,7 +60,8 @@ grep -q "MEMORY_FILE_PATH: $HOME/.dsh/mcp/memory.json" "$patch_file" \
   && pass "__HOME__ rendered in memory path" || fail "memory path not rendered"
 grep -q 'provider: xiaomi-token-plan-sgp' "$patch_file" && pass "default provider xiaomi-token-plan-sgp" || fail "default provider missing"
 grep -q 'model: mimo-v2.6-pro' "$patch_file" && pass "default model mimo-v2.6-pro" || fail "default model missing"
-grep -q 'mcp-context7' "$patch_file" && pass "context7 MCP entry present" || fail "context7 entry missing"
+grep -q 'lsp-actions' "$patch_file" && pass "LSP plugin config present" || fail "LSP config missing"
+grep -q 'maxDiagnostics' "$patch_file" && pass "LSP tuning present" || fail "LSP tuning missing"
 grep -q 'mcp-memory' "$patch_file" && pass "memory MCP entry present" || fail "memory entry missing"
 grep -q '__HOME__' "$DSH_HOME/AGENTS.md" && fail "AGENTS.md still contains placeholder" || pass "AGENTS.md rendered"
 

@@ -14,6 +14,14 @@
 #   scripts/dsh-setup.sh --plugins --check   # include plugin presence in the check
 set -euo pipefail
 
+# DSH >=0.2.2 needs Node >=24.9; this machine keeps it in ~/.local/node24.
+if [ -d "$HOME/.local/node24/bin" ]; then
+  case ":$PATH:" in
+    *":$HOME/.local/node24/bin:"*) ;;
+    *) PATH="$HOME/.local/node24/bin:$PATH"; export PATH ;;
+  esac
+fi
+
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DSH_HOME="${DSH_HOME:-$HOME/.dsh}"
 PROFILE="${DSH_PROFILE:-web}"

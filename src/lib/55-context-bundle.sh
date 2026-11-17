@@ -13,6 +13,13 @@
 # (dsh, sandcastle) can read the same provider/model map.
 set -euo pipefail
 
+# Only the orchestrator dispatches this module; tests source it directly and
+# must not trigger global npm installs.
+case "${MODE:-}" in
+  full|reinit|update|ci) ;;
+  *) return 0 ;;
+esac
+
 _step_skip step_context_bundle && return 0
 
 # Opt-out (matches SKIP_DOTFILES / SKIP_DEVBOX / SKIP_GUI convention)

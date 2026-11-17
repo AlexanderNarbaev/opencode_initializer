@@ -2,7 +2,7 @@
 # a top-level YAML array of loader patch entries (id-targeted config
 # overrides, disables, and insert lists; `!!js` expressions allowed).
 #
-# Managed by the opencode_initializer DSH setup (2026-10-31). Keep the
+# Managed by the opencode_initializer DSH setup (2026-11-17). Keep the
 # llm-pi-ai provider list in sync with the machine's token plans.
 - id: ui-settings-general
   name: "@deepseek-ai/dsh-client-ui-settings-general"
@@ -61,20 +61,11 @@
     model: mimo-v2.6-pro
 
 # ── MCP servers ────────────────────────────────────────────────────────────
+# context7 is provided by the dsh-mcp-context7 plugin (HTTP
+# transport, optional CONTEXT7_API_KEY), so it is not duplicated here.
 # New rows need an explicit `insert` block; id+name alone is treated as an
 # override of an existing row. Tools appear as mcp__<serverName>__<tool>.
 - insert:
-    - id: mcp-context7
-      name: "@deepseek-ai/dsh-mcp-client"
-      config:
-        serverName: context7
-        transport: stdio
-        command: npx
-        args:
-          - "-y"
-          - "@upstash/context7-mcp"
-        toolCallTimeoutMs: 120000
-
     - id: mcp-sequential-thinking
       name: "@deepseek-ai/dsh-mcp-client"
       config:
@@ -99,26 +90,90 @@
           MEMORY_FILE_PATH: __HOME__/.dsh/mcp/memory.json
         toolCallTimeoutMs: 60000
 
+# ── LSP ────────────────────────────────────────────────────────────────────
+# dsh-lsp-actions exposes lsp_diagnostics / format / rename / code actions /
+# symbols / completion / hover over real language servers. Servers are the same
+# binaries OpenCode uses (~/.bun/bin and ~/go/bin); the plugin never installs
+# them. Writes go through the fs/sandbox policy.
+- id: lsp-actions
+  config:
+    maxDiagnostics: 200
+    maxResultChars: 16000
+    timeoutMs: 60000
+    servers:
+      typescript:
+        command: __HOME__/.bun/bin/typescript-language-server
+        args: ["--stdio"]
+        extensionToLanguage:
+          ".ts": typescript
+          ".tsx": typescriptreact
+          ".js": javascript
+          ".jsx": javascriptreact
+          ".mjs": javascript
+          ".cjs": javascript
+          ".mts": typescript
+          ".cts": typescript
+        projectMarkers: ["package.json", "tsconfig.json"]
+      pyright:
+        command: __HOME__/.bun/bin/pyright-langserver
+        args: ["--stdio"]
+        extensionToLanguage:
+          ".py": python
+          ".pyi": python
+        projectMarkers: ["pyproject.toml", "setup.py", "requirements.txt"]
+      gopls:
+        command: __HOME__/go/bin/gopls
+        args: ["serve"]
+        extensionToLanguage:
+          ".go": go
+        projectMarkers: ["go.mod"]
+      bash:
+        command: __HOME__/.bun/bin/bash-language-server
+        args: ["start"]
+        extensionToLanguage:
+          ".sh": shellscript
+          ".bash": shellscript
+          ".zsh": shellscript
+      yaml:
+        command: __HOME__/.bun/bin/yaml-language-server
+        args: ["--stdio"]
+        extensionToLanguage:
+          ".yaml": yaml
+          ".yml": yaml
+      json:
+        command: __HOME__/.bun/bin/vscode-json-language-server
+        args: ["--stdio"]
+        extensionToLanguage:
+          ".json": json
+          ".jsonc": jsonc
+      css:
+        command: __HOME__/.bun/bin/vscode-css-language-server
+        args: ["--stdio"]
+        extensionToLanguage:
+          ".css": css
+          ".scss": scss
+          ".less": less
+      html:
+        command: __HOME__/.bun/bin/vscode-html-language-server
+        args: ["--stdio"]
+        extensionToLanguage:
+          ".html": html
+          ".htm": html
+      dockerfile:
+        command: __HOME__/.bun/bin/docker-langserver
+        args: ["--stdio"]
+        fileGlobs: ["**/Dockerfile", "**/*.Dockerfile", "**/dockerfile"]
+        extensionToLanguage:
+          ".dockerfile": dockerfile
+      markdown:
+        command: __HOME__/.bun/bin/vscode-markdown-language-server
+        args: ["--stdio"]
+        extensionToLanguage:
+          ".md": markdown
+          ".markdown": markdown
+
 # ── UI ─────────────────────────────────────────────────────────────────────
 - id: ui-theme
   name: "@deepseek-ai/dsh-client-ui-theme"
   config:
     preference: dark
-- id: web
-  name: "@deepseek-ai/dsh-web"
-  config:
-    searchProvider: deepseek-search-api
-    fetchProvider: deepseek-fetch-api
-- id: subagent-model-selection-settings
-  name: "@deepseek-ai/dsh-tool-subagent/model-selection-settings"
-  config:
-    enabled: true
-    allowedModels:
-      - provider: xiaomi-token-plan-sgp
-        model: mimo-v2.6-flash
-      - provider: xiaomi-token-plan-sgp
-        model: mimo-v2.6-pro
-      - provider: minimax
-        model: MiniMax-M3
-      - provider: minimax
-        model: MiniMax-M3.1-Flash

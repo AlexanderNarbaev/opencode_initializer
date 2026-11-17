@@ -66,6 +66,13 @@ This file is loaded for every DSH session on this machine as the user-global
 - Project memory (`dsh-project-memory`): use `query_memory` before re-deriving
   project context, and record durable lessons with `save_lesson`/`remember`;
   `index_repo`/`index_doc` build the index.
+- LSP (`dsh-lsp-actions`): `lsp_diagnostics`, `lsp_format`, `lsp_rename`,
+  `lsp_code_action`, `lsp_symbols`, `lsp_completion`, `lsp_hover` run against the
+  real servers configured in the profile (TypeScript, Pyright, gopls,
+  bash-language-server, YAML/JSON/CSS/HTML, Dockerfile, Markdown). Writes go
+  through the fs/sandbox policy.
+- Code intelligence (`dsh-plugin-codegraph`): `codegraph` and `codegraph_index`
+  build/query a tree-sitter code graph (declarations, callers, impact).
 - `schedule_*` for reminders; `goal` for objectives that span many rounds.
 
 ## Safety

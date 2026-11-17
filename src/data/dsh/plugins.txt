@@ -20,3 +20,13 @@ dsh-free-search
 
 # Memory: persistent project memory (docs, code symbols, tasks, lessons, decisions).
 @yolk_vat-y/dsh-project-memory
+
+# LSP: diagnostics, formatting, rename, code actions, symbols over real language servers.
+dsh-lsp-actions
+
+# Official context7 MCP client (HTTP transport, optional CONTEXT7_API_KEY).
+dsh-mcp-context7
+
+# Structural code intelligence: tree-sitter code graph (WASM, no native build),
+# codegraph + codegraph_index tools for declarations, callers, impact.
+dsh-plugin-codegraph

@@ -146,11 +146,16 @@ by `scripts/install-agentic-stack.sh`). V2 rules that differ from V1:
   Never place a key in `opencode.json` or in this repo.
 - Skills: repo `.opencode/skills` is flattened into `~/.config/opencode/skills` (43 skills).
 - Community plugins (curated in `src/data/dsh/plugins.txt`, installed with
-  `scripts/dsh-setup.sh --apply --plugins`; HMR loads them without a restart):
+  `scripts/dsh-setup.sh --apply --plugins`; HMR loads most without a restart):
   `dshmarket` (marketplace), `dsh-cost-meter` (spend/plan quotas), `dsh-context`
   (context insight), `dsh-diff-approval` (diff review), `dsh-free-search`
   (keyless multi-engine search), `@yolk_vat-y/dsh-project-memory` (persistent
-  project memory).
+  project memory), `dsh-lsp-actions` (LSP: diagnostics/format/rename/symbols over
+  10 language servers), `dsh-plugin-codegraph` (tree-sitter code graph),
+  `dsh-mcp-context7` (Context7 MCP, HTTP transport).
+- DSH 0.2.2-rc.1 requires **Node >= 24.9**; this machine keeps Node 24 in
+  `~/.local/node24` with a systemd drop-in PATH for the web service (Ubuntu's
+  apt Node stays 22 for the system).
 
 Verify with `bash scripts/install-agentic-stack.sh --check`.
 

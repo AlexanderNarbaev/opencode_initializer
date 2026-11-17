@@ -399,79 +399,97 @@ docker compose -f ~/.local/share/opencode-init/infra/docker-compose.yml up -d po
 
 ## DeepSeek Harness (DSH) profile
 
-The machine runs DSH 0.2.1-rc.5 as the primary agent harness (`dsh web` on
-`http://127.0.0.1:3080`). Its configuration is reproducible from this repo:
+The machine runs **DSH 0.2.2-rc.1** as the primary agent harness (`dsh web` on
+`http://127.0.0.1:3080`, systemd user unit `deepseek-harness.service`). DSH 0.2.2
+requires **Node >= 24.9**, while Ubuntu's apt Node is 22; Node 24 lives in
+`~/.local/node24` and the unit consumes it through the drop-in
+`~/.config/systemd/user/deepseek-harness.service.d/node-path.conf`:
+
+```ini
+[Service]
+Environment=PATH=%h/.local/node24/bin:%h/.npm-global/bin:/usr/local/bin:/usr/bin:/bin
+```
+
+Interactive shells get the same directory from `~/.zshrc` and
+`~/.config/environment.d/96-node24-path.conf`.
+
+Its configuration is reproducible from this repo:
 
 ```bash
-bash scripts/dsh-setup.sh --check    # read-only verification (default)
-bash scripts/dsh-setup.sh --apply    # render templates + link skills + validate
-bash scripts/dsh-setup.sh --dry-run  # print planned actions
+bash scripts/dsh-setup.sh --check             # templates + skills + plugins + composition
+bash scripts/dsh-setup.sh --apply             # render templates + link skills + validate
+bash scripts/dsh-setup.sh --apply --plugins   # also install missing plugins
+bash scripts/dsh-setup.sh --dry-run           # print planned actions
 ```
 
 What the script manages under `$DSH_HOME` (default `~/.dsh`):
 
 | Path | Content |
 |---|---|
-| `profiles/web/cordis.patch.yml` | rendered from `src/data/dsh/cordis.patch.web.yml`: DeepSeek default route, token-plan alternates, three MCP servers, dark theme |
+| `profiles/web/cordis.patch.yml` | rendered from `src/data/dsh/cordis.patch.web.yml`: DeepSeek/MiMo routes, MCP servers, LSP servers, dark theme |
 | `AGENTS.md` | user-global instructions, rendered from `src/data/dsh/AGENTS.md` |
-| `skills` → `~/.config/opencode/skills` | shared skill library (43 skills; DSH shows 49 with its bundled `dsh-badge`) |
+| `skills` → `~/.config/opencode/skills` | shared skill library (43 skills) |
 | `mcp/memory.json` | knowledge-graph storage for the `memory` MCP server |
 
-Model routes (cost-first):
+### Community plugins
 
-- `xiaomi-token-plan-sgp/mimo-v2.6-pro` — default (prepaid MiMo token plan, 1M context);
-  `mimo-v2.6-flash` for quick work.
-- `llm-pi-ai` alternates: `minimax` (MiniMax token plan). DeepSeek remains a selectable
-  route (`deepseek-official/deepseek-v4-pro` / `deepseek-flash`) but is **not** the default:
-  it is pay-as-you-go with a $10/month budget.
-- DeepSeek discovery reads `DEEPSEEK_API_KEY` from the launch environment, so start
-  `dsh web` from a shell that sourced `~/.config/opencode/secrets.env`.
-
-MCP servers (hot-reloadable, no restart): `context7` (library docs),
-`sequential_thinking`, and `memory`; tools appear as `mcp__<server>__<tool>`.
-Editing `cordis.patch.yml` triggers DSH's HMR recomposition; the running session
-keeps its history and gains the new tools on the next turn.
-
-Community plugins (curated in `src/data/dsh/plugins.txt`, installed by
-`scripts/dsh-setup.sh --apply --plugins` and hot-loaded by HMR):
+Curated in `src/data/dsh/plugins.txt`; installed by
+`scripts/dsh-setup.sh --apply --plugins` (via `dsh plugin --profile web add`):
 
 | Plugin | What it adds |
 |---|---|
 | `dshmarket` | in-app marketplace: browse/search/install community plugins |
 | `dsh-cost-meter` | per-session cost, daily spend, history, token-plan quotas |
-| `dsh-context` | context dashboard/command: what the context is made of |
+| `dsh-context` | context dashboard/command |
 | `dsh-diff-approval` | pending-edit review with whole-file diff, Keep/Revert |
 | `dsh-free-search` | keyless multi-engine search (`multi_search`, `research`, …) |
 | `@yolk_vat-y/dsh-project-memory` | persistent project memory: docs, symbols, tasks, lessons |
+| `dsh-lsp-actions` | LSP: diagnostics, formatting, rename, code actions, symbols, completion, hover |
+| `dsh-plugin-codegraph` | tree-sitter code graph (WASM): `codegraph`, `codegraph_index` |
+| `dsh-mcp-context7` | Context7 MCP over Streamable HTTP (optional `CONTEXT7_API_KEY`) |
+
+The built-in Discover page can consume the catalog index
+`https://cdn.jsdelivr.net/npm/dsh-plugin-catalog/index.json` (format 1).
+
+### LSP servers
+
+`dsh-lsp-actions` runs the same binaries OpenCode uses (`~/.bun/bin`, `~/go/bin`),
+configured in the profile patch: TypeScript, Pyright, gopls, bash-language-server,
+YAML, JSON, CSS, HTML, Dockerfile, Markdown. The plugin never installs servers;
+files are routed by `fileGlobs` → `projectMarkers` → extension. Writes
+(`lsp_format`, `lsp_rename`, code actions) pass through the fs/sandbox policy.
+
+### Restarting after an upgrade or plugin install
+
+DSH's HMR hot-loads patch changes and most plugins, but a **DSH upgrade** and
+native/server plugins need a process restart:
 
 ```bash
-# check everything (templates + skills + plugins + composition)
-bash scripts/dsh-setup.sh --check
-
-# reproduce the machine state, including plugins
-dsh plugin --profile web add dshmarket dsh-cost-meter ...   # or:
-bash scripts/dsh-setup.sh --apply --plugins
+systemctl --user restart deepseek-harness.service
+journalctl --user -u deepseek-harness.service --no-pager -o cat \
+  | grep -oE 'http://127\.0\.0\.1:3080/\?token=[A-Za-z0-9_-]+' | tail -1
 ```
 
-The built-in Discover page can also consume the public catalog index
-`https://cdn.jsdelivr.net/npm/dsh-plugin-catalog/index.json` (format 1), which
-is faster than the GitHub Pages mirrors. Client-side plugin UI appears after a
-page refresh; server-side tools/skills are available immediately.
+Sessions, settings and plugin state live on disk (`~/.dsh/sessions`,
+`~/.dsh/storages`, profile files), so they survive the restart; every browser
+needs the fresh token URL once after it.
+
+### Model routes
+
+- `xiaomi-token-plan-sgp/mimo-v2.6-pro` — default (prepaid MiMo token plan, 1M context);
+  `mimo-v2.6-flash` for quick work.
+- `llm-pi-ai` alternates: `minimax` (MiniMax token plan). DeepSeek remains selectable
+  (`deepseek-official/deepseek-v4-pro` / `deepseek-flash`) but is **not** the default:
+  pay-as-you-go with a $10/month budget.
+- DeepSeek discovery reads `DEEPSEEK_API_KEY` from the launch environment, so start
+  `dsh web` from a shell that sourced `~/.config/opencode/secrets.env`.
 
 Verification:
 
 ```bash
-dsh --profile web --dump-config | grep -E 'id: (mcp-|agent-default-model|dsh-market|cost-meter|dsh-context|diff-approval|web-search-free|project-memory)'
+dsh --profile web --dump-config | grep -E 'id: (mcp-|lsp-actions|codegraph|agent-default-model)'
 bash scripts/dsh-setup.sh --check
 ```
-
-DSH is upgraded with `npm install -g @deepseek-ai/dsh@<version>` (the current
-install is 0.2.1-rc.5). The install resolves ~86 dependencies through the npm
-mirror; when the registry is slow, retry rather than falling back to an older
-version. Restarting `dsh web` keeps sessions on disk, so they resume after the
-upgrade; the profile patch above survives upgrades.
-
----
 
 ## Cost policy and model routing
 

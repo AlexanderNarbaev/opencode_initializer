@@ -49,6 +49,10 @@ if [ "${DRY_RUN:-false}" = "true" ]; then
   done
 elif command -v bun &>/dev/null; then
   for pkg in "${CI_MCPS[@]}"; do
+    if [ -d "$HOME/.bun/install/global/node_modules/$pkg" ]; then
+      log "MCP: $pkg (already installed)"
+      continue
+    fi
     _info_ci "Installing $pkg..."
     bun add -g "$pkg" 2>/dev/null && log "MCP: $pkg" || warn "MCP: $pkg failed (non-fatal)"
   done
