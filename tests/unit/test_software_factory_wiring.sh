@@ -159,8 +159,8 @@ assert "dev.sh unknown-command hint lists the new commands" \
 # made `register_spec` reject every kind with "Invalid package kind: feat".
 assert "spec module sourced outside a command function" \
   "awk '/^  spec\\)/{found=1} found && /source .*33-spec-registry.sh/{print; exit}' '$DEV' | grep -q '33-spec-registry.sh'"
-assert "validate VALID_PACKAGE_KINDS survives sourcing" \
-  "bash -c 'export HOME=\"$(mktemp -d)\"; source \"$LIB/33-spec-registry.sh\"; printf \"%s\n\" \"\${VALID_PACKAGE_KINDS[@]}\"' 2>/dev/null | grep -q '^feat$'"
+# No printf|grep -q pipeline: an early-exit reader can SIGPIPE the producer under pipefail (flaked on act).
+  "bash -c 'export HOME=\"$(mktemp -d)\"; source \"$LIB/33-spec-registry.sh\"; for k in \"\${VALID_PACKAGE_KINDS[@]}\"; do [ \"\$k\" = feat ] && exit 0; done; exit 1' 2>/dev/null"
 
 # ── Functional: the step entry functions produce their artifacts ───────────
 # Reproduces what _run_step does (source module + call the entry point) in an
