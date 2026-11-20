@@ -1,0 +1,14 @@
+[Unit]
+Description=OpenCode background server (v2 API + web)
+After=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+Environment=PATH=%h/.local/node24/bin:%h/.npm-global/bin:%h/.bun/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=%h/.opencode/bin/opencode service start
+ExecStop=%h/.opencode/bin/opencode service stop
+TimeoutStartSec=60
+
+[Install]
+WantedBy=default.target

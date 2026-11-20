@@ -116,7 +116,7 @@ bash setup.sh --dry-run           # preview full bootstrap, no changes
 
 ### OpenCode v2 agentic stack (2026-10-26)
 
-The machine is configured for **OpenCode 2.1.4**. The canonical global config is
+The machine is configured for **OpenCode 2.3.2**. The canonical global config is
 `src/data/opencode.global.template.json` (rendered to `~/.config/opencode/opencode.json`
 by `scripts/install-agentic-stack.sh`). V2 rules that differ from V1:
 
@@ -133,10 +133,12 @@ by `scripts/install-agentic-stack.sh`). V2 rules that differ from V1:
   `deploy/agentic-stack` services). `filesystem`/`fetch`/`playwright` are disabled because builtin tools cover them
   (context economy); `github`/`brave-search`/`notion`/`sentry` are disabled pending credentials;
   `sqlite` is disabled (upstream Python server is incompatible with the current MCP SDK).
-- Providers (cost-first, 2026-11-01): `enabled_providers` is **`xiaomi-token-plan-sgp`,
-  `minimax-coding-plan`, `deepseek`**. The two token plans are prepaid and carry no marginal
-  cost; DeepSeek is pay-as-you-go with a **$10/month budget** and is only a fallback
-  (`deepseek/deepseek-flash`, never `v4-pro` unless deliberately escalated). `opencode-go`
+- Providers (cost-first, 2026-11-21): `enabled_providers` is **`xiaomi-token-plan-sgp`,
+  `minimax-coding-plan`, `deepseek`**. The **MiniMax coding plan is the active prepaid route**
+  (default `minimax-coding-plan/MiniMax-M3.1-Flash`, reasoning/planning on `MiniMax-M3`).
+  The Xiaomi MiMo key currently returns `401 invalid_key` upstream, so its models are
+  selectable but fail until the key is renewed. DeepSeek is pay-as-you-go with a
+  **$10/month budget** and is only a fallback (`deepseek/deepseek-flash`). `opencode-go`
   (key expired), `opencode` and `minimax` (metered) are denied via `policies` and excluded
   from `enabled_providers`; `~/.config/opencode/logs/token-tracker/tokens.jsonl` records every
   call and `scripts/ai-usage.py` reports billable vs prepaid spend.
@@ -152,8 +154,9 @@ by `scripts/install-agentic-stack.sh`). V2 rules that differ from V1:
   (keyless multi-engine search), `@yolk_vat-y/dsh-project-memory` (persistent
   project memory), `dsh-lsp-actions` (LSP: diagnostics/format/rename/symbols over
   10 language servers), `dsh-plugin-codegraph` (tree-sitter code graph),
-  `dsh-mcp-context7` (Context7 MCP, HTTP transport).
-- DSH 0.2.2-rc.1 requires **Node >= 24.9**; this machine keeps Node 24 in
+  `dsh-mcp-context7` (Context7 MCP, HTTP transport), `@deepseek-ai/dsh-subagent-codex`
+  (Codex subagent bridge, version-locked to the DSH runtime).
+- DSH 0.2.2-rc.5 requires **Node >= 24.9**; this machine keeps Node 24 in
   `~/.local/node24` with a systemd drop-in PATH for the web service (Ubuntu's
   apt Node stays 22 for the system).
 

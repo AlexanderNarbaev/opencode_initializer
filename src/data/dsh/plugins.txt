@@ -30,3 +30,7 @@ dsh-mcp-context7
 # Structural code intelligence: tree-sitter code graph (WASM, no native build),
 # codegraph + codegraph_index tools for declarations, callers, impact.
 dsh-plugin-codegraph
+
+# Official Codex subagent bridge (child agent runs Codex CLI); keep in lockstep
+# with the DSH runtime version.
+@deepseek-ai/dsh-subagent-codex

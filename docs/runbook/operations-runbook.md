@@ -399,7 +399,7 @@ docker compose -f ~/.local/share/opencode-init/infra/docker-compose.yml up -d po
 
 ## DeepSeek Harness (DSH) profile
 
-The machine runs **DSH 0.2.2-rc.1** as the primary agent harness (`dsh web` on
+The machine runs **DSH 0.2.2-rc.5** as the primary agent harness (`dsh web` on
 `http://127.0.0.1:3080`, systemd user unit `deepseek-harness.service`). DSH 0.2.2
 requires **Node >= 24.9**, while Ubuntu's apt Node is 22; Node 24 lives in
 `~/.local/node24` and the unit consumes it through the drop-in
@@ -459,6 +459,10 @@ YAML, JSON, CSS, HTML, Dockerfile, Markdown. The plugin never installs servers;
 files are routed by `fileGlobs` → `projectMarkers` → extension. Writes
 (`lsp_format`, `lsp_rename`, code actions) pass through the fs/sandbox policy.
 
+### OpenCode (v2.3.2) runs as the systemd user unit **`opencode-serve.service`**
+(`opencode service start`), enabled at boot next to `deepseek-harness.service`
+and the Node 24 drop-in; Docker containers use `restart: unless-stopped`.
+
 ### Restarting after an upgrade or plugin install
 
 DSH's HMR hot-loads patch changes and most plugins, but a **DSH upgrade** and
@@ -476,11 +480,11 @@ needs the fresh token URL once after it.
 
 ### Model routes
 
-- `xiaomi-token-plan-sgp/mimo-v2.6-pro` — default (prepaid MiMo token plan, 1M context);
-  `mimo-v2.6-flash` for quick work.
-- `llm-pi-ai` alternates: `minimax` (MiniMax token plan). DeepSeek remains selectable
-  (`deepseek-official/deepseek-v4-pro` / `deepseek-flash`) but is **not** the default:
-  pay-as-you-go with a $10/month budget.
+- `minimax/MiniMax-M3.1-Flash` — default (prepaid MiniMax token plan, reasoning `max`).
+- `llm-pi-ai` alternates: `xiaomi-token-plan-sgp` (MiMo-V2.6) and `minimax` M3; the
+  `opencode-go` provider is listed but its API key is expired (renew or remove).
+- DeepSeek remains selectable (`deepseek-official/deepseek-v4-pro` / `deepseek-flash`)
+  but is **not** the default: pay-as-you-go with a $10/month budget.
 - DeepSeek discovery reads `DEEPSEEK_API_KEY` from the launch environment, so start
   `dsh web` from a shell that sourced `~/.config/opencode/secrets.env`.
 
@@ -498,9 +502,9 @@ provider and is capped at **$10/month** (pay-as-you-go).
 
 | Route | Role | Marginal cost |
 |---|---|---|
-| `xiaomi-token-plan-sgp/mimo-v2.6-pro` | default for coding, agentic work, planning | 0 (prepaid) |
-| `xiaomi-token-plan-sgp/mimo-v2.6-flash` | fast lookups, compaction, small edits, testing | 0 (prepaid) |
+| `minimax-coding-plan/MiniMax-M3.1-Flash` | default: coding, agentic work, fast/compaction | 0 (prepaid) |
 | `minimax-coding-plan/MiniMax-M3` | deep reasoning, reviews, architecture, debugging | 0 (prepaid) |
+| `xiaomi-token-plan-sgp/mimo-v2.6-*` | selectable, but the key returns `401 invalid_key` until renewed | — |
 | `deepseek/deepseek-flash` | last-resort fallback only | metered (budgeted) |
 | `deepseek/deepseek-v4-pro` | deliberate escalation only | metered (budgeted) |
 

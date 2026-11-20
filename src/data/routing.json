@@ -3,11 +3,10 @@
   "version": "1.1.0",
   "description": "v1.1.0 retires the deepseek-v4-flash alias (see retired_models), restates DeepSeek as metered with an off-peak/peak price split (see cost_policy), and marks minimax small_model explicitly unset. Single Source of Truth (SSOT) for task→model routing. Consolidates the three formerly divergent tables: 36-model-router.sh task-profiles.json, scripts/ai-router.json, and .opencode/opencode-swarm.json agent map. The providers section mirrors src/data/providers.json (routing-relevant fields only). See src/data/README.md.",
   "defaults": {
-    "default_provider": "xiaomi-token-plan-sgp",
-    "default_model": "xiaomi-token-plan-sgp/mimo-v2.6-pro",
-    "fast_model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
+    "default_provider": "minimax-coding-plan",
+    "default_model": "minimax-coding-plan/MiniMax-M3",
+    "fast_model": "minimax-coding-plan/MiniMax-M3.1-Flash",
     "fallback_chain": [
-      "xiaomi-token-plan-sgp",
       "minimax-coding-plan",
       "minimax",
       "deepseek"
@@ -29,8 +28,8 @@
   "complexity_rules": {
     "simple": {
       "max_tokens": 2000,
-      "provider": "xiaomi-token-plan-sgp",
-      "model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
+      "provider": "minimax-coding-plan",
+      "model": "minimax-coding-plan/MiniMax-M3.1-Flash",
       "cost_per_1k": 0.0,
       "examples": [
         "fix typo",
@@ -41,8 +40,8 @@
     },
     "medium": {
       "max_tokens": 8000,
-      "provider": "xiaomi-token-plan-sgp",
-      "model": "xiaomi-token-plan-sgp/mimo-v2.6-pro",
+      "provider": "minimax-coding-plan",
+      "model": "minimax-coding-plan/MiniMax-M3",
       "cost_per_1k": 0.0,
       "examples": [
         "implement feature",
@@ -67,7 +66,7 @@
   },
   "task_routing": {
     "code_generation": {
-      "provider": "xiaomi-token-plan-sgp",
+      "provider": "minimax-coding-plan",
       "model": "mimo-v2.6-pro"
     },
     "code_review": {
@@ -75,11 +74,11 @@
       "model": "MiniMax-M3"
     },
     "testing": {
-      "provider": "xiaomi-token-plan-sgp",
+      "provider": "minimax-coding-plan",
       "model": "mimo-v2.6-flash"
     },
     "documentation": {
-      "provider": "xiaomi-token-plan-sgp",
+      "provider": "minimax-coding-plan",
       "model": "mimo-v2.6-flash"
     },
     "architecture": {
@@ -93,20 +92,20 @@
       "thinking": true
     },
     "devops": {
-      "provider": "xiaomi-token-plan-sgp",
+      "provider": "minimax-coding-plan",
       "model": "mimo-v2.6-flash"
     },
     "ui_design": {
-      "provider": "xiaomi-token-plan-sgp",
+      "provider": "minimax-coding-plan",
       "model": "mimo-v2.6-pro"
     },
     "research": {
-      "provider": "xiaomi-token-plan-sgp",
+      "provider": "minimax-coding-plan",
       "model": "mimo-v2.6-pro",
       "thinking": true
     },
     "refactoring": {
-      "provider": "xiaomi-token-plan-sgp",
+      "provider": "minimax-coding-plan",
       "model": "mimo-v2.6-pro"
     },
     "debugging": {
@@ -115,15 +114,15 @@
       "thinking": true
     },
     "data_analysis": {
-      "provider": "xiaomi-token-plan-sgp",
+      "provider": "minimax-coding-plan",
       "model": "mimo-v2.6-pro"
     }
   },
   "task_profiles": {
     "coding": {
       "description": "Primary coding, implementation, refactoring",
-      "model": "xiaomi-token-plan-sgp/mimo-v2.6-pro",
-      "small_model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
+      "model": "minimax-coding-plan/MiniMax-M3",
+      "small_model": "minimax-coding-plan/MiniMax-M3.1-Flash",
       "fallback": [
         "minimax-coding-plan/MiniMax-M3",
         "deepseek/deepseek-flash"
@@ -133,17 +132,16 @@
     "reasoning": {
       "description": "Complex reasoning, architecture, planning",
       "model": "minimax-coding-plan/MiniMax-M3",
-      "small_model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
+      "small_model": "minimax-coding-plan/MiniMax-M3.1-Flash",
       "fallback": [
-        "xiaomi-token-plan-sgp/mimo-v2.6-pro",
         "deepseek/deepseek-flash"
       ],
       "rationale": "MiniMax-M3 on the coding token plan for the deepest reasoning; Xiaomi Pro as the second prepaid route."
     },
     "fast": {
       "description": "Quick answers, exploration, compaction",
-      "model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
-      "small_model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
+      "model": "minimax-coding-plan/MiniMax-M3.1-Flash",
+      "small_model": "minimax-coding-plan/MiniMax-M3.1-Flash",
       "fallback": [
         "minimax-coding-plan/MiniMax-M3.1-Flash",
         "deepseek/deepseek-flash"
@@ -152,8 +150,8 @@
     },
     "agentic": {
       "description": "Tool use, multi-step workflows, autonomous agents",
-      "model": "xiaomi-token-plan-sgp/mimo-v2.6-pro",
-      "small_model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
+      "model": "minimax-coding-plan/MiniMax-M3",
+      "small_model": "minimax-coding-plan/MiniMax-M3.1-Flash",
       "fallback": [
         "minimax-coding-plan/MiniMax-M3",
         "deepseek/deepseek-flash"
@@ -162,8 +160,8 @@
     },
     "budget": {
       "description": "Cost-sensitive tasks, bulk operations",
-      "model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
-      "small_model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
+      "model": "minimax-coding-plan/MiniMax-M3.1-Flash",
+      "small_model": "minimax-coding-plan/MiniMax-M3.1-Flash",
       "fallback": [
         "minimax-coding-plan/MiniMax-M3.1-Flash"
       ],
@@ -171,8 +169,8 @@
     },
     "vision": {
       "description": "Image analysis, multimodal tasks",
-      "model": "xiaomi-token-plan-sgp/mimo-v2.6-pro",
-      "small_model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
+      "model": "minimax-coding-plan/MiniMax-M3",
+      "small_model": "minimax-coding-plan/MiniMax-M3.1-Flash",
       "fallback": [
         "minimax-coding-plan/MiniMax-M3",
         "deepseek/deepseek-flash"
@@ -188,8 +186,8 @@
     },
     "ru_cn": {
       "description": "Russian/Chinese language work",
-      "model": "xiaomi-token-plan-sgp/mimo-v2.6-pro",
-      "small_model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
+      "model": "minimax-coding-plan/MiniMax-M3",
+      "small_model": "minimax-coding-plan/MiniMax-M3.1-Flash",
       "fallback": [
         "minimax-coding-plan/MiniMax-M3"
       ],
@@ -197,8 +195,8 @@
     },
     "testing": {
       "description": "Test generation and fixes",
-      "model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
-      "small_model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
+      "model": "minimax-coding-plan/MiniMax-M3.1-Flash",
+      "small_model": "minimax-coding-plan/MiniMax-M3.1-Flash",
       "fallback": [
         "minimax-coding-plan/MiniMax-M3.1-Flash",
         "deepseek/deepseek-flash"
@@ -382,11 +380,12 @@
       "deepseek": 10.0
     },
     "routing_rule": "Prepaid token plans are the default and carry no marginal cost. DeepSeek is pay-as-you-go with a $10/month budget: it is the last fallback and prefers deepseek-flash; reserve deepseek-v4-pro for a deliberate escalation.",
-    "paid_fallback": "deepseek/deepseek-flash"
+    "paid_fallback": "deepseek/deepseek-flash",
+    "xiaomi_status": "API key rejected upstream (401 invalid_key) on 2026-11-21; MiniMax token plan is the active prepaid route until the Xiaomi key is renewed."
   },
   "agents": {
     "developer": {
-      "model": "xiaomi-token-plan-sgp/mimo-v2.6-pro",
+      "model": "minimax-coding-plan/MiniMax-M3",
       "temperature": 0.2
     },
     "architect": {
@@ -394,11 +393,11 @@
       "temperature": 0.1
     },
     "analyst": {
-      "model": "xiaomi-token-plan-sgp/mimo-v2.6-pro",
+      "model": "minimax-coding-plan/MiniMax-M3",
       "temperature": 0.1
     },
     "researcher": {
-      "model": "xiaomi-token-plan-sgp/mimo-v2.6-pro",
+      "model": "minimax-coding-plan/MiniMax-M3",
       "temperature": 0.3
     },
     "security": {
@@ -406,11 +405,11 @@
       "temperature": 0.1
     },
     "pm": {
-      "model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
+      "model": "minimax-coding-plan/MiniMax-M3.1-Flash",
       "temperature": 0.2
     },
     "devops": {
-      "model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
+      "model": "minimax-coding-plan/MiniMax-M3.1-Flash",
       "temperature": 0.2
     },
     "reviewer": {
@@ -418,11 +417,11 @@
       "temperature": 0.1
     },
     "docs": {
-      "model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
+      "model": "minimax-coding-plan/MiniMax-M3.1-Flash",
       "temperature": 0.2
     },
     "tester": {
-      "model": "xiaomi-token-plan-sgp/mimo-v2.6-flash",
+      "model": "minimax-coding-plan/MiniMax-M3.1-Flash",
       "temperature": 0.2
     }
   },
